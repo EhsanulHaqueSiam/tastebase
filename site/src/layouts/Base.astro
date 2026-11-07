@@ -36,7 +36,10 @@ const path = Astro.url.pathname;
   <body>
     <header class="fixed inset-x-0 top-0 z-40 flex h-14 items-center gap-6 px-5" transition:persist="header">
       <a href="/" class="group flex items-center gap-2 font-semibold tracking-[-0.02em]">
-        <span class="size-[18px] rounded-md bg-[conic-gradient(from_200deg,var(--color-blue),var(--color-violet),var(--color-pink),var(--color-amber),var(--color-green),var(--color-cyan),var(--color-blue))] transition-transform duration-500 ease-[var(--ease-out)] group-hover:rotate-90"></span>
+        <svg viewBox="0 0 100 100" class="size-[18px]" aria-hidden="true">
+          <g fill="none" stroke="currentColor" stroke-width="13" stroke-linecap="round"><path d="M44 18V64Q44 80 60 80H68" /><path d="M28 40H64" /></g>
+          <circle cx="76" cy="24" r="7.5" class="origin-center fill-blue transition-transform duration-200 ease-[var(--ease-out)] [transform-box:fill-box] group-hover:scale-125" />
+        </svg>
         tastebase
       </a>
       <nav class="hidden gap-5 text-fg2 sm:flex">
