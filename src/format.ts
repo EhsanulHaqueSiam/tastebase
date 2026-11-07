@@ -44,6 +44,9 @@ export function formatLibrary(l: Library): string {
     `${l.name} (${l.id}) ${l.url}`,
     l.tagline,
     `kind: ${[l.kind, ...(l.alsoCovers ?? [])].join(", ")} | ${l.frameworks.join(", ")} | ${l.styling} | weight ${l.weight} | a11y ${l.a11y} | ${l.maturity}`,
+    l.stats?.stars || l.stats?.downloadsWeek
+      ? `adoption: ${[l.stats.stars && `${l.stats.stars.toLocaleString("en")}★`, l.stats.starsWeek && `+${l.stats.starsWeek}★ this week`, l.stats.downloadsWeek && `${l.stats.downloadsWeek.toLocaleString("en")} npm/wk`].filter(Boolean).join(", ")}`
+      : "",
     `install: ${l.install}`,
     `usage:\n${l.usage}`,
     `note: ${l.note}`,
