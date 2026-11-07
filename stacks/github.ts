@@ -1,9 +1,9 @@
-// GitHub-side infrastructure for CI. Run from a laptop with an admin Cloudflare profile, once and again
-// only to rotate or change it:
+// GitHub-side infrastructure for CI. Run once from a laptop, and again only to rotate or change it:
 //
-//   pnpm alchemy profile create admin && pnpm alchemy profile edit --profile admin --add Cloudflare  # API token/key
-//   pnpm alchemy deploy --config stacks/github.ts --profile admin
+//   GITHUB_ACCESS_TOKEN="$(gh auth token)" sh scripts/with-env.sh pnpm alchemy deploy --config stacks/github.ts --stage prod
 //
+// Cloudflare: your normal OAuth profile works if "Account API Token Provisioning" was enabled at sign-in;
+// otherwise use a profile holding an API token with Account API Tokens write. GitHub: the env var above.
 // It mints a Cloudflare API token scoped to what alchemy.run.ts deploys, and stores everything the
 // workflows in .github/workflows read. Setting DEPLOY_ENABLED is what switches the deploy workflows on.
 // Not declared (paid for private repos on GitHub Free): deployment environments with required reviewers

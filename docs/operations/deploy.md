@@ -34,18 +34,20 @@ All four stay skipped until the repository variable `DEPLOY_ENABLED` is `true`.
 
 `stacks/github.ts` declares the GitHub side: a Cloudflare API token scoped to Workers, KV, account settings
 and tail; the `CLOUDFLARE_API_TOKEN` and `STATS_GITHUB_TOKEN` secrets; the `CLOUDFLARE_ACCOUNT_ID` and
-`DEPLOY_ENABLED` variables; the `preview` and `library` labels. Minting tokens needs an admin credential that
-OAuth cannot provide:
+`DEPLOY_ENABLED` variables; the `preview` and `library` labels. Done for this repo on 2026-11-08; re-run to
+rotate the token or change any of it:
 
 ```bash
-pnpm alchemy profile create admin
-pnpm alchemy profile edit --profile admin --add Cloudflare   # choose API token / API key, not OAuth
-sh scripts/with-env.sh pnpm alchemy deploy --config stacks/github.ts --profile admin
+GITHUB_ACCESS_TOKEN="$(gh auth token)" sh scripts/with-env.sh pnpm alchemy deploy --config stacks/github.ts --stage prod
 ```
 
-Re-run it to rotate the token. Not declared because GitHub Free does not offer them on private repos:
-deployment environments with required reviewers and branch protection. Add them to the stack when the repo
-is public or on a paid plan.
+Minting the Cloudflare token works with the normal OAuth profile when "Account API Token Provisioning" was
+turned on at sign-in (`pnpm alchemy profile edit --reconfigure Cloudflare` to redo it). Otherwise use a profile
+holding an API token with Account API Tokens write. Always use `--stage prod` so every machine updates the
+same resources.
+
+Not declared because GitHub Free does not offer them on private repos: deployment environments with required
+reviewers and branch protection. Add them to the stack when the repo is public or on a paid plan.
 
 ## Custom domain
 
