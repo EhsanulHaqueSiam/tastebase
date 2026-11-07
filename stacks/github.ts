@@ -35,5 +35,7 @@ export default Alchemy.Stack(
     yield* GitHub.Secret("cf-api-token", { ...repo, name: "CLOUDFLARE_API_TOKEN", value: ci.value });
     yield* GitHub.Secret("cf-account-id", { ...repo, name: "CLOUDFLARE_ACCOUNT_ID", value: Redacted.make(accountId) });
     yield* GitHub.Secret("stats-github-token", { ...repo, name: "STATS_GITHUB_TOKEN", value: yield* Config.Redacted("STATS_GITHUB_TOKEN") });
+    // The deploy workflow stays skipped until this exists, so CI never fails for missing secrets.
+    yield* GitHub.Variable("deploy-enabled", { ...repo, name: "DEPLOY_ENABLED", value: "true" });
   }),
 );

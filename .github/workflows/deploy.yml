@@ -19,7 +19,7 @@ env:
 
 jobs:
   deploy:
-    if: github.event.action != 'closed'
+    if: vars.DEPLOY_ENABLED == 'true' && github.event.action != 'closed'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -37,7 +37,7 @@ jobs:
           STATS_GITHUB_TOKEN: ${{ secrets.STATS_GITHUB_TOKEN }}
 
   cleanup:
-    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    if: vars.DEPLOY_ENABLED == 'true' && github.event_name == 'pull_request' && github.event.action == 'closed'
     runs-on: ubuntu-latest
     permissions:
       contents: read
