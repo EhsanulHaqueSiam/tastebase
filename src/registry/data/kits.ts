@@ -785,6 +785,7 @@ export default [
   },
   {
     id: "ai-elements",
+    partOf: "shadcn-ui",
     name: "AI Elements (shadcn/ui)",
     tagline: "shadcn/ui patterns for agent interfaces: chat, messages, reasoning, tool calls, plans, citations.",
     kind: "agent-ui",

@@ -18,3 +18,9 @@ test("every kind has at least one library", () => {
   const covered = new Set(libraries.flatMap((l) => [l.kind, ...(l.alsoCovers ?? [])]));
   assert.deepEqual(kinds.filter((k) => !covered.has(k)), []);
 });
+
+test("entries sharing a repo or npm package mark all but one with partOf, so stats are not double-counted", () => {
+  const owners = new Map<string, string[]>();
+  for (const l of libraries) if (!l.partOf) for (const k of [l.repo?.toLowerCase().replace(/\/$/, ""), l.npm && `npm:${l.npm}`]) if (k) owners.set(k, [...(owners.get(k) ?? []), l.id]);
+  assert.deepEqual([...owners].filter(([, ids]) => ids.length > 1), []);
+});

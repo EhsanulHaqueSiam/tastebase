@@ -212,6 +212,7 @@ export default [
   },
   {
     id: "react-view-transition",
+    partOf: "react",
     name: "React <ViewTransition>",
     tagline: "React 19.3's built-in wrapper for the browser View Transitions API: animated route and state changes with no library.",
     kind: "motion",
@@ -378,6 +379,7 @@ export default [
   },
   {
     id: "gsap-splittext",
+    partOf: "gsap",
     name: "GSAP SplitText",
     tagline: "Splits text into lines, words and characters (with masks) for staggered reveal animations.",
     kind: "text-effects",

@@ -75,7 +75,12 @@ export type Library = {
   npm?: string;
   author: string;
   license: string;
-  /** Filled by scripts/trending.ts; leave out in data files. */
+  /**
+   * Set when this entry is a feature of a larger package (React's <ViewTransition>, GSAP's SplitText). Its repo and
+   * npm numbers belong to the parent, so trending skips it.
+   */
+  partOf?: string;
+  /** Filled by the Worker's cron (src/trending.ts); leave out in data files. */
   stats?: { stars?: number; starsWeek?: number; downloadsWeek?: number; updatedAt?: string };
 };
 

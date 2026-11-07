@@ -4,8 +4,12 @@ import type { Library } from "./registry/schema.ts";
 import { refreshStats } from "./trending.ts";
 
 const lib = { id: "x", repo: "https://github.com/acme/x", npm: "x" } as Library;
-const fake = (stars: number) => async (url: string) =>
-  new Response(JSON.stringify(url.includes("github") ? { stargazers_count: stars } : { downloads: 500 }));
+// GitHub returns stars; npm bulk (a,b) returns a map, a single package returns { downloads }.
+const fake = (stars: number) => async (url: string) => {
+  if (url.includes("github")) return new Response(JSON.stringify({ stargazers_count: stars }));
+  const names = url.split("/").pop()!.split(",");
+  return new Response(JSON.stringify(names.length > 1 ? Object.fromEntries(names.map((n) => [n, { downloads: 500 }])) : { downloads: 500 }));
+};
 
 test("first run records stars without inventing a weekly gain", async () => {
   const s = await refreshStats([lib], {}, { fetch: fake(1000) });
@@ -34,4 +38,17 @@ test("several refreshes in one day keep adding gains without decaying twice", as
   const today = new Date().toISOString().slice(0, 10);
   const s = await refreshStats([lib], { x: { stars: 1000, starsWeek: 70, updatedAt: today } }, { fetch: fake(1010) });
   assert.equal(s.x?.starsWeek, 80);
+});
+
+test("features of a larger package get no stats of their own", async () => {
+  const s = await refreshStats([lib, { ...lib, id: "y", partOf: "x" }], {}, { fetch: fake(5) });
+  assert.deepEqual(Object.keys(s), ["x"]);
+});
+
+test("unscoped packages share one bulk npm request, scoped ones get their own", async () => {
+  const urls: string[] = [];
+  const libs = [{ id: "a", npm: "a" }, { id: "b", npm: "b" }, { id: "c", npm: "@s/c" }] as Library[];
+  const s = await refreshStats(libs, {}, { fetch: async (u) => (urls.push(u), fake(0)(u)) });
+  assert.deepEqual(urls.sort(), ["https://api.npmjs.org/downloads/point/last-week/@s/c", "https://api.npmjs.org/downloads/point/last-week/a,b"]);
+  assert.deepEqual([s.a?.downloadsWeek, s.b?.downloadsWeek, s.c?.downloadsWeek], [500, 500, 500]);
 });
