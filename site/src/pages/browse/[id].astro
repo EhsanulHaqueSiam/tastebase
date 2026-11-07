@@ -90,7 +90,7 @@ const facts: [string, string][] = [
       <h5 class="mt-6 mb-2 text-[13px] font-semibold">Skip it when</h5>
       <ul class="rise grid gap-1.5">{lib.avoidWhen.map((u) => <li class="flex gap-2 text-[13px] text-fg2"><X size={14} class="mt-[3px] shrink-0 text-amber" />{u}</li>)}</ul>
 
-      <Adoption client:visible id={lib.id} />
+      <Adoption client:idle id={lib.id} />
 
       <h5 class="mt-6 mb-2 text-[13px] font-semibold">Facts</h5>
       <dl class="grid grid-cols-[110px_1fr] gap-y-1.5 text-[13px]">
