@@ -15,9 +15,9 @@
     "build": "tsdown",
     "typecheck": "tsc --noEmit",
     "test": "node --test --experimental-strip-types --no-warnings src/engine.test.ts src/trending.test.ts src/registry/registry.test.ts",
-    "dev": "alchemy dev",
-    "deploy": "alchemy deploy --stage prod",
-    "plan": "alchemy plan --stage prod"
+    "dev": "alchemy dev --profile siamdev",
+    "deploy": "alchemy deploy --stage prod --profile siamdev",
+    "plan": "alchemy plan --stage prod --profile siamdev"
   },
   "engines": {
     "node": ">=20"

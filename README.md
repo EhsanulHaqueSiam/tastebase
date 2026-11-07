@@ -51,7 +51,7 @@ pnpm dev             # alchemy dev: Astro dev server with SSR in workerd and rea
 One-time setup on a laptop:
 
 ```bash
-pnpm alchemy profile edit --add Cloudflare   # OAuth in the browser; enable "Account API Token Provisioning"
+pnpm alchemy profile edit --profile siamdev --add Cloudflare   # OAuth as ehsanul.siamdev@gmail.com; enable "Account API Token Provisioning"
 echo "STATS_GITHUB_TOKEN=<fine-grained token, public repos read-only>" > .env
 pnpm run deploy                               # alchemy deploy --stage prod (pnpm's own `deploy` shadows the script)
 ```
