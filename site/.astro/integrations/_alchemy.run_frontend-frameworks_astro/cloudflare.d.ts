@@ -1,0 +1,1 @@
+/// <reference types="@alchemy.run/frontend-frameworks/astro/types.d.ts" />

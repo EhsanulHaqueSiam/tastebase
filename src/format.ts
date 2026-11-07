@@ -10,7 +10,7 @@ export const line = (s: Scored) =>
 /** Libraries gaining the most GitHub stars this week. */
 export function formatTrending(libs: Library[], limit = 10): string {
   const ranked = libs.filter((l) => (l.stats?.starsWeek ?? 0) > 0).sort((a, b) => b.stats!.starsWeek! - a.stats!.starsWeek!);
-  if (!ranked.length) return "No trending data yet (stats refresh daily).";
+  if (!ranked.length) return "No trending data yet (stats refresh hourly).";
   return ranked
     .slice(0, limit)
     .map((l) => `${l.id} (${l.kind}): +${l.stats!.starsWeek}★ this week, ${l.stats!.stars ?? "?"}★ total${l.stats!.downloadsWeek ? `, ${l.stats!.downloadsWeek.toLocaleString("en")} npm/wk` : ""} | ${l.tagline}`)
