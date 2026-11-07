@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>tastebase mocks</title>
+<style>
+:root{
+  --bg:var(--background,#000);--fg:var(--foreground,#fff);
+  --dim:#8a8a8a;--line:#1c1c1c;--line2:#2a2a2a;--surf:#0a0a0a;--surf2:#111;
+  --acc:#e8ff5a;--acc2:#ff6b3d;
+  --sans:"Geist","Inter",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  --serif:"Instrument Serif","Iowan Old Style","Times New Roman",Georgia,serif;
+  --mono:"Geist Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --ease:cubic-bezier(.23,1,.32,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#000;color:var(--fg);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+.doc{max-width:1200px;margin:0 auto;padding:24px 16px 80px}
+.doc>h1{font-size:15px;font-weight:600;letter-spacing:-.01em}
+.doc>p.meta{font-size:13px;color:var(--dim);margin:4px 0 28px;max-width:70ch;line-height:1.5}
+.label{font:600 12px/1 var(--mono);color:var(--dim);margin:44px 0 10px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.label b{color:#000;background:var(--fg);padding:3px 7px;border-radius:4px}
+.frame{border:1px solid var(--line2);border-radius:12px;overflow:hidden;background:#000}
+
+/* shared nav */
+.nav{display:flex;align-items:center;gap:22px;padding:14px 20px;border-bottom:1px solid var(--line);font-size:13px}
+.logo{font-weight:650;letter-spacing:-.02em;display:flex;gap:7px;align-items:center}
+.logo i{width:14px;height:14px;border-radius:4px;background:var(--fg);display:inline-block}
+.nav .links{display:flex;gap:18px;color:var(--dim)}
+.nav .links a:hover{color:var(--fg)}
+.nav .sp{flex:1}
+.kbd{font:11px var(--mono);color:var(--dim);border:1px solid var(--line2);border-radius:5px;padding:2px 5px}
+.search{display:flex;align-items:center;gap:8px;color:var(--dim);border:1px solid var(--line2);border-radius:8px;padding:6px 8px 6px 10px;min-width:220px;font-size:13px}
+.search span{flex:1}
+
+/* ---------- buttons: hover/press only, no looping animation ---------- */
+.btn{position:relative;display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 16px;border-radius:10px;font:550 14px var(--sans);cursor:pointer;border:0;overflow:hidden;
+  transition:transform .16s var(--ease),background-color .2s,box-shadow .25s var(--ease),color .2s;-webkit-tap-highlight-color:transparent}
+.btn:active{transform:scale(.97)}
+.btn .arr{display:inline-block;transition:transform .25s var(--ease)}
+.btn:hover .arr{transform:translateX(3px)}
+/* primary: white with a one-shot light sweep on hover */
+.btn-p{background:var(--fg);color:#000}
+.btn-p::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(0,0,0,.12) 50%,transparent 70%);transform:translateX(-120%);transition:transform .6s var(--ease)}
+.btn-p:hover::after{transform:translateX(120%)}
+.btn-p:hover{box-shadow:0 0 0 4px rgba(255,255,255,.10),0 8px 30px -8px rgba(255,255,255,.35)}
+/* ghost: border brightens, inner fill rises */
+.btn-g{background:transparent;color:var(--fg);box-shadow:inset 0 0 0 1px var(--line2)}
+.btn-g::before{content:"";position:absolute;inset:0;background:var(--surf2);transform:translateY(101%);transition:transform .3s var(--ease);z-index:-1}
+.btn-g{isolation:isolate}
+.btn-g:hover{box-shadow:inset 0 0 0 1px #555}
+.btn-g:hover::before{transform:translateY(0)}
+/* accent: lime, label rolls up on hover */
+.btn-a{background:var(--acc);color:#000}
+.roll{display:inline-grid;height:1.2em;overflow:hidden;line-height:1.2em}
+.roll span{grid-area:1/1;transition:transform .35s var(--ease)}
+.roll span+span{transform:translateY(110%)}
+.btn-a:hover .roll span:first-child{transform:translateY(-110%)}
+.btn-a:hover .roll span+span{transform:translateY(0)}
+/* copy chip */
+.copy{display:inline-flex;align-items:center;gap:10px;font:13px var(--mono);color:var(--fg);background:var(--surf);border:1px solid var(--line2);border-radius:10px;height:40px;padding:0 6px 0 14px;transition:border-color .2s}
+.copy:hover{border-color:#555}
+.copy em{font-style:normal;color:var(--dim)}
+.copy b{font:500 11px var(--sans);color:var(--dim);border:1px solid var(--line2);border-radius:6px;padding:5px 8px;transition:color .2s,background-color .2s}
+.copy:hover b{color:#000;background:var(--fg)}
+@media (prefers-reduced-motion:reduce){.btn,.btn *,.btn::before,.btn::after{transition:none!important}}
+
+/* ---------- A: Gallery ---------- */
+.a-hero{padding:72px 20px 40px;display:grid;gap:22px;justify-items:start}
+.a-hero h2{font-size:clamp(38px,6.2vw,76px);line-height:.98;letter-spacing:-.045em;font-weight:600;max-width:14ch}
+.a-hero h2 span{color:var(--dim)}
+.a-hero p{color:var(--dim);font-size:16px;max-width:52ch;line-height:1.5}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.chips{display:flex;gap:6px;padding:0 20px 14px;flex-wrap:wrap;font-size:13px}
+.chips a{padding:6px 11px;border-radius:999px;color:var(--dim);transition:color .2s,background-color .2s}
+.chips a:hover{color:var(--fg);background:var(--surf2)}
+.chips a.on{color:#000;background:var(--fg)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1px;background:var(--line);border-top:1px solid var(--line)}
+.tile{background:#000;padding:14px;display:grid;gap:12px;transition:background-color .25s}
+.tile:hover{background:var(--surf)}
+.stage{height:170px;border-radius:8px;background:var(--surf);border:1px solid var(--line);display:grid;place-items:center;overflow:hidden;position:relative}
+.tile:hover .stage{border-color:var(--line2)}
+.tmeta{display:flex;justify-content:space-between;font-size:13px}
+.tmeta small{color:var(--dim);font:12px var(--mono)}
+.hot{font:600 10px var(--mono);color:#000;background:var(--acc);padding:2px 5px;border-radius:4px;margin-left:6px}
+/* tile demo contents */
+.toggle{width:46px;height:26px;border-radius:999px;background:var(--line2);position:relative;transition:background-color .25s}
+.toggle::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .35s var(--ease)}
+.tile:hover .toggle{background:var(--acc)}
+.tile:hover .toggle::after{transform:translateX(20px)}
+.stack{position:relative;width:150px;height:90px}
+.stack div{position:absolute;inset:0;border-radius:10px;border:1px solid var(--line2);background:var(--surf2);transition:transform .4s var(--ease)}
+.stack div:nth-child(1){transform:translateY(-14px) scale(.9);opacity:.5}
+.stack div:nth-child(2){transform:translateY(-7px) scale(.95);opacity:.75}
+.stack div:nth-child(3){padding:12px;font-size:12px;color:var(--dim)}
+.stack div:nth-child(3) b{display:block;color:var(--fg);font-weight:550;margin-bottom:4px}
+.tile:hover .stack div:nth-child(1){transform:translateY(-34px) scale(.9)}
+.tile:hover .stack div:nth-child(2){transform:translateY(-17px) scale(.95)}
+.dock{display:flex;gap:6px;align-items:flex-end;height:60px}
+.dock i{width:30px;height:30px;border-radius:8px;background:var(--line2);transition:transform .3s var(--ease)}
+.tile:hover .dock i:nth-child(3){transform:scale(1.45) translateY(-6px)}
+.tile:hover .dock i:nth-child(2),.tile:hover .dock i:nth-child(4){transform:scale(1.2) translateY(-3px)}
+.cmdk{width:190px;border:1px solid var(--line2);border-radius:10px;background:#000;font-size:12px;overflow:hidden}
+.cmdk div{padding:8px 10px;color:var(--dim);border-bottom:1px solid var(--line)}
+.cmdk div:first-child{color:var(--fg)}
+.cmdk .sel{background:var(--surf2);color:var(--fg)}
+
+/* ---------- B: Editorial index ---------- */
+.b-hero{padding:80px 20px 56px;border-bottom:1px solid var(--line)}
+.b-date{font:12px var(--mono);color:var(--dim);margin-bottom:26px;display:flex;gap:16px}
+.b-hero h2{font-family:var(--serif);font-weight:400;font-size:clamp(46px,8.4vw,112px);line-height:.92;letter-spacing:-.03em;max-width:15ch}
+.b-hero h2 em{font-style:italic;color:var(--acc2)}
+.b-sub{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-top:34px;flex-wrap:wrap}
+.b-sub p{color:var(--dim);max-width:44ch;line-height:1.5;font-size:15px}
+.idx{width:100%;border-collapse:collapse;font-size:14px}
+.idx th{font:500 11px var(--mono);color:var(--dim);text-align:left;padding:14px 20px 10px;border-bottom:1px solid var(--line);text-transform:uppercase;letter-spacing:.06em}
+.idx td{padding:16px 20px;border-bottom:1px solid var(--line);vertical-align:middle}
+.idx tr{transition:background-color .2s}
+.idx tbody tr:hover{background:var(--surf)}
+.idx .n{font:12px var(--mono);color:var(--dim);width:40px}
+.idx .name{font-family:var(--serif);font-size:24px;letter-spacing:-.01em}
+.idx .tag{color:var(--dim)}
+.up{font:12px var(--mono);color:var(--acc)}
+.idx .go{text-align:right;color:var(--dim);transition:transform .25s var(--ease),color .2s}
+.idx tbody tr:hover .go{transform:translateX(-4px);color:var(--fg)}
+.spark{display:block}
+
+/* ---------- C: Studio split ---------- */
+.c-wrap{display:grid;grid-template-columns:220px 1fr;min-height:560px}
+.side{border-right:1px solid var(--line);padding:16px 10px;font-size:13px;display:grid;align-content:start;gap:2px}
+.side h4{font:500 11px var(--mono);color:var(--dim);text-transform:uppercase;letter-spacing:.06em;padding:14px 10px 6px}
+.side a{padding:7px 10px;border-radius:7px;color:var(--dim);display:flex;justify-content:space-between;transition:background-color .15s,color .15s}
+.side a:hover{background:var(--surf2);color:var(--fg)}
+.side a.on{background:var(--surf2);color:var(--fg)}
+.side a small{font:11px var(--mono)}
+.main{display:grid;grid-template-rows:auto 1fr auto}
+.c-head{padding:20px 24px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.c-head h2{font-size:22px;letter-spacing:-.03em;font-weight:600}
+.c-head p{color:var(--dim);font-size:13px;margin-top:3px}
+.seg{display:flex;border:1px solid var(--line2);border-radius:8px;padding:2px;font-size:12px}
+.seg a{padding:5px 10px;border-radius:6px;color:var(--dim)}
+.seg a.on{background:var(--surf2);color:var(--fg)}
+.play{display:grid;place-items:center;gap:22px;padding:48px 24px;background:
+  radial-gradient(circle at 1px 1px,#1a1a1a 1px,transparent 0) 0 0/18px 18px}
+.variants{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.code{border-top:1px solid var(--line);font:12.5px/1.7 var(--mono);padding:16px 24px;color:var(--dim);overflow-x:auto;white-space:pre}
+.code .k{color:var(--fg)} .code .s{color:var(--acc)}
+.why{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line)}
+.why div{padding:14px 24px;font-size:12.5px;color:var(--dim);border-right:1px solid var(--line);line-height:1.5}
+.why div:last-child{border-right:0}
+.why b{display:block;color:var(--fg);font-weight:550;margin-bottom:2px}
+
+/* ---------- spec ---------- */
+.spec{margin-top:56px;display:grid;gap:22px;font-size:14px;line-height:1.55}
+.spec h2{font-size:18px;letter-spacing:-.02em}
+.spec h3{font-size:14px;margin-bottom:6px}
+.spec p,.spec li{color:#cfcfcf}
+.spec ul{padding-left:18px}
+.spec code{font:12.5px var(--mono);background:var(--surf2);border:1px solid var(--line);padding:1px 5px;border-radius:4px}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.cols>div{background:#000;padding:16px}
+.cols .tag2{font:11px var(--mono);color:var(--dim)}
+pre.term{font:12.5px/1.7 var(--mono);background:var(--surf);border:1px solid var(--line);border-radius:10px;padding:14px 16px;overflow-x:auto;color:#cfcfcf}
+pre.term .c{color:var(--dim)}
+
+@media (max-width:760px){
+  .nav .links,.nav .search{display:none}
+  .c-wrap{grid-template-columns:1fr}
+  .side{display:flex;overflow-x:auto;border-right:0;border-bottom:1px solid var(--line);gap:4px}
+  .side h4{display:none}
+  .side a{white-space:nowrap}
+  .why{grid-template-columns:1fr}
+  .why div{border-right:0;border-bottom:1px solid var(--line)}
+  .idx .tag,.idx th:nth-child(3){display:none}
+  .idx td,.idx th{padding-left:12px;padding-right:12px}
+}
+</style>
+</head>
+<body>
+<main class="doc">
+<h1>tastebase home: three directions</h1>
+<p class="meta">A curated component library, an inspiration archive, and an agent tool (CLI, MCP, skill) that lets Claude Code pull from both. Hover the buttons and tiles: every animation is a one-shot hover or press transition, with nothing looping. Fonts are Geist and Instrument Serif in the build; here they fall back to system fonts.</p>
+
+<!-- ================= A ================= -->
+<div class="label"><b>A</b> Gallery. The site is the components: live tiles you can hover. Refs: v0 templates, Relume library, Resend hero.</div>
+<section class="frame">
+  <nav class="nav">
+    <a class="logo" href="#"><i></i>tastebase</a>
+    <div class="links"><a href="#">Components</a><a href="#">Libraries</a><a href="#">Inspiration</a><a href="#">Trending</a><a href="#">Agent</a></div>
+    <div class="sp"></div>
+    <div class="search"><span>Search 1,240 components</span><span class="kbd">⌘K</span></div>
+  </nav>
+  <div class="a-hero">
+    <h2>Good UI, picked by hand. <span>Ready for your agent.</span></h2>
+    <p>Components from the libraries people actually ship with, plus sites worth stealing from. Browse it here, or let Claude Code search it for you.</p>
+    <div class="row">
+      <a class="btn btn-p" href="#">Browse components <span class="arr">→</span></a>
+      <span class="copy"><span><em>$</em> npx tastebase mcp</span><b>Copy</b></span>
+    </div>
+  </div>
+  <div class="chips"><a class="on" href="#">All</a><a href="#">Buttons</a><a href="#">Toggles</a><a href="#">Cards</a><a href="#">Command menus</a><a href="#">Docks</a><a href="#">Heroes</a><a href="#">Pricing</a></div>
+  <div class="grid">
+    <div class="tile"><div class="stage"><div class="row"><a class="btn btn-p" href="#">Deploy <span class="arr">→</span></a><a class="btn btn-g" href="#">Cancel</a></div></div>
+      <div class="tmeta"><span>Sweep button<span class="hot">HOT</span></span><small>shadcn · motion</small></div></div>
+    <div class="tile"><div class="stage"><div class="toggle"></div></div>
+      <div class="tmeta"><span>Spring toggle</span><small>radix · css</small></div></div>
+    <div class="tile"><div class="stage"><div class="stack"><div></div><div></div><div><b>Deploy finished</b>main · 42s</div></div></div>
+      <div class="tmeta"><span>Toast stack<span class="hot">HOT</span></span><small>sonner</small></div></div>
+    <div class="tile"><div class="stage"><div class="dock"><i></i><i></i><i></i><i></i><i></i></div></div>
+      <div class="tmeta"><span>Magnify dock</span><small>magic ui</small></div></div>
+    <div class="tile"><div class="stage"><div class="cmdk"><div>Search…</div><div class="sel">Open project</div><div>Theme: dark</div><div>Copy link</div></div></div>
+      <div class="tmeta"><span>Command menu</span><small>cmdk</small></div></div>
+    <div class="tile"><div class="stage"><a class="btn btn-a" href="#"><span class="roll"><span>Get started</span><span>Let's go</span></span></a></div>
+      <div class="tmeta"><span>Roll label</span><small>css only</small></div></div>
+  </div>
+</section>
+
+<!-- ================= B ================= -->
+<div class="label"><b>B</b> Editorial index. Reads like a magazine of what's hot: a ranked list with live star deltas. Refs: inspo marquee-hero exemplars, Retool apps hero.</div>
+<section class="frame">
+  <nav class="nav">
+    <a class="logo" href="#"><i></i>tastebase</a>
+    <div class="sp"></div>
+    <div class="links"><a href="#">Index</a><a href="#">Components</a><a href="#">Inspiration</a><a href="#">Agent</a></div>
+  </nav>
+  <div class="b-hero">
+    <div class="b-date"><span>Issue 46</span><span>Week of Nov 8, 2026</span><span>Updated daily</span></div>
+    <h2>What good interfaces are made of, <em>this week.</em></h2>
+    <div class="b-sub">
+      <p>A ranked index of UI libraries and components, scored by GitHub star velocity, npm pulls, and a human pass. The same index your agent reads.</p>
+      <div class="row"><a class="btn btn-p" href="#">Read the index <span class="arr">→</span></a><a class="btn btn-g" href="#">Add to Claude Code</a></div>
+    </div>
+  </div>
+  <table class="idx">
+    <thead><tr><th>#</th><th>Library</th><th>Good for</th><th>7 days</th><th></th></tr></thead>
+    <tbody>
+      <tr><td class="n">01</td><td class="name">shadcn/ui</td><td class="tag">Owned primitives, any app</td><td><svg class="spark" width="80" height="22"><polyline fill="none" stroke="#e8ff5a" stroke-width="1.5" points="0,18 12,16 24,17 36,12 48,11 60,7 80,3"/></svg><span class="up">+1.9k ★</span></td><td class="go">→</td></tr>
+      <tr><td class="n">02</td><td class="name">Motion</td><td class="tag">Springs, layout, gestures</td><td><svg class="spark" width="80" height="22"><polyline fill="none" stroke="#e8ff5a" stroke-width="1.5" points="0,15 12,16 24,13 36,13 48,10 60,9 80,6"/></svg><span class="up">+1.1k ★</span></td><td class="go">→</td></tr>
+      <tr><td class="n">03</td><td class="name">Base UI</td><td class="tag">Unstyled, accessible</td><td><svg class="spark" width="80" height="22"><polyline fill="none" stroke="#e8ff5a" stroke-width="1.5" points="0,19 12,18 24,15 36,14 48,9 60,8 80,4"/></svg><span class="up">+840 ★</span></td><td class="go">→</td></tr>
+      <tr><td class="n">04</td><td class="name">Magic UI</td><td class="tag">Landing page flair</td><td><svg class="spark" width="80" height="22"><polyline fill="none" stroke="#8a8a8a" stroke-width="1.5" points="0,10 12,11 24,10 36,12 48,11 60,11 80,10"/></svg><span class="up" style="color:#8a8a8a">+310 ★</span></td><td class="go">→</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ================= C ================= -->
+<div class="label"><b>C</b> Studio. A docs-style workspace: pick a component, compare variants, copy the code or the agent prompt. Refs: Subframe components, Relume library, MagicPath.</div>
+<section class="frame">
+  <nav class="nav">
+    <a class="logo" href="#"><i></i>tastebase</a>
+    <div class="search"><span>Search components, libraries, sites</span><span class="kbd">⌘K</span></div>
+    <div class="sp"></div>
+    <a class="btn btn-g" href="#" style="height:32px;font-size:13px">Connect agent</a>
+  </nav>
+  <div class="c-wrap">
+    <aside class="side">
+      <h4>Components</h4>
+      <a class="on" href="#">Buttons <small>48</small></a><a href="#">Toggles <small>21</small></a><a href="#">Menus <small>33</small></a><a href="#">Toasts <small>12</small></a><a href="#">Sheets <small>17</small></a>
+      <h4>Inspiration</h4>
+      <a href="#">Heroes <small>210</small></a><a href="#">Pricing <small>96</small></a><a href="#">Dashboards <small>140</small></a>
+      <h4>Trending</h4>
+      <a href="#">This week</a><a href="#">Rising libraries</a>
+    </aside>
+    <div class="main">
+      <div class="c-head">
+        <div><h2>Buttons</h2><p>Three picks. Each one has a note on why it works.</p></div>
+        <div class="seg"><a class="on" href="#">Preview</a><a href="#">Code</a><a href="#">Prompt</a></div>
+      </div>
+      <div class="play">
+        <div class="variants">
+          <a class="btn btn-p" href="#">Sweep <span class="arr">→</span></a>
+          <a class="btn btn-g" href="#">Rising fill</a>
+          <a class="btn btn-a" href="#"><span class="roll"><span>Roll label</span><span>Roll label</span></span></a>
+        </div>
+      </div>
+      <div class="why">
+        <div><b>Press at 0.97</b>Scale on :active so the button responds the moment you press it.</div>
+        <div><b>One-shot sweep</b>The light passes once per hover. Nothing loops, so the GPU stays idle.</div>
+        <div><b>Ease-out 160ms</b>Fast in and soft out, which makes the motion feel physical.</div>
+      </div>
+      <div class="code"><span class="k">$</span> npx tastebase add <span class="s">button/sweep</span>     <span style="color:#555"># drops into components/ui, shadcn style</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= spec ================= -->
+<section class="spec">
+  <h2>What gets built (same for A, B, C)</h2>
+  <div class="cols">
+    <div><span class="tag2">01 · registry</span><h3>One curated dataset</h3><p>Components, libraries and inspiration sites live as typed files in the repo. Each entry has a note on <i>why</i> it is good, a source URL and tags. The site, the CLI and the MCP server all read this one dataset.</p></div>
+    <div><span class="tag2">02 · site</span><h3>The premium browser</h3><p>Vite, React, Tailwind and TanStack Start, deployed as a static site to Cloudflare. Live component previews, ⌘K search, and Trending.</p></div>
+    <div><span class="tag2">03 · agent</span><h3>CLI + MCP + skill</h3><p><code>npx tastebase</code> is the CLI, and <code>npx tastebase mcp</code> is the MCP server built from the same binary. A Claude Code skill tells the agent when to use it: before any UI work, search, pick, then install.</p></div>
+    <div><span class="tag2">04 · hot</span><h3>Trending job</h3><p>A daily GitHub Action pulls star deltas from the GitHub API and weekly downloads from the npm API for every library in the registry, then commits <code>trending.json</code>. That needs no server and no database.</p></div>
+  </div>
+<pre class="term"><span class="c"># what Claude Code does with it</span>
+tastebase search "toast stack" --json      <span class="c"># ranked picks with why-notes</span>
+tastebase trending --week                  <span class="c"># rising libraries and components</span>
+tastebase add toast/stack                  <span class="c"># copies source in, shadcn-registry style</span>
+tastebase inspo "dark dev-tool pricing"    <span class="c"># reference sites with screenshots</span></pre>
+  <p>Not in v1: accounts, user submissions, a paid tier, or a hosted search API. The registry is plain files, so search runs locally inside the CLI.</p>
+</section>
+</main>
+</body>
+</html>
