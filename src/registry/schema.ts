@@ -70,6 +70,10 @@ export type Library = {
   weight: "tiny" | "small" | "medium" | "large";
   a11y: "strong" | "ok" | "weak" | "n/a";
   maturity: "experimental" | "stable" | "established";
+  /** What costs money, when anything does. Leave out for fully free libraries. */
+  paid?: { what: string; price: string; url: string };
+  /** Named parts it ships, as its docs name them: components for kits, styles for icons, chart types for charts. */
+  parts?: { free: string[]; paid?: string[] };
   url: string;
   repo?: string;
   npm?: string;

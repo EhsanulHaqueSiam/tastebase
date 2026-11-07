@@ -21,7 +21,7 @@ export default [
       "you need filled or duotone weights of the same glyph: use phosphor",
       "a playful or retro look where neutral strokes feel generic: use phosphor (duotone) or pixelarticons",
     ],
-    pairsWith: ["shadcn-ui", "base-ui", "radix-ui", "lucide-animated"],
+    pairsWith: ["shadcn-ui", "base-ui", "radix-ui", "lucide-animated", "morphicons"],
     alternatives: ["tabler-icons", "phosphor", "iconoir", "hugeicons"],
     install: "npm i lucide-react",
     usage:
@@ -30,6 +30,11 @@ export default [
     weight: "tiny",
     a11y: "ok",
     maturity: "established",
+    parts: {
+      free: [
+        "Outline",
+      ],
+    },
     url: "https://lucide.dev",
     repo: "https://github.com/lucide-icons/lucide",
     npm: "lucide-react",
@@ -53,7 +58,7 @@ export default [
       "a shadcn/ui project already on Lucide: mixing two stroke styles looks off, stay on lucide",
       "React Server Components importing from the root entry: it uses Context, import from '@phosphor-icons/react/ssr' instead",
     ],
-    pairsWith: ["shadcn-ui", "base-ui", "react-aria", "motion"],
+    pairsWith: ["shadcn-ui", "base-ui", "react-aria", "motion", "morphicons"],
     alternatives: ["lucide", "hugeicons", "tabler-icons"],
     install: "npm i @phosphor-icons/react",
     usage:
@@ -62,6 +67,11 @@ export default [
     weight: "small",
     a11y: "ok",
     maturity: "established",
+    parts: {
+      free: [
+        "Thin", "Light", "Regular", "Bold", "Fill", "Duotone",
+      ],
+    },
     url: "https://phosphoricons.com",
     repo: "https://github.com/phosphor-icons/react",
     npm: "@phosphor-icons/react",
@@ -92,6 +102,11 @@ export default [
     weight: "tiny",
     a11y: "ok",
     maturity: "established",
+    parts: {
+      free: [
+        "Outline", "Solid", "Mini", "Micro",
+      ],
+    },
     url: "https://heroicons.com",
     repo: "https://github.com/tailwindlabs/heroicons",
     npm: "@heroicons/react",
@@ -124,6 +139,11 @@ export default [
     weight: "tiny",
     a11y: "ok",
     maturity: "established",
+    parts: {
+      free: [
+        "Outline", "Filled",
+      ],
+    },
     url: "https://tabler.io/icons",
     repo: "https://github.com/tabler/tabler-icons",
     npm: "@tabler/icons-react",
@@ -154,6 +174,11 @@ export default [
     weight: "tiny",
     a11y: "ok",
     maturity: "established",
+    parts: {
+      free: [
+        "Regular", "Solid",
+      ],
+    },
     url: "https://iconoir.com",
     repo: "https://github.com/iconoir-icons/iconoir",
     npm: "iconoir-react",
@@ -186,6 +211,16 @@ export default [
     weight: "tiny",
     a11y: "ok",
     maturity: "stable",
+    paid: { what: "Hugeicons Pro: 9 more styles and 60,000+ icons; free is Stroke Rounded only", price: "$99/yr per seat", url: "https://hugeicons.com/pricing" },
+    parts: {
+      free: [
+        "Stroke Rounded",
+      ],
+      paid: [
+        "Stroke Sharp", "Stroke Standard", "Solid Rounded", "Solid Sharp", "Solid Standard", "Duotone Rounded",
+        "Duotone Standard", "Twotone Rounded", "Bulk Rounded",
+      ],
+    },
     url: "https://hugeicons.com",
     repo: "https://github.com/hugeicons/hugeicons",
     npm: "@hugeicons/react",
@@ -216,6 +251,11 @@ export default [
     weight: "tiny",
     a11y: "ok",
     maturity: "established",
+    parts: {
+      free: [
+        "Line", "Fill",
+      ],
+    },
     url: "https://remixicon.com",
     repo: "https://github.com/Remix-Design/remixicon",
     npm: "@remixicon/react",
@@ -279,6 +319,15 @@ export default [
     weight: "tiny",
     a11y: "ok",
     maturity: "stable",
+    paid: { what: "Pixelarticons Pro: 5,646 icons (1,036 free) plus Sharp, Glyph and Solid styles", price: "€99 one-time", url: "https://pixelarticons.com/pricing/" },
+    parts: {
+      free: [
+        "Base",
+      ],
+      paid: [
+        "Sharp", "Glyph", "Solid",
+      ],
+    },
     url: "https://pixelarticons.com",
     repo: "https://github.com/halfmage/pixelarticons",
     npm: "pixelarticons",
@@ -302,10 +351,11 @@ export default [
     avoidWhen: [
       "every icon in the app: animate a handful of high-intent ones, keep the rest static lucide",
       "dense tables or toolbars where many icons sit under the pointer: motion becomes noise",
+      "an icon that changes into another on state change (menu to close, play to pause): use morphicons",
       "non-React stacks: use the community ports (movingicons.dev for Svelte)",
     ],
     pairsWith: ["lucide", "motion", "shadcn-ui"],
-    alternatives: ["itshover", "animate-ui"],
+    alternatives: ["itshover", "animate-ui", "morphicons"],
     install: "npx shadcn@latest add https://lucide-animated.com/r/copy.json",
     usage:
       "import { useRef } from 'react'\nimport { CopyIcon, type CopyIconHandle } from '@/components/ui/copy'\n\nconst icon = useRef<CopyIconHandle>(null)\n\n<button aria-label=\"Copy\" onMouseEnter={() => icon.current?.startAnimation()} onMouseLeave={() => icon.current?.stopAnimation()}>\n  <CopyIcon ref={icon} size={16} />\n</button>",
@@ -349,6 +399,40 @@ export default [
     author: "Its Hover contributors",
     license: "Apache-2.0",
   },
+  {
+    id: "morphicons",
+    name: "morphicons",
+    tagline: "Morphs any SVG icon into any other with spring physics: Lucide, Phosphor, Tabler, stroked or filled.",
+    kind: "icons",
+    alsoCovers: ["motion"],
+    frameworks: ["react", "vue", "svelte", "vanilla", "react-native"],
+    styling: "unstyled",
+    aesthetic: ["minimal", "apple", "technical", "playful"],
+    useFor: [
+      "an icon that turns into another on state change: menu to close, play to pause, copy to check",
+      "toggle buttons whose icon should morph instead of swapping (mute, theme, expand/collapse)",
+      "morphing Lucide or Phosphor icons without hand-made animated variants",
+    ],
+    avoidWhen: [
+      "an icon that only wiggles on hover: use lucide-animated",
+      "a static icon with no state change: use lucide or phosphor directly",
+      "long choreographed SVG shape animations beyond icons: use gsap (MorphSVG)",
+    ],
+    pairsWith: ["lucide", "phosphor", "tabler-icons", "shadcn-ui"],
+    alternatives: ["lucide-animated", "itshover"],
+    install: "npm i morphicons lucide",
+    usage:
+      "import { MorphIcon } from 'morphicons/react'\nimport { Menu, X } from 'lucide'\n\n<button onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-label=\"Menu\">\n  <MorphIcon icon={open ? X : Menu} size={20} reducedMotion=\"user\" />\n</button>",
+    note: "Icons are data, not components: import from `lucide` (IconNode), not `lucide-react`, or pass a `d` string on a 24px grid. Phosphor's SVGs sit on a 256 grid, so convert the markup once at module scope with `svgToIcon` from 'morphicons/adapters' (e.g. `@phosphor-icons/core/regular/list.svg?raw` in Vite); `fitIcon(icon, viewBox)` re-grids other stroked sets. `reducedMotion` defaults to \"never\", so set it to \"user\". The icon is aria-hidden unless you pass `label`; on an icon-only button put aria-label on the button. Filled icons lazy-load a ~5 KB chunk on first morph; call `preloadRegion()` from 'morphicons/dom' if a fill morph runs on first interaction.",
+    weight: "small",
+    a11y: "ok",
+    maturity: "stable",
+    url: "https://www.morphicons.com",
+    repo: "https://github.com/guillermolg00/morphicons",
+    npm: "morphicons",
+    author: "Guillermo López",
+    license: "MIT",
+  },
 
   // ----------------------------------------------------------- background
   {
@@ -379,6 +463,15 @@ export default [
     weight: "small",
     a11y: "n/a",
     maturity: "experimental",
+    parts: {
+      free: [
+        "Mesh Gradient", "Static Mesh Gradient", "Static Radial Gradient", "Grain Gradient", "Dithering", "Dot Orbit",
+        "Dot Grid", "Warp", "Spiral", "Swirl", "Waves", "Neuro Noise", "Perlin Noise", "Simplex Noise", "Voronoi",
+        "Pulsing Border", "Metaballs", "Color Panels", "Smoke Ring", "God Rays", "Paper Texture", "Fluted Glass",
+        "Water", "Image Dithering", "Halftone Dots", "Halftone CMYK", "Lens Distortion", "Heatmap", "Liquid Metal",
+        "Gem Smoke",
+      ],
+    },
     url: "https://shaders.paper.design",
     repo: "https://github.com/paper-design/shaders",
     npm: "@paper-design/shaders-react",
@@ -412,6 +505,12 @@ export default [
     weight: "large",
     a11y: "n/a",
     maturity: "stable",
+    parts: {
+      free: [
+        "Halo", "Pensive", "Mint", "Interstella", "Nighty night", "Viola", "Universe", "Sunset", "Mandarin",
+        "Cotton Candy",
+      ],
+    },
     url: "https://shadergradient.co",
     repo: "https://github.com/ruucm/shadergradient",
     npm: "@shadergradient/react",
@@ -445,6 +544,13 @@ export default [
     weight: "medium",
     a11y: "n/a",
     maturity: "established",
+    parts: {
+      free: [
+        "ambient", "bigCircles", "bubbles", "confetti", "confettiCannon", "confettiExplosions", "confettiFalling",
+        "confettiParade", "fire", "firefly", "fireworks", "fountain", "hyperspace", "links", "matrix", "meteors",
+        "party", "seaAnemone", "snow", "squares", "stars", "triangles",
+      ],
+    },
     url: "https://particles.js.org",
     repo: "https://github.com/tsparticles/tsparticles",
     npm: "@tsparticles/react",
@@ -577,6 +683,7 @@ export default [
     weight: "large",
     a11y: "weak",
     maturity: "stable",
+    paid: { what: "Spline editor: the free plan watermarks web exports; the runtime is free", price: "from $15/seat/mo", url: "https://spline.design/pricing" },
     url: "https://spline.design",
     repo: "https://github.com/splinetool/react-spline",
     npm: "@splinetool/react-spline",
@@ -645,6 +752,12 @@ export default [
     weight: "medium",
     a11y: "ok",
     maturity: "established",
+    parts: {
+      free: [
+        "Line", "Area", "Bar", "Composed", "Pie", "Radar", "RadialBar", "Scatter", "Funnel", "Treemap", "Sankey",
+        "Sunburst",
+      ],
+    },
     url: "https://recharts.github.io",
     repo: "https://github.com/recharts/recharts",
     npm: "recharts",
@@ -677,6 +790,13 @@ export default [
     weight: "small",
     a11y: "ok",
     maturity: "established",
+    parts: {
+      free: [
+        "Line", "Area", "Area Stack", "Bar", "Bar Group", "Bar Stack", "Glyph (scatter)", "Pie / Arc", "Heatmap",
+        "Sankey", "Chord", "Hierarchy (tree, treemap, pack, partition)", "Network", "Geo (maps)", "Wordcloud",
+        "Box plot / Violin (stats)",
+      ],
+    },
     url: "https://visx.airbnb.tech",
     repo: "https://github.com/airbnb/visx",
     npm: "@visx/xychart",
@@ -708,6 +828,13 @@ export default [
     weight: "medium",
     a11y: "ok",
     maturity: "established",
+    parts: {
+      free: [
+        "Bar", "Line", "Pie", "Scatterplot", "Heatmap", "Radar", "Radial Bar", "Polar Bar", "Funnel", "Stream", "Bump",
+        "Calendar", "Chord", "Sankey", "Sunburst", "Treemap", "Icicle", "Circle Packing", "Network", "Tree",
+        "Choropleth / Geo", "Marimekko", "Parallel Coordinates", "Swarmplot", "Waffle", "Bullet", "Boxplot", "Voronoi",
+      ],
+    },
     url: "https://nivo.rocks",
     repo: "https://github.com/plouc/nivo",
     npm: "@nivo/bar",
@@ -739,6 +866,13 @@ export default [
     weight: "large",
     a11y: "ok",
     maturity: "established",
+    parts: {
+      free: [
+        "Line", "Bar", "Pie", "Scatter", "Effect Scatter", "Candlestick", "Boxplot", "Heatmap", "Radar", "Gauge",
+        "Funnel", "Sankey", "Graph", "Tree", "Treemap", "Sunburst", "Chord", "Parallel", "Theme River", "Map", "Lines",
+        "Pictorial Bar", "Custom",
+      ],
+    },
     url: "https://echarts.apache.org",
     repo: "https://github.com/apache/echarts",
     npm: "echarts",
@@ -770,6 +904,11 @@ export default [
     weight: "medium",
     a11y: "weak",
     maturity: "established",
+    parts: {
+      free: [
+        "Line", "Bar", "Pie", "Doughnut", "Polar Area", "Radar", "Scatter", "Bubble",
+      ],
+    },
     url: "https://www.chartjs.org",
     repo: "https://github.com/chartjs/Chart.js",
     npm: "chart.js",
@@ -801,6 +940,11 @@ export default [
     weight: "small",
     a11y: "weak",
     maturity: "established",
+    parts: {
+      free: [
+        "Line", "Area",
+      ],
+    },
     url: "https://github.com/leeoniya/uPlot",
     repo: "https://github.com/leeoniya/uPlot",
     npm: "uplot",
@@ -832,6 +976,13 @@ export default [
     weight: "medium",
     a11y: "ok",
     maturity: "stable",
+    parts: {
+      free: [
+        "Line", "Area", "Stacked Bar", "Grouped Bar", "Scatter", "Timeline", "Donut", "Nested Donut", "Radial Bar",
+        "Heatmap", "Box plot", "Sankey", "Chord Diagram", "Graph", "Treemap", "TopoJSON Map", "Leaflet Map",
+        "Leaflet Flow Map", "Brush", "Crosshair",
+      ],
+    },
     url: "https://unovis.dev",
     repo: "https://github.com/f5/unovis",
     npm: "@unovis/react",

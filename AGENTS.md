@@ -45,7 +45,10 @@ Keep things simple: the smallest model that makes the correct behavior unsurpris
 ## Where code lives
 
 - `src/registry/` - the data. `schema.ts` is the contract; `data/{kits,motion,visuals}.ts` the entries;
-  `aesthetics.ts` the looks. Adding a library: the [add-library skill](.agents/skills/add-library/SKILL.md).
+  `aesthetics.ts` the looks; `resources.ts` the design references we link to (never call). Adding a library: the
+  [add-library skill](.agents/skills/add-library/SKILL.md).
+- `src/atlas.ts` - look groups, island layout and parts matrix for `/atlas`, computed at build time:
+  [docs/internals/atlas.md](docs/internals/atlas.md).
 - `src/engine.ts` - `pick()` and `plan()`, deterministic scoring. Why it scores the way it does:
   [docs/internals/picking.md](docs/internals/picking.md).
 - `src/format.ts` - the compact text agents read. `src/mcp.ts` - tool definitions. `src/cli.ts` - `npx tastebase` (stdio).

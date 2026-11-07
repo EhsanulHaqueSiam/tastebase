@@ -1,0 +1,292 @@
+---
+// Atlas: every library grouped by look, as islands or a moodboard, with free vs paid and what each one ships.
+import { chain, groupByLook, islands, ISLAND, lookAffinity, partsMatrix, paywalled, type Group } from "../../../src/atlas.ts";
+import { resources } from "../../../src/registry/resources.ts";
+import type { Kind, Library } from "../../../src/registry/schema.ts";
+import Base from "../layouts/Base.astro";
+import { kindMeta, shot } from "../lib/kinds.ts";
+import { aesthetics, libraries } from "../lib/server.ts";
+
+export const prerender = true;
+
+const aff = lookAffinity(libraries);
+const kindsHere = [...new Set(libraries.map((l) => l.kind))].filter((k) => libraries.filter((l) => l.kind === k).length >= 2);
+const tabs: { id: "all" | Kind; label: string; libs: Library[] }[] = [
+  { id: "all", label: "All", libs: libraries },
+  ...kindsHere.map((k) => ({ id: k, label: kindMeta[k].label, libs: libraries.filter((l) => l.kind === k) })),
+];
+const views = tabs.map((t) => {
+  const groups = groupByLook(t.libs, aesthetics);
+  return { ...t, groups, map: islands(groups, aff), mood: chain(groups, aff), matrix: t.id === "all" ? undefined : partsMatrix(t.libs) };
+});
+const title = (g: Group) => g.looks.join(" / ");
+const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.length ?? 0] as const;
+---
+
+<Base title="Atlas · tastebase" description="Every library grouped by look: what looks alike sits together, with what is free and what each one ships.">
+  <div class="atlas mx-auto max-w-[1240px] px-4 pt-20 pb-24" data-view="islands">
+    <div class="flex flex-wrap items-end justify-between gap-3">
+      <div>
+        <h1 class="text-[22px] font-semibold tracking-[-0.02em]">Atlas</h1>
+        <p class="mt-1 text-[13.5px] text-fg2">Libraries grouped by look. Close together means they look alike.</p>
+      </div>
+      <div class="flex gap-2">
+        <div class="seg" role="group" aria-label="View">
+          <button type="button" class="press" data-set-view="islands" aria-pressed="true">Islands</button>
+          <button type="button" class="press" data-set-view="mood" aria-pressed="false">Moodboard</button>
+        </div>
+        <div class="seg" role="group" aria-label="Show">
+          <button type="button" class="press" data-set-free="0" aria-pressed="true">Everything</button>
+          <button type="button" class="press" data-set-free="1" aria-pressed="false">Free only</button>
+        </div>
+      </div>
+    </div>
+
+    <nav class="tabs" aria-label="Category">
+      {views.map((v) => <a href={`#${v.id}`} data-tab={v.id}>{v.label}<small>{v.libs.length}</small></a>)}
+      <a href="#resources" data-tab="resources" class="sm:ml-auto">Resources<small>{resources.length}</small></a>
+    </nav>
+
+    {
+      views.map((v) => (
+        <section class="panel" id={v.id} data-panel={v.id} hidden={v.id !== "component-kit"}>
+          <div class="isles-scroll" data-only="islands">
+            <div class="isles dots" style={`height:${v.map.height}px;min-width:${v.map.width}px`}>
+              {v.map.islands.map((i) => (
+                <section class="isle" style={`left:${i.x}px;top:${i.y}px;width:${i.w}px;height:${i.h}px;order:${i.order};--cols:${i.cols}`}>
+                  <header class="ghead">
+                    <h2>{title(i)}<small>{i.libs.length}</small></h2>
+                    <p>{i.bestFree ? <>best free <b>{i.bestFree.name}</b></> : "no free pick yet"}</p>
+                  </header>
+                  <ul>
+                    {i.libs.map((l) => (
+                      <li class:list={["chip", paywalled(l) && "t-paid"]}>
+                        <a href={`/browse/${l.id}`}>
+                          <img src={`/marks/${l.id}.png`} alt="" width="16" height="16" loading="lazy" />
+                          <span>{l.name}</span>
+                          {paywalled(l) && <sup>paid</sup>}
+                        </a>
+                        <img class="tip" src={shot(l.id)} alt="" width="1200" height="750" loading="lazy" decoding="async" />
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ))}
+            </div>
+          </div>
+
+          <div class="mood" data-only="mood">
+            {v.mood.map((g) => (
+              <section>
+                <header class="ghead row">
+                  <h2>{title(g)}<small>{g.libs.length}</small></h2>
+                  <p>{g.bestFree ? <>best free <b>{g.bestFree.name}</b></> : "no free pick yet"}</p>
+                </header>
+                <ul>
+                  {g.libs.map((l) => (
+                    <li class:list={["tile", paywalled(l) && "t-paid"]}>
+                      <a href={`/browse/${l.id}`} class="press">
+                        <img class="shot" src={shot(l.id)} alt={`${l.name} site`} loading="lazy" decoding="async" width="1200" height="750" />
+                        <span><img src={`/marks/${l.id}.png`} alt="" width="16" height="16" loading="lazy" />{l.name}{paywalled(l) && <sup>paid</sup>}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ))}
+          </div>
+
+          {v.id !== "all" && (
+            <>
+              <h3>Free vs paid</h3>
+              <div class="bars">
+                {[...v.libs].sort((a, b) => partCount(b)[0] + partCount(b)[1] - partCount(a)[0] - partCount(a)[1]).map((l) => {
+                  const [f, p] = partCount(l), max = Math.max(...v.libs.map((x) => partCount(x)[0] + partCount(x)[1]), 1);
+                  return (
+                    <div class:list={["bar", paywalled(l) && "t-paid"]}>
+                      <a href={`/browse/${l.id}`}><img src={`/marks/${l.id}.png`} alt="" width="16" height="16" loading="lazy" />{l.name}</a>
+                      <span class="track" aria-hidden="true">
+                        {f + p > 0 && <><b class="free" style={`width:${(f / max) * 100}%`} /><b class="paid" style={`width:${(p / max) * 100}%`} /></>}
+                      </span>
+                      <span class="num">{f + p > 0 ? <>{f}{p > 0 && <s> +{p}</s>}</> : ""}</span>
+                      <span class="price">{l.paid ? <a href={l.paid.url} title={l.paid.what}>{l.paid.price}</a> : "free"}</span>
+                    </div>
+                  );
+                })}
+              </div>
+              <p class="legend"><i class="free" />free parts <i class="paid" />paid only · the price is for the library's paid tier</p>
+
+              {v.matrix && (
+                <>
+                  <h3>What's inside</h3>
+                  <div class="mx-wrap">
+                    <table class="mx">
+                      <thead><tr><th scope="col"><span class="sr-only">Library</span></th>{v.matrix.columns.map((c) => <th scope="col"><span>{c}</span></th>)}</tr></thead>
+                      <tbody>
+                        {v.matrix.rows.map((r) => (
+                          <tr class:list={[paywalled(r.lib) && "t-paid"]}>
+                            <th scope="row"><a href={`/browse/${r.lib.id}`}><img src={`/marks/${r.lib.id}.png`} alt="" width="16" height="16" loading="lazy" />{r.lib.name}</a></th>
+                            {r.cells.map((c, i) => <td title={`${v.matrix!.columns[i]}: ${c ?? "not included"}`}><i class={c ?? "none"} aria-hidden="true" /><span class="sr-only">{c ?? "not included"}</span></td>)}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <p class="legend"><i class="dot free" />free <i class="dot paid" />paid only <i class="dot none" />not included</p>
+                </>
+              )}
+              {!v.matrix && v.libs.some((l) => l.parts) && (
+                <>
+                  <h3>What's inside</h3>
+                  <dl class="plist">
+                    {v.libs.filter((l) => l.parts).map((l) => [
+                      <dt><a href={`/browse/${l.id}`}><img src={`/marks/${l.id}.png`} alt="" width="16" height="16" loading="lazy" />{l.name}</a></dt>,
+                      <dd>{l.parts!.free.join(", ")}{l.parts!.paid?.length ? <span class="text-fg3"> · paid: {l.parts!.paid.join(", ")}</span> : ""}</dd>,
+                    ])}
+                  </dl>
+                </>
+              )}
+            </>
+          )}
+        </section>
+      ))
+    }
+
+    <section class="panel" id="resources" data-panel="resources" hidden>
+      <p class="max-w-[720px] text-[13.5px] text-fg2">Not installed, but they help you design. tastebase only links to them. If your agent already has one connected under your own account, its plan answer says what to search for.</p>
+      <table class="rtbl">
+        <thead><tr><th scope="col">Name</th><th scope="col">Good for</th><th scope="col">Cost</th><th scope="col">With your agent</th></tr></thead>
+        <tbody>
+          {resources.map((r) => (
+            <tr>
+              <td><a href={r.url} target="_blank" rel="noreferrer">{r.name}</a></td>
+              <td>{r.goodFor}</td>
+              <td class:list={[!r.free && "text-fg3"]}>{r.cost}</td>
+              <td>{r.mcp ? <a href={r.mcp.url} target="_blank" rel="noreferrer">{r.mcp.name}{r.mcp.needsPaidPlan && " (paid plan)"}</a> : <span class="text-fg3">link only</span>}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
+  </div>
+
+  <script>
+    // Tabs, view and the free filter. View and filter persist per viewer; storage can be blocked, which is fine.
+    function setup() {
+      const root = document.querySelector<HTMLElement>(".atlas");
+      if (!root) return;
+      const store = (k: string, v?: string) => { try { return v === undefined ? localStorage.getItem(k) : localStorage.setItem(k, v); } catch { return null; } };
+      const press = (attr: string, val: string) => root.querySelectorAll<HTMLButtonElement>(`[${attr}]`).forEach((b) => b.setAttribute("aria-pressed", String(b.getAttribute(attr) === val)));
+      const view = (v: string) => { root.dataset.view = v; press("data-set-view", v); store("atlas:view", v); };
+      const free = (f: string) => { root.toggleAttribute("data-free", f === "1"); press("data-set-free", f); store("atlas:free", f); };
+      const tab = () => {
+        const id = location.hash.slice(1);
+        const t = root.querySelector(`[data-panel="${CSS.escape(id)}"]`) ? id : "component-kit";
+        root.querySelectorAll<HTMLElement>("[data-panel]").forEach((p) => p.toggleAttribute("hidden", p.dataset.panel !== t));
+        root.querySelectorAll<HTMLElement>("[data-tab]").forEach((a) => a.toggleAttribute("aria-current", a.dataset.tab === t));
+      };
+      // Switching tabs keeps the scroll position; the hash still makes each tab linkable.
+      root.querySelectorAll<HTMLAnchorElement>("[data-tab]").forEach((a) => a.addEventListener("click", (e) => { e.preventDefault(); history.replaceState(null, "", a.hash); tab(); }));
+      root.querySelectorAll<HTMLElement>("[data-set-view]").forEach((b) => b.addEventListener("click", () => view(b.dataset.setView!)));
+      root.querySelectorAll<HTMLElement>("[data-set-free]").forEach((b) => b.addEventListener("click", () => free(b.dataset.setFree!)));
+      view(store("atlas:view") === "mood" ? "mood" : "islands");
+      free(store("atlas:free") === "1" ? "1" : "0");
+      tab();
+      window.onhashchange = tab; // one handler even after client-side navigations back here
+    }
+    document.addEventListener("astro:page-load", setup);
+  </script>
+</Base>
+
+<style define:vars={{ chip: `${ISLAND.chip}px`, row: `${ISLAND.row}px`, head: `${ISLAND.head}px`, padx: `${ISLAND.padX}px`, pady: `${ISLAND.padY}px` }}>
+  .seg { display: flex; gap: 2px; border-radius: 9px; background: var(--color-s2); padding: 2px; }
+  .seg button { border-radius: 7px; padding: 4px 10px; font-size: 12.5px; font-weight: 500; color: var(--color-fg2); transition: background-color 200ms, color 200ms; }
+  .seg button:hover { color: var(--color-fg); }
+  .seg button[aria-pressed="true"] { background: var(--color-s3); color: var(--color-fg); }
+  .tabs { position: sticky; top: 56px; z-index: 10; margin: 18px -16px 16px; display: flex; gap: 18px; overflow-x: auto; border-bottom: 1px solid var(--color-line); background: #000; padding: 0 16px; scrollbar-width: none; }
+  .tabs a { white-space: nowrap; border-bottom: 1.5px solid transparent; padding: 10px 0; font-size: 13px; color: var(--color-fg2); transition: color 200ms; }
+  .tabs a:hover, .tabs a[aria-current] { color: var(--color-fg); }
+  .tabs a[aria-current] { border-color: var(--color-fg); }
+  .tabs small, .ghead small { margin-left: 5px; color: var(--color-fg3); font-variant-numeric: tabular-nums; font-size: 12px; }
+  /* Panels other than the default ship hidden, so their images never load until the tab opens. */
+  .panel[hidden] { display: none; }
+  .panel { scroll-margin-top: 112px; } /* hash jumps land below the fixed header and sticky tabs */
+  [data-view="islands"] [data-only="mood"], [data-view="mood"] [data-only="islands"] { display: none; }
+
+  .ghead h2 { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: italic 400 16px/22px var(--font-serif); text-transform: capitalize; }
+  .ghead p { font-size: 11.5px; line-height: 18px; color: var(--color-fg3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ghead b { font-weight: 500; color: var(--color-green); }
+  .ghead.row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+
+  .isles-scroll { overflow-x: auto; border-radius: 12px; }
+  .isles { position: relative; border-radius: 12px; background-color: var(--color-s1); box-shadow: inset 0 0 0 1px var(--color-line); }
+  .isle { position: absolute; border-radius: 10px; background: rgb(0 0 0 / 0.75); box-shadow: inset 0 0 0 1px var(--color-line2); padding: var(--pady) var(--padx); }
+  .isle .ghead { height: calc(var(--head) - 4px); }
+  .isle ul { display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); column-gap: 8px; }
+  .chip { position: relative; height: var(--row); }
+  .chip a { display: flex; height: 100%; align-items: center; gap: 7px; font-size: 13px; color: var(--color-fg); }
+  .chip a span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .chip a:hover span { text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--color-line2); }
+  .chip img:not(.tip), .tile span img, .bar a img, .mx th img { width: 16px; height: 16px; flex: none; border-radius: 4px; object-fit: contain; }
+  .tip { display: none; position: absolute; bottom: calc(100% + 6px); left: 0; z-index: 5; width: 240px; aspect-ratio: 16 / 10; object-fit: cover; object-position: top; border-radius: 8px; box-shadow: 0 0 0 1px var(--color-line2), 0 16px 40px rgb(0 0 0 / 0.6); pointer-events: none; }
+  @media (hover: hover) and (pointer: fine) { .chip:hover .tip { display: block; } }
+  sup { margin-left: 3px; font: 500 9.5px var(--font-mono); color: var(--color-blue); }
+
+  .mood { display: grid; gap: 22px; }
+  .mood ul { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
+  .tile a { display: grid; gap: 7px; font-size: 13px; }
+  .tile span { display: flex; align-items: center; gap: 7px; white-space: nowrap; overflow: hidden; }
+  .shot { width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; object-position: top; border-radius: 9px; background: var(--color-s2); box-shadow: 0 0 0 1px var(--color-line); }
+
+  [data-free] .t-paid { opacity: 0.22; }
+  .chip, .tile, .bar, .mx tr { transition: opacity 200ms; }
+
+  h3 { margin: 36px 0 10px; font-size: 13.5px; font-weight: 600; }
+  .bars { display: grid; gap: 7px; }
+  .bar { display: grid; grid-template-columns: 170px 1fr 72px 150px; align-items: center; gap: 12px; font-size: 13px; }
+  .bar > a { display: flex; align-items: center; gap: 7px; overflow: hidden; white-space: nowrap; }
+  .track { display: flex; height: 10px; overflow: hidden; border-radius: 3px; background: var(--color-s2); }
+  b.free, i.free { background: var(--color-fg); }
+  b.paid, i.paid { background: repeating-linear-gradient(135deg, var(--color-blue) 0 3px, rgb(91 124 255 / 0.45) 3px 6px); }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .num s { text-decoration: none; color: var(--color-blue); }
+  .price { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; color: var(--color-fg3); }
+  .price a:hover { color: var(--color-fg); }
+  .legend { margin-top: 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; font-size: 12px; color: var(--color-fg3); }
+  .legend i { display: inline-block; width: 10px; height: 10px; margin-right: -8px; border-radius: 2px; }
+  @media (max-width: 640px) { .bar { grid-template-columns: 120px 1fr 56px; } .price { display: none; } }
+
+  .mx-wrap { overflow-x: auto; }
+  .mx { border-collapse: collapse; font-size: 12.5px; }
+  .mx thead th { height: 96px; vertical-align: bottom; padding: 0 0 8px; font-weight: 500; color: var(--color-fg3); }
+  .mx thead th span { display: inline-block; writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; }
+  .mx tbody th { position: sticky; left: 0; background: #000; padding: 5px 14px 5px 0; text-align: left; font-weight: 400; white-space: nowrap; }
+  .mx tbody th a { display: flex; align-items: center; gap: 7px; }
+  .mx td { border-bottom: 1px solid var(--color-line); padding: 5px 6px; text-align: center; }
+  .mx td i, .legend i.dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; }
+  .mx td i.free, .legend i.dot.free { background: var(--color-fg); }
+  .mx td i.paid, .legend i.dot.paid { background: none; box-shadow: inset 0 0 0 1.5px var(--color-blue); }
+  .mx td i.none, .legend i.dot.none { background: var(--color-s3); }
+  .legend i.dot { margin-right: -8px; }
+
+  .plist { display: grid; grid-template-columns: 170px 1fr; gap: 0 16px; font-size: 13px; }
+  .plist dt, .plist dd { border-bottom: 1px solid var(--color-line); padding: 8px 0; }
+  .plist dt a { display: flex; align-items: center; gap: 7px; white-space: nowrap; }
+  .plist dt img { width: 16px; height: 16px; border-radius: 4px; object-fit: contain; }
+  .plist dd { color: var(--color-fg2); }
+  @media (max-width: 640px) { .plist { grid-template-columns: 1fr; } .plist dt { border-bottom: 0; padding-bottom: 0; } }
+  .rtbl { margin-top: 16px; width: 100%; border-collapse: collapse; font-size: 13px; }
+  .rtbl th { border-bottom: 1px solid var(--color-line2); padding: 6px 10px 6px 0; text-align: left; font-weight: 500; color: var(--color-fg3); }
+  .rtbl td { border-bottom: 1px solid var(--color-line); padding: 9px 10px 9px 0; vertical-align: top; }
+  .rtbl td:nth-child(2) { color: var(--color-fg2); }
+  .rtbl a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  @media (max-width: 700px) { .rtbl th:nth-child(2), .rtbl td:nth-child(2) { display: none; } }
+
+  /* Narrow screens: islands stack in similarity order instead of floating on a canvas. */
+  @media (max-width: 760px) {
+    .isles { display: flex; flex-direction: column; gap: 10px; height: auto !important; min-width: 0 !important; padding: 10px; background-image: none; }
+    .isle { position: static; width: auto !important; height: auto !important; }
+    .isle .ghead { height: auto; margin-bottom: 4px; }
+    .isle ul { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+</style>

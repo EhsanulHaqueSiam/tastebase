@@ -32,6 +32,7 @@ const facts: [string, string][] = [
   ["Accessibility", lib.a11y],
   ["Maturity", lib.maturity],
   ["License", lib.license],
+  ["Price", lib.paid ? `Free core, ${lib.paid.price} for more` : "Free"],
 ];
 ---
 
@@ -90,11 +91,27 @@ const facts: [string, string][] = [
       <h5 class="mt-6 mb-2 text-[13px] font-semibold">Skip it when</h5>
       <ul class="rise grid gap-1.5">{lib.avoidWhen.map((u) => <li class="flex gap-2 text-[13px] text-fg2"><X size={14} class="mt-[3px] shrink-0 text-amber" />{u}</li>)}</ul>
 
+      {
+        lib.parts && (
+          <>
+            <h5 class="mt-6 mb-2 flex items-baseline justify-between text-[13px] font-semibold">
+              What's inside
+              <span class="font-normal text-fg3 tabular-nums">{lib.parts.free.length} free{lib.parts.paid?.length ? `, ${lib.parts.paid.length} paid` : ""}</span>
+            </h5>
+            <ul class="grid grid-cols-2 gap-x-3 text-[13px]">
+              {lib.parts.free.map((p) => <li class="truncate border-b border-line py-1">{p}</li>)}
+              {lib.parts.paid?.map((p) => <li class="truncate border-b border-line py-1 text-fg3">{p}<sup class="ml-1 font-mono text-[9.5px] text-blue">paid</sup></li>)}
+            </ul>
+          </>
+        )
+      }
+      {lib.paid && <p class="mt-3 text-[13px] text-fg2"><a href={lib.paid.url} target="_blank" rel="noreferrer" class="text-fg hover:underline">{lib.paid.price}</a>: {lib.paid.what}</p>}
+
       <Adoption client:idle id={lib.id} />
 
       <h5 class="mt-6 mb-2 text-[13px] font-semibold">Facts</h5>
       <dl class="grid grid-cols-[110px_1fr] gap-y-1.5 text-[13px]">
-        {facts.map(([k, v]) => [<dt class="text-fg3">{k}</dt>, <dd class="capitalize">{v}</dd>])}
+        {facts.map(([k, v]) => [<dt class="text-fg3">{k}</dt>, <dd class="first-letter:uppercase">{v}</dd>])}
       </dl>
 
       {

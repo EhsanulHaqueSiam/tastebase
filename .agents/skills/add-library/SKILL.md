@@ -37,6 +37,10 @@ Pick the data file by kind: `src/registry/data/kits.ts` (component kits, primiti
 - `alternatives` / `pairsWith`: ids that exist in the registry.
 - `note`: 2-5 sentences an agent needs to use it well: defaults that matter, mistakes to avoid.
 - `partOf`: set it when the entry is a feature of a larger package (shares its repo or npm package).
+- `paid`: what the paid tier adds, its price and pricing URL, read from the pricing page. Leave it out when nothing
+  costs money. It drives the Atlas Free-only filter and the `paid tier` note agents see.
+- `parts`: what it ships, as the docs name it (components for kits and primitives, styles for icons, chart types
+  for charts, named effects for collections). `parts.paid` lists only parts that exist solely behind the paywall.
 
 ## 4. Assets and checks
 
