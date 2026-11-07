@@ -20,8 +20,9 @@ process.on("exit", (code) => {
   else writeFileSync(path.join(marks, "setup-failed"), `setup exited with ${code}\n${tail}\n`);
 });
 
-// T3 sets this to the project's main checkout; elsewhere there is nothing to link from.
-const main = process.env.T3CODE_PROJECT_ROOT;
+// The main checkout owns the shared .git dir; T3CODE_PROJECT_ROOT is not always set.
+const common = spawnSync("git", ["rev-parse", "--path-format=absolute", "--git-common-dir"], { cwd: root, encoding: "utf8" }).stdout?.trim();
+const main = process.env.T3CODE_PROJECT_ROOT ?? (common ? path.dirname(common) : undefined);
 const env = path.join(root, ".env");
 if (main && path.resolve(main) !== root && existsSync(path.join(main, ".env")) && !existsSync(env)) {
   symlinkSync(path.join(main, ".env"), env);

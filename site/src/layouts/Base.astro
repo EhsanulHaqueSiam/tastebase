@@ -44,6 +44,7 @@ const path = Astro.url.pathname;
       </a>
       <nav class="hidden gap-5 text-fg2 sm:flex">
         <a href="/browse" class:list={["transition-colors hover:text-fg", path.startsWith("/browse") && "text-fg"]}>Browse</a>
+        <a href="/atlas" class:list={["transition-colors hover:text-fg", path.startsWith("/atlas") && "text-fg"]}>Atlas</a>
         <a href="/#plan" class="transition-colors hover:text-fg">Plan</a>
         <a href="/#mcp" class="transition-colors hover:text-fg">MCP</a>
       </nav>
