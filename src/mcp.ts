@@ -3,12 +3,12 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { pick, plan } from "./engine.ts";
-import { formatLibrary, formatPlan, line } from "./format.ts";
+import { formatLibrary, formatPlan, formatTrending, line } from "./format.ts";
 import { aestheticIds, frameworks, kinds, type Aesthetic, type Library } from "./registry/schema.ts";
 
 const INSTRUCTIONS = `tastebase is a curated index of UI libraries with notes on when to use each.
 Before writing UI: call plan once with the whole brief, or pick for one specific job. Install what it returns instead of hand-rolling those parts.
-Call get only for libraries you will actually install; it returns usage and the agent note.`;
+Call get only for libraries you will actually install; it returns usage and the agent note. Call trending when asked what is hot.`;
 
 const text = (t: string) => ({ content: [{ type: "text" as const, text: t }] });
 
@@ -65,6 +65,17 @@ export function createServer(libs: Library[], looks: Aesthetic[], version: strin
       const near = [...byId.keys()].filter((k) => k.includes(id) || id.includes(k) || editDistance(k, id) <= 2).slice(0, 5);
       return text(`Unknown id "${id}".${near.length ? ` Did you mean: ${near.join(", ")}?` : ""}`);
     },
+  );
+
+  server.registerTool(
+    "trending",
+    {
+      description: "UI libraries gaining the most GitHub stars this week, optionally for one kind or framework. Use when asked what is hot or new.",
+      inputSchema: { kind: z.enum(kinds).optional(), framework: fw, limit: z.number().int().min(1).max(25).optional() },
+      annotations: { readOnlyHint: true },
+    },
+    async ({ kind, framework, limit }) =>
+      text(formatTrending(libs.filter((l) => (!kind || l.kind === kind) && (!framework || l.frameworks.includes(framework))), limit)),
   );
 
   return server;

@@ -1,4 +1,3 @@
-import { Link } from "@tanstack/react-router";
 import { ArrowUpRight } from "lucide-react";
 import { demos } from "./Demos.tsx";
 import { Rise, SpotCard } from "./fx.tsx";
@@ -29,10 +28,10 @@ export default function TouchIt() {
             <Rise key={id} delay={i * 0.06} className={i === 2 ? "lg:row-span-2" : ""}>
               <SpotCard className="relative flex h-full flex-col overflow-hidden rounded-2xl bg-s1 shadow-[inset_0_0_0_1px_var(--color-line)]">
                 <div className="dots relative grid flex-1 place-items-center overflow-hidden">{<Demo />}</div>
-                <Link to="/browse/$id" params={{ id }} className="group flex items-center justify-between border-t border-line px-4 py-3">
+                <a href={`/browse/${id}`} className="group flex items-center justify-between border-t border-line px-4 py-3">
                   <span><span className="font-medium">{title}</span> <span className="text-fg3">· {lib}</span></span>
                   <ArrowUpRight size={15} className="text-fg3 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-fg" />
-                </Link>
+                </a>
               </SpotCard>
             </Rise>
           );

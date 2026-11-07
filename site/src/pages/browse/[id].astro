@@ -1,0 +1,132 @@
+---
+// Library page, three panes: kinds sidebar, live stage + code tabs, and the notes an agent reads.
+import { ArrowUpRight, Check, Package, X } from "lucide-react";
+import CodeTabs from "../../components/CodeTabs.tsx";
+import { CopyButton } from "../../components/fx.tsx";
+import { GithubMark } from "../../components/GithubMark.tsx";
+import { LibMark } from "../../components/LibMark.tsx";
+import Stage from "../../components/Stage.tsx";
+import Base from "../../layouts/Base.astro";
+import { kindMeta } from "../../lib/kinds.ts";
+import { getLibraries } from "../../lib/server.ts";
+import type { Kind, Library } from "../../../../src/registry/schema.ts";
+
+Astro.cache?.set({ maxAge: 3600, swr: 86400 });
+
+const libs = await getLibraries();
+const lib = libs.find((l) => l.id === Astro.params.id);
+if (!lib) return new Response("Not found", { status: 404 });
+
+const groups = new Map<Kind, Library[]>();
+for (const l of libs) groups.set(l.kind, [...(groups.get(l.kind) ?? []), l]);
+const byId = new Map(libs.map((l) => [l.id, l]));
+const related = (ids?: string[]) => (ids ?? []).map((i) => byId.get(i)).filter((x): x is Library => !!x);
+
+const prompt = `# ${lib.name}\n${lib.note}\n\nUse for:\n${lib.useFor.map((u) => `- ${u}`).join("\n")}\n\nAvoid when:\n${lib.avoidWhen.map((u) => `- ${u}`).join("\n")}\n\nInstall: ${lib.install}`;
+const facts: [string, string][] = [
+  ["Frameworks", lib.frameworks.join(", ")],
+  ["Styling", lib.styling],
+  ["Weight", lib.weight],
+  ["Accessibility", lib.a11y],
+  ["Maturity", lib.maturity],
+  ["License", lib.license],
+];
+if (lib.stats?.stars) facts.push(["GitHub stars", `${lib.stats.stars.toLocaleString("en")}${lib.stats.starsWeek ? ` (+${lib.stats.starsWeek} this week)` : ""}`]);
+if (lib.stats?.downloadsWeek) facts.push(["npm / week", lib.stats.downloadsWeek.toLocaleString("en")]);
+---
+
+<Base title={`${lib.name} · tastebase`} description={lib.tagline}>
+  <div class="grid min-h-svh grid-cols-1 pt-14 lg:h-svh lg:grid-cols-[248px_1fr_360px]">
+    <aside class="hidden overflow-y-auto border-r border-line px-2.5 py-4 lg:block" transition:persist="sidebar">
+      {
+        [...groups].map(([k, list]) => {
+          const m = kindMeta[k];
+          return (
+            <div class="mb-4">
+              <h4 class="flex items-center gap-2 px-2 py-1 text-[13px] font-semibold">
+                <m.icon size={15} style={{ color: m.color }} />
+                {m.label}
+              </h4>
+              {list.map((l) => (
+                <a href={`/browse/${l.id}`} data-lib={l.id} class="relative flex items-center justify-between rounded-lg py-1.5 pr-2 pl-8 text-[13.5px] text-fg2 transition-colors hover:text-fg">
+                  <span class="relative">{l.name}</span>
+                  {l.maturity === "experimental" && <span class="relative rounded-full bg-green/12 px-1.5 text-[11px] font-medium text-green">New</span>}
+                </a>
+              ))}
+            </div>
+          );
+        })
+      }
+    </aside>
+
+    <section class="flex min-w-0 flex-col border-r border-line">
+      <Stage client:load id={lib.id} name={lib.name} url={lib.url} />
+      <CodeTabs client:visible usage={lib.usage} prompt={prompt} install={lib.install} />
+    </section>
+
+    <aside class="overflow-y-auto px-5 py-5">
+      <div class="flex items-center gap-3">
+        <LibMark lib={lib} size={42} />
+        <div class="min-w-0">
+          <h1 class="text-lg font-semibold tracking-[-0.02em]" transition:name="lib-name">{lib.name}</h1>
+          <div class="text-[13px] text-fg2">by {lib.author}</div>
+        </div>
+      </div>
+      <p class="mt-3 text-fg2">{lib.tagline}</p>
+      <div class="mt-3 flex gap-3 text-[13px] text-fg2">
+        {lib.repo && <a href={lib.repo} target="_blank" rel="noreferrer" class="inline-flex items-center gap-1 hover:text-fg"><GithubMark size={13} /> GitHub</a>}
+        {lib.npm && <a href={`https://npmjs.com/package/${lib.npm}`} target="_blank" rel="noreferrer" class="inline-flex items-center gap-1 hover:text-fg"><Package size={13} /> npm</a>}
+        <a href={lib.url} target="_blank" rel="noreferrer" class="inline-flex items-center gap-1 hover:text-fg">Site <ArrowUpRight size={13} /></a>
+      </div>
+
+      <h5 class="mt-6 mb-2 text-[13px] font-semibold">Install</h5>
+      <div class="flex items-center gap-2 rounded-xl bg-s1 py-1 pr-1 pl-3 shadow-[inset_0_0_0_1px_var(--color-line)]">
+        <code class="min-w-0 flex-1 truncate font-mono text-[12px] text-fg/90">{lib.install}</code>
+        <CopyButton client:visible value={lib.install} />
+      </div>
+
+      <h5 class="mt-6 mb-2 text-[13px] font-semibold">Use it for</h5>
+      <ul class="rise grid gap-1.5">{lib.useFor.map((u) => <li class="flex gap-2 text-[13px] text-fg2"><Check size={14} class="mt-[3px] shrink-0 text-green" />{u}</li>)}</ul>
+      <h5 class="mt-6 mb-2 text-[13px] font-semibold">Skip it when</h5>
+      <ul class="rise grid gap-1.5">{lib.avoidWhen.map((u) => <li class="flex gap-2 text-[13px] text-fg2"><X size={14} class="mt-[3px] shrink-0 text-amber" />{u}</li>)}</ul>
+
+      <h5 class="mt-6 mb-2 text-[13px] font-semibold">Facts</h5>
+      <dl class="grid grid-cols-[110px_1fr] gap-y-1.5 text-[13px]">
+        {facts.map(([k, v]) => [<dt class="text-fg3">{k}</dt>, <dd class="capitalize">{v}</dd>])}
+      </dl>
+
+      {
+        (
+          [
+            ["Pairs with", related(lib.pairsWith)],
+            ["Alternatives", related(lib.alternatives)],
+          ] as const
+        ).map(([title, list]) =>
+          list.length ? (
+            <div>
+              <h5 class="mt-6 mb-2 text-[13px] font-semibold">{title}</h5>
+              <div class="flex flex-wrap gap-1.5">
+                {list.map((l) => (
+                  <a href={`/browse/${l.id}`} class="press inline-flex items-center gap-2 rounded-lg bg-s2 py-1 pr-2.5 pl-1 text-[13px] hover:bg-s3">
+                    <LibMark lib={l} size={22} />
+                    {l.name}
+                  </a>
+                ))}
+              </div>
+            </div>
+          ) : null,
+        )
+      }
+    </aside>
+  </div>
+
+  <script>
+    // Sidebar is persisted across navigations, so move the active marker ourselves: a pill that slides between rows.
+    function mark() {
+      const id = location.pathname.split("/").pop();
+      document.querySelectorAll<HTMLElement>("[data-lib]").forEach((a) => a.toggleAttribute("data-active", a.dataset.lib === id));
+      document.querySelector("[data-active]")?.scrollIntoView({ block: "nearest" });
+    }
+    document.addEventListener("astro:page-load", mark);
+  </script>
+</Base>

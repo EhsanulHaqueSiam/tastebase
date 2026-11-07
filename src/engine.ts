@@ -92,6 +92,7 @@ export function pick(
     let caution: string | undefined;
     for (const a of lib.avoidWhen) if (overlap(q, a) >= 2) { score -= 3; caution = a; break; }
     if (score <= 0) continue;
+    score += Math.min(1.5, (lib.stats?.starsWeek ?? 0) / 400); // momentum breaks ties, never overrides fit
     out.push({ lib, score: score + MATURITY[lib.maturity], why: best || lib.tagline, caution });
   }
   return out.sort((a, b) => b.score - a.score).slice(0, opts.limit ?? 3);

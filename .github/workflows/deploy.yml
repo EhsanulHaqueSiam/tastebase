@@ -1,0 +1,56 @@
+# main -> prod, each PR -> its own preview stage (pr-N), closed PR -> preview destroyed.
+# Secrets come from stacks/github.ts (see README "Deploy").
+name: Deploy
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, reopened, synchronize, closed]
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  STAGE: >-
+    ${{ github.event_name == 'pull_request'
+      && format('pr-{0}', github.event.number)
+      || 'prod' }}
+
+jobs:
+  deploy:
+    if: github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test
+      - run: pnpm alchemy deploy --stage ${{ env.STAGE }} --yes --no-input
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          STATS_GITHUB_TOKEN: ${{ secrets.STATS_GITHUB_TOKEN }}
+
+  cleanup:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - name: Never destroy prod
+        run: '[ "${{ env.STAGE }}" != "prod" ] || { echo "refusing to destroy prod"; exit 1; }'
+      - run: pnpm alchemy destroy --stage ${{ env.STAGE }} --yes --no-input
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          STATS_GITHUB_TOKEN: ${{ secrets.STATS_GITHUB_TOKEN }}

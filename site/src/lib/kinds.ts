@@ -1,10 +1,6 @@
-// The site reads the same registry and engine the MCP server uses, so what you see is what the agent gets.
-import { Box, Boxes, Command, Gem, Image, Layers, LineChart, MessageSquare, MousePointerClick, Bell, ScrollText, Shapes, Sparkles, Type, type LucideIcon } from "lucide-react";
-import { aesthetics, libraries } from "../../src/registry/index.ts";
-import type { Kind, Library } from "../../src/registry/schema.ts";
-
-export { aesthetics, libraries };
-export type { Library, Kind };
+// Client-safe: labels, icons and colours per kind. No registry import, so islands stay small.
+import { Bell, Box, Boxes, Command, Gem, Image, Layers, LineChart, MessageSquare, MousePointerClick, ScrollText, Shapes, Sparkles, Type, type LucideIcon } from "lucide-react";
+import type { Kind } from "../../../src/registry/schema.ts";
 
 export const kindMeta: Record<Kind, { label: string; icon: LucideIcon; color: string }> = {
   "component-kit": { label: "Component kits", icon: Boxes, color: "var(--color-blue)" },
@@ -23,7 +19,4 @@ export const kindMeta: Record<Kind, { label: string; icon: LucideIcon; color: st
   scroll: { label: "Scroll", icon: ScrollText, color: "var(--color-pink)" },
 };
 
-export const byId = new Map(libraries.map((l) => [l.id, l]));
 export const shot = (id: string) => `/shots/${id}.webp`;
-export const isHot = (l: Library) => (l.stats?.starsWeek ?? 0) >= 150;
-export const isNew = (l: Library) => l.maturity === "experimental";

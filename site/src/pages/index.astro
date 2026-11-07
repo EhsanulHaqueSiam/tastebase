@@ -1,0 +1,35 @@
+---
+import Footer from "../components/Footer.tsx";
+import Gallery from "../components/Gallery.tsx";
+import Hero from "../components/Hero.tsx";
+import PlanDemo from "../components/PlanDemo.tsx";
+import Setup from "../components/Setup.tsx";
+import TouchIt from "../components/TouchIt.tsx";
+import Base from "../layouts/Base.astro";
+import { kinds } from "../../../src/registry/schema.ts";
+import { formatPlan } from "../../../src/format.ts";
+import { plan } from "../../../src/engine.ts";
+import { aesthetics, getLibraries, lite, planJson } from "../lib/server.ts";
+
+// Edge-cached for an hour; stale copies serve for a day while it refreshes.
+Astro.cache?.set({ maxAge: 3600, swr: 86400 });
+
+const BRIEFS = [
+  "iOS-feel habit tracker with a bottom sheet and animated stats",
+  "dev-tool landing page like Resend with a shader hero",
+  "playful onboarding flow with confetti-level delight",
+  "dense analytics dashboard with charts and a command menu",
+];
+const libs = await getLibraries();
+const origin = Astro.url.origin;
+const commands = [`claude mcp add --transport http tastebase ${origin}/mcp`, "claude mcp add tastebase -- npx -y tastebase", "npx skills add EhsanulHaqueSiam/tastebase"];
+---
+
+<Base home>
+  <Hero client:load counts={{ libs: libs.length, looks: aesthetics.length, kinds: kinds.length }} />
+  <PlanDemo client:visible initial={planJson(libs, BRIEFS[0]!)} briefs={BRIEFS} />
+  <TouchIt client:visible />
+  <Gallery client:visible libs={libs.map(lite)} />
+  <Setup client:visible commands={commands} sample={formatPlan(plan(libs, aesthetics, BRIEFS[0]!))} />
+  <Footer client:visible />
+</Base>

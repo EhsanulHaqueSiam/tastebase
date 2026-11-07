@@ -1,17 +1,12 @@
 {
+  "extends": "astro/tsconfigs/strict",
   "compilerOptions": {
-    "target": "ES2023",
-    "lib": ["ES2023", "DOM", "DOM.Iterable"],
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
     "jsx": "react-jsx",
-    "strict": true,
-    "noUncheckedIndexedAccess": true,
+    "jsxImportSource": "react",
     "allowImportingTsExtensions": true,
-    "noEmit": true,
-    "skipLibCheck": true,
-    "types": ["vite/client"]
+    "noUncheckedIndexedAccess": true,
+    "types": ["@cloudflare/workers-types"]
   },
-  "include": ["src", "../src/registry", "../src/engine.ts", "../src/format.ts"],
-  "exclude": ["../src/**/*.test.ts"]
+  "include": [".astro/types.d.ts", "src", "../src/registry", "../src/engine.ts", "../src/format.ts", "../src/mcp.ts", "../src/trending.ts", "../alchemy.run.ts"],
+  "exclude": ["dist", "../src/**/*.test.ts"]
 }

@@ -1,12 +1,21 @@
 // Floating dock in the designindex style: near-black pill, icon buttons, a spring pill marks the active item.
-import type { LucideIcon } from "lucide-react";
+import { navigate } from "astro:transitions/client";
+import { Home, LayoutGrid, Search, TerminalSquare, type LucideIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { GithubMark } from "./GithubMark.tsx";
 
 type Item = { id: string; label: string; icon: LucideIcon | typeof GithubMark; hint?: string; onSelect: () => void };
 
-export function Dock({ active, items }: { active: string; items: Item[] }) {
+const ITEMS: Item[] = [
+  { id: "home", label: "Home", icon: Home, onSelect: () => window.scrollTo({ top: 0, behavior: "smooth" }) },
+  { id: "browse", label: "Browse", icon: LayoutGrid, onSelect: () => navigate("/browse") },
+  { id: "search", label: "Search", icon: Search, hint: "⌘K", onSelect: () => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true })) },
+  { id: "mcp", label: "Add to Claude", icon: TerminalSquare, onSelect: () => document.getElementById("mcp")?.scrollIntoView({ behavior: "smooth" }) },
+  { id: "github", label: "GitHub", icon: GithubMark, onSelect: () => window.open("https://github.com/EhsanulHaqueSiam/tastebase", "_blank", "noopener") },
+];
+
+export default function Dock({ active = "home", items = ITEMS }: { active?: string; items?: Item[] }) {
   const [hover, setHover] = useState<string>();
   return (
     <motion.nav

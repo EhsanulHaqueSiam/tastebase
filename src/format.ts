@@ -2,8 +2,20 @@
 import type { Plan, Scored } from "./engine.ts";
 import type { Library } from "./registry/schema.ts";
 
+const hot = (l: Library) => (l.stats?.starsWeek ? ` | +${l.stats.starsWeek}★ this week` : "");
+
 export const line = (s: Scored) =>
-  `${s.lib.id}: ${s.lib.tagline} | why: ${s.why} | ${s.lib.install}${s.caution ? ` | careful: ${s.caution}` : ""}`;
+  `${s.lib.id}: ${s.lib.tagline} | why: ${s.why} | ${s.lib.install}${hot(s.lib)}${s.caution ? ` | careful: ${s.caution}` : ""}`;
+
+/** Libraries gaining the most GitHub stars this week. */
+export function formatTrending(libs: Library[], limit = 10): string {
+  const ranked = libs.filter((l) => (l.stats?.starsWeek ?? 0) > 0).sort((a, b) => b.stats!.starsWeek! - a.stats!.starsWeek!);
+  if (!ranked.length) return "No trending data yet (stats refresh daily).";
+  return ranked
+    .slice(0, limit)
+    .map((l) => `${l.id} (${l.kind}): +${l.stats!.starsWeek}★ this week, ${l.stats!.stars ?? "?"}★ total${l.stats!.downloadsWeek ? `, ${l.stats!.downloadsWeek.toLocaleString("en")} npm/wk` : ""} | ${l.tagline}`)
+    .join("\n");
+}
 
 export function formatPlan(p: Plan): string {
   const L = p.look;

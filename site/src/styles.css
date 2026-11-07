@@ -57,3 +57,17 @@ body { font-family: var(--font-sans); font-size: 14px; line-height: 1.5; -webkit
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: 1ms !important; animation-duration: 1ms !important; }
 }
+
+/* Library sidebar: it persists across pages, so the active row is marked in JS and its pill fades and settles in. */
+[data-lib]::before {
+  content: ""; position: absolute; inset: 0; border-radius: 8px; background: var(--color-s2);
+  opacity: 0; transform: scale(0.96); transition: opacity 200ms, transform 300ms var(--ease-out);
+}
+[data-lib][data-active]::before { opacity: 1; transform: scale(1); }
+[data-lib][data-active] { color: var(--color-fg); }
+
+/* Notes rise in, row by row, on each library page. */
+.rise > * { animation: rise 420ms var(--ease-out) both; }
+.rise > *:nth-child(2) { animation-delay: 40ms; } .rise > *:nth-child(3) { animation-delay: 80ms; }
+.rise > *:nth-child(4) { animation-delay: 120ms; } .rise > *:nth-child(n + 5) { animation-delay: 160ms; }
+@keyframes rise { from { opacity: 0; transform: translateX(8px); } }
