@@ -1,11 +1,11 @@
-// Server-only: the registry, the engine and live stats. Islands never import this; they get props or call /api.
+// Server-only: the registry, the engine and live stats. Islands import only its types; they get props or call /api.
 import { env } from "cloudflare:workers";
 import { pick, plan } from "../../../src/engine.ts";
 import { aesthetics, libraries } from "../../../src/registry/index.ts";
 import type { Framework, Kind, Library } from "../../../src/registry/schema.ts";
 import { STATS_KEY, withStats, type Stats } from "../../../src/trending.ts";
 
-export { aesthetics };
+export { aesthetics, libraries };
 
 /** Registry merged with the latest stats the cron wrote. Missing stats (first deploy, local dev) are fine. */
 export async function getLibraries(): Promise<Library[]> {
@@ -14,8 +14,8 @@ export async function getLibraries(): Promise<Library[]> {
 }
 
 /** What a card or list row needs. */
-export type Lite = Pick<Library, "id" | "name" | "tagline" | "kind" | "install"> & { hot: boolean };
-export const lite = (l: Library): Lite => ({ id: l.id, name: l.name, tagline: l.tagline, kind: l.kind, install: l.install, hot: (l.stats?.starsWeek ?? 0) >= 150 });
+export type Lite = Pick<Library, "id" | "name" | "tagline" | "kind" | "install">;
+export const lite = ({ id, name, tagline, kind, install }: Library): Lite => ({ id, name, tagline, kind, install });
 
 export type PlanJson = {
   look: { name: string; summary: string; type: string; colour: string; motion: string };

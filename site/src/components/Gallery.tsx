@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { Kind } from "../../../src/registry/schema.ts";
 import { kindMeta, shot } from "../lib/kinds.ts";
 import type { Lite } from "../lib/server.ts";
+import { isHot, useStats } from "../lib/stats.ts";
 import { Rise, SpotCard } from "./fx.tsx";
 import { LibMark } from "./LibMark.tsx";
 
@@ -11,6 +12,7 @@ import { LibMark } from "./LibMark.tsx";
 export default function Gallery({ libs }: { libs: Lite[] }) {
   const kinds = ["all", ...new Set(libs.map((l) => l.kind))] as ("all" | Kind)[];
   const [k, setK] = useState<"all" | Kind>("all");
+  const stats = useStats();
   const list = libs.filter((l) => k === "all" || l.kind === k).slice(0, 12);
   return (
     <section id="gallery" className="mx-auto max-w-6xl px-4 py-24">
@@ -35,7 +37,7 @@ export default function Gallery({ libs }: { libs: Lite[] }) {
                   <div className="relative aspect-[16/10] overflow-hidden bg-s2">
                     <img src={shot(l.id)} alt={`${l.name} website`} loading="lazy" className="size-full object-cover object-top transition-transform duration-700 ease-[var(--ease-out)] group-hover:scale-[1.04]" />
                     <span className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-s1 to-transparent" />
-                    {l.hot && <span className="absolute top-3 left-3 rounded-full bg-amber/15 px-2 py-0.5 text-[11px] font-medium text-amber backdrop-blur-md">Hot</span>}
+                    {isHot(stats?.[l.id]) && <span className="absolute top-3 left-3 rounded-full bg-amber/15 px-2 py-0.5 text-[11px] font-medium text-amber backdrop-blur-md">Hot</span>}
                   </div>
                   <div className="flex items-center gap-3 p-4 pt-1">
                     <LibMark lib={l} size={30} />

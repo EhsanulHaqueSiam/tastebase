@@ -7,6 +7,8 @@ import pkg from "../../../package.json" with { type: "json" };
 import { aesthetics, getLibraries } from "../lib/server.ts";
 
 export const ALL: APIRoute = async ({ request }) => {
+  // No server-initiated stream in stateless mode; the spec answers GET with 405.
+  if (request.method === "GET") return new Response(null, { status: 405, headers: { allow: "POST" } });
   const transport = new WebStandardStreamableHTTPServerTransport({ sessionIdGenerator: undefined, enableJsonResponse: true });
   await createServer(await getLibraries(), aesthetics, pkg.version).connect(transport);
   return transport.handleRequest(request);

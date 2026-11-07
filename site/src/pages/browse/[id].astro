@@ -8,14 +8,16 @@ import { LibMark } from "../../components/LibMark.tsx";
 import Stage from "../../components/Stage.tsx";
 import Base from "../../layouts/Base.astro";
 import { kindMeta } from "../../lib/kinds.ts";
-import { getLibraries } from "../../lib/server.ts";
+import { libraries } from "../../lib/server.ts";
+import Adoption from "../../components/Adoption.tsx";
 import type { Kind, Library } from "../../../../src/registry/schema.ts";
 
-Astro.cache?.set({ maxAge: 3600, swr: 86400 });
+// Prerendered: one page per library at build time. Live adoption numbers load in the Adoption island.
+export const prerender = true;
+export const getStaticPaths = () => libraries.map((l) => ({ params: { id: l.id } }));
 
-const libs = await getLibraries();
-const lib = libs.find((l) => l.id === Astro.params.id);
-if (!lib) return new Response("Not found", { status: 404 });
+const libs = libraries;
+const lib = libs.find((l) => l.id === Astro.params.id)!;
 
 const groups = new Map<Kind, Library[]>();
 for (const l of libs) groups.set(l.kind, [...(groups.get(l.kind) ?? []), l]);
@@ -31,8 +33,6 @@ const facts: [string, string][] = [
   ["Maturity", lib.maturity],
   ["License", lib.license],
 ];
-if (lib.stats?.stars) facts.push(["GitHub stars", `${lib.stats.stars.toLocaleString("en")}${lib.stats.starsWeek ? ` (+${lib.stats.starsWeek} this week)` : ""}`]);
-if (lib.stats?.downloadsWeek) facts.push(["npm / week", lib.stats.downloadsWeek.toLocaleString("en")]);
 ---
 
 <Base title={`${lib.name} · tastebase`} description={lib.tagline}>
@@ -89,6 +89,8 @@ if (lib.stats?.downloadsWeek) facts.push(["npm / week", lib.stats.downloadsWeek.
       <ul class="rise grid gap-1.5">{lib.useFor.map((u) => <li class="flex gap-2 text-[13px] text-fg2"><Check size={14} class="mt-[3px] shrink-0 text-green" />{u}</li>)}</ul>
       <h5 class="mt-6 mb-2 text-[13px] font-semibold">Skip it when</h5>
       <ul class="rise grid gap-1.5">{lib.avoidWhen.map((u) => <li class="flex gap-2 text-[13px] text-fg2"><X size={14} class="mt-[3px] shrink-0 text-amber" />{u}</li>)}</ul>
+
+      <Adoption client:visible id={lib.id} />
 
       <h5 class="mt-6 mb-2 text-[13px] font-semibold">Facts</h5>
       <dl class="grid grid-cols-[110px_1fr] gap-y-1.5 text-[13px]">

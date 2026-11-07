@@ -9,10 +9,10 @@ import Base from "../layouts/Base.astro";
 import { kinds } from "../../../src/registry/schema.ts";
 import { formatPlan } from "../../../src/format.ts";
 import { plan } from "../../../src/engine.ts";
-import { aesthetics, getLibraries, lite, planJson } from "../lib/server.ts";
+import { aesthetics, libraries, lite, planJson } from "../lib/server.ts";
 
-// Edge-cached for an hour; stale copies serve for a day while it refreshes.
-Astro.cache?.set({ maxAge: 3600, swr: 86400 });
+// Prerendered at build time: no Worker CPU per visit. Live stats load in islands from /api/stats.
+export const prerender = true;
 
 const BRIEFS = [
   "iOS-feel habit tracker with a bottom sheet and animated stats",
@@ -20,9 +20,8 @@ const BRIEFS = [
   "playful onboarding flow with confetti-level delight",
   "dense analytics dashboard with charts and a command menu",
 ];
-const libs = await getLibraries();
-const origin = Astro.url.origin;
-const commands = [`claude mcp add --transport http tastebase ${origin}/mcp`, "claude mcp add tastebase -- npx -y tastebase", "npx skills add EhsanulHaqueSiam/tastebase"];
+const libs = libraries;
+const commands = ["claude mcp add --transport http tastebase https://tastebase.ehsanulsiam.workers.dev/mcp", "claude mcp add tastebase -- npx -y tastebase", "npx skills add EhsanulHaqueSiam/tastebase"];
 ---
 
 <Base home>
