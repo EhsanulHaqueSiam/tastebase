@@ -1,0 +1,18 @@
+name: Suggest a library
+description: A UI library tastebase should know about, or a better note for one it has.
+labels: [library]
+body:
+  - type: input
+    id: link
+    attributes: { label: Library, description: npm package or repository URL }
+    validations: { required: true }
+  - type: textarea
+    id: use-for
+    attributes: { label: What job is it the best pick for?, description: Concrete situations, e.g. "copy button that confirms in place" }
+    validations: { required: true }
+  - type: textarea
+    id: avoid
+    attributes: { label: When is it the wrong pick?, description: And what to use instead }
+  - type: input
+    id: look
+    attributes: { label: Looks it fits, description: "minimal, apple, glass, playful, brutalist, editorial, retro, neon, corporate, technical, luxury, organic" }

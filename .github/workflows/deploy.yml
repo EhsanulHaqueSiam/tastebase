@@ -1,56 +1,56 @@
-# main -> prod, each PR -> its own preview stage (pr-N), closed PR -> preview destroyed.
-# Secrets come from stacks/github.ts (see README "Deploy").
 name: Deploy
+
+# Every push to main (merged PRs included) deploys stage prod. Manual runs redeploy main, for example
+# after rotating a secret. Switched on by the DEPLOY_ENABLED variable that stacks/github.ts sets.
 on:
   push:
     branches: [main]
-  pull_request:
-    types: [opened, reopened, synchronize, closed]
+  workflow_dispatch:
+    inputs:
+      force:
+        description: Redeploy every resource, including ones with no detected changes.
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  statuses: write
 
 concurrency:
-  group: deploy-${{ github.ref }}
+  group: deploy-prod
   cancel-in-progress: false
-
-env:
-  STAGE: >-
-    ${{ github.event_name == 'pull_request'
-      && format('pr-{0}', github.event.number)
-      || 'prod' }}
 
 jobs:
   deploy:
-    if: vars.DEPLOY_ENABLED == 'true' && github.event.action != 'closed'
+    name: Deploy production
+    # A manual run from another branch would deploy that branch to production.
+    if: vars.DEPLOY_ENABLED == 'true' && github.repository == 'EhsanulHaqueSiam/tastebase' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
+    timeout-minutes: 15
+    env:
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      TASTEBASE_DOMAIN: ${{ vars.TASTEBASE_DOMAIN }}
+      ALCHEMY_TELEMETRY_DISABLED: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
       - uses: actions/setup-node@v4
         with: { node-version: 24, cache: pnpm }
       - run: pnpm install --frozen-lockfile
-      - run: pnpm test
-      - run: pnpm alchemy deploy --stage ${{ env.STAGE }} --yes --no-input
+      - run: pnpm check
+      - name: Deploy stage prod
+        run: pnpm alchemy deploy --stage prod --yes --no-input ${{ inputs.force && '--force' || '' }}
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           STATS_GITHUB_TOKEN: ${{ secrets.STATS_GITHUB_TOKEN }}
-
-  cleanup:
-    if: vars.DEPLOY_ENABLED == 'true' && github.event_name == 'pull_request' && github.event.action == 'closed'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
-      - uses: actions/setup-node@v4
-        with: { node-version: 24, cache: pnpm }
-      - run: pnpm install --frozen-lockfile
-      - name: Never destroy prod
-        run: '[ "${{ env.STAGE }}" != "prod" ] || { echo "refusing to destroy prod"; exit 1; }'
-      - run: pnpm alchemy destroy --stage ${{ env.STAGE }} --yes --no-input
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          STATS_GITHUB_TOKEN: ${{ secrets.STATS_GITHUB_TOKEN }}
+      - name: Smoke test
+        run: pnpm probe https://tastebase.ehsanulsiam.workers.dev --quiet
+      - name: Commit status
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner, repo: context.repo.repo, sha: context.sha, state: "success",
+              context: "Deploy / production", description: "Deployed to tastebase.ehsanulsiam.workers.dev",
+              target_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+            });

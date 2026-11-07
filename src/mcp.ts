@@ -16,7 +16,7 @@ export function createServer(libs: Library[], looks: Aesthetic[], version: strin
   const server = new McpServer({ name: "tastebase", version }, { instructions: INSTRUCTIONS });
   const byId = new Map(libs.map((l) => [l.id, l]));
   const lookById = new Map(looks.map((a) => [a.id, a]));
-  const fw = z.enum(frameworks).optional().describe("Target framework; filters out libraries that do not support it");
+  const fw = z.enum(frameworks).optional().describe("Only libraries for this framework");
 
   server.registerTool(
     "plan",
@@ -40,12 +40,11 @@ export function createServer(libs: Library[], looks: Aesthetic[], version: strin
         need: z.string(),
         framework: fw,
         look: z.enum(aestheticIds).optional(),
-        kind: z.enum(kinds).optional(),
       },
       annotations: { readOnlyHint: true },
     },
-    async ({ need, framework, look, kind }) => {
-      const r = pick(libs, need, { framework, kind, look: look ? lookById.get(look) : undefined });
+    async ({ need, framework, look }) => {
+      const r = pick(libs, need, { framework, look: look ? lookById.get(look) : undefined });
       return text(r.length ? r.map(line).join("\n") : "No match. Try other words, or call plan with the whole brief.");
     },
   );
@@ -71,11 +70,11 @@ export function createServer(libs: Library[], looks: Aesthetic[], version: strin
     "trending",
     {
       description: "UI libraries gaining the most GitHub stars this week, optionally for one kind or framework. Use when asked what is hot or new.",
-      inputSchema: { kind: z.enum(kinds).optional(), framework: fw, limit: z.number().int().min(1).max(25).optional() },
+      inputSchema: { kind: z.enum(kinds).optional(), framework: fw },
       annotations: { readOnlyHint: true },
     },
-    async ({ kind, framework, limit }) =>
-      text(formatTrending(libs.filter((l) => (!kind || l.kind === kind) && (!framework || l.frameworks.includes(framework))), limit)),
+    async ({ kind, framework }) =>
+      text(formatTrending(libs.filter((l) => (!kind || l.kind === kind) && (!framework || l.frameworks.includes(framework))))),
   );
 
   return server;

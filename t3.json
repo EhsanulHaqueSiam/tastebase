@@ -1,0 +1,11 @@
+{
+  "$schema": "https://t3.codes/schema/t3.json",
+  "iconPath": "assets/icon.png",
+  "defaultThreadEnvMode": "worktree",
+  "scripts": [
+    { "name": "Dev", "command": "pnpm dev", "icon": "play", "stopOnSettle": true },
+    { "name": "Check", "command": "pnpm check", "icon": "test" },
+    { "name": "Probe local", "command": "pnpm probe http://localhost:1337", "icon": "debug" },
+    { "name": "Setup Worktree", "command": "node --experimental-strip-types --no-warnings scripts/setup-worktree.ts", "icon": "configure", "runOnWorktreeCreate": true }
+  ]
+}

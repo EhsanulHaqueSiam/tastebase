@@ -1,6 +1,8 @@
-node_modules
-dist
-site/dist
-.taste-skill
-.env
 .alchemy
+dist
+.env
+node_modules
+.repos/
+site/dist
+.t3/
+.taste-skill

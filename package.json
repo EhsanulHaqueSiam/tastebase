@@ -12,12 +12,20 @@
     "skill"
   ],
   "scripts": {
-    "build": "tsdown",
+    "dev": "sh scripts/with-env.sh sh -c 'cd site && alchemy dev -c ../alchemy.run.ts'",
+    "check": "pnpm typecheck && pnpm typecheck:site && pnpm test && pnpm build",
+    "test": "node --test --experimental-strip-types --no-warnings src/engine.test.ts src/trending.test.ts src/budget.test.ts src/registry/registry.test.ts",
     "typecheck": "tsc --noEmit",
-    "test": "node --test --experimental-strip-types --no-warnings src/engine.test.ts src/trending.test.ts src/registry/registry.test.ts",
-    "dev": "alchemy dev --profile siamdev",
-    "deploy": "alchemy deploy --stage prod --profile siamdev",
-    "plan": "alchemy plan --stage prod --profile siamdev"
+    "typecheck:site": "pnpm --filter site run typecheck",
+    "build": "tsdown",
+    "probe": "node --experimental-strip-types --no-warnings scripts/probe.ts",
+    "plan": "sh scripts/with-env.sh alchemy plan --stage prod",
+    "deploy": "sh scripts/with-env.sh alchemy deploy --stage prod",
+    "logs": "sh scripts/with-env.sh alchemy logs --stage prod --tail",
+    "destroy:dev": "sh scripts/with-env.sh alchemy destroy",
+    "capture": "node --experimental-strip-types --no-warnings scripts/capture.ts",
+    "sync:repos": "node --experimental-strip-types --no-warnings scripts/sync-repos.ts",
+    "setup:worktree": "node --experimental-strip-types --no-warnings scripts/setup-worktree.ts"
   },
   "engines": {
     "node": ">=20"

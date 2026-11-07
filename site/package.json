@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "astro check"
+    "typecheck": "astro sync && tsc --noEmit -p ."
   },
   "dependencies": {
     "@astrojs/react": "7.1.4",
