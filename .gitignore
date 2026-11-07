@@ -1,6 +1,7 @@
 .alchemy
 dist
 .env
+.impeccable
 node_modules
 .repos/
 site/dist
