@@ -20,7 +20,7 @@ for (const r of repos) {
     }
     rmSync(dest, { recursive: true, force: true });
   }
-  const res = spawnSync("git", ["clone", "--quiet", "--depth", "1", "--branch", r.ref, r.url, dest], { stdio: "inherit" });
+  const res = spawnSync("git", ["-c", "advice.detachedHead=false", "clone", "--quiet", "--depth", "1", "--branch", r.ref, r.url, dest], { stdio: "inherit" });
   if (res.status !== 0) process.exit(res.status ?? 1);
   console.log(`${r.dir}: ${r.ref}`);
 }

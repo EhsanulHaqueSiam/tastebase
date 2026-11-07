@@ -28,5 +28,8 @@ tastebase is an MCP server (`tastebase`) that knows which UI library fits which 
 ## Setup (once)
 
 ```bash
-claude mcp add tastebase -- npx -y tastebase
+claude mcp add --transport http tastebase https://tastebase.ehsanulsiam.workers.dev/mcp   # hosted
+# or, offline: claude mcp add tastebase -- npx -y tastebase
 ```
+
+Ask `trending` when the user wants what is new or popular right now.
