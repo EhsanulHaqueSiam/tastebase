@@ -3,13 +3,15 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRight, ArrowUpRight, CornerDownLeft, Search, Sparkles, Wand2 } from "lucide-react";
 import { AnimatePresence, LayoutGroup, motion, useScroll, useTransform } from "motion/react";
 import { GrainGradient } from "@paper-design/shaders-react";
-import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
+
+// Below the fold and heavy (it pulls every demo library), so it loads after first paint.
+const TouchIt = lazy(() => import("../components/TouchIt.tsx"));
 import { TextMorph } from "torph/react";
 import { pick, plan } from "../../../src/engine.ts";
 import { formatPlan } from "../../../src/format.ts";
 import { aesthetics, kindMeta, libraries, shot, type Kind } from "../data.ts";
 import { CopyButton, Magnetic, Rise, ShaderBg, SpotCard } from "../components/fx.tsx";
-import { demos } from "../components/Demos.tsx";
 import { LibMark } from "../components/LibMark.tsx";
 
 const WORDS = ["ui library", "toast", "drawer", "shader", "icon set", "text morph", "glass", "chart"];
@@ -25,7 +27,9 @@ export function Home() {
     <>
       <Hero />
       <PlanDemo />
-      <TouchIt />
+      <Suspense fallback={<div className="h-[1000px]" />}>
+        <TouchIt />
+      </Suspense>
       <Gallery />
       <Setup />
       <Footer />
@@ -133,7 +137,7 @@ function PlanDemo() {
         <h2 className="text-[clamp(28px,3.6vw,44px)] leading-tight font-semibold tracking-[-0.035em]">Describe the app. Get the stack.</h2>
         <p className="mt-2 max-w-[60ch] text-[15px] text-fg2">This box runs the same <code className="font-mono text-[13px] text-fg">plan</code> tool your agent calls. It reads the look from your words, then picks one library per job.</p>
       </Rise>
-      <div className="mt-10 grid gap-4 lg:grid-cols-[1fr_1.25fr]">
+      <div className="mt-10 grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.25fr]">
         <Rise delay={0.05} className="flex flex-col gap-3">
           <div className="rounded-2xl bg-s1 p-1.5 shadow-[inset_0_0_0_1px_var(--color-line)]">
             <textarea
@@ -164,7 +168,7 @@ function PlanDemo() {
         </Rise>
         <Rise delay={0.1}>
           <LayoutGroup>
-            <ul className="grid gap-2">
+            <ul className="grid grid-cols-1 gap-2">
               <AnimatePresence mode="popLayout" initial={false}>
                 {p.items.filter((it) => it.pick).map((it, i) => {
                   const m = kindMeta[it.kind];
@@ -215,7 +219,7 @@ function Gallery() {
           </button>
         ))}
       </div>
-      <motion.div layout className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <motion.div layout className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <AnimatePresence mode="popLayout">
           {list.map((l, i) => (
             <motion.div key={l.id} layout initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1, transition: { delay: i * 0.03 } }} exit={{ opacity: 0, scale: 0.96 }}>
@@ -247,12 +251,12 @@ function Setup() {
   const sample = useMemo(() => formatPlan(plan(libraries, aesthetics, "iOS-feel habit tracker with a bottom sheet and animated stats")), []);
   return (
     <section id="mcp" className="mx-auto max-w-6xl px-4 py-24">
-      <div className="grid gap-10 lg:grid-cols-[1fr_1.2fr]">
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_1.2fr]">
         <Rise>
           <div className="flex items-center gap-2 text-[13px] text-fg2"><Sparkles size={14} className="text-amber" /> For Claude Code, Cursor, Codex</div>
           <h2 className="mt-2 text-[clamp(28px,3.6vw,44px)] leading-tight font-semibold tracking-[-0.035em]">One command. Better UI from every prompt.</h2>
           <p className="mt-3 max-w-[50ch] text-[15px] text-fg2">Three tools, short text answers. Your agent asks before it writes UI, installs what fits, and follows the look's rules.</p>
-          <div className="mt-6 grid gap-2">
+          <div className="mt-6 grid grid-cols-1 gap-2">
             {["claude mcp add tastebase -- npx -y tastebase", "npx skills add EhsanulHaqueSiam/tastebase"].map((c) => (
               <div key={c} className="flex items-center gap-2 rounded-xl bg-s1 py-1.5 pr-1.5 pl-4 shadow-[inset_0_0_0_1px_var(--color-line)]">
                 <code className="min-w-0 flex-1 truncate font-mono text-[12.5px] text-fg/90">{c}</code>
@@ -274,45 +278,6 @@ function Setup() {
             <pre className="max-h-[420px] overflow-auto p-4 font-mono text-[12px] leading-relaxed whitespace-pre-wrap text-fg/85">{sample}</pre>
           </div>
         </Rise>
-      </div>
-    </section>
-  );
-}
-
-const TOUCH: [string, string, string][] = [
-  ["torph", "Text that morphs", "Torph"],
-  ["number-flow", "Numbers that roll", "NumberFlow"],
-  ["glisse", "Liquid glass", "Glisse"],
-  ["motion", "Springs you can throw", "Motion"],
-  ["lucide", "Icons that morph", "Lucide + Motion"],
-  ["sonner", "Toasts that stack", "Sonner"],
-  ["cmdk", "Command menus", "cmdk"],
-  ["vaul", "Drawers you can fling", "Vaul"],
-];
-
-function TouchIt() {
-  return (
-    <section className="mx-auto max-w-6xl px-4 py-24">
-      <Rise>
-        <h2 className="text-[clamp(28px,3.6vw,44px)] leading-tight font-semibold tracking-[-0.035em]">Touch it before you install it.</h2>
-        <p className="mt-2 max-w-[56ch] text-[15px] text-fg2">Every demo below runs on the real library. Tap, drag, flick.</p>
-      </Rise>
-      <div className="mt-10 grid auto-rows-[260px] gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {TOUCH.map(([id, title, lib], i) => {
-          const Demo = demos[id];
-          if (!Demo) return null;
-          return (
-            <Rise key={id} delay={i * 0.06} className={i === 2 ? "lg:row-span-2" : ""}>
-              <SpotCard className="relative flex h-full flex-col overflow-hidden rounded-2xl bg-s1 shadow-[inset_0_0_0_1px_var(--color-line)]">
-                <div className="dots relative grid flex-1 place-items-center overflow-hidden">{<Demo />}</div>
-                <Link to="/browse/$id" params={{ id }} className="group flex items-center justify-between border-t border-line px-4 py-3">
-                  <span><span className="font-medium">{title}</span> <span className="text-fg3">· {lib}</span></span>
-                  <ArrowUpRight size={15} className="text-fg3 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-fg" />
-                </Link>
-              </SpotCard>
-            </Rise>
-          );
-        })}
       </div>
     </section>
   );

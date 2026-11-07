@@ -22,7 +22,7 @@ export function Browse() {
   if (!lib) return null;
 
   return (
-    <div className="grid min-h-svh pt-14 lg:h-svh lg:grid-cols-[248px_1fr_360px]">
+    <div className="grid min-h-svh grid-cols-1 pt-14 lg:h-svh lg:grid-cols-[248px_1fr_360px]">
       <aside className="hidden overflow-y-auto border-r border-line px-2.5 py-4 lg:block">
         {groups.map(([k, libs]) => {
           const m = kindMeta[k];

@@ -41,8 +41,8 @@ export function Shell() {
           <a href="/#mcp" className="transition-colors hover:text-fg">MCP</a>
         </nav>
         <span className="flex-1" />
-        <button onClick={() => setOpen(true)} className="press hidden items-center gap-2 rounded-lg bg-white/5 py-1.5 pr-1.5 pl-3 text-[13px] text-fg2 shadow-[inset_0_0_0_1px_var(--color-line)] backdrop-blur-md hover:text-fg sm:flex">
-          <Search size={14} /> Search <span className="kbd">⌘K</span>
+        <button onClick={() => setOpen(true)} aria-label="Search" className="press flex items-center gap-2 rounded-lg bg-white/5 p-2 text-[13px] text-fg2 shadow-[inset_0_0_0_1px_var(--color-line)] backdrop-blur-md hover:text-fg sm:py-1.5 sm:pr-1.5 sm:pl-3">
+          <Search size={14} /> <span className="hidden sm:inline">Search</span> <span className="kbd hidden sm:inline">⌘K</span>
         </button>
         <a href="https://github.com/EhsanulHaqueSiam/tastebase" aria-label="GitHub" className="press text-fg2 hover:text-fg"><GithubMark size={18} /></a>
       </header>
