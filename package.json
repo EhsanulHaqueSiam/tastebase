@@ -1,0 +1,32 @@
+{
+  "name": "tastebase",
+  "version": "0.1.0",
+  "description": "Curated UI libraries with the metadata coding agents need to pick the right one. CLI and MCP server.",
+  "type": "module",
+  "license": "MIT",
+  "bin": {
+    "tastebase": "./dist/cli.mjs"
+  },
+  "files": [
+    "dist",
+    "skill"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test --experimental-strip-types --no-warnings src/engine.test.ts src/registry/registry.test.ts",
+    "dev:site": "pnpm --filter site dev"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "tsdown": "^0.23.7",
+    "typescript": "^7.0.2"
+  }
+}

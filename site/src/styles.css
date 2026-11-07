@@ -1,0 +1,59 @@
+@import "tailwindcss";
+@import "glisse/styles.css";
+
+@theme {
+  --color-bg: #000;
+  --color-s1: #0b0b0c;
+  --color-s2: #121214;
+  --color-s3: #1b1b1f;
+  --color-fg: #f5f5f5;
+  --color-fg2: #a1a1a6;
+  --color-fg3: #8a8a90;
+  --color-line: rgb(255 255 255 / 0.07);
+  --color-line2: rgb(255 255 255 / 0.12);
+  --color-blue: #5b7cff;
+  --color-green: #3ecf8e;
+  --color-violet: #b197fc;
+  --color-amber: #f5b041;
+  --color-pink: #f78fc4;
+  --color-cyan: #3bd4e8;
+  --font-sans: "General Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-serif: "Instrument Serif", ui-serif, Georgia, serif;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-io: cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+html { background: #000; color: var(--color-fg); color-scheme: dark; }
+body { font-family: var(--font-sans); font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+::selection { background: rgb(91 124 255 / 0.4); }
+:focus-visible { outline: 2px solid var(--color-blue); outline-offset: 2px; border-radius: 8px; }
+
+/* press feedback for anything tappable */
+.press { transition: transform 160ms var(--ease-out), background-color 200ms, color 200ms, box-shadow 250ms var(--ease-out); }
+.press:active { transform: scale(0.97); }
+
+/* one-shot light sweep across primary buttons on hover */
+.sweep { position: relative; overflow: hidden; isolation: isolate; }
+.sweep::after {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: linear-gradient(100deg, transparent 30%, rgb(255 255 255 / 0.55) 50%, transparent 70%);
+  transform: translateX(-130%);
+}
+@media (hover: hover) { .sweep:hover::after { transform: translateX(130%); transition: transform 700ms var(--ease-out); } }
+
+/* pointer spotlight on cards: --x/--y set from JS while hovered */
+.spot { position: relative; isolation: isolate; }
+.spot::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; z-index: -1; pointer-events: none; opacity: 0;
+  background: radial-gradient(320px circle at var(--x, 50%) var(--y, 50%), rgb(255 255 255 / 0.07), transparent 60%);
+  transition: opacity 300ms;
+}
+.spot:hover::before { opacity: 1; }
+
+.kbd { font: 500 11px var(--font-mono); color: var(--color-fg2); background: var(--color-s3); border-radius: 5px; padding: 2px 6px; box-shadow: inset 0 -1px 0 rgb(255 255 255 / 0.06); }
+.dots { background: radial-gradient(circle at 1px 1px, rgb(255 255 255 / 0.06) 1px, transparent 0) 0 0 / 20px 20px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 1ms !important; animation-duration: 1ms !important; }
+}
