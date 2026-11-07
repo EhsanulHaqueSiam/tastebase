@@ -3,15 +3,15 @@
 ```
 src/registry (data) ──> src/engine.ts (pick, plan) ──> src/format.ts (compact text)
         │                       │                              │
-        │                       └──> site/src/lib/server.ts ──> /api/plan, /api/pick, pages
+        │                       └──> site/src/lib/server.ts ──> /api/plan, /api/pick, prerendered pages
         │                                                      └──> /mcp (hosted)   src/cli.ts (stdio)
         └── src/trending.ts <── cron (hourly) ──> KV `stats:v1` ──> merged in at request time
 ```
 
 One Cloudflare Worker (declared in `alchemy.run.ts`) does everything:
 
-- **Pages** (`site/src/pages/*.astro`) render on the Worker, read live stats from KV, and are cached at the
-  edge for an hour (`Astro.cache.set`). Islands receive small props; the registry never ships to the browser.
+- **Pages** (`site/src/pages/*.astro`) are prerendered at build time and served as static assets: no Worker
+  CPU per visit. Islands receive small props; live numbers (Hot badges, stars) load from `/api/stats`.
 - **`/mcp`** is the same `createServer` as the npx CLI, behind the SDK's web-standard Streamable HTTP
   transport. Stateless: a fresh server per request, JSON responses, nothing to store.
 - **`/api/*`** returns JSON for islands (hero search, plan box, ⌘K palette). Same engine as MCP.
@@ -28,8 +28,11 @@ One Cloudflare Worker (declared in `alchemy.run.ts`) does everything:
   24 GitHub calls, the batch's scoped npm packages, and one bulk npm call for the unscoped ones.
 - **`partOf` entries get no stats.** React's `<ViewTransition>` or GSAP's SplitText point at their parent's
   repo; counting the parent's stars would put them at the top of trending forever.
-- **Server-rendered + edge cache instead of static.** Static pages could not show live stats without client
-  fetches; SSR with a 1-hour cache serves repeat visits in ~70ms without running the Worker.
+- **Prerendered pages, live stats from `/api/stats`.** The free plan allows 10ms of CPU per request; an SSR
+  render of the home page took ~126ms on a cache miss. Static pages cost nothing, and one cached KV read
+  per visitor fills in the live numbers.
+- **`build.format: "file"`.** Directory output (`motion/index.html`) makes Cloudflare's asset layer redirect
+  `/browse/motion` to `/browse/motion/`, an extra hop on every library link.
 
 ## Traps
 

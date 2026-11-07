@@ -15,8 +15,9 @@ Live: https://tastebase.ehsanulsiam.workers.dev (hosted MCP at `/mcp`).
    compact text, not JSON. If you raise a budget, say why in the PR.
 3. **The site feels premium and stays light.** Motion is feedback, not decoration on a loop. No continuously
    repainting animation except shaders, which pause offscreen and under `prefers-reduced-motion`.
-4. **It runs on Cloudflare's free plan.** One Worker, one KV namespace, an hourly cron. Count subrequests
-   (50 per invocation) and KV writes (1,000 a day) before adding anything that runs per request or per cron.
+4. **It runs on Cloudflare's free plan.** One Worker, one KV namespace, an hourly cron. The limits that bite:
+   10ms CPU per request (keep pages prerendered; check `pnpm logs` for `cpu:`), 50 subrequests per invocation,
+   1,000 KV writes a day.
 
 Keep things simple: the smallest model that makes the correct behavior unsurprising. Fight scope creep.
 
@@ -49,8 +50,9 @@ Keep things simple: the smallest model that makes the correct behavior unsurpris
   [docs/internals/picking.md](docs/internals/picking.md).
 - `src/format.ts` - the compact text agents read. `src/mcp.ts` - tool definitions. `src/cli.ts` - `npx tastebase` (stdio).
 - `src/trending.ts` - stats refresh (GitHub + npm), shared by the cron and tests.
-- `site/` - Astro 7 with React islands. `src/pages` render on the Worker; `src/components` are islands;
-  `src/lib/server.ts` is server-only (registry, engine, KV); islands get props or call `/api/*`.
+- `site/` - Astro 7 with React islands. `src/pages` are prerendered (static); `src/pages/api` and `mcp.ts` run
+  on the Worker; `src/components` are islands; `src/lib/server.ts` is server-only (registry, engine, KV).
+  Islands get props, call `/api/*`, or read live stats with `useStats()` (`src/lib/stats.ts`).
 - `alchemy.run.ts` - all app infrastructure. `stacks/github.ts` - CI token, GitHub secrets, variables, labels.
 - `skills/tastebase/` - the skill we ship to users. `.agents/skills/` - skills for working on this repo
   (`.claude/skills` links to it).
