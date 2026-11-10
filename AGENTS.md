@@ -7,6 +7,8 @@ engine, so what a person sees is what the agent gets.
 
 Live: https://tastebase.ehsanulsiam.workers.dev (hosted MCP at `/mcp`).
 
+This codebase is yours: what it's for and how it's built are your call, and you'll keep building on it.
+
 ## What we never compromise on
 
 1. **Picks are right.** A wrong recommendation costs a user a bad install. Accuracy and judgment beat count.
