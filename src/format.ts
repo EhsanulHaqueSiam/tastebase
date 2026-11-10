@@ -24,7 +24,8 @@ export function formatTrending(libs: Library[], limit = 10): string {
 // Design references to look at before building. Linked, never called: an agent with one of the MCPs uses its own.
 const host = (url: string) => new URL(url).hostname.replace(/^www\./, "");
 const freeHosts = (kind: Resource["kind"]) => resources.filter((r) => r.kind === kind && r.free).slice(0, 2).map((r) => host(r.url)).join(", ");
-const refs = `refs: if you have ${resources.filter((r) => r.kind === "references" && r.mcp).map((r) => r.mcp!.name).join(" or ")}, search it for this brief's screens; free: ${freeHosts("references")}; fonts: ${freeHosts("fonts")}; colour: ${freeHosts("colour")}`;
+// The first three reference MCPs (Inspo, Mobbin, Refero) search screens; later ones are niche and would cost tokens on every plan.
+const refs = `refs: if you have ${resources.filter((r) => r.kind === "references" && r.mcp).slice(0, 3).map((r) => r.mcp!.name).join(" or ")}, search it for this brief's screens; free: ${freeHosts("references")}; fonts: ${freeHosts("fonts")}; colour: ${freeHosts("colour")}`;
 
 export function formatPlan(p: Plan): string {
   const L = p.look;
