@@ -1,7 +1,7 @@
 ---
 // Atlas: every library grouped by look, as islands or a moodboard, with free vs paid and what each one ships.
 import { chain, groupByLook, islands, ISLAND, lookAffinity, partsMatrix, paywalled, type Group } from "../../../src/atlas.ts";
-import { resources } from "../../../src/registry/resources.ts";
+import { resourceKinds, resources } from "../../../src/registry/resources.ts";
 import type { Kind, Library } from "../../../src/registry/schema.ts";
 import Base from "../layouts/Base.astro";
 import { kindMeta, shot } from "../lib/kinds.ts";
@@ -20,6 +20,9 @@ const views = tabs.map((t) => {
   return { ...t, groups, map: islands(groups, aff), mood: chain(groups, aff), matrix: t.id === "all" ? undefined : partsMatrix(t.libs) };
 });
 const title = (g: Group) => g.looks.join(" / ");
+// Resources listed in category order; the filter above the table narrows to one category.
+const resKinds = (Object.keys(resourceKinds) as (keyof typeof resourceKinds)[]).filter((k) => resources.some((r) => r.kind === k));
+const resSorted = resKinds.flatMap((k) => resources.filter((r) => r.kind === k));
 const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.length ?? 0] as const;
 ---
 
@@ -153,12 +156,16 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
     }
 
     <section class="panel" id="resources" data-panel="resources" hidden>
-      <p class="max-w-[720px] text-[13.5px] text-fg2">Not installed, but they help you design. tastebase only links to them. If your agent already has one connected under your own account, its plan answer says what to search for.</p>
+      <p class="max-w-[720px] text-[13.5px] text-fg2">Not installed, but they help you design. tastebase only links to them. If your agent already has one connected under your own account, its plan answer says what to search for. Agents can list one category with <code>get fonts</code>, <code>get tools</code> and so on.</p>
+      <div class="rfilter" role="group" aria-label="Resource category">
+        <button type="button" data-rkind="all" aria-pressed="true">All<small>{resources.length}</small></button>
+        {resKinds.map((k) => <button type="button" data-rkind={k} aria-pressed="false">{resourceKinds[k]}<small>{resources.filter((r) => r.kind === k).length}</small></button>)}
+      </div>
       <table class="rtbl">
         <thead><tr><th scope="col">Name</th><th scope="col">Good for</th><th scope="col">Cost</th><th scope="col">With your agent</th></tr></thead>
         <tbody>
-          {resources.map((r) => (
-            <tr>
+          {resSorted.map((r) => (
+            <tr data-kind={r.kind}>
               <td><a href={r.url} target="_blank" rel="noreferrer">{r.name}</a></td>
               <td>{r.goodFor}</td>
               <td class:list={[!r.free && "text-fg3"]}>{r.cost}</td>
@@ -179,14 +186,21 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
       const press = (attr: string, val: string) => root.querySelectorAll<HTMLButtonElement>(`[${attr}]`).forEach((b) => b.setAttribute("aria-pressed", String(b.getAttribute(attr) === val)));
       const view = (v: string) => { root.dataset.view = v; press("data-set-view", v); store("atlas:view", v); };
       const free = (f: string) => { root.toggleAttribute("data-free", f === "1"); press("data-set-free", f); store("atlas:free", f); };
+      const rkind = (k: string) => {
+        press("data-rkind", k);
+        root.querySelectorAll<HTMLElement>("tr[data-kind]").forEach((tr) => tr.toggleAttribute("hidden", k !== "all" && tr.dataset.kind !== k));
+      };
+      // #resources/tools opens the Resources tab filtered to one category.
       const tab = () => {
-        const id = location.hash.slice(1);
+        const [id, sub] = location.hash.slice(1).split("/");
+        if (id === "resources") rkind(sub && root.querySelector(`[data-rkind="${CSS.escape(sub)}"]`) ? sub : "all");
         const t = root.querySelector(`[data-panel="${CSS.escape(id)}"]`) ? id : "component-kit";
         root.querySelectorAll<HTMLElement>("[data-panel]").forEach((p) => p.toggleAttribute("hidden", p.dataset.panel !== t));
         root.querySelectorAll<HTMLElement>("[data-tab]").forEach((a) => a.toggleAttribute("aria-current", a.dataset.tab === t));
       };
       // Switching tabs keeps the scroll position; the hash still makes each tab linkable.
       root.querySelectorAll<HTMLAnchorElement>("[data-tab]").forEach((a) => a.addEventListener("click", (e) => { e.preventDefault(); history.replaceState(null, "", a.hash); tab(); }));
+      root.querySelectorAll<HTMLElement>("[data-rkind]").forEach((b) => b.addEventListener("click", () => { history.replaceState(null, "", b.dataset.rkind === "all" ? "#resources" : `#resources/${b.dataset.rkind}`); rkind(b.dataset.rkind!); }));
       root.querySelectorAll<HTMLElement>("[data-set-view]").forEach((b) => b.addEventListener("click", () => view(b.dataset.setView!)));
       root.querySelectorAll<HTMLElement>("[data-set-free]").forEach((b) => b.addEventListener("click", () => free(b.dataset.setFree!)));
       view(store("atlas:view") === "mood" ? "mood" : "islands");
@@ -275,7 +289,13 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
   .plist dt img { width: 16px; height: 16px; border-radius: 4px; object-fit: contain; }
   .plist dd { color: var(--color-fg2); }
   @media (max-width: 640px) { .plist { grid-template-columns: 1fr; } .plist dt { border-bottom: 0; padding-bottom: 0; } }
-  .rtbl { margin-top: 16px; width: 100%; border-collapse: collapse; font-size: 13px; }
+  .rfilter { margin-top: 14px; display: flex; gap: 18px; overflow-x: auto; border-bottom: 1px solid var(--color-line); scrollbar-width: none; }
+  .rfilter button { white-space: nowrap; border-bottom: 1.5px solid transparent; padding: 8px 0; font-size: 13px; color: var(--color-fg2); transition: color 200ms; }
+  .rfilter button:hover, .rfilter button[aria-pressed="true"] { color: var(--color-fg); }
+  .rfilter button[aria-pressed="true"] { border-color: var(--color-fg); }
+  .rfilter small { margin-left: 5px; color: var(--color-fg3); font-variant-numeric: tabular-nums; font-size: 12px; }
+  .rtbl tr[hidden] { display: none; }
+  .rtbl { margin-top: 4px; width: 100%; border-collapse: collapse; font-size: 13px; }
   .rtbl th { border-bottom: 1px solid var(--color-line2); padding: 6px 10px 6px 0; text-align: left; font-weight: 500; color: var(--color-fg3); }
   .rtbl td { border-bottom: 1px solid var(--color-line); padding: 9px 10px 9px 0; vertical-align: top; }
   .rtbl td:nth-child(2) { color: var(--color-fg2); }

@@ -28,3 +28,9 @@ for tabs and toggles.
   screenshots download on first paint.
 - Adding a field to `ISLAND` without the matching CSS variable in `atlas.astro` breaks the no-overlap guarantee
   visually even though the test still passes.
+
+## Resources tab
+
+Resources are not libraries, so they get no look groups. The tab lists them in `resourceKinds` order with a
+category filter (linkable as `#resources/<category>`); the same categories group them in the ⌘K palette and answer `get <category>` over MCP, so a new
+category only needs a label in `resourceKinds`.

@@ -3,11 +3,23 @@
 // has it, plan answers say what to search for. Verified on 2026-11-08; the second batch (from @siamships bookmarks)
 // on 2026-11-10.
 
+/** Resource categories, in the order the site and agents list them. */
+export const resourceKinds = {
+  references: "References",
+  fonts: "Fonts",
+  colour: "Colour",
+  assets: "Assets",
+  tools: "Agent tools",
+  directories: "Component directories",
+} as const;
+export type ResourceKind = keyof typeof resourceKinds;
+export const isResourceKind = (id: string): id is ResourceKind => Object.hasOwn(resourceKinds, id);
+
 export type Resource = {
   id: string;
   name: string;
   url: string;
-  kind: "references" | "fonts" | "colour" | "assets" | "tools" | "directories";
+  kind: ResourceKind;
   goodFor: string;
   cost: string;
   /** Usable for real without paying. */

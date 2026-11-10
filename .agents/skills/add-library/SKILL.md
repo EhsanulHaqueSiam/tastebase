@@ -52,6 +52,14 @@ pnpm test             # ids unique, references resolve, shared repos marked part
 Look at the screenshot: blank, cookie-wall or loading screens need a retry (see `scripts/capture.ts`) or the
 repo page instead. Then `pnpm dev` and check `/browse/<id>`, and `pnpm probe` for the MCP answers.
 
+## Adding a design resource instead
+
+Sites that help design but are not installed (galleries, fonts, colour tools, assets, agent design skills, component
+directories) go in `src/registry/resources.ts` under the matching `kind` from `resourceKinds`, next to the others of
+that kind. Read the pricing page for `cost` and set `free` to whether it is usable for real without paying. Add `mcp`
+only for a server the user connects under their own account. A new category needs a label in `resourceKinds`; the
+Atlas filter, the ⌘K palette and `get <category>` pick it up from there.
+
 ## 5. PR
 
 Title `feat(registry): add <name>`, label `library`. Say which jobs it now wins in `pick` and confirm the
