@@ -47,7 +47,7 @@ Keep things simple: the smallest model that makes the correct behavior unsurpris
 ## Where code lives
 
 - `src/registry/` - the data. `schema.ts` is the contract; `data/{kits,motion,visuals}.ts` the entries;
-  `aesthetics.ts` the looks; `resources.ts` the design references we link to (never call). Adding a library: the
+  `aesthetics.ts` the looks; `resources.ts` the design resources we link to (never call), in categories (`resourceKinds`) that the Atlas filters by and agents list with `get <category>`. Adding a library: the
   [add-library skill](.agents/skills/add-library/SKILL.md).
 - `src/atlas.ts` - look groups, island layout and parts matrix for `/atlas`, computed at build time:
   [docs/internals/atlas.md](docs/internals/atlas.md).

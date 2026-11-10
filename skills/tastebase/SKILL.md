@@ -14,6 +14,8 @@ tastebase is an MCP server (`tastebase`) that knows which UI library fits which 
 2. **One job inside existing UI:** call `pick` with the job ("copy button that confirms", "bottom sheet",
    "animated price"). Pass the project's look if you know it.
 3. Call `get` only for the libraries you will install. Follow its usage and note.
+   For design help that is not installed, `get` a category: `references`, `fonts`, `colour`, `assets`, `tools`
+   (agent design skills, DESIGN.md generators) or `directories` (more components to install).
 4. Install with the project's package manager (swap `npm i` for `pnpm add` / `bun add` when the lockfile says so).
    Copy-in registries (`npx shadcn@latest add ...`) are fine to run as given.
 
