@@ -11,6 +11,6 @@
     "skipLibCheck": true,
     "types": ["node"]
   },
-  "include": ["src", "scripts", "stacks", "alchemy.run.ts", "tsdown.config.ts"],
+  "include": ["src", "scripts", "evals", "stacks", "alchemy.run.ts", "tsdown.config.ts"],
   "exclude": ["site"]
 }

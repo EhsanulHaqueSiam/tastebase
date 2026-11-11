@@ -5,6 +5,17 @@ use for a job and a look. The registry entries are the product: an agent reads `
 `aesthetic`, `alternatives` and `note` to decide what to install. The website shows the same data and the same
 engine, so what a person sees is what the agent gets.
 
+What it is for:
+
+1. **An agent knows what goes together.** Which library fits which look, which ones complement each other, all
+   in answers an agent can read cheaply, like retrieval over the registry.
+2. **One prompt, a page worth 9.9/10.** Someone who installs tastebase and follows its flow (MCP plus the skill)
+   gets a page from a single prompt where everything looks right.
+3. **A person can choose by feel.** The site lets people compare libraries by look, trend and what they ship, and
+   see how each one looks before they pick it.
+
+`evals/README.md` maps each of these to the evals that measure it.
+
 Live: https://tastebase.ehsanulsiam.workers.dev (hosted MCP at `/mcp`).
 
 This codebase is yours: what it's for and how it's built are your call, and you'll keep building on it.
@@ -59,6 +70,8 @@ Keep things simple: the smallest model that makes the correct behavior unsurpris
   on the Worker; `src/components` are islands; `src/lib/server.ts` is server-only (registry, engine, KV).
   Islands get props, call `/api/*`, or read live stats with `useStats()` (`src/lib/stats.ts`).
 - `alchemy.run.ts` - all app infrastructure. `stacks/github.ts` - CI token, GitHub secrets, variables, labels.
+- `evals/` - what real agents do with the MCP server, the skill and a whole page build, with recorded results:
+  [evals/README.md](evals/README.md).
 - `skills/tastebase/` - the skill we ship to users. `.agents/skills/` - skills for working on this repo
   (`.claude/skills` links to it).
 - `.repos/` - read-only reference sources, gitignored. Never edit or import from them.
@@ -77,10 +90,16 @@ Architecture in one page: [docs/internals/overview.md](docs/internals/overview.m
 
 ## Verifying
 
-- `pnpm check` before you push: root typecheck, site typecheck, tests, MCP build. CI runs the same command.
+- `pnpm check` before you push: root typecheck, site typecheck, tests, stale eval results, MCP build. CI runs the
+  same command.
+- Changed anything an agent reads (`src/mcp.ts`, `src/format.ts`, the engine, a registry entry, a look,
+  `skills/tastebase/SKILL.md`): run `pnpm eval`. It calls a model only for cases whose text changed, and
+  `pnpm check` fails until you do. A regression is yours to fix; read the trace it names first. It stays
+  recorded until the text changes or you `--accept` it, so do not re-run to clear one.
 - Test behavior that can break: engine ranking, trending math, registry integrity, the token budget. Add a row
   to an existing test before writing a new one. Do not test what types guarantee, copy text or static markup.
-- Ranking changes: run the briefs in `src/engine.test.ts` and say in the PR which picks moved and why.
+- Ranking changes: `pnpm test` fails when a pick moves; `pnpm test:update`, then say in the PR why each line in
+  the snapshot's diff moved.
 - UI changes: open the page in the browser (`.agents/skills/test-tastebase`), check desktop and ~390px, and
   attach before/after screenshots. Motion changes get a short recording.
 

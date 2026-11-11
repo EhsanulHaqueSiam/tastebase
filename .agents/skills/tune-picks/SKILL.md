@@ -11,8 +11,9 @@ Read [docs/internals/picking.md](../../../docs/internals/picking.md) first.
    in a `node --experimental-strip-types` snippet, printing ids and scores.
 2. **Fix the cheapest layer first**, in this order: the entry's `useFor`/`avoidWhen` text, a synonym in `SYN`,
    the look's `picks`, a `NEEDS` regex, and only then a scoring weight in `engine.ts`.
-3. **Pin it**: add the case to `src/engine.test.ts` (extend an existing test where one fits). It must fail
-   before your fix.
-4. **Check for collateral**: run `pnpm test` and compare the plans for the briefs in `engine.test.ts` before
-   and after. List every pick that moved in the PR, with a reason.
-5. Run `pnpm test` again for the token budget if you changed answer formatting.
+3. **Pin it**: add a row to the `briefs` or `needs` table in `src/engine.test.ts`. It must fail before your fix.
+   If the wrong pick is already there as a `known miss`, delete its `miss`.
+4. **Check for collateral**: run `pnpm test`. The snapshot test fails when any pick moved, and a `known miss`
+   that now passes fails too. Run `pnpm test:update` and give a reason in the PR for every line in the diff of
+   `src/engine.test.ts.snapshot`.
+5. Run `pnpm eval`: it re-runs the agent cases whose answers your change touched ([evals/README.md](../../../evals/README.md)).

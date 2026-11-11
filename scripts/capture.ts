@@ -5,13 +5,12 @@ import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { libraries } from "../src/registry/index.ts";
+import { chromium } from "./chromium.ts";
 
 const shots = "site/public/shots", marks = "site/public/marks";
 mkdirSync(shots, { recursive: true });
 mkdirSync(marks, { recursive: true });
 const only = new Set(process.argv.slice(2));
-const mac = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
-const chromium = process.env.CHROMIUM ?? (existsSync(mac) ? mac : "chromium");
 
 for (const l of libraries) {
   if (only.size && !only.has(l.id)) continue;

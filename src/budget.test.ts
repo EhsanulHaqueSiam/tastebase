@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
+import { formatLibrary } from "./format.ts";
 import { createServer } from "./mcp.ts";
 import { aesthetics, libraries } from "./registry/index.ts";
 
@@ -32,4 +33,14 @@ test("tool schemas and typical answers stay within the token budget", async () =
   };
   await client.close();
   for (const k of Object.keys(BUDGET) as (keyof typeof BUDGET)[]) assert.ok(used[k] <= BUDGET[k], `${k}: ${used[k]} tokens > budget ${BUDGET[k]}`);
+});
+
+// Every library, not a sample: a new entry with a long note or parts list must not push its `get` past the budget.
+// These are over it today, each with its own ceiling so it cannot grow further; trim one and take it off the list.
+const OVER: Record<string, number> = { "transitions-dev": 851, "affect-ui": 746, "arc-ui": 715, "cult-ui": 705, bencho: 691, boardui: 681, "kokonut-ui": 668, astryx: 663, "ui-stacks": 722, "opensource-ui": 703 };
+
+test("every library's get answer stays within the budget", () => {
+  const used = Object.fromEntries(libraries.map((l) => [l.id, tokens(formatLibrary(l))]));
+  assert.deepEqual(libraries.filter((l) => used[l.id]! > (OVER[l.id] ?? BUDGET.get)).map((l) => `${l.id}: ${used[l.id]}`), [], "over the get budget");
+  assert.deepEqual(Object.keys(OVER).filter((id) => used[id]! <= BUDGET.get), [], "now within budget: take it off OVER");
 });

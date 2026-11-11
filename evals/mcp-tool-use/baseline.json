@@ -1,0 +1,13 @@
+{
+  "model": "claude-haiku-5-5",
+  "cases": {
+    "page-plans-first": {"pass":false,"fails":["gets the technical look"],"calls":[["plan",{"brief":"Landing page for Acme Mail, an email API for developers. Dev-tool look like Resend. Shader background behind the hero.","framework":"react","look":"minimal"}],["get",{"id":"paper-shaders"}]],"samples":["48081617-67ca-4d17-b21f-681fa6d1c3c7"],"fp":"94c33bca883b","graded":"247c7b8bfee4"},
+    "one-job-picks": {"pass":false,"fails":["calls pick","asks tastebase before writing code","uses sonner"],"calls":[],"samples":["c2773e7a-9f16-4432-813a-7367acedff8e"],"fp":"077f2a7c9858","graded":"305029355f6b"},
+    "vue-project": {"pass":true,"fails":[],"calls":[["pick",{"need":"command palette with cmd+k shortcut, searchable command list","framework":"vue"}],["get",{"id":"nuxt-ui"}]],"samples":["ae995123-6f3d-4066-ac1c-e89007267a3d"],"fp":"97a96ee8fc57","graded":"4d828e1d5877"},
+    "keeps-project-kit": {"pass":true,"fails":[],"calls":[],"samples":["cac4dd33-c5b8-443a-ae47-f7afccaa8acd"],"fp":"66e68a22396f","graded":"741ae5444bd8"},
+    "nothing-fits": {"pass":true,"fails":[],"calls":[["pick",{"need":"rich text editor with bold, italic, and lists","framework":"react"}],["pick",{"need":"wysiwyg text editor","framework":"react"}]],"samples":["cca755d6-96b0-43ce-8de9-cb41bbf7f4ef"],"fp":"e7faa63aa66f","graded":"48596a9a1d6f"},
+    "trending-when-asked": {"pass":true,"fails":[],"calls":[["trending",{}]],"samples":["34c7eeda-7797-406b-85b4-2d50ab140015"],"fp":"c427e0ce9301","graded":"b0d4cdeba91f"},
+    "control-typo": {"pass":true,"fails":[],"calls":[],"samples":["a6fc584f-e19d-40c2-9a00-2a2e173ba269"],"fp":"d1a43270702f","graded":"aa67caa0c746"},
+    "control-backend": {"pass":true,"fails":[],"calls":[],"samples":["a2c4b9d1-9c07-4c49-855a-85a6e166bf6f"],"fp":"e47157c5c6d3","graded":"78d37ba923d0"}
+  }
+}

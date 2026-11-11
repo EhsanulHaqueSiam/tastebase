@@ -26,4 +26,14 @@ Terms are lowercased, stop-worded, crudely stemmed, and expanded with a small sy
 4. Per need: primary-kind libraries lead, kits that merely cover it become alternatives. **Effects kits**
    (component kits that also cover motion/background/text-effects, like Aceternity) never fill the base slot.
 
-`src/engine.test.ts` pins the picks that matter. When a change moves one, say which and why in the PR.
+`src/engine.test.ts` holds the briefs and needs that must get a given answer, the ones the engine still gets
+wrong (`miss`), and a snapshot of every pick. When a change moves one, say which and why in the PR.
+
+## Known limits
+
+Signals and need words are matched as substrings, so `glasses` reads as glass and `photographer` as a chart.
+Negation is ignored. `pick` has no score floor, so a job the registry does not cover still returns three
+libraries. Each has a `miss` row in the test.
+
+Momentum is meant to break ties, but two libraries within 1.5 points are a tie in practice: a few pinned picks
+flip when a rival trends. Those rows carry `sways` in the test.
