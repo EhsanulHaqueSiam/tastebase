@@ -47,7 +47,12 @@ Pick the data file by kind: `src/registry/data/kits.ts` (component kits, primiti
 ```bash
 pnpm capture <id>     # screenshot to site/public/shots, favicon to site/public/marks
 pnpm test             # ids unique, references resolve, shared repos marked partOf, picks still right
+pnpm eval             # typechecks the new `usage` against the real package, re-runs agent cases it changed
 ```
+
+`pnpm test` also checks the new entry can win the first job in its `useFor` and is offered for the rest. If it
+says a pick moved, the entry took a job from another library. Decide whether it should; then `pnpm test:update`
+records it.
 
 Look at the screenshot: blank, cookie-wall or loading screens need a retry (see `scripts/capture.ts`) or the
 repo page instead. Then `pnpm dev` and check `/browse/<id>`, and `pnpm probe` for the MCP answers.

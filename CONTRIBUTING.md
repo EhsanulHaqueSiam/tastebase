@@ -17,6 +17,8 @@ How the code is organized and what we protect: [AGENTS.md](AGENTS.md) (written f
 - One problem per PR. Conventional commit title in plain language: `fix(engine): toasts no longer pick Mantine`.
 - Body: the problem, the change, how you verified it (`pnpm check` plus what you exercised). UI changes need
   before/after screenshots; motion needs a short recording. Upload them to the PR, do not commit them.
+- `pnpm eval` needs the `claude` CLI. If `pnpm check` says recorded eval results are stale and you cannot run it,
+  say so in the PR and a maintainer will.
 - Maintainers can label a PR `preview` to deploy it to its own stage. Merging to `main` deploys production.
 - If an agent did the work, say which model and harness at the end of the description.
 

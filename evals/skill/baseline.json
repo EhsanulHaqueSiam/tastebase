@@ -1,0 +1,17 @@
+{
+  "model": "claude-haiku-5-5",
+  "cases": {
+    "page-plans-first": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Developer email API landing page (like Resend) with a shader background behind the hero. Dev-tool look, minimal, code snippets, React.","framework":"react","look":"technical"}],["get",{"id":"paper-shaders"}],["plan",{"brief":"Landing page for Acme Mail, an email API for developers. Dev-tool look like Resend, with a shader background behind the hero.","framework":"react"}]],"samples":["c498316d-2aaa-4ede-a6cb-56daa5b25bf1","f3228356-d7ae-40af-b1cf-d976d12e8524"],"fp":"a7af0c8d0591","graded":"b68ffe2be26a"},
+    "one-job-picks": {"pass":true,"fails":[],"calls":[["pick",{"need":"toast notification after form save","framework":"react"}]],"samples":["63e33b36-c301-4e55-98c5-1dd3e74a1314"],"fp":"69dcd0f5ea84","graded":"49223c73276f"},
+    "vue-project": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Command palette opened with cmd+k in a Nuxt 4 / Vue 3 app: searchable list of actions, keyboard navigation, modal overlay","framework":"vue"}]],"samples":["7ae977e4-99f6-4e01-bf81-c311cdc6e437"],"fp":"65d6f5ab0593","graded":"f9b664e468ab"},
+    "keeps-project-kit": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Billing page with a plan picker (pricing tier cards with selection) and an invoices table, React","framework":"react","look":"minimal"}]],"samples":["a6878148-dd9d-4101-b4d0-14ffce149fd5"],"fp":"c93c9f4182df","graded":"14d771e9c369"},
+    "nothing-fits": {"pass":true,"fails":[],"calls":[["pick",{"need":"rich text editor with bold, italic, and lists","framework":"react"}]],"samples":["6ef6350b-b9f7-4fc7-9989-5cd5e84e70b5"],"fp":"2ec1cf6a05df","graded":"4203ede9b172"},
+    "trending-when-asked": {"pass":true,"fails":[],"calls":[["trending",{}]],"samples":["5e42ca7e-4214-4bc3-bf5e-6f5135b1d015"],"fp":"44114887c428","graded":"662f7bc4c1cd"},
+    "control-typo": {"pass":true,"fails":[],"calls":[],"samples":["5cd2cba8-834e-4ad8-85c1-3238eec378c7"],"fp":"eaf0e2adc488","graded":"cb79e96294de"},
+    "control-backend": {"pass":true,"fails":[],"calls":[],"samples":["6c8475c0-375c-4e1b-a091-4d8ec2d90e1c"],"fp":"37657ed02cd7","graded":"265d94765e32"},
+    "pnpm-lockfile": {"pass":false,"fails":["opens the tastebase skill","installs with pnpm"],"calls":[],"samples":["6b013cb8-1b6f-4e85-a600-c7640c05548e"],"fp":"85ee43904fbe","graded":"34e2aa1e5f7b"},
+    "look-from-project": {"pass":false,"fails":["opens the tastebase skill","tells tastebase \"brutal\""],"calls":[],"samples":["b35aec8f-78aa-45ab-990b-efb6558a0d68"],"fp":"5ffa34c6cd8f","graded":"eaf66e1f2c33"},
+    "pauses-shader": {"pass":false,"fails":["opens the tastebase skill"],"calls":[["plan",{"brief":"Animated shader gradient background behind a form in a React app (src/App.tsx)","framework":"react"}],["get",{"id":"paper-shaders"}]],"samples":["b92503a4-6fd3-49dd-8ee7-23610404ddd5"],"fp":"6d462e735756","graded":"858497ee6e5d"},
+    "fonts-from-resources": {"pass":false,"fails":["opens the tastebase skill","calls get with {\"id\":\"fonts\"}"],"calls":[],"samples":["0f28e796-d31e-4b73-a937-e98c1489d334"],"fp":"7b2d93c5bcfb","graded":"4fffbd9a0758"}
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "model": "claude-haiku-5-5",
+  "cases": {
+    "page-plans-first": {"pass":false,"fails":["gets the technical look"],"calls":[["plan",{"brief":"Landing page for Acme Mail, an email API for developers. Dev-tool look like Resend. Shader background behind the hero. React.","framework":"react","look":"minimal"}],["get",{"id":"paper-shaders"}]],"samples":["c9002b49-75c4-4afe-99ec-18e99fccd2bb"],"fp":"ecb444f25c5d","graded":"a23667285e7a"},
+    "one-job-picks": {"pass":false,"fails":["calls pick","asks tastebase before writing code","uses sonner"],"calls":[],"samples":["b8f71692-e644-415c-bc96-10f7460a1502"],"fp":"e4238aeb8c7f","graded":"ce67165abba4"},
+    "vue-project": {"pass":true,"fails":[],"calls":[["pick",{"need":"command palette with cmd+k keyboard shortcut and fuzzy search","framework":"vue"}]],"samples":["8e15cfee-50b8-4e3a-a489-8ff22ed91c89"],"fp":"6e8ea6e1ee4c","graded":"c947156f4841"},
+    "keeps-project-kit": {"pass":true,"fails":[],"calls":[],"samples":["3d419ad2-70dd-4a9c-97fc-31755c55084c"],"fp":"b423358d1b71","graded":"33cc02a2f574"},
+    "nothing-fits": {"pass":true,"fails":[],"calls":[["pick",{"need":"rich text editor with bold, italic, and lists","framework":"react"}]],"samples":["51809db5-4fd3-4048-88e4-51f6962ad53e"],"fp":"5f2d95b926a0","graded":"96bb27d7480d"},
+    "trending-when-asked": {"pass":true,"fails":[],"calls":[["trending",{}]],"samples":["1d707a32-e9b5-4ed6-a493-887124ac5132"],"fp":"2e089e4d3669","graded":"93e356b20468"},
+    "control-typo": {"pass":true,"fails":[],"calls":[],"samples":["db1626fd-d020-4f90-b000-8b135cfe842b"],"fp":"7533ea20aee1","graded":"5ed219a1e3ce"},
+    "control-backend": {"pass":true,"fails":[],"calls":[],"samples":["dd4e05ef-907c-47db-bc68-8fb6ad366a71"],"fp":"78b1fd75dbec","graded":"1cd1fbf688b2"}
+  }
+}
