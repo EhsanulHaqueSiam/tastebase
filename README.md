@@ -9,9 +9,11 @@ coding agents over MCP so they install the right library instead of hand-rolling
 
 ```bash
 claude mcp add --transport http tastebase https://tastebase.ehsanulsiam.workers.dev/mcp   # hosted, nothing to install
-claude mcp add tastebase -- npx -y tastebase                                              # or run it locally
-npx skills add EhsanulHaqueSiam/tastebase                                                 # tells Claude to ask before writing UI
+codex mcp add tastebase --url https://tastebase.ehsanulsiam.workers.dev/mcp              # same server in Codex
+mkdir -p .claude/skills/tastebase && curl -fsSL https://tastebase.ehsanulsiam.workers.dev/skill.md -o .claude/skills/tastebase/SKILL.md   # asks before writing UI
 ```
+
+Other agents (Cursor, VS Code) and the Codex skill path: [llms.txt](https://tastebase.ehsanulsiam.workers.dev/llms.txt).
 
 | Tool | Input | Returns | Typical cost |
 | --- | --- | --- | --- |
