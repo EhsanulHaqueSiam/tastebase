@@ -1,7 +1,7 @@
 // Design resources: not installed, but they help an agent or a person design. tastebase only links to them and never
 // calls them with anyone's account. `mcp` is a server the user can connect under their own account; when the agent
 // has it, plan answers say what to search for. Verified on 2026-11-08; the second batch (from @siamships bookmarks)
-// on 2026-11-10.
+// on 2026-11-10; Cue on 2026-11-11.
 
 /** Resource categories, in the order the site and agents list them. */
 export const resourceKinds = {
@@ -390,5 +390,15 @@ export const resources: Resource[] = [
     cost: "Free",
     free: true,
     mcp: { name: "Shoogle MCP", url: "https://shoogle.dev/mcp", needsPaidPlan: false },
+  },
+  {
+    id: "cue",
+    name: "Cue",
+    url: "https://www.cuedesign.space",
+    kind: "directories",
+    goodFor: "Showpiece web components rebuilt from award-level sites, each one React file plus a prompt to rebuild it",
+    cost: "Free: browse, 2 prompt copies a day, personal use; MIT Cue Kit; Cue+ $129 lifetime",
+    free: false,
+    mcp: { name: "Cue MCP", url: "https://www.cuedesign.space/mcp", needsPaidPlan: true },
   },
 ];
