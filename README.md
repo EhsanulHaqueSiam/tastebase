@@ -7,11 +7,15 @@ coding agents over MCP so they install the right library instead of hand-rolling
 
 ## Use it from your agent
 
-```bash
-claude mcp add --transport http tastebase https://tastebase.ehsanulsiam.workers.dev/mcp   # hosted, nothing to install
-claude mcp add tastebase -- npx -y tastebase                                              # or run it locally
-npx skills add EhsanulHaqueSiam/tastebase                                                 # tells Claude to ask before writing UI
+Paste this into Claude Code, Codex or Cursor:
+
+```text
+Set up tastebase from https://tastebase.ehsanulsiam.workers.dev/llms.txt
 ```
+
+The agent reads [llms.txt](https://tastebase.ehsanulsiam.workers.dev/llms.txt) and installs the hosted MCP server and
+the skill for every project. From then on, before writing UI it reads the look you want, finds proven components for
+it, installs them and adapts them, and builds from scratch only what no library covers.
 
 | Tool | Input | Returns | Typical cost |
 | --- | --- | --- | --- |

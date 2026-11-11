@@ -18,6 +18,9 @@ export default function Setup({ commands, sample }: { commands: string[]; sample
               </div>
             ))}
           </div>
+          <p className="mt-3 text-[13px] text-fg2">
+            Paste it into Claude Code, Codex or Cursor. It reads <a href="/llms.txt" className="text-fg underline decoration-line underline-offset-2 hover:decoration-fg">llms.txt</a> and installs the MCP server and skill for every project.
+          </p>
           <div className="mt-6">
             <Magnetic>
               <a href="/browse" className="sweep press inline-flex h-11 items-center gap-2 rounded-xl bg-fg px-5 font-medium text-black hover:shadow-[0_0_0_5px_rgb(255_255_255/0.1)]">

@@ -8,8 +8,9 @@ import { isResourceKind, resourceKinds } from "./registry/resources.ts";
 import { aestheticIds, frameworks, kinds, type Aesthetic, type Library } from "./registry/schema.ts";
 
 const INSTRUCTIONS = `tastebase is a curated index of UI libraries with notes on when to use each.
-Before writing UI: call plan once with the whole brief, or pick for one specific job. Install what it returns instead of hand-rolling those parts.
-Call get only for libraries you will actually install; it returns usage and the agent note. Call trending when asked what is hot.`;
+Before writing UI, do not build parts from scratch. Read the look from the user's words and the project (kit, fonts, colours), then call plan once with the whole brief, or pick for one specific job.
+Call get for each library you will install; it returns usage and the agent note. Install it, then adapt the installed component to the look's type, colour and motion rules and the project's tokens. Write from scratch only what no library covers.
+Call trending when asked what is hot.`;
 
 const text = (t: string) => ({ content: [{ type: "text" as const, text: t }] });
 
