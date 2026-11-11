@@ -112,12 +112,24 @@ async function compare(b: Brief, model: string, mine: Build, plain: Build, judge
     const { answer, usd } = await ask<Verdict>(tmp, judge, compareQuestion(b.brief), { winner: { type: "string", enum: ["A", "B", "tie"] }, why: { type: "string" } }).finally(() => rmSync(tmp, { recursive: true, force: true }));
     return { answer, usd, arm: answer.winner === "tie" ? ("tie" as const) : answer.winner === "A" ? asA : flip(asA) };
   };
-  const a: Arm = Math.random() < 0.5 ? "with" : "without";
-  const [first, second] = [await once(a), await once(flip(a))];
-  const pair: Pair = { a, first: first.answer, second: second.answer, better: first.arm === second.arm ? first.arm : "tie" };
+  // The first verdict is kept as soon as it is in, so an outage before the second does not pay for it twice.
   mkdirSync(join(builds(model, b.id), "pairs"), { recursive: true });
+  const partial = `${file}.first`;
+  const arm = (v: Verdict, asA: Arm) => (v.winner === "tie" ? ("tie" as const) : v.winner === "A" ? asA : flip(asA));
+  let usd = 0;
+  let half: { a: Arm; first: Verdict } | undefined = existsSync(partial) ? JSON.parse(readFileSync(partial, "utf8")) : undefined;
+  if (!half) {
+    const a: Arm = Math.random() < 0.5 ? "with" : "without", got = await once(a);
+    half = { a, first: got.answer };
+    usd += got.usd;
+    writeFileSync(partial, JSON.stringify(half));
+  }
+  const second = await once(flip(half.a));
+  usd += second.usd;
+  const pair: Pair = { a: half.a, first: half.first, second: second.answer, better: arm(half.first, half.a) === second.arm ? second.arm : "tie" };
   writeFileSync(file, JSON.stringify(pair, null, 2));
-  return { pair, file, usd: first.usd + second.usd };
+  rmSync(partial, { force: true });
+  return { pair, file, usd };
 }
 
 /** The registry libraries a build used, read from its files and commands the same way the trace evals read them. */
@@ -152,6 +164,7 @@ export function faults(b: Brief, x: Build, look: Look | undefined, planned: bool
     planned && !x.calls.length && "never asked tastebase",
     both.some((p) => p.text.length < 50) && "renders a blank page",
     both.some((p) => p.errors.length) && `throws on load: ${both.flatMap((p) => p.errors)[0]}`,
+    desktop.overflow > 4 && `scrolls sideways at 1440px: ${desktop.overflow}px too wide`,
     mobile.overflow > 4 && `scrolls sideways at 390px: ${mobile.overflow}px too wide`,
     reduced.loops > 0 && `keeps looping under reduced motion: ${reduced.loops} animations`,
     kits.length > 1 && `mixes component kits: ${kits.join(", ")}`,

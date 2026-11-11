@@ -115,6 +115,7 @@ test("a build is faulted for what the page does and for ignoring what it was off
   const build = { agent: "", stamp: "", built: true, calls: plan_(minimal.brief), ...using("sonner"), look: "minimal" as Look, probe: { key: "", ...page } };
   assert.deepEqual(judged(minimal, build, true), []);
   assert.deepEqual(judged(minimal, { ...build, built: false }, true), ["does not build"]);
+  assert.deepEqual(judged(minimal, { ...build, probe: { ...build.probe, desktop: { ...probe, overflow: 500 } } }, true), ["scrolls sideways at 1440px: 500px too wide"]);
   assert.deepEqual(judged(minimal, { ...build, calls: [] }, true), ["never asked tastebase"]);
   assert.deepEqual(judged(minimal, { ...build, calls: [] }, false), []); // the build without tastebase was never meant to
   // Broken only on the phone, still animating for someone who asked for less motion, and two foundation kits.
