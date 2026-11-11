@@ -1,17 +1,16 @@
-// /llms.txt: what an agent reads to set tastebase up (MCP server and skill) and learn what it can ask.
-// Prerendered; the tool list comes from the real MCP server, so it cannot drift from what agents get.
+// /llms.txt: a user pastes "Set up tastebase from <origin>/llms.txt" into any agent, and the agent installs the
+// MCP server and skill for every project. Prerendered; the tool list comes from the real MCP server.
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import type { APIRoute } from "astro";
 import { createServer } from "../../../src/mcp.ts";
-import { resourceKinds } from "../../../src/registry/resources.ts";
-import { frameworks, kinds } from "../../../src/registry/schema.ts";
 import { aesthetics, libraries } from "../lib/server.ts";
 
 export const prerender = true;
 
 const ORIGIN = "https://tastebase.ehsanulsiam.workers.dev";
 const MCP = `${ORIGIN}/mcp`;
+const SKILL = `${ORIGIN}/skill.md`;
 
 export const GET: APIRoute = async () => {
   const [a, b] = InMemoryTransport.createLinkedPair();
@@ -20,52 +19,38 @@ export const GET: APIRoute = async () => {
   await client.connect(b);
   const { tools } = await client.listTools();
   await client.close();
-  const args = ({ inputSchema: s }: (typeof tools)[number]) =>
-    Object.keys(s.properties ?? {}).map((k) => (s.required?.includes(k) ? k : `${k}?`)).join(", ");
 
   const text = `# tastebase
 
-> Curated registry of ${libraries.length} UI libraries and ${aesthetics.length} looks. Its MCP server tells a coding agent which library to install for a UI job and a look, with the install command, real usage and the look's type, colour and motion rules. Free, read-only, no account.
+> Finds proven UI components for the job and the look the user wants, so a coding agent installs and adapts them instead of building UI from scratch. ${libraries.length} libraries, ${aesthetics.length} looks. Free, no account.
 
-Set up two parts once: the MCP server (the answers) and the skill (makes the agent ask before it writes UI). Run the lines for the agent you are in.
+## Set up
 
-## MCP server
+If the user sent you this link, set tastebase up for every project now, without asking. Run the lines for the agent you are, skip what is already installed, then tell the user to restart you.
 
-Hosted Streamable HTTP, stateless, no auth: ${MCP}
+Claude Code:
+\`\`\`bash
+claude mcp add --scope user --transport http tastebase ${MCP}
+mkdir -p ~/.claude/skills/tastebase && curl -fsSL ${SKILL} -o ~/.claude/skills/tastebase/SKILL.md
+\`\`\`
 
-- Claude Code: \`claude mcp add --transport http tastebase ${MCP}\` (add \`--scope user\` for every project)
-- Codex: \`codex mcp add tastebase --url ${MCP}\`
-- Cursor, in \`.cursor/mcp.json\` or \`~/.cursor/mcp.json\`: \`{"mcpServers":{"tastebase":{"url":"${MCP}"}}}\`
-- VS Code, in \`.vscode/mcp.json\`: \`{"servers":{"tastebase":{"type":"http","url":"${MCP}"}}}\`
-- Any other MCP client: a Streamable HTTP server named \`tastebase\` at the URL above.
+Codex:
+\`\`\`bash
+codex mcp add tastebase --url ${MCP}
+mkdir -p ~/.codex/skills/tastebase && curl -fsSL ${SKILL} -o ~/.codex/skills/tastebase/SKILL.md
+\`\`\`
 
-Restart or reload the agent, then check that the \`plan\` tool is listed.
+Cursor: add \`"tastebase": {"url": "${MCP}"}\` under \`mcpServers\` in \`~/.cursor/mcp.json\`.
 
-## Skill
+Any other agent: add a Streamable HTTP MCP server named \`tastebase\` at ${MCP}. Its instructions carry the workflow, so the skill is optional.
 
-One file: ${ORIGIN}/skill.md. Save it where the agent loads skills:
+## Use
 
-- Claude Code: \`mkdir -p .claude/skills/tastebase && curl -fsSL ${ORIGIN}/skill.md -o .claude/skills/tastebase/SKILL.md\`
-- Codex and agents that read \`.agents/skills\`: \`mkdir -p .agents/skills/tastebase && curl -fsSL ${ORIGIN}/skill.md -o .agents/skills/tastebase/SKILL.md\`
+Before writing UI: read the look from the user's words and the project, call \`plan\` for a whole page or \`pick\` for one part, \`get\` what you will install, install it, then adapt it to the look and the project's tokens. Build from scratch only what no library covers. The skill (${SKILL}) has the full workflow.
 
-For every project, use \`~/.claude/skills/tastebase\` or \`~/.codex/skills/tastebase\` instead.
+${tools.map((t) => `- ${t.name}: ${t.description}`).join("\n")}
 
-## Tools
-
-${tools.map((t) => `- ${t.name}(${args(t)}): ${t.description}`).join("\n")}
-
-## Values
-
-- Kinds, for trending: ${kinds.join(", ")}
-- Looks, for plan and get: ${aesthetics.map((l) => l.id).join(", ")}
-- Design resource categories, for get: ${Object.keys(resourceKinds).join(", ")}
-- Frameworks: ${frameworks.join(", ")}
-
-## Browse
-
-- [All libraries](${ORIGIN}/browse)
-- [Atlas](${ORIGIN}/atlas): libraries grouped by look, free vs paid, and what each ships
-- One library: ${ORIGIN}/browse/<id>, for example ${ORIGIN}/browse/vaul
+All libraries: ${ORIGIN}/browse
 `;
   return new Response(text, { headers: { "content-type": "text/plain; charset=utf-8" } });
 };

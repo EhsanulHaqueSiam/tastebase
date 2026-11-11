@@ -7,13 +7,15 @@ coding agents over MCP so they install the right library instead of hand-rolling
 
 ## Use it from your agent
 
-```bash
-claude mcp add --transport http tastebase https://tastebase.ehsanulsiam.workers.dev/mcp   # hosted, nothing to install
-codex mcp add tastebase --url https://tastebase.ehsanulsiam.workers.dev/mcp              # same server in Codex
-mkdir -p .claude/skills/tastebase && curl -fsSL https://tastebase.ehsanulsiam.workers.dev/skill.md -o .claude/skills/tastebase/SKILL.md   # asks before writing UI
+Paste this into Claude Code, Codex or Cursor:
+
+```text
+Set up tastebase from https://tastebase.ehsanulsiam.workers.dev/llms.txt
 ```
 
-Other agents (Cursor, VS Code) and the Codex skill path: [llms.txt](https://tastebase.ehsanulsiam.workers.dev/llms.txt).
+The agent reads [llms.txt](https://tastebase.ehsanulsiam.workers.dev/llms.txt) and installs the hosted MCP server and
+the skill for every project. From then on, before writing UI it reads the look you want, finds proven components for
+it, installs them and adapts them, and builds from scratch only what no library covers.
 
 | Tool | Input | Returns | Typical cost |
 | --- | --- | --- | --- |
