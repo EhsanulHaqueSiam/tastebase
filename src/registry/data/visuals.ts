@@ -288,6 +288,17 @@ export default [
     weight: "tiny",
     a11y: "ok",
     maturity: "established",
+    parts: {
+      free: [
+        "Dynamic selectors (icon-[set--name])", "Clean selectors (iconify / iconify-color)",
+        "Custom icons (icon-sets option)", "Options (prefix, scale, prefixes)", "Material Symbols",
+        "Material Design Icons", "Google Material Icons", "Fluent UI System Icons", "Lucide", "Tabler Icons",
+        "Phosphor", "Solar", "Huge Icons", "Remix Icon", "HeroIcons", "Carbon", "MingCute Icon", "Iconoir",
+        "Bootstrap Icons", "Font Awesome", "Radix Icons", "Octicons", "Material Line Icons", "SVG Spinners",
+        "Simple Icons", "SVG Logos", "Devicon", "VSCode Icons", "Noto Emoji", "Fluent Emoji", "Twitter Emoji",
+        "Flag Icons", "Circle Flags",
+      ],
+    },
     url: "https://iconify.design",
     repo: "https://github.com/iconify/iconify",
     npm: "@iconify/tailwind4",
@@ -363,6 +374,11 @@ export default [
     weight: "small",
     a11y: "weak",
     maturity: "stable",
+    parts: {
+      free: [
+        "Outline (animated)", "startAnimation / stopAnimation handle",
+      ],
+    },
     url: "https://lucide-animated.com",
     repo: "https://github.com/pqoqubbw/icons",
     author: "pqoqubbw",
@@ -394,6 +410,11 @@ export default [
     weight: "small",
     a11y: "weak",
     maturity: "experimental",
+    parts: {
+      free: [
+        "Outline (animated)", "Brand logos (animated)",
+      ],
+    },
     url: "https://itshover.com",
     repo: "https://github.com/itshover/itshover",
     author: "Its Hover contributors",
@@ -427,6 +448,13 @@ export default [
     weight: "small",
     a11y: "ok",
     maturity: "stable",
+    parts: {
+      free: [
+        "MorphIcon (React)", "MorphIcon (Vue)", "MorphIcon (Svelte)", "MorphIcon (React Native)", "MorphIcon (Astro)",
+        "<morph-icon> element", "createMorph()", "Spring presets (snappy, smooth, bouncy)",
+        "Fill icons (morphicons/region)", "svgToIcon", "maskTarget", "canvasTarget", "fitIcon",
+      ],
+    },
     url: "https://www.morphicons.com",
     repo: "https://github.com/guillermolg00/morphicons",
     npm: "morphicons",
@@ -587,6 +615,14 @@ export default [
     weight: "large",
     a11y: "weak",
     maturity: "established",
+    parts: {
+      free: [
+        "Scenes", "Cameras", "Geometries", "Materials", "Lights", "Textures", "Loaders", "Objects",
+        "Renderers (WebGLRenderer, WebGPURenderer)", "Animation", "Audio", "Helpers", "Math", "Nodes",
+        "TSL (three.js Shading Language)", "Controls", "Postprocessing", "Effects", "Environments", "Exporters",
+        "Curves", "Lines", "Csm", "Gpgpu", "Physics", "Modifiers", "Interactive", "Inspector", "Webxr",
+      ],
+    },
     url: "https://threejs.org",
     repo: "https://github.com/mrdoob/three.js",
     npm: "three",
@@ -621,6 +657,14 @@ export default [
     weight: "large",
     a11y: "weak",
     maturity: "established",
+    parts: {
+      free: [
+        "Canvas", "three.js JSX elements (mesh, geometries, materials, lights)", "attach",
+        "Events (onClick, onPointerOver...)", "useThree", "useFrame", "useLoader", "useGraph", "extend",
+        "createPortal", "createRoot", "invalidate", "advance", "addEffect / addAfterEffect / addTail", "applyProps",
+        "useInstanceHandle", "WebGPU renderer", "On-demand rendering", "Instancing", "React Native",
+      ],
+    },
     url: "https://r3f.docs.pmnd.rs",
     repo: "https://github.com/pmndrs/react-three-fiber",
     npm: "@react-three/fiber",
@@ -651,6 +695,17 @@ export default [
     weight: "medium",
     a11y: "weak",
     maturity: "established",
+    parts: {
+      free: [
+        "Controls (OrbitControls, MapControls...)", "CameraControls", "ScrollControls", "PresentationControls",
+        "KeyboardControls", "PivotControls", "TransformControls", "GizmoHelper", "Grid", "PerspectiveCamera",
+        "OrthographicCamera", "Environment", "Lightformer", "Stage", "ContactShadows", "AccumulativeShadows", "Float",
+        "Sparkles", "Stars", "Sky", "Cloud", "Center", "Bounds", "Html", "Text", "Text3D", "Image", "Svg", "Decal",
+        "Outlines", "Edges", "MeshTransmissionMaterial", "MeshReflectorMaterial", "MeshDistortMaterial",
+        "MeshPortalMaterial", "shaderMaterial", "RenderTexture", "View", "Hud", "useGLTF", "useTexture",
+        "useVideoTexture", "useAnimations", "Instances", "PerformanceMonitor",
+      ],
+    },
     url: "https://drei.docs.pmnd.rs",
     repo: "https://github.com/pmndrs/drei",
     npm: "@react-three/drei",
@@ -683,7 +738,15 @@ export default [
     weight: "large",
     a11y: "weak",
     maturity: "stable",
-    paid: { what: "Spline editor: the free plan watermarks web exports; the runtime is free", price: "from $15/seat/mo", url: "https://spline.design/pricing" },
+    paid: { what: "Spline editor: the free plan watermarks web exports; the runtime is free", price: "from $12/seat/mo yearly, $15 monthly", url: "https://spline.design/pricing" },
+    parts: {
+      free: [
+        "Spline component", "@splinetool/react-spline/next (SSR blurred placeholder)",
+        "Read and modify objects (findObjectByName, findObjectById)",
+        "Spline events (onSplineMouseDown, onSplineMouseHover, onSplineScroll...)", "emitEvent / emitEventReverse",
+        "setZoom", "Lazy loading", "renderOnDemand", "htmlContentMode",
+      ],
+    },
     url: "https://spline.design",
     repo: "https://github.com/splinetool/react-spline",
     npm: "@splinetool/react-spline",
@@ -717,6 +780,15 @@ export default [
     weight: "small",
     a11y: "n/a",
     maturity: "stable",
+    parts: {
+      free: [
+        "Renderer", "Camera", "Transform", "Mesh", "Geometry", "Program", "Texture", "RenderTarget",
+        "Math (Vec, Mat, Quat, Euler, Color)", "Plane", "Box", "Sphere", "Cylinder", "Torus", "Triangle", "Orbit",
+        "Raycast", "Curve", "Path", "Tube", "Polyline", "Post", "Flowmap", "GPGPU", "Shadow", "Text", "Skin",
+        "Animation", "InstancedMesh", "GLTFLoader", "TextureLoader", "KTXTexture", "WireMesh", "AxesHelper",
+        "GridHelper",
+      ],
+    },
     url: "https://oframe.github.io/ogl/",
     repo: "https://github.com/oframe/ogl",
     npm: "ogl",

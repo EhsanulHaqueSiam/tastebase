@@ -20,7 +20,12 @@ for tabs and toggles.
   that only sells templates (Magic UI Pro) keep it in; its price still shows in the bars. `paid` is only the maker
   selling more of the same thing or a required editor, never optional hosting or other file formats.
 - **The parts matrix only compares names shared by two or more libraries**, merged through a small alias list
-  (`Modal` = `Dialog`). Categories with too little overlap show per-library lists on `/browse/<id>` instead.
+  (`Modal` = `Dialog`, `Fill` = `Solid`, `Area Chart` = `Area`). Columns are not just the most common names: each
+  library first gets its three most widely shared parts in, so an effects kit (Marquee, Globe) is not an empty row
+  beside base kits (Button, Dialog), and the rest fill by frequency. A library that shares nothing is left out of
+  the table. Categories with fewer than four comparable libraries show per-library lists on `/browse/<id>` instead.
+- **Icons must show on true black.** A mark that is a dark glyph on transparency is invisible; recolour it white
+  after `pnpm capture`.
 
 ## Traps
 

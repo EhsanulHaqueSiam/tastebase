@@ -24,14 +24,21 @@ test("islands never overlap, in every category and on the all-libraries map", ()
   }
 });
 
-test("parts matrix lines up renamed components and marks paid-only ones", () => {
-  const [a, b, c] = libraries;
-  const m = partsMatrix([
+test("parts matrix lines up renamed components, marks paid-only ones and gives every kit a column", () => {
+  const [a, b, c, d, e, f] = libraries;
+  const libs = [
     { ...a!, parts: { free: ["Dialog", "Dropdown Menu", "Toast", "Tabs"] } },
     { ...b!, parts: { free: ["Modal", "Menu", "Tabs"], paid: ["Sonner"] } },
     { ...c!, parts: undefined },
-  ])!;
-  assert.deepEqual(m.columns, ["Dialog", "Menu", "Tabs", "Toast"]);
-  assert.deepEqual(m.rows.find((r) => r.lib.id === b!.id)!.cells, ["free", "free", "free", "paid"]);
-  assert.equal(m.rows.length, 2);
+    { ...d!, parts: { free: ["Dialog", "Tabs"] } },
+    { ...e!, parts: { free: ["Marquee", "Globe"] } },
+    { ...f!, parts: { free: ["Marquee", "Globe", "PDF Viewer"] } },
+  ];
+  const m = partsMatrix(libs, 6)!;
+  assert.deepEqual(m.columns, ["Dialog", "Tabs", "Globe", "Marquee", "Menu", "Toast"]);
+  assert.deepEqual(m.rows.find((r) => r.lib.id === b!.id)!.cells, ["free", "free", undefined, undefined, "free", "paid"]);
+  assert.equal(m.rows.length, 5);
+  // With four columns the effects kits still get Globe, ahead of the more common Toast.
+  assert.deepEqual(partsMatrix(libs, 4)!.columns, ["Dialog", "Tabs", "Globe", "Menu"]);
+  assert.equal(partsMatrix([a!, b!].map((l) => ({ ...l, parts: { free: ["Dialog", "Tabs"] } }))), undefined, "two libraries are too few to compare");
 });
