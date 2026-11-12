@@ -5,7 +5,7 @@ import { z } from "zod";
 import { pick, plan } from "./engine.ts";
 import { formatLibrary, formatPlan, formatResources, formatSite, formatTrending, line } from "./format.ts";
 import { siteTypes } from "./registry/index.ts";
-import { isResourceKind, resourceKinds } from "./registry/resources.ts";
+import { agentResourceKinds, isResourceKind } from "./registry/resources.ts";
 import { aestheticIds, frameworks, kinds, type Aesthetic, type Library } from "./registry/schema.ts";
 
 const INSTRUCTIONS = `tastebase is a curated index of UI libraries with notes on when to use each.
@@ -56,7 +56,7 @@ export function createServer(libs: Library[], looks: Aesthetic[], version: strin
     "get",
     {
       description: "Full entry for one library id (usage, agent note, alternatives), a look id for its design rules, a site type (3d-site, motion-site, media-site) for its build rules, or a resource category for linked design resources.",
-      inputSchema: { id: z.string().describe(`Library id like 'vaul', look id like 'apple', or one of ${Object.keys(resourceKinds).join(", ")}`) },
+      inputSchema: { id: z.string().describe(`Library id like 'vaul', look id like 'apple', or one of ${agentResourceKinds.join(", ")}`) },
       annotations: { readOnlyHint: true },
     },
     async ({ id }) => {

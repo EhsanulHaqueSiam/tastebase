@@ -58,14 +58,14 @@ exports[`picks only move on purpose 1`] = `
   "sheet that slides up from the bottom => vaul, astryx, swiper",
   "search menu opened with cmd k => cmdk, animate-ui, libraries-dev",
   "number that counts up => number-flow, bencho, boardui",
-  "swipeable image gallery => embla-carousel, use-gesture, vaul",
-  "blurred glass navbar => glisse, liquid-glass-react, canvas-ui",
+  "swipeable image gallery => embla-carousel, ui-layouts, use-gesture",
+  "blurred glass navbar => glisse, liquid-glass-react, liquid-glass",
   "accessible dropdown menu => radix-ui, reka-ui, animate-ui",
   "line chart => recharts, evilcharts, unovis",
   "smooth scrolling => lenis, motion, aceternity-ui",
   "show a notification => mantine, sonner, react-hot-toast",
   "copy to clipboard button => coss-ui, cult-ui, expokit",
   "rich text editor => morphicons, ding, playcanvas",
-  "video player => audiocn, aframe, dotlottie-react"
+  "video player => audiocn, aframe, ui-layouts"
 ]
 `;

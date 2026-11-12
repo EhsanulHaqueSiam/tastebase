@@ -1,6 +1,6 @@
 // Text formatting for tool answers. Kept free of server deps so the site can show exactly what agents get.
 import type { Plan, Scored } from "./engine.ts";
-import { resourceKinds, resources, type Resource, type ResourceKind } from "./registry/resources.ts";
+import { agentResourceKinds, resourceKinds, resources, type Resource, type ResourceKind } from "./registry/resources.ts";
 import type { Library, SiteType } from "./registry/schema.ts";
 
 const hot = (l: Library) => (l.stats?.starsWeek ? ` | +${l.stats.starsWeek}★ this week` : "");
@@ -25,7 +25,7 @@ export function formatTrending(libs: Library[], limit = 10): string {
 const host = (url: string) => new URL(url).hostname.replace(/^www\./, "");
 const freeHosts = (kind: Resource["kind"]) => resources.filter((r) => r.kind === kind && r.free).slice(0, 2).map((r) => host(r.url)).join(", ");
 // The first three reference MCPs (Inspo, Mobbin, Refero) search screens; later ones are niche and would cost tokens on every plan.
-const refs = `refs: if you have ${resources.filter((r) => r.kind === "references" && r.mcp).slice(0, 3).map((r) => r.mcp!.name).join(" or ")}, search it for this brief's screens; free: ${freeHosts("references")}; fonts: ${freeHosts("fonts")}; colour: ${freeHosts("colour")}; more: get ${Object.keys(resourceKinds).join("|")}`;
+const refs = `refs: if you have ${resources.filter((r) => r.kind === "references" && r.mcp).slice(0, 3).map((r) => r.mcp!.name).join(" or ")}, search it for this brief's screens; free: ${freeHosts("references")}; fonts: ${freeHosts("fonts")}; colour: ${freeHosts("colour")}; more: get ${agentResourceKinds.join("|")}`;
 
 /** One resource category, for `get <category>`: free ones first. */
 export const formatResources = (kind: ResourceKind) =>
