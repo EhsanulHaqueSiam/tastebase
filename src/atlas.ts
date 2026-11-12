@@ -132,26 +132,37 @@ function mds(D: number[][]): [number, number][] {
 }
 
 // Same component, different names across kits.
-const ALIAS: Record<string, string> = { modal: "dialog", dropdownmenu: "menu", sonner: "toast", inputotp: "otp", otpfield: "otp", pininput: "otp", otpinput: "otp", toaster: "toast", notification: "toast" };
-const key = (name: string) => { const k = name.toLowerCase().replace(/[^a-z0-9]/g, ""); return ALIAS[k] ?? k; };
+// Icon styles too: a "Fill" set is a solid set and Phosphor's "Regular" is an outline set. ("Line" stays: it is a chart type.)
+const ALIAS: Record<string, string> = { modal: "dialog", dropdownmenu: "menu", sonner: "toast", inputotp: "otp", otpfield: "otp", pininput: "otp", otpinput: "otp", toaster: "toast", notification: "toast", fill: "solid", filled: "solid", regular: "outline", outlined: "outline" };
+// "Area Chart" and "Area" are one chart type.
+const key = (name: string) => { const k = name.toLowerCase().replace(/[^a-z0-9]/g, "").replace(/(.{3,})chart$/, "$1"); return ALIAS[k] ?? k; };
 // Merged columns get the plain name, not whichever library's spelling came first ("Sonner" is a toast).
-const LABEL: Record<string, string> = { dialog: "Dialog", menu: "Menu", toast: "Toast", otp: "OTP Input" };
+const LABEL: Record<string, string> = { dialog: "Dialog", menu: "Menu", toast: "Toast", otp: "OTP Input", solid: "Solid", outline: "Outline" };
 
 export type Matrix = { columns: string[]; rows: { lib: Library; cells: ("free" | "paid" | undefined)[] }[] };
 
-/** Parts shared by at least two libraries, as columns; undefined when a category has too little overlap to compare. */
-export function partsMatrix(libs: Library[], maxColumns = 24): Matrix | undefined {
+/**
+ * Parts shared by at least two libraries, as columns; undefined when a category has too little overlap to compare.
+ * Every library gets its most widely shared parts in first, so an effects kit (Marquee, Globe) is not an empty row
+ * beside base kits (Button, Dialog); the rest of the columns go by how many libraries ship the part. A library that
+ * shares no part with any other has nothing to compare and is left out; its own list is on /browse/<id>.
+ */
+export function partsMatrix(libs: Library[], maxColumns = 24, perLibrary = 3): Matrix | undefined {
   const withParts = libs.filter((l) => l.parts?.free.length || l.parts?.paid?.length);
   const count = new Map<string, number>(), label = new Map<string, string>();
-  for (const l of withParts)
-    for (const k of new Set([...l.parts!.free, ...(l.parts!.paid ?? [])].map((n) => { label.set(key(n), label.get(key(n)) ?? n); return key(n); })))
-      count.set(k, (count.get(k) ?? 0) + 1);
-  const columns = [...count].filter(([, c]) => c >= 2).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, maxColumns).map(([k]) => k);
-  if (withParts.length < 2 || columns.length < 3) return undefined;
+  const keys = new Map(withParts.map((l) => [l, new Set([...l.parts!.free, ...(l.parts!.paid ?? [])].map((n) => { label.set(key(n), label.get(key(n)) ?? n); return key(n); }))]));
+  for (const ks of keys.values()) for (const k of ks) count.set(k, (count.get(k) ?? 0) + 1);
+  const shared = [...count].filter(([, c]) => c >= 2).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([k]) => k);
+  const picked = new Set<string>();
+  for (const ks of keys.values()) for (const k of shared.filter((k) => ks.has(k)).slice(0, perLibrary)) if (picked.size < maxColumns) picked.add(k);
+  for (const k of shared) if (picked.size < maxColumns) picked.add(k);
+  const columns = shared.filter((k) => picked.has(k));
   const rows = withParts.map((lib) => {
     const free = new Set(lib.parts!.free.map(key)), paid = new Set((lib.parts!.paid ?? []).map(key));
     return { lib, cells: columns.map((c) => (free.has(c) ? ("free" as const) : paid.has(c) ? ("paid" as const) : undefined)) };
-  });
+  }).filter((r) => r.cells.some(Boolean));
+  // Too little overlap to be worth a table: the category's libraries show their own lists instead.
+  if (columns.length < 2 || rows.length < 4) return undefined;
   rows.sort((a, b) => b.cells.filter(Boolean).length - a.cells.filter(Boolean).length);
   return { columns: columns.map((c) => LABEL[c] ?? label.get(c)!), rows };
 }

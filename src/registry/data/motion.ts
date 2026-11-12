@@ -36,6 +36,14 @@ export default [
     a11y: "ok",
     maturity: "established",
     paid: { what: "Motion+: 11 premium components (Carousel, Ticker, AnimateNumber...), sections, examples; motion stays free", price: "$399 one-time", url: "https://motion.dev/plus" },
+    parts: {
+      free: [
+        "motion components", "AnimatePresence", "Layout animations", "Reorder", "Gestures", "Drag",
+        "Scroll animations", "SVG animation", "Motion values", "MotionConfig", "LazyMotion", "useAnimate", "useScroll",
+        "useSpring", "useTransform", "useInView", "animate()",
+      ],
+      paid: ["AnimateNumber", "Carousel", "Cursor", "Gallery", "Ticker", "Typewriter", "ScrambleText", "splitText"],
+    },
     url: "https://motion.dev",
     repo: "https://github.com/motiondivision/motion",
     npm: "motion",
@@ -113,6 +121,13 @@ export default [
     weight: "small",
     a11y: "ok",
     maturity: "established",
+    parts: {
+      free: [
+        "Timer", "Animation", "Timeline", "Animatable", "Draggable", "Layout", "Scope", "onScroll", "morphTo",
+        "createDrawable", "createMotionPath", "splitText", "scrambleText", "stagger()", "Easings", "Spring",
+        "Web Animation API (waapi)", "Engine", "Three.js adapter", "Utilities",
+      ],
+    },
     url: "https://animejs.com",
     repo: "https://github.com/juliangarnier/anime",
     npm: "animejs",
@@ -146,6 +161,14 @@ export default [
     weight: "tiny",
     a11y: "ok",
     maturity: "stable",
+    parts: {
+      free: [
+        "autoAnimate()", "useAutoAnimate (React)", "useAutoAnimate (Preact)", "v-auto-animate directive (Vue)",
+        "useAutoAnimate composable (Vue)", "Nuxt module", "createAutoAnimate (Solid)", "autoAnimate directive (Solid)",
+        "Svelte action", "AutoAnimateDirective (Angular)", "<auto-animate> tag (Marko)", "enable() / disable()",
+        "Options", "Plugins",
+      ],
+    },
     url: "https://auto-animate.formkit.com",
     repo: "https://github.com/formkit/auto-animate",
     npm: "@formkit/auto-animate",
@@ -179,6 +202,14 @@ export default [
     weight: "medium",
     a11y: "ok",
     maturity: "established",
+    parts: {
+      free: [
+        "animated elements", "useSpring", "useSprings", "useTrail", "useTransition", "useChain", "useSpringValue",
+        "Parallax", "ParallaxLayer", "useInView", "useScroll", "useResize", "useReducedMotion",
+        "useIsomorphicLayoutEffect", "Imperative API", "SpringRef", "SpringValue", "Controller", "Spring configs",
+        "Interpolation", "Async animations", "Events",
+      ],
+    },
     url: "https://www.react-spring.dev",
     repo: "https://github.com/pmndrs/react-spring",
     npm: "@react-spring/web",
@@ -212,6 +243,14 @@ export default [
     weight: "tiny",
     a11y: "ok",
     maturity: "stable",
+    parts: {
+      free: [
+        "animate-in", "animate-out", "fade-in / fade-out", "zoom-in / zoom-out", "spin-in / spin-out",
+        "slide-in-from-* / slide-out-to-*", "blur-in / blur-out", "duration-*", "ease-*", "delay-*", "repeat-*",
+        "direction-*", "fill-mode-*", "running / paused", "accordion-down / accordion-up",
+        "collapsible-down / collapsible-up", "caret-blink",
+      ],
+    },
     url: "https://github.com/Wombosvideo/tw-animate-css",
     repo: "https://github.com/Wombosvideo/tw-animate-css",
     npm: "tw-animate-css",
@@ -281,6 +320,16 @@ export default [
     a11y: "weak",
     maturity: "established",
     paid: { what: "Rive editor: free-plan exports play a Rive splash screen; the runtime is free", price: "from $9/seat/mo", url: "https://rive.app/pricing" },
+    parts: {
+      free: [
+        "Rive component", "useRive", "useRiveFile", "useStateMachineInput", "useResizeCanvas", "useViewModel",
+        "useViewModelInstance", "useGlobalViewModelInstance",
+        "useViewModelInstanceNumber / String / Boolean / Color / Enum / Trigger",
+        "useViewModelInstanceImage / Font / List / Artboard", "Artboards", "Layout", "State Machine Playback",
+        "Data Binding", "Loading Assets", "Fonts", "Semantics", "Focus", "Text and Key Input", "GPU Canvas",
+        "Playing Audio", "Rendering to a Bitmap",
+      ],
+    },
     url: "https://rive.app",
     repo: "https://github.com/rive-app/rive-react",
     npm: "@rive-app/react-canvas",
@@ -313,6 +362,13 @@ export default [
     weight: "large",
     a11y: "weak",
     maturity: "stable",
+    parts: {
+      free: [
+        "DotLottieReact", "DotLottieWorkerReact", "dotLottieRefCallback (player instance)", "Custom playback controls",
+        "Events", "Segments", "Named markers", "Multi-animation .lottie files", "Themes",
+        "State machines (interactivity)", "Layout", "setWasmUrl", "setWorkerUrl",
+      ],
+    },
     url: "https://lottiefiles.com/dotlottie",
     repo: "https://github.com/LottieFiles/dotlottie-web",
     npm: "@lottiefiles/dotlottie-react",
@@ -347,6 +403,13 @@ export default [
     weight: "tiny",
     a11y: "ok",
     maturity: "experimental",
+    parts: {
+      free: [
+        "TextMorph (React)", "useTextMorph", "TextMorph (Vue)", "TextMorph (Svelte)", "TextMorph (vanilla)",
+        "Spring animations", "Numbers (place-value morph)", "Editable fields (cursorIndex)", "Multi-line text",
+        "segmentText", "diffSegments",
+      ],
+    },
     url: "https://torph.lochie.me",
     repo: "https://github.com/lochie/torph",
     npm: "torph",
@@ -380,6 +443,13 @@ export default [
     weight: "small",
     a11y: "strong",
     maturity: "stable",
+    parts: {
+      free: [
+        "NumberFlow", "NumberFlowGroup", "useCanAnimate", "continuous plugin", "format (Intl.NumberFormat)",
+        "prefix / suffix", "Timings", "trend", "isolate", "digits", "Styling (CSS masks and parts)",
+        "onAnimationsStart / onAnimationsFinish",
+      ],
+    },
     url: "https://number-flow.barvian.me",
     repo: "https://github.com/barvian/number-flow",
     npm: "@number-flow/react",
@@ -445,6 +515,13 @@ export default [
     weight: "tiny",
     a11y: "weak",
     maturity: "stable",
+    parts: {
+      free: [
+        "useScramble", "replay()",
+        "Options (speed, tick, step, scramble, seed, chance, range, overdrive, overflow, ignore)",
+        "Callbacks (onAnimationStart, onAnimationFrame, onAnimationEnd)", "Reduced motion",
+      ],
+    },
     url: "https://use-scramble.dev",
     repo: "https://github.com/tol-is/use-scramble",
     npm: "use-scramble",
@@ -481,6 +558,13 @@ export default [
     weight: "small",
     a11y: "strong",
     maturity: "established",
+    parts: {
+      free: [
+        "Drawer.Root", "Drawer.Trigger", "Drawer.Portal", "Drawer.Overlay", "Drawer.Content", "Drawer.Close",
+        "Drawer.Title", "Drawer.Description", "Drawer.Handle", "Drawer.NestedRoot", "Snap points",
+        "Side drawer (direction)", "Nested drawers", "Scaled background", "Non-modal", "Non-dismissible", "Inputs",
+      ],
+    },
     url: "https://vaul.emilkowal.ski",
     repo: "https://github.com/emilkowalski/vaul",
     npm: "vaul",
@@ -514,6 +598,13 @@ export default [
     weight: "small",
     a11y: "weak",
     maturity: "established",
+    parts: {
+      free: [
+        "useEmblaCarousel", "Options", "Methods", "Events", "Autoplay", "Auto Scroll", "Auto Height", "Fade",
+        "Class Names", "Wheel Gestures", "Accessibility", "SSR", "Loop", "Drag Free", "Y-axis", "Thumbnails",
+        "Parallax", "Scale", "Opacity", "Progress", "Lazy Load", "Infinite Scroll", "iOS Style Picker",
+      ],
+    },
     url: "https://www.embla-carousel.com",
     repo: "https://github.com/davidjerleke/embla-carousel",
     npm: "embla-carousel-react",
@@ -589,6 +680,13 @@ export default [
     weight: "small",
     a11y: "n/a",
     maturity: "established",
+    parts: {
+      free: [
+        "useDrag", "useMove", "useHover", "useScroll", "useWheel", "usePinch", "useGesture", "createUseGesture",
+        "Vanilla gesture classes (DragGesture, PinchGesture...)", "Gesture state", "Gesture options",
+        "rubberbandIfOutOfBounds",
+      ],
+    },
     url: "https://use-gesture.netlify.app",
     repo: "https://github.com/pmndrs/use-gesture",
     npm: "@use-gesture/react",
@@ -622,6 +720,14 @@ export default [
     weight: "small",
     a11y: "strong",
     maturity: "stable",
+    parts: {
+      free: [
+        "DragDropProvider", "DragOverlay", "useDraggable", "useDroppable", "useSortable", "useDragDropManager",
+        "useDragDropMonitor", "useDragOperation", "PointerSensor", "KeyboardSensor", "Accessibility", "AutoScroller",
+        "Cursor", "Feedback", "Debug", "RestrictToHorizontalAxis", "RestrictToVerticalAxis", "RestrictToWindow",
+        "RestrictToElement", "SnapModifier", "Collision detection", "Multiple sortable lists",
+      ],
+    },
     url: "https://dndkit.com",
     repo: "https://github.com/clauderic/dnd-kit",
     npm: "@dnd-kit/react",
@@ -654,6 +760,15 @@ export default [
     weight: "small",
     a11y: "weak",
     maturity: "established",
+    parts: {
+      free: [
+        "Element adapter (draggable, dropTargetForElements, monitorForElements)",
+        "External adapter (files, text, URLs)", "Text selection adapter", "Drop targets", "Monitors", "Events",
+        "combine", "once", "reorder", "preventUnhandled", "Auto scroll", "Hitbox (closest edge, tree item)",
+        "Flourish", "Live region", "React accessibility", "React drop indicator", "react-beautiful-dnd migration",
+        "Unit testing",
+      ],
+    },
     url: "https://atlassian.design/components/pragmatic-drag-and-drop/",
     repo: "https://github.com/atlassian/pragmatic-drag-and-drop",
     npm: "@atlaskit/pragmatic-drag-and-drop",
@@ -686,6 +801,13 @@ export default [
     weight: "small",
     a11y: "weak",
     maturity: "stable",
+    parts: {
+      free: [
+        "useDragAndDrop", "dragAndDrop", "Sortability", "Draggable", "Transferability", "Disable sort", "Accepts",
+        "Drag Handles", "Drag Ignore", "Updating Config", "Multi Drag", "Drop or Swap", "Insert (experimental)",
+        "Animations (experimental)", "Events", "Configuration", "Accessibility",
+      ],
+    },
     url: "https://drag-and-drop.formkit.com",
     repo: "https://github.com/formkit/drag-and-drop",
     npm: "@formkit/drag-and-drop",
@@ -722,6 +844,14 @@ export default [
     weight: "small",
     a11y: "ok",
     maturity: "established",
+    parts: {
+      free: [
+        "Toaster", "toast()", "toast.success", "toast.error", "toast.info", "toast.warning", "toast.loading",
+        "toast.promise", "toast.custom", "toast.dismiss", "Action / Cancel buttons", "Headless", "Updating toasts",
+        "Persisting toasts", "useSonner", "Expand", "Position", "Multiple Toasters", "Dynamic theme",
+        "Styling (unstyled, classNames)",
+      ],
+    },
     url: "https://sonner.emilkowal.ski",
     repo: "https://github.com/emilkowalski/sonner",
     npm: "sonner",
@@ -752,6 +882,12 @@ export default [
     weight: "small",
     a11y: "ok",
     maturity: "established",
+    parts: {
+      free: [
+        "toast()", "toast.success", "toast.error", "toast.loading", "toast.promise", "toast.custom", "toast.dismiss",
+        "toast.remove", "Toaster", "ToastBar", "useToaster()", "useToasterStore()", "Multi Toaster", "Styling",
+      ],
+    },
     url: "https://react-hot-toast.com",
     repo: "https://github.com/timolins/react-hot-toast",
     npm: "react-hot-toast",
@@ -783,6 +919,13 @@ export default [
     weight: "small",
     a11y: "ok",
     maturity: "established",
+    parts: {
+      free: [
+        "confetti()", "confetti.create", "confetti.reset", "confetti.shapeFromPath", "confetti.shapeFromText",
+        "Reduced motion (disableForReducedMotion)", "Basic Cannon", "Random Direction", "Realistic Look", "Fireworks",
+        "Stars", "Snow", "School Pride", "Custom Shapes", "Emoji", "Custom Canvas",
+      ],
+    },
     url: "https://www.kirilv.com/canvas-confetti/",
     repo: "https://github.com/catdad/canvas-confetti",
     npm: "canvas-confetti",
@@ -817,6 +960,14 @@ export default [
     weight: "small",
     a11y: "weak",
     maturity: "established",
+    parts: {
+      free: [
+        "Lenis (core)", "ReactLenis", "useLenis", "lenis/vue", "lenis/snap", "lenis/framer", "scrollTo()",
+        "start() / stop()", "raf()", "Events (scroll, virtual-scroll)", "Anchors", "Infinite scroll",
+        "Horizontal orientation", "syncTouch", "Nested scroll (data-lenis-prevent)", "GSAP ScrollTrigger integration",
+        "Recommended CSS (lenis.css)",
+      ],
+    },
     url: "https://lenis.dev",
     repo: "https://github.com/darkroomengineering/lenis",
     npm: "lenis",
@@ -853,6 +1004,11 @@ export default [
     weight: "medium",
     a11y: "ok",
     maturity: "experimental",
+    parts: {
+      free: [
+        "Button", "Tab bar", "Segmented control", "Menu", "Input", "Search field", "Slider", "Switch", "Glass",
+      ],
+    },
     url: "https://glisse.kelvinzhang.ca",
     repo: "https://github.com/0kzh/glisse",
     npm: "glisse",
@@ -884,6 +1040,13 @@ export default [
     weight: "small",
     a11y: "weak",
     maturity: "experimental",
+    parts: {
+      free: [
+        "LiquidGlass", "Refraction modes (standard, polar, prominent, shader)", "Displacement scale",
+        "Blur (frost) amount", "Saturation", "Chromatic aberration", "Elasticity", "overLight",
+        "mouseContainer tracking",
+      ],
+    },
     url: "https://liquid-glass.maxrovensky.com",
     repo: "https://github.com/rdev/liquid-glass-react",
     npm: "liquid-glass-react",

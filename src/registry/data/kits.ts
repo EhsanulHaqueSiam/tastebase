@@ -1078,6 +1078,12 @@ export default [
     weight: "small",
     a11y: "ok",
     maturity: "established",
+    parts: {
+      free: [
+        "Command", "Command.Dialog", "Command.Input", "Command.List", "Command.Item", "Command.Group",
+        "Command.Separator", "Command.Empty", "Command.Loading", "useCommandState",
+      ],
+    },
     url: "https://cmdk.paco.me",
     repo: "https://github.com/dip/cmdk",
     npm: "cmdk",
