@@ -41,6 +41,7 @@
     "lenis": {"pass":true,"fails":[],"calls":[],"samples":["lenis"],"fp":"b920dea067f8","graded":"703454885130"},
     "glisse": {"pass":true,"fails":[],"calls":[],"samples":["glisse"],"fp":"88b2a178b369","graded":"703454885130"},
     "liquid-glass-react": {"pass":true,"fails":[],"calls":[],"samples":["liquid-glass-react"],"fp":"f7d7af44dcf7","graded":"703454885130"},
+    "liquid-glass": {"pass":true,"fails":[],"calls":[],"samples":["liquid-glass"],"fp":"fd4be7cd5b6d","graded":"703454885130"},
     "skullet": {"pass":true,"fails":[],"calls":[],"samples":["skullet"],"fp":"3ca36f6889a6","graded":"703454885130"},
     "lucide": {"pass":true,"fails":[],"calls":[],"samples":["lucide"],"fp":"c799dcfcd1a6","graded":"703454885130"},
     "phosphor": {"pass":true,"fails":[],"calls":[],"samples":["phosphor"],"fp":"bd1f939c3714","graded":"703454885130"},
@@ -69,6 +70,7 @@
     "babylonjs": {"pass":true,"fails":[],"calls":[],"samples":["babylonjs"],"fp":"1d5e0a5fb3ac","graded":"703454885130"},
     "pele": {"pass":true,"fails":[],"calls":[],"samples":["pele"],"fp":"76cbeda1d243","graded":"703454885130"},
     "hairline": {"pass":true,"fails":[],"calls":[],"samples":["hairline"],"fp":"7862f6d34d2c","graded":"703454885130"},
-    "stick-it-up": {"pass":true,"fails":[],"calls":[],"samples":["stick-it-up"],"fp":"f29011586ea4","graded":"703454885130"}
+    "stick-it-up": {"pass":true,"fails":[],"calls":[],"samples":["stick-it-up"],"fp":"f29011586ea4","graded":"703454885130"},
+    "ascii-magic-art": {"pass":true,"fails":[],"calls":[],"samples":["ascii-magic-art"],"fp":"2b8eec527ff2","graded":"703454885130"}
   }
 }
