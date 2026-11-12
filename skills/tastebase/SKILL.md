@@ -12,7 +12,8 @@ knows which library fits which job and which look.
 
 1. **Read the look.** Take it from the user's words ("like Linear", "liquid glass", "playful") and from the
    project: its component kit, fonts, colours, DESIGN.md. If neither says, `plan` picks one; tell the user which.
-2. **Find components.** Whole app or page: call `plan` once with the brief and the look. One part inside
+2. **Find components.** Whole app or page: call `plan` once with the brief, the user's look words included
+   ("like Resend", "3D", "scroll animations"); it detects the look. Pass `look` only to override it. One part inside
    existing UI: call `pick` with the job ("copy button that confirms", "bottom sheet", "animated price") and
    the look. Pass `framework` if the project is not React.
 3. **Read before installing.** Call `get` for each library you will use, and follow its usage and note.
@@ -29,7 +30,8 @@ or `directories`. Ask `trending` when the user wants what is new.
 
 - The project wins. If it already uses a kit, icon set or motion library, keep it and only fill gaps.
 - One component kit per app. Do not mix shadcn/ui with Mantine or HeroUI.
-- The look's `type`, `colour`, `motion` and `avoid` lines are design decisions, not hints.
+- The look's `type`, `colour`, `motion` and `avoid` lines are design decisions, not hints. So is the `site:` line
+  (a 3D, motion-led or media-led page), and it wins over the look on motion.
 - Respect `careful:` lines: they mean the library is a poor fit for that use.
 - Pause continuous animations (shaders, particles) offscreen and under `prefers-reduced-motion`.
 
