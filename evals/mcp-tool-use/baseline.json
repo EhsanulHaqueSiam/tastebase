@@ -1,13 +1,13 @@
 {
   "model": "claude-haiku-5-5",
   "cases": {
-    "page-plans-first": {"pass":false,"fails":["gets the technical look"],"calls":[["plan",{"brief":"Landing page for Acme Mail, an email API for developers. Dev-tool look like Resend. Shader background behind the hero.","framework":"react","look":"minimal"}],["get",{"id":"paper-shaders"}]],"samples":["7d9d5f79-0c66-417e-bc8b-772a82855050"],"fp":"9ee02ed03234","graded":"84f7c0676898"},
-    "one-job-picks": {"pass":true,"fails":[],"calls":[["pick",{"need":"toast notification after form save","framework":"react"}],["get",{"id":"sonner"}]],"samples":["2dd89f33-9145-46bc-a309-ae3bfb2a4c7e","af634e78-41a6-4ad7-93dd-90247a2ae4f9","f75e449e-97d6-41d7-8853-6a5446d857ee"],"fp":"df39871171c9","graded":"caaa50d425e9"},
-    "vue-project": {"pass":true,"fails":[],"calls":[["pick",{"need":"command palette","framework":"vue"}],["get",{"id":"nuxt-ui"}]],"samples":["fad1831a-c0ef-4ebf-867b-2990dcc40a3d"],"fp":"3071d8b8b639","graded":"205510798f36"},
-    "keeps-project-kit": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Billing page with a plan picker and an invoices table, React component in src/Billing.tsx","framework":"react"}]],"samples":["7d2d9a9e-6158-4d37-b532-f63097da485e"],"fp":"2e521a4303c6","graded":"fde6eb3f28fb"},
-    "nothing-fits": {"pass":true,"fails":[],"calls":[["pick",{"need":"rich text editor with bold, italic and lists","framework":"react"}]],"samples":["9aeded74-b979-4e02-ab5d-15a7816216d0"],"fp":"45045b40d775","graded":"5278d7661b2f"},
-    "trending-when-asked": {"pass":true,"fails":[],"calls":[["trending",{}]],"samples":["6a80efe6-1733-4e2a-a303-24f299a17d23"],"fp":"f00c3f9900b9","graded":"35e9a144f1c2"},
-    "control-typo": {"pass":true,"fails":[],"calls":[],"samples":["5c3cd6d2-8f91-4df0-969d-0f02c63f07c9"],"fp":"3633f4a1011b","graded":"45e6da9aeda0"},
-    "control-backend": {"pass":true,"fails":[],"calls":[],"samples":["4d50c278-fc29-4716-a11d-b3de97a0762f"],"fp":"b2559275a2ac","graded":"bfb1c2ab9384"}
+    "page-plans-first": {"pass":false,"fails":["gets the technical look"],"calls":[["plan",{"brief":"Landing page for Acme Mail, an email API for developers. Dev-tool look like Resend. Shader background behind the hero.","framework":"react","look":"minimal"}],["get",{"id":"paper-shaders"}]],"samples":["7d9d5f79-0c66-417e-bc8b-772a82855050"],"fp":"9ee02ed03234","graded":"1a7808a6355b"},
+    "one-job-picks": {"pass":true,"fails":[],"calls":[["pick",{"need":"toast notification after form save","framework":"react"}],["get",{"id":"sonner"}]],"samples":["2dd89f33-9145-46bc-a309-ae3bfb2a4c7e","af634e78-41a6-4ad7-93dd-90247a2ae4f9","f75e449e-97d6-41d7-8853-6a5446d857ee"],"fp":"df39871171c9","graded":"c276742ea8c8"},
+    "vue-project": {"pass":true,"fails":[],"calls":[["pick",{"need":"command palette","framework":"vue"}],["get",{"id":"nuxt-ui"}]],"samples":["fad1831a-c0ef-4ebf-867b-2990dcc40a3d"],"fp":"3071d8b8b639","graded":"b9f421f73052"},
+    "keeps-project-kit": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Billing page with a plan picker and an invoices table, React component in src/Billing.tsx","framework":"react"}]],"samples":["7d2d9a9e-6158-4d37-b532-f63097da485e"],"fp":"2e521a4303c6","graded":"f9a1a8216356"},
+    "nothing-fits": {"pass":true,"fails":[],"calls":[["pick",{"need":"rich text editor with bold, italic and lists","framework":"react"}]],"samples":["9aeded74-b979-4e02-ab5d-15a7816216d0"],"fp":"45045b40d775","graded":"24c7f2d671fe"},
+    "trending-when-asked": {"pass":true,"fails":[],"calls":[["trending",{}]],"samples":["6a80efe6-1733-4e2a-a303-24f299a17d23"],"fp":"f00c3f9900b9","graded":"37ef5763e3be"},
+    "control-typo": {"pass":true,"fails":[],"calls":[],"samples":["5c3cd6d2-8f91-4df0-969d-0f02c63f07c9"],"fp":"3633f4a1011b","graded":"213b9e491e11"},
+    "control-backend": {"pass":true,"fails":[],"calls":[],"samples":["4d50c278-fc29-4716-a11d-b3de97a0762f"],"fp":"b2559275a2ac","graded":"6ca0ba3dbe64"}
   }
 }
