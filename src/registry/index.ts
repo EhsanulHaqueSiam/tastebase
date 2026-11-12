@@ -4,7 +4,9 @@ import aestheticsData from "./aesthetics.ts";
 import kits from "./data/kits.ts";
 import motion from "./data/motion.ts";
 import visuals from "./data/visuals.ts";
-import type { Aesthetic, Library } from "./schema.ts";
+import type { Aesthetic, Library, SiteType } from "./schema.ts";
+import sitesData from "./sites.ts";
 
 export const libraries: Library[] = [...kits, ...motion, ...visuals];
 export const aesthetics: Aesthetic[] = aestheticsData;
+export const siteTypes: SiteType[] = sitesData;

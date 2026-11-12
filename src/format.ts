@@ -1,7 +1,7 @@
 // Text formatting for tool answers. Kept free of server deps so the site can show exactly what agents get.
 import type { Plan, Scored } from "./engine.ts";
 import { resourceKinds, resources, type Resource, type ResourceKind } from "./registry/resources.ts";
-import type { Library } from "./registry/schema.ts";
+import type { Library, SiteType } from "./registry/schema.ts";
 
 const hot = (l: Library) => (l.stats?.starsWeek ? ` | +${l.stats.starsWeek}★ this week` : "");
 
@@ -36,6 +36,9 @@ export const formatResources = (kind: ResourceKind) =>
     .map((r) => `${r.name} ${r.url} | ${r.goodFor} | ${r.cost}${r.mcp ? ` | ${r.mcp.name}${r.mcp.needsPaidPlan ? " (paid plan)" : ""}: ${r.mcp.url}` : ""}`)
     .join("\n");
 
+/** What carries the page (3D, scroll motion, photo and video) and how to build it: a plan line, or `get <id>`. */
+export const formatSite = (s: SiteType) => `site: ${s.name} (its rules beat the look's motion rule) | ${s.build} | avoid: ${s.avoid.join("; ")}`;
+
 export function formatPlan(p: Plan): string {
   const L = p.look;
   const out = [
@@ -45,6 +48,7 @@ export function formatPlan(p: Plan): string {
     `colour: ${L.colour}`,
     `motion: ${L.motion}`,
     `avoid: ${L.avoid.join("; ")}`,
+    ...(p.site ? [formatSite(p.site)] : []),
     refs,
     "",
   ];

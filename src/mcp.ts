@@ -3,7 +3,8 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { pick, plan } from "./engine.ts";
-import { formatLibrary, formatPlan, formatResources, formatTrending, line } from "./format.ts";
+import { formatLibrary, formatPlan, formatResources, formatSite, formatTrending, line } from "./format.ts";
+import { siteTypes } from "./registry/index.ts";
 import { isResourceKind, resourceKinds } from "./registry/resources.ts";
 import { aestheticIds, frameworks, kinds, type Aesthetic, type Library } from "./registry/schema.ts";
 
@@ -54,7 +55,7 @@ export function createServer(libs: Library[], looks: Aesthetic[], version: strin
   server.registerTool(
     "get",
     {
-      description: "Full entry for one library id (usage, agent note, alternatives), a look id for its design rules, or a resource category for linked design resources.",
+      description: "Full entry for one library id (usage, agent note, alternatives), a look id for its design rules, a site type (3d-site, motion-site, media-site) for its build rules, or a resource category for linked design resources.",
       inputSchema: { id: z.string().describe(`Library id like 'vaul', look id like 'apple', or one of ${Object.keys(resourceKinds).join(", ")}`) },
       annotations: { readOnlyHint: true },
     },
@@ -62,6 +63,8 @@ export function createServer(libs: Library[], looks: Aesthetic[], version: strin
       const l = byId.get(id);
       if (l) return text(formatLibrary(l));
       const a = lookById.get(id as Aesthetic["id"]);
+      const site = siteTypes.find((t) => t.id === id);
+      if (site) return text(`${formatSite(site)}\npicks: ${JSON.stringify(site.picks)}`);
       if (isResourceKind(id)) return text(formatResources(id));
       if (a) return text(formatPlan({ look: a, lookGuessed: false, also: [], items: [], framework: "react", frameworkGuessed: true }).replace(/^framework:.*\n/m, "") + `\npicks: ${JSON.stringify(a.picks)}`);
       const near = [...byId.keys()].filter((k) => k.includes(id) || id.includes(k) || editDistance(k, id) <= 2).slice(0, 5);

@@ -34,6 +34,24 @@ test("single jobs land on the specialist", () => {
   assert.equal(top("hero shader background"), "paper-shaders");
 });
 
+// What carries the page is separate from its look: its picks lead their kinds, and what fights it is left out.
+const sites: { brief: string; site: string | undefined; has?: Partial<Record<Kind, string>>; lacks?: Kind[] }[] = [
+  { brief: "immersive 3D product landing page with three.js", site: "3d-site", has: { "3d": "r3f", motion: "gsap" }, lacks: ["background"] },
+  { brief: "svelte 3d configurator", site: "3d-site", has: { "3d": "three" } },
+  { brief: "awwwards style agency site with scroll animations", site: "motion-site", has: { motion: "gsap", scroll: "lenis", "text-effects": "gsap-splittext" } },
+  { brief: "cinematic video hero landing page for a film studio", site: "media-site", lacks: ["background"] },
+  { brief: "luxury watch boutique with full-bleed photography", site: "media-site", lacks: ["charts", "background"] },
+  { brief: "video call app", site: undefined },
+];
+for (const r of sites)
+  test(`site: ${r.brief}`, () => {
+    const p = plan(libraries, aesthetics, r.brief);
+    const got = Object.fromEntries(p.items.map((i) => [i.kind, i.pick?.lib.id]));
+    assert.equal(p.site?.id, r.site);
+    for (const [kind, id] of Object.entries(r.has ?? {})) assert.equal(got[kind], id, kind);
+    for (const kind of r.lacks ?? []) assert.ok(!(kind in got), `${kind} is not needed`);
+  });
+
 // What people type, and what they must get. `miss` marks a row the engine gets wrong today; the test then asserts
 // it still fails, so a fix (or a lucky new library) shows up as "delete the miss".
 type Brief = { brief: string; look: AestheticId | "default"; framework?: Framework; has?: Partial<Record<Kind, string>>; lacks?: Kind[]; miss?: string };
@@ -70,7 +88,7 @@ const briefs: Brief[] = [
   { brief: "software licence manager", look: "default", miss: "'soft' matches inside 'software'" },
   { brief: "client portal for a law firm", look: "default", miss: "'cli' matches inside 'client'" },
   { brief: "timesheet app for contractors", look: "default", lacks: ["interaction"], miss: "'sheet' matches inside 'timesheet'" },
-  { brief: "portfolio for a photographer", look: "default", lacks: ["charts"], miss: "'graph' matches inside 'photographer'" },
+  { brief: "portfolio for a photographer", look: "default", lacks: ["charts"] },
 ];
 
 // The same job in other words. `top: null` means the registry has nothing for it and must say so.

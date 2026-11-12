@@ -103,3 +103,22 @@ export type Aesthetic = {
   avoid: string[];
   references: { name: string; url: string }[];
 };
+
+/**
+ * What carries a whole page, orthogonal to its look: a 3D scene, scroll choreography, or photo and video. A luxury
+ * site can be media-led and a technical one 3D. Detected from a brief like a look; shapes a plan's needs and picks.
+ */
+export type SiteType = {
+  id: "3d-site" | "motion-site" | "media-site";
+  name: string;
+  signals: string[];
+  /** Kinds this site always needs, added to a plan. */
+  needs: Kind[];
+  /** Kinds that fight this site (a shader behind a video); left out of its plans. */
+  drops: Kind[];
+  /** Best library per kind for this site, best first; these lead the plan for their kinds, whatever the look. */
+  picks: Partial<Record<Kind, string[]>>;
+  /** How to build it: structure and the performance rules that keep it fast. */
+  build: string;
+  avoid: string[];
+};
