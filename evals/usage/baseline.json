@@ -71,6 +71,7 @@
     "pele": {"pass":true,"fails":[],"calls":[],"samples":["pele"],"fp":"76cbeda1d243","graded":"703454885130"},
     "hairline": {"pass":true,"fails":[],"calls":[],"samples":["hairline"],"fp":"7862f6d34d2c","graded":"703454885130"},
     "stick-it-up": {"pass":true,"fails":[],"calls":[],"samples":["stick-it-up"],"fp":"f29011586ea4","graded":"703454885130"},
-    "ascii-magic-art": {"pass":true,"fails":[],"calls":[],"samples":["ascii-magic-art"],"fp":"2b8eec527ff2","graded":"703454885130"}
+    "ascii-magic-art": {"pass":true,"fails":[],"calls":[],"samples":["ascii-magic-art"],"fp":"2b8eec527ff2","graded":"703454885130"},
+    "piixpal": {"pass":true,"fails":[],"calls":[],"samples":["piixpal"],"fp":"45459b3e1f67","graded":"703454885130"}
   }
 }
