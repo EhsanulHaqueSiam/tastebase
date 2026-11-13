@@ -12,6 +12,8 @@ for tabs and toggles.
 - **"Near" means "tagged together".** Look affinity is how often two looks share a library across the whole
   registry, so it follows the data as entries change. Island positions start from classical MDS on that affinity,
   get pulled toward the centre, then pushed apart until no box overlaps (`src/atlas.test.ts` checks every view).
+  Side walls keep every box inside the target width; a sideways push that would cross one goes vertical, so a
+  crowded map grows taller instead of overflowing its container.
 - **Box sizes are fixed numbers** (`ISLAND` in `src/atlas.ts`), mirrored in the page's CSS. The layout runs without a
   browser, so it cannot measure text; every row and header has a fixed height and long names truncate.
 - **Best free** is the look's own curated pick (from `aesthetics.ts`) when it is free, else the first free library

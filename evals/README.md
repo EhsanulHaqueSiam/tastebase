@@ -9,13 +9,13 @@ What each of tastebase's purposes (see `AGENTS.md`) is measured by:
 
 | Purpose | Measured by |
 | --- | --- |
-| An agent knows what goes together | `engine.test.ts`: briefs, needs, and per look, product briefs that must read as the look and get its own picks. `registry.test.ts`: every library can win the jobs it claims. `budget.test.ts`: every `get` answer stays within budget. `mcp-tool-use`: an agent asks the right tool and builds with the answer. |
-| One prompt, a page worth 9.9/10 | `skill`: the agent opens the skill and follows the flow. `design`: the page works, is what was asked, uses what was offered, reads as its look, and the judge's craft score out of 10. `usage`: the snippets it copies compile. |
-| A person can choose by feel | `registry.test.ts`: every library has a screenshot and an icon. `atlas.test.ts`: every library lands in a look group. The site itself is checked by hand with `.agents/skills/test-tastebase`. |
+| The agent knows what goes here, and what goes with it | `engine.test.ts`: briefs, needs, and per look, product briefs that must read as the look and get its own picks. `registry.test.ts`: every library is offered for the jobs it claims. `budget.test.ts`: every `get` answer stays within budget. `mcp-tool-use`: an agent asks the right tool and builds with the answer. |
+| No screen looks bad | `skill`: the agent opens the skill and follows the flow. `design`: the page works, is what was asked, uses what was offered, reads as its look, and the judge's craft score out of 10. `usage`: the snippets it copies compile. |
+| People can taste before they choose | `registry.test.ts`: every library has a screenshot and an icon. `atlas.test.ts`: every library lands in a look group. The site itself is checked by hand with `.agents/skills/test-tastebase`. |
 
 | Layer | Asks | Costs |
 | --- | --- | --- |
-| `src/engine.test.ts`, `src/registry/registry.test.ts` | Does this brief, typed the way people type, get the right look and libraries? Can every library still win the jobs it claims? | nothing, runs in `pnpm test` |
+| `src/engine.test.ts`, `src/registry/registry.test.ts` | Does this brief, typed the way people type, get the right look and libraries? Is every library still offered for the jobs it claims? | nothing, runs in `pnpm test` |
 | `usage` | Does every entry's `usage` snippet compile against the package it names? | no model; about a minute for the whole registry |
 | `mcp-tool-use` | Does an agent with only the MCP server call the right tool, with the right arguments, and build with what it is offered? | about 3¢ for all cases |
 | `skill` | Does an agent that also has `skills/tastebase/SKILL.md` open it and follow its rules? | about 6¢ |
@@ -122,8 +122,9 @@ Engine rows go in `src/engine.test.ts`: a brief or a need and what it must get.
 - The snapshot beside the test records every pick. When a library or a scoring change moves one, the test fails;
   `pnpm test:update` rewrites it, and its diff is the list of picks that moved.
 
-Nothing needs adding for a new library to be covered: `registry.test.ts` checks that every library wins the
-first job in its `useFor` and is offered for the rest, and `usage` typechecks its snippet against the package.
+Nothing needs adding for a new library to be covered: `registry.test.ts` checks that every library is offered
+(by `pick`, or by a plan as a pick or an alternative) for the jobs in its `useFor`, and `usage` typechecks its
+snippet against the package.
 
 ## The design eval
 

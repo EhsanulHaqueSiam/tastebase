@@ -91,9 +91,9 @@ export const cases: Case[] = [
   {
     id: "nothing-fits",
     kind: "bad",
-    source: "src/engine.test.ts miss: pick has no score floor, so a job the registry does not cover still returns three libraries",
+    source: "a job the registry does not cover: pick returns nothing, or only libraries that share a word with it, and none may be installed",
     files: react(),
-    prompt: "Add a notes field with a rich text editor (bold, italic, lists) to the form in src/App.tsx.",
+    prompt: "Add a video player for /demo.mp4 to the page in src/App.tsx.",
     expect: [declines("pick"), noNewKit()],
   },
   {

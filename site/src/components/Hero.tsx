@@ -12,11 +12,9 @@ type Hit = { lib: Lite; why: string };
 
 /** Hero: morphing headline, live search against /api/pick, rolling counts. Lifts and blurs away on scroll. */
 export default function Hero({ counts }: { counts: { libs: number; looks: number; kinds: number } }) {
+  // The word changes only when the user points at or presses it: the site has no motion on a loop.
   const [w, setW] = useState(0);
-  useEffect(() => {
-    const t = setInterval(() => setW((i) => (i + 1) % WORDS.length), 2400);
-    return () => clearInterval(t);
-  }, []);
+  const next = () => setW((i) => (i + 1) % WORDS.length);
 
   const [q, setQ] = useState("");
   const [hits, setHits] = useState<Hit[]>([]);
@@ -55,7 +53,10 @@ export default function Hero({ counts }: { counts: { libs: number; looks: number
           transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
           className="text-center text-[clamp(38px,6.4vw,76px)] leading-[1.02] font-semibold tracking-[-0.045em] [text-shadow:0_2px_30px_rgb(255_255_255/0.18)]"
         >
-          find any <TextMorph as="span" className="font-serif font-normal italic tracking-[-0.02em]">{WORDS[w] ?? ""}</TextMorph>
+          find any{" "}
+          <button type="button" onClick={next} onPointerEnter={(e) => e.pointerType === "mouse" && next()} className="cursor-pointer rounded-lg outline-offset-4">
+            <TextMorph as="span" className="font-serif font-normal italic tracking-[-0.02em]">{WORDS[w] ?? ""}</TextMorph>
+          </button>
         </motion.h1>
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25, duration: 0.6 }} className="mt-4 max-w-[52ch] text-center text-[15px] text-fg2">
           Hand-picked UI libraries, each with a note on when to use it. Your coding agent reads the same notes through MCP.

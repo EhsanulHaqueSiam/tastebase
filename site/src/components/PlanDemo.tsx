@@ -43,10 +43,24 @@ export default function PlanDemo({ initial, briefs }: { initial: PlanJson; brief
           <SpotCard className="rounded-2xl bg-s1 p-5 shadow-[inset_0_0_0_1px_var(--color-line)]">
             <div className="flex items-center gap-2 text-[13px] text-fg2"><Wand2 size={14} className="text-violet" /> Look</div>
             <TextMorph as="div" className="mt-1 text-2xl font-semibold tracking-[-0.03em]">{p.look.name}</TextMorph>
+            {(p.look.guessed || p.look.also.length > 0) && (
+              <p className="mt-0.5 text-[12.5px] text-fg3">{p.look.guessed ? "Default: the brief names no look." : `Also fits ${p.look.also.join(", ")}.`}</p>
+            )}
             <p className="mt-1 text-fg2">{p.look.summary}</p>
             <dl className="mt-4 grid gap-2 text-[13px]">
-              {(["type", "colour", "motion"] as const).map((k) => (
-                <div key={k} className="grid grid-cols-[64px_1fr] gap-2"><dt className="text-fg3 capitalize">{k}</dt><dd className="text-fg/90">{p.look[k]}</dd></div>
+              {(
+                [
+                  ["framework", `${p.framework}${p.frameworkGuessed ? " (assumed, name yours in the brief)" : ""}`],
+                  ...(p.first ? [["first", p.first]] : []),
+                  ...(p.mobile ? [["mobile", p.mobile]] : []),
+                  ["type", p.look.type],
+                  ["colour", p.look.colour],
+                  ["motion", p.look.motion],
+                  ["avoid", p.look.avoid.join("; ")],
+                  ...(p.site ? [["site", p.site]] : []),
+                ] as const
+              ).map(([k, v]) => (
+                <div key={k} className="grid grid-cols-[72px_1fr] gap-2"><dt className="text-fg3 capitalize">{k}</dt><dd className="text-fg/90">{v}</dd></div>
               ))}
             </dl>
           </SpotCard>
@@ -55,11 +69,11 @@ export default function PlanDemo({ initial, briefs }: { initial: PlanJson; brief
           <LayoutGroup>
             <ul className="grid grid-cols-1 gap-2">
               <AnimatePresence mode="popLayout" initial={false}>
-                {p.items.map((it, i) => {
-                  const m = kindMeta[it.kind];
+                {p.items.map(({ kind, pick, empty }, i) => {
+                  const m = kindMeta[kind];
                   return (
                     <motion.li
-                      key={`${it.kind}-${it.lib.id}`}
+                      key={`${kind}-${pick?.lib.id ?? "none"}`}
                       layout
                       initial={{ opacity: 0, x: 16, filter: "blur(4px)" }}
                       animate={{ opacity: 1, x: 0, filter: "blur(0px)", transition: { delay: i * 0.04, type: "spring", duration: 0.5, bounce: 0.15 } }}
@@ -67,11 +81,21 @@ export default function PlanDemo({ initial, briefs }: { initial: PlanJson; brief
                     >
                       <SpotCard className="flex items-center gap-3 rounded-xl bg-s1 p-3 shadow-[inset_0_0_0_1px_var(--color-line)]">
                         <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-s3" style={{ color: m.color }}><m.icon size={16} /></span>
-                        <span className="min-w-0 flex-1">
-                          <span className="flex items-baseline gap-2"><span className="text-[12px] text-fg3">{m.label}</span><a href={`/browse/${it.lib.id}`} className="font-medium hover:underline">{it.lib.name}</a></span>
-                          <span className="block truncate text-[13px] text-fg2">{it.why}</span>
-                        </span>
-                        <CopyButton value={it.lib.install} label="Install" quiet />
+                        {pick ? (
+                          <>
+                            <span className="min-w-0 flex-1">
+                              <span className="flex items-baseline gap-2"><span className="text-[12px] text-fg3">{m.label}</span><a href={`/browse/${pick.lib.id}`} className="font-medium hover:underline">{pick.lib.name}</a></span>
+                              <span className="block truncate text-[13px] text-fg2">{pick.why}</span>
+                              {pick.caution && <span className="block text-[12px] text-amber">Careful: {pick.caution}</span>}
+                            </span>
+                            <CopyButton value={pick.lib.install} label="Install" quiet />
+                          </>
+                        ) : (
+                          <span className="min-w-0 flex-1">
+                            <span className="flex items-baseline gap-2"><span className="text-[12px] text-fg3">{m.label}</span><span className="font-medium text-fg2">None curated</span></span>
+                            <span className="block text-[13px] text-fg3">{empty}</span>
+                          </span>
+                        )}
                       </SpotCard>
                     </motion.li>
                   );

@@ -83,6 +83,10 @@ export function islands(groups: Group[], aff: ReturnType<typeof lookAffinity>, w
   const xs = seed.map((p) => p[0]), ys = seed.map((p) => p[1]);
   const span = (v: number[]) => Math.max(...v) - Math.min(...v) || 1;
   const pos = seed.map(([x, y]) => [width * (0.15 + 0.7 * (x - Math.min(...xs)) / span(xs)), 140 + 380 * (y - Math.min(...ys)) / span(ys)]);
+  // Side walls: a box's centre stays where the whole box fits inside `width`, so the map grows down, never sideways.
+  const lo = (i: number) => boxes[i]!.w / 2 + 12, hi = (i: number) => width - boxes[i]!.w / 2 - 12;
+  const clamp = (i: number, x: number) => Math.min(hi(i), Math.max(lo(i), x));
+  pos.forEach((p, i) => (p[0] = clamp(i, p[0]!)));
   for (let it = 0; it < 3000; it++) {
     if (it < 500) for (const p of pos) { p[0]! += (width / 2 - p[0]!) * 0.015; p[1]! += (300 - p[1]!) * 0.05; }
     let moved = false;
@@ -94,8 +98,11 @@ export function islands(groups: Group[], aff: ReturnType<typeof lookAffinity>, w
         if (ox <= 0 || oy <= 0) continue;
         moved = true;
         // Push apart along the axis that needs the smaller move; ties go by index so the result is stable.
-        if (oy < ox) { const m = (oy / 2) * (dy > 0 || (dy === 0 && i < j) ? 1 : -1); p[1]! -= m; q[1]! += m; }
-        else { const m = (ox / 2) * (dx > 0 || (dx === 0 && i < j) ? 1 : -1); p[0]! -= m; q[0]! += m; }
+        const mx = (ox / 2) * (dx > 0 || (dx === 0 && i < j) ? 1 : -1);
+        // A sideways push that would cross a wall goes vertical instead.
+        const blocked = clamp(i, p[0]! - mx) !== p[0]! - mx || clamp(j, q[0]! + mx) !== q[0]! + mx;
+        if (oy < ox || blocked) { const m = (oy / 2) * (dy > 0 || (dy === 0 && i < j) ? 1 : -1); p[1]! -= m; q[1]! += m; }
+        else { p[0]! -= mx; q[0]! += mx; }
       }
     if (!moved && it >= 500) break;
   }

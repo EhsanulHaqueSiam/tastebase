@@ -10,13 +10,15 @@ import { aesthetics, libraries } from "../lib/server.ts";
 export const prerender = true;
 
 const aff = lookAffinity(libraries);
+// Libraries are tagged with families, so groups and their best-free picks come from families, not named styles.
+const families = aesthetics.filter((a) => !a.family);
 const kindsHere = [...new Set(libraries.map((l) => l.kind))].filter((k) => libraries.filter((l) => l.kind === k).length >= 2);
 const tabs: { id: "all" | Kind; label: string; libs: Library[] }[] = [
   { id: "all", label: "All", libs: libraries },
   ...kindsHere.map((k) => ({ id: k, label: kindMeta[k].label, libs: libraries.filter((l) => l.kind === k) })),
 ];
 const views = tabs.map((t) => {
-  const groups = groupByLook(t.libs, aesthetics);
+  const groups = groupByLook(t.libs, families);
   return { ...t, groups, map: islands(groups, aff), mood: chain(groups, aff), matrix: t.id === "all" ? undefined : partsMatrix(t.libs) };
 });
 const title = (g: Group) => g.looks.join(" / ");
@@ -213,10 +215,6 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
 </Base>
 
 <style define:vars={{ chip: `${ISLAND.chip}px`, row: `${ISLAND.row}px`, head: `${ISLAND.head}px`, padx: `${ISLAND.padX}px`, pady: `${ISLAND.padY}px` }}>
-  .seg { display: flex; gap: 2px; border-radius: 9px; background: var(--color-s2); padding: 2px; }
-  .seg button { border-radius: 7px; padding: 4px 10px; font-size: 12.5px; font-weight: 500; color: var(--color-fg2); transition: background-color 200ms, color 200ms; }
-  .seg button:hover { color: var(--color-fg); }
-  .seg button[aria-pressed="true"] { background: var(--color-s3); color: var(--color-fg); }
   .tabs { position: sticky; top: 56px; z-index: 10; margin: 18px -16px 16px; display: flex; gap: 18px; overflow-x: auto; border-bottom: 1px solid var(--color-line); background: #000; padding: 0 16px; scrollbar-width: none; }
   .tabs a { white-space: nowrap; border-bottom: 1.5px solid transparent; padding: 10px 0; font-size: 13px; color: var(--color-fg2); transition: color 200ms; }
   .tabs a:hover, .tabs a[aria-current] { color: var(--color-fg); }
@@ -270,7 +268,8 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
   .legend i { display: inline-block; width: 10px; height: 10px; margin-right: -8px; border-radius: 2px; }
   @media (max-width: 640px) { .bar { grid-template-columns: 120px 1fr 56px; } .price { display: none; } }
 
-  .mx-wrap { overflow-x: auto; }
+  /* relative: the cells' absolutely positioned sr-only labels must scroll with the table, not widen the page */
+  .mx-wrap { position: relative; overflow-x: auto; }
   .mx { border-collapse: collapse; font-size: 12.5px; }
   .mx thead th { height: 96px; vertical-align: bottom; padding: 0 0 8px; font-weight: 500; color: var(--color-fg3); }
   .mx thead th span { display: inline-block; writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; }

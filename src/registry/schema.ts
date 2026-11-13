@@ -16,6 +16,8 @@ export const kinds = [
   "glass", // translucent material implementations (Glisse)
   "agent-ui", // chat, streaming, reasoning, tool-call UI
   "scroll", // smooth scroll, scroll-linked animation
+  "tables", // data tables and grids: sorting, filtering, virtual rows (TanStack Table)
+  "editor", // rich text, block and code editors (Tiptap)
 ] as const;
 
 export const aestheticIds = [
@@ -62,6 +64,10 @@ export type Library = {
   /** ids of libraries that do the same job; the agent compares these. */
   alternatives?: string[];
   install: string;
+  /** Install command for a framework whose package differs from `install` (lucide-react vs @lucide/vue). */
+  installFor?: Partial<Record<Framework, string>>;
+  /** Install command when a plan's base kit is the library with this id (BlockNote on shadcn-ui: @blocknote/shadcn). */
+  installWith?: Record<string, string>;
   /** Minimal correct usage, real API, no placeholders. */
   usage: string;
   /** The agent note (prompt.md): how to use it well, defaults that matter, mistakes to avoid. 2-5 sentences. */
@@ -84,25 +90,68 @@ export type Library = {
    * npm numbers belong to the parent, so trending skips it.
    */
   partOf?: string;
+  /**
+   * A kit that is a look (98.css, GOV.UK Frontend, Konsta): plans use it only when the look picks it or the brief names
+   * it. The registry index sets it for every entry in data/themed.ts; set it here for one that lives elsewhere.
+   */
+  themed?: true;
   /** Filled by the Worker's cron (src/trending.ts); leave out in data files. */
   stats?: { stars?: number; starsWeek?: number; downloadsWeek?: number; updatedAt?: string };
 };
 
-/** A look an agent can be asked for. Maps brief words to libraries and to concrete design decisions. */
-export type Aesthetic = {
-  id: AestheticId;
+/** How a look's specimen card renders on the site. Approximate on purpose: enough to taste the difference. */
+export type Swatch = {
+  bg: string;
+  surface: string;
+  text: string;
+  accent: string;
+  radius: number;
+  font: "sans" | "serif" | "mono" | "display" | "rounded" | "pixel" | "hand";
+  /** Extra CSS declarations for the card when colour alone misses the look: shadows, borders, backdrop blur. */
+  card?: string;
+  /** Which specimen composition the site draws for this look; unset = "cards". */
+  layout?:
+    | "bento" | "columns" | "poster" | "steps" | "window" | "document" // composition
+    | "diff" | "ticker" | "drawing" | "ascii" | "hud" | "prompt" | "table" | "ledger" | "mac" // look-alike data and windows
+    | "frost" | "lens" | "extrude" | "clay" | "quiet" | "layers" | "inverse" | "blob" | "pigment" | "space" | "rough" // material and restraint
+    | "confetti" | "cute" | "tonal" | "render" | "toon" | "warp" | "clash" | "sketch" // playful signatures
+    | "float" | "veil" | "beam" | "horizon" | "glitch" | "foil" | "metal" | "hero" // light, depth and marketing
+    | "panes" | "sheet" | "grouped" | "chunky" | "tube" | "maison" | "boutique" | "mesh" | "grain" | "tints" | "finish"
+    | "night" | "gingham" | "flyout" | "paper" | "vitals" | "tiles" | "gel" | "sprite" | "bayer" | "rainbow" | "cutout"
+    | "tape" | "flyer" | "loadout" // family roots and the rest
+    | "raw" | "deco" | "kinetic" | "shapes" | "wedge" | "atomic" | "broken" | "overprint" | "comic" | "distressed" | "xerox"
+    | "page" | "service" | "reference" | "homepage"; // poster and document looks, one each
+};
+
+type LookBase = {
   name: string;
   summary: string;
+  /** How it differs from the looks it is most often confused with, naming them. */
+  vs: string;
+  swatch: Swatch;
   /** Words in a brief that point here: "liquid glass", "ios", "like linear". */
   signals: string[];
-  /** Best library per kind for this look, in priority order. */
+  /** Best library per kind for this look, in priority order. An empty list means no library: the look does it in CSS or not at all. */
   picks: Partial<Record<Kind, string[]>>;
+  /** Kinds every plan in this look gets unasked (springs and sheets for apple). A style's list replaces its family's. */
+  needs?: Kind[];
   type: string; // typefaces and how to set them
   colour: string; // palette rules
   motion: string; // easing, durations, what moves
   avoid: string[];
   references: { name: string; url: string }[];
 };
+
+/** One of the broad looks libraries are tagged with (`Library.aesthetic`). */
+export type Family = LookBase & { id: AestheticId; family?: never };
+/**
+ * A named style inside a family (neo-brutalism in brutalist). Libraries are tagged with families only; a style's
+ * `picks` override its family's per kind and its `needs` replace the family's; the registry index merges them, so the
+ * engine sees full picks.
+ */
+export type Style = LookBase & { id: string; family: AestheticId };
+/** A look an agent can be asked for. Maps brief words to libraries and to concrete design decisions. */
+export type Aesthetic = Family | Style;
 
 /**
  * What carries a whole page, orthogonal to its look: a 3D scene, scroll choreography, or photo and video. A luxury

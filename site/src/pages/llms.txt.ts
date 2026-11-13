@@ -51,6 +51,7 @@ Before writing UI: read the look from the user's words and the project, call \`p
 ${tools.map((t) => `- ${t.name}: ${t.description}`).join("\n")}
 
 All libraries: ${ORIGIN}/browse
+All looks, with how each differs and its picks: ${ORIGIN}/looks
 `;
   return new Response(text, { headers: { "content-type": "text/plain; charset=utf-8" } });
 };

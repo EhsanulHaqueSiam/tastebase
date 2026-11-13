@@ -1,7 +1,7 @@
 // Design resources: not installed, but they help an agent or a person design. tastebase only links to them and never
 // calls them with anyone's account. `mcp` is a server the user can connect under their own account; when the agent
 // has it, plan answers say what to search for. Verified on 2026-11-08; the second batch (from @siamships bookmarks)
-// on 2026-11-10; Cue on 2026-11-11; the third batch and the
+// on 2026-11-10; Cue and Emil Kowalski Skills on 2026-11-11; the third batch and the
 // "reviewed" list (every bookmarked design site tastebase looked at and does not recommend, with why) on 2026-11-12.
 
 /** Resource categories, in the order the site and agents list them. */
@@ -35,34 +35,34 @@ export type Resource = {
 
 export const resources: Resource[] = [
   {
-    id: "inspo",
-    name: "Inspo",
-    url: "https://inspomcp.dev",
-    kind: "references",
-    goodFor: "Real production landing pages with palettes, fonts and page structure",
-    cost: "Free, open source",
-    free: true,
-    mcp: { name: "Inspo MCP", url: "https://inspomcp.dev/mcp", needsPaidPlan: false },
-  },
-  {
     id: "mobbin",
     name: "Mobbin",
     url: "https://mobbin.com",
     kind: "references",
-    goodFor: "Screens, flows and site sections from shipped iOS and web products",
-    cost: "Free tier without search; Pro $10/mo yearly",
+    goodFor: "Screens, flows and site sections from shipped iOS and web apps. Skills + MCP: claude plugin marketplace add mobbin/skills; claude plugin install mobbin@mobbin",
+    cost: "Pro $10/mo yearly for search and the MCP",
     free: false,
-    mcp: { name: "Mobbin MCP", url: "https://docs.mobbin.com/mcp/clients/overview", needsPaidPlan: true },
+    mcp: { name: "Mobbin MCP", url: "https://github.com/mobbin/skills", needsPaidPlan: true },
   },
   {
     id: "refero",
     name: "Refero",
     url: "https://refero.design",
     kind: "references",
-    goodFor: "Product screens and flows tagged by pattern: checkout, empty state, settings",
-    cost: "Small free preview; Pro $10/mo yearly",
+    goodFor: "Product styles, screens and flows by pattern. Free Refero Skill: npx skills add referodesign/refero_skill --skill refero-design",
+    cost: "Free preview; Pro $10/mo yearly for the MCP",
     free: false,
-    mcp: { name: "Refero MCP", url: "https://doc.refero.design/help/plans", needsPaidPlan: true },
+    mcp: { name: "Refero MCP", url: "https://doc.refero.design/mcp/getting-started", needsPaidPlan: true },
+  },
+  {
+    id: "inspo",
+    name: "Inspo",
+    url: "https://inspomcp.dev",
+    kind: "references",
+    goodFor: "832 real production sites with palettes, fonts, page structure and DESIGN.md. Free MCP: npx -y inspo-mcp install",
+    cost: "Free, open source",
+    free: true,
+    mcp: { name: "Inspo MCP", url: "https://inspomcp.dev/mcp", needsPaidPlan: false },
   },
   {
     id: "recent",
@@ -360,11 +360,38 @@ export const resources: Resource[] = [
     mcp: { name: "Overflow MCP", url: "https://www.overflow.design/api/mcp/", needsPaidPlan: false },
   },
   {
+    id: "unsplash",
+    name: "Unsplash",
+    url: "https://unsplash.com",
+    kind: "assets",
+    goodFor: "Real photography for looks where images do the decorating (japandi, editorial, luxury); free to use, no attribution required",
+    cost: "Free under the Unsplash License; Unsplash+ paid",
+    free: true,
+  },
+  {
+    id: "openverse",
+    name: "Openverse",
+    url: "https://openverse.org",
+    kind: "assets",
+    goodFor: "Openly licensed photos and illustrations; check each image's CC licence and credit as it asks",
+    cost: "Free",
+    free: true,
+  },
+  {
     id: "taste-skill",
     name: "Taste Skill",
     url: "https://github.com/Leonxlnx/taste-skill",
     kind: "tools",
     goodFor: "A design-taste skill for coding agents: npx skills add https://github.com/Leonxlnx/taste-skill",
+    cost: "Free, MIT",
+    free: true,
+  },
+  {
+    id: "emil-skills",
+    name: "Emil Kowalski Skills",
+    url: "https://emilkowal.ski/skill",
+    kind: "tools",
+    goodFor: "15 design-engineering skills for coding agents: animate, review-animations, pick-ui-library, break-ui, apple-design: npx skills add emilkowalski/skills",
     cost: "Free, MIT",
     free: true,
   },
