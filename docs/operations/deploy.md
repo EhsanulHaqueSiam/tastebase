@@ -23,7 +23,7 @@ pnpm probe https://tastebase.ehsanulsiam.workers.dev
 
 - `ci.yml`: `pnpm check` on every PR and push.
 - `deploy.yml`: push to `main` → `pnpm check`, deploy `prod`, `pnpm probe`, commit status, then publish the CLI
-  to npm as `<major.minor from package.json>.<run number>`. Manual runs redeploy `main` (`force` redeploys
+  to npm as `<major.minor from package.json>.<run number>` (when `NPM_PUBLISH_ENABLED` is `true`). Manual runs redeploy `main` (`force` redeploys
   unchanged resources too).
 - `preview.yml`: PR labelled `preview`, same repository only (it runs PR code with credentials).
 - `preview-cleanup.yml`: label removed or PR closed → destroy `pr-<n>`. Runs from `main` under
@@ -47,13 +47,18 @@ turned on at sign-in (`pnpm alchemy profile edit --reconfigure Cloudflare` to re
 holding an API token with Account API Tokens write. Always use `--stage prod` so every machine updates the
 same resources.
 
-npm publishes through trusted publishing, so no npm token is stored. It was set up once, after a manual first
-publish, with `npm trust github tastebase --repo EhsanulHaqueSiam/tastebase --file deploy.yml --allow-publish`.
+npm publishes through trusted publishing, so no npm token is stored. The publish job stays skipped until the
+repository variable `NPM_PUBLISH_ENABLED` is `true`. Not set up yet: npm only adds a trusted publisher for an
+account with 2FA on. Once 2FA is on, run
+`npm trust github tastebase --repo EhsanulHaqueSiam/tastebase --file deploy.yml --allow-publish`, then
+`gh variable set NPM_PUBLISH_ENABLED --body true`. Until then, publish by hand: bump the minor in
+`package.json` (0.1.0 is out, so 0.2.0 next) and merge that, then `pnpm build && npm publish` from `main`. Bump
+the minor, not the patch: CI's patch is its run number, which starts low, and a lower version would take `latest`.
 
 ## How users get updates
 
 - **Hosted MCP**: every prod deploy.
-- **CLI** (`npx -y tastebase@latest`): every prod deploy publishes a new version.
+- **CLI** (`npx -y tastebase@latest`): every prod deploy publishes a new version, once `NPM_PUBLISH_ENABLED` is on.
 - **Skill**: the Claude Code plugin (`.claude-plugin/`, no `version`, so each commit is an update) and
   `npx skills add` both read `skills/tastebase` from `main`. Their copies only change when the user updates, so
   the MCP instructions carry `SKILL_VERSION`, a hash of the skill, and send agents whose copy differs to the
