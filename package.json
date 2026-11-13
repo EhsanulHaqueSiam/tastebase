@@ -4,12 +4,16 @@
   "description": "Curated UI libraries with the metadata coding agents need to pick the right one. CLI and MCP server.",
   "type": "module",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EhsanulHaqueSiam/tastebase.git"
+  },
+  "homepage": "https://tastebase.ehsanulsiam.workers.dev",
   "bin": {
     "tastebase": "./dist/cli.mjs"
   },
   "files": [
-    "dist",
-    "skill"
+    "dist"
   ],
   "scripts": {
     "dev": "sh scripts/with-env.sh sh -c 'cd site && alchemy dev -c ../alchemy.run.ts'",

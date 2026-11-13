@@ -76,8 +76,10 @@ Keep things simple: the smallest model that makes the correct behavior unsurpris
 - `alchemy.run.ts` - all app infrastructure. `stacks/github.ts` - CI token, GitHub secrets, variables, labels.
 - `evals/` - what real agents do with the MCP server, the skill and a whole page build, with recorded results:
   [evals/README.md](evals/README.md).
-- `skills/tastebase/` - the skill we ship to users. `.agents/skills/` - skills for working on this repo
-  (`.claude/skills` links to it).
+- `skills/tastebase/` - the skill we ship to users, also as a Claude Code plugin (`.claude-plugin/`) and through
+  `npx skills add`. After editing it, set the hash `src/skill.test.ts` prints, so stale copies get told to update
+  ([how users get updates](docs/operations/deploy.md#how-users-get-updates)). `.agents/skills/` - skills for
+  working on this repo (`.claude/skills` links to it).
 - `.repos/` - read-only reference sources, gitignored. Never edit or import from them.
 
 Architecture in one page: [docs/internals/overview.md](docs/internals/overview.md).

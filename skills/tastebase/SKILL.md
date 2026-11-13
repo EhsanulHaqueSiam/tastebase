@@ -5,6 +5,8 @@ description: Use before writing any UI (pages, components, animations, icons, ba
 
 # tastebase
 
+Skill version 2352d55.
+
 Do not build a UI part from scratch when a proven library already has it. tastebase (MCP server `tastebase`)
 knows which library fits which job and which look.
 

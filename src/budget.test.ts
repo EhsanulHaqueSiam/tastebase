@@ -31,7 +31,7 @@ const EVERY_LOOK = [
 ];
 
 const BUDGET = {
-  instructions: 300, // sent with every session that connects, whether or not it calls a tool
+  instructions: 325, // sent with every session that connects, whether or not it calls a tool; 25 of it tells agents their skill is stale
   schemas: 700, // every tool definition together, loaded when an agent first reaches for tastebase
   plan: 925, // raised from 800: a site type's build line (3D, motion-led, media-led) adds up to 115 tokens to a plan
   pick: 250,

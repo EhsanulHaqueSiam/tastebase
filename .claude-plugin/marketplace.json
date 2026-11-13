@@ -1,0 +1,13 @@
+{
+  "name": "tastebase",
+  "description": "Proven UI components for the job and the look, so the agent installs them instead of building UI from scratch.",
+  "owner": { "name": "Ehsanul Haque Siam", "url": "https://github.com/EhsanulHaqueSiam" },
+  "plugins": [
+    {
+      "name": "tastebase",
+      "description": "The tastebase skill plus the hosted tastebase MCP server.",
+      "source": "./",
+      "category": "development"
+    }
+  ]
+}

@@ -8,12 +8,16 @@ import { siteTypes } from "./registry/index.ts";
 import { agentResourceKinds, isResourceKind } from "./registry/resources.ts";
 import { frameworks, kinds, type Aesthetic, type Library } from "./registry/schema.ts";
 
+/** Hash of skills/tastebase/SKILL.md, which states it too; src/skill.test.ts says what to set after editing the skill. */
+export const SKILL_VERSION = "2352d55";
+
 export const INSTRUCTIONS = `tastebase is a curated index of UI libraries with notes on when to use each.
 Before writing UI, do not build parts from scratch: call pick for one specific job (a toast), or plan once with the whole brief. Read the look from the user's words and the project (kit, fonts, colours); get looks lists every look id. For fonts, colour or references, get that category.
 Reference first: before building a screen, name a real one: the user's, else search Mobbin, Refero or Inspo (free) if connected, else the look's refs.
 Call get for each library you will install and follow its usage and note. Adapt it to the look's type, colour and motion rules and the project's tokens; set a kit's radius, fonts and neutrals first. Write from scratch only what no library covers.
 Before calling UI done, screenshot it at desktop and ~390px and compare with the reference. Check: one focal point, at most one showpiece effect per page, gaps on a 4/8px scale, hierarchy from weight and colour before size, one accent on tinted neutrals, real content, matching radius, borders and shadows, motion that starts where the user acted. The look's rules win where they differ.
-Call trending when asked what is hot.`;
+Call trending when asked what is hot.
+Skill version ${SKILL_VERSION}; if yours differs, update it per tastebase.ehsanulsiam.workers.dev/llms.txt.`;
 
 const text = (t: string) => ({ content: [{ type: "text" as const, text: t }] });
 
