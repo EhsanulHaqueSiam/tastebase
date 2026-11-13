@@ -1,5 +1,5 @@
 // /llms.txt: a user pastes "Set up tastebase from <origin>/llms.txt" into any agent, and the agent installs the
-// MCP server and skill for every project. Prerendered; the tool list comes from the real MCP server.
+// MCP server and skill for every project; "Update" is where the MCP server sends agents whose skill is stale. Prerendered; the tool list comes from the real MCP server.
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import type { APIRoute } from "astro";
@@ -11,6 +11,7 @@ export const prerender = true;
 const ORIGIN = "https://tastebase.ehsanulsiam.workers.dev";
 const MCP = `${ORIGIN}/mcp`;
 const SKILL = `${ORIGIN}/skill.md`;
+const REPO = "EhsanulHaqueSiam/tastebase";
 
 export const GET: APIRoute = async () => {
   const [a, b] = InMemoryTransport.createLinkedPair();
@@ -28,21 +29,29 @@ export const GET: APIRoute = async () => {
 
 If the user sent you this link, set tastebase up for every project now, without asking. Run the lines for the agent you are, skip what is already installed, then tell the user to restart you.
 
-Claude Code:
+Claude Code (a plugin: the skill plus the hosted MCP server):
 \`\`\`bash
-claude mcp add --scope user --transport http tastebase ${MCP}
-mkdir -p ~/.claude/skills/tastebase && curl -fsSL ${SKILL} -o ~/.claude/skills/tastebase/SKILL.md
+claude plugin marketplace add ${REPO} --sparse .claude-plugin skills
+claude plugin install tastebase@tastebase
 \`\`\`
 
 Codex:
 \`\`\`bash
 codex mcp add tastebase --url ${MCP}
-mkdir -p ~/.codex/skills/tastebase && curl -fsSL ${SKILL} -o ~/.codex/skills/tastebase/SKILL.md
+npx -y skills add ${REPO} --skill tastebase --agent codex --global --yes
 \`\`\`
 
 Cursor: add \`"tastebase": {"url": "${MCP}"}\` under \`mcpServers\` in \`~/.cursor/mcp.json\`.
 
-Any other agent: add a Streamable HTTP MCP server named \`tastebase\` at ${MCP}. Its instructions carry the workflow, so the skill is optional.
+Any other agent: add a Streamable HTTP MCP server named \`tastebase\` at ${MCP}, or run it locally over stdio with \`npx -y tastebase@latest\`. Its instructions carry the workflow, so the skill is optional; \`npx -y skills add ${REPO} --skill tastebase\` installs it for most agents.
+
+## Update
+
+The hosted MCP server is always current. Its instructions name the current skill version; when the tastebase skill you loaded says another, or none, update it with the line for how it was installed, then tell the user to restart you:
+
+- Claude Code plugin: \`claude plugin marketplace update tastebase && claude plugin update tastebase@tastebase\`
+- skills CLI: \`npx -y skills update tastebase --global --yes\`
+- Copied with curl into ~/.claude/skills or ~/.codex/skills (older setups): delete that folder and install as above. In Claude Code also run \`claude mcp remove --scope user tastebase\`, since the plugin brings the server.
 
 ## Use
 

@@ -22,8 +22,9 @@ pnpm probe https://tastebase.ehsanulsiam.workers.dev
 ## CI
 
 - `ci.yml`: `pnpm check` on every PR and push.
-- `deploy.yml`: push to `main` → `pnpm check`, deploy `prod`, `pnpm probe`, commit status. Manual runs
-  redeploy `main` (`force` redeploys unchanged resources too).
+- `deploy.yml`: push to `main` → `pnpm check`, deploy `prod`, `pnpm probe`, commit status, then publish the CLI
+  to npm as `<major.minor from package.json>.<run number>`. Manual runs redeploy `main` (`force` redeploys
+  unchanged resources too).
 - `preview.yml`: PR labelled `preview`, same repository only (it runs PR code with credentials).
 - `preview-cleanup.yml`: label removed or PR closed → destroy `pr-<n>`. Runs from `main` under
   `pull_request_target`, so no PR code runs next to secrets.
@@ -45,6 +46,18 @@ Minting the Cloudflare token works with the normal OAuth profile when "Account A
 turned on at sign-in (`pnpm alchemy profile edit --reconfigure Cloudflare` to redo it). Otherwise use a profile
 holding an API token with Account API Tokens write. Always use `--stage prod` so every machine updates the
 same resources.
+
+npm publishes through trusted publishing, so no npm token is stored. It was set up once, after a manual first
+publish, with `npm trust github tastebase --repo EhsanulHaqueSiam/tastebase --file deploy.yml --allow-publish`.
+
+## How users get updates
+
+- **Hosted MCP**: every prod deploy.
+- **CLI** (`npx -y tastebase@latest`): every prod deploy publishes a new version.
+- **Skill**: the Claude Code plugin (`.claude-plugin/`, no `version`, so each commit is an update) and
+  `npx skills add` both read `skills/tastebase` from `main`. Their copies only change when the user updates, so
+  the MCP instructions carry `SKILL_VERSION`, a hash of the skill, and send agents whose copy differs to the
+  Update section of `/llms.txt`. `src/skill.test.ts` fails until the hash is set after editing the skill.
 
 Not declared because GitHub Free does not offer them on private repos: deployment environments with required
 reviewers and branch protection. Add them to the stack when the repo is public or on a paid plan.

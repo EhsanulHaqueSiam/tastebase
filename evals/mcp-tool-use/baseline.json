@@ -1,13 +1,13 @@
 {
   "model": "claude-haiku-5-5",
   "cases": {
-    "page-plans-first": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Landing page for Acme Mail, an email API for developers. Dev-tool look like Resend, with a shader background behind the hero.","framework":"react"}],["get",{"id":"paper-shaders"}],["get",{"id":"lucide"}]],"samples":["551ac8dd-2610-45f8-8837-7f4a160758ac"],"fp":"a4aef17a7917","graded":"9542853619ad"},
-    "one-job-picks": {"pass":true,"fails":[],"calls":[["pick",{"need":"toast notification","framework":"react"}],["get",{"id":"sonner"}]],"samples":["42ed4e24-30ed-4346-be22-35883bc23945"],"fp":"f85adac90ab6","graded":"356122cd70d2"},
-    "vue-project": {"pass":true,"fails":[],"calls":[["pick",{"need":"command palette with cmd+k keyboard shortcut and fuzzy search","framework":"vue"}]],"samples":["afc771f3-35bf-4da5-a0ca-09d36d110732"],"fp":"4d1b761e4467","graded":"4adf0f65125b"},
-    "keeps-project-kit": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Billing page with a plan picker and an invoices table, React, Mantine 8 project","framework":"react"}]],"samples":["17530ff4-c2ae-4d6c-bc2e-da227d6af260"],"fp":"46f10c9c3464","graded":"827a451c59ec"},
-    "nothing-fits": {"pass":true,"fails":[],"calls":[],"samples":["2c41559b-9f94-4e65-b35c-d2ce5eebdf91"],"fp":"9ad919f045b0","graded":"000ceaa5237f"},
-    "trending-when-asked": {"pass":true,"fails":[],"calls":[["trending",{}]],"samples":["2ddb3878-6815-4a21-8c3d-92a2eecd031c"],"fp":"7c13844f6f7f","graded":"be025b7854fe"},
-    "control-typo": {"pass":true,"fails":[],"calls":[],"samples":["f44c84bd-1497-4a6f-8034-5d17051aa70d"],"fp":"c7ae46fa3c64","graded":"6170cbf07bf5"},
-    "control-backend": {"pass":true,"fails":[],"calls":[],"samples":["07c9718c-81e1-4b25-a86e-49a049df92ed"],"fp":"9b288478a2ec","graded":"8cc89cf6072f"}
+    "page-plans-first": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Landing page for Acme Mail, an email API for developers. Dev-tool look like Resend, with a shader background behind the hero.","framework":"react"}],["get",{"id":"paper-shaders"}]],"samples":["ea62c907-fe6d-4f26-8ac8-69fa616902a7"],"fp":"e9c270f312bb","graded":"9542853619ad"},
+    "one-job-picks": {"pass":true,"fails":[],"calls":[["pick",{"need":"toast notification after form save","framework":"react"}],["get",{"id":"sonner"}]],"samples":["2e3fa146-6542-43e5-80c9-8274ee8aa8c1"],"fp":"511f971b7e56","graded":"356122cd70d2"},
+    "vue-project": {"pass":true,"fails":[],"calls":[["pick",{"need":"command palette with cmd+k shortcut","framework":"vue"}],["get",{"id":"nuxt-ui"}]],"samples":["b56674f2-e07f-4fbd-96c5-0116a5233957"],"fp":"53c98a121f9a","graded":"4adf0f65125b"},
+    "keeps-project-kit": {"pass":true,"fails":[],"calls":[],"samples":["1f846f98-0426-4823-8bb0-7a08ed4c52e1"],"fp":"59337d483a41","graded":"827a451c59ec"},
+    "nothing-fits": {"pass":true,"fails":[],"calls":[],"samples":["aac9c321-bd72-4b5a-8422-a26a335d0a8f"],"fp":"1e2ed27a1fa9","graded":"000ceaa5237f"},
+    "trending-when-asked": {"pass":true,"fails":[],"calls":[["trending",{}]],"samples":["3a2d2767-64c2-4fe9-9cb0-50e3607595fe"],"fp":"ff89550298f9","graded":"be025b7854fe"},
+    "control-typo": {"pass":true,"fails":[],"calls":[],"samples":["4cb85565-5cf0-4d7c-914e-db07218716ea"],"fp":"37e414c1ee1e","graded":"6170cbf07bf5"},
+    "control-backend": {"pass":true,"fails":[],"calls":[],"samples":["9b3312dc-2323-48ea-9c11-25a90ee3d267"],"fp":"0ce21823686f","graded":"8cc89cf6072f"}
   }
 }

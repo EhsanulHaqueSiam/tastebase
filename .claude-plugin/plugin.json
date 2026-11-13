@@ -1,0 +1,11 @@
+{
+  "name": "tastebase",
+  "description": "Finds proven UI components for the job and the look the user wants, so the agent installs and adapts them instead of building UI from scratch.",
+  "author": { "name": "Ehsanul Haque Siam", "url": "https://github.com/EhsanulHaqueSiam" },
+  "homepage": "https://tastebase.ehsanulsiam.workers.dev",
+  "repository": "https://github.com/EhsanulHaqueSiam/tastebase",
+  "license": "MIT",
+  "mcpServers": {
+    "tastebase": { "type": "http", "url": "https://tastebase.ehsanulsiam.workers.dev/mcp" }
+  }
+}

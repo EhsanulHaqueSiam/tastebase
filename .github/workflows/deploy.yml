@@ -54,3 +54,24 @@ jobs:
               context: "Deploy / production", description: "Deployed to tastebase.ehsanulsiam.workers.dev",
               target_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
             });
+
+  # The CLI (`npx tastebase`) bundles the registry, so every deploy publishes it too. npm trusts this workflow
+  # (trusted publishing), so there is no npm token. package.json holds major.minor; the patch is this run's number.
+  # shortcut: publishes even when only the site changed; add a paths check if the version churn ever matters.
+  publish:
+    name: Publish CLI to npm
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: pnpm, registry-url: "https://registry.npmjs.org" }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: npm version "$(node -p 'require("./package.json").version.split(".").slice(0, 2).join(".")').${{ github.run_number }}" --no-git-tag-version
+      - run: npm publish --access public
