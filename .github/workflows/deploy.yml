@@ -61,6 +61,8 @@ jobs:
   publish:
     name: Publish CLI to npm
     needs: deploy
+    # Off until npm trusts this workflow (docs/operations/deploy.md); until then the CLI is published by hand.
+    if: vars.NPM_PUBLISH_ENABLED == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
