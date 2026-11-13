@@ -2,15 +2,17 @@
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { pick, plan } from "./engine.ts";
-import { formatLibrary, formatPlan, formatResources, formatSite, formatTrending, line } from "./format.ts";
+import { detectLooks, jobFramework, kitParts, pick, plan, words } from "./engine.ts";
+import { formatLibrary, formatLook, formatLooks, formatPick, formatPlan, formatResources, formatSite, formatTrending } from "./format.ts";
 import { siteTypes } from "./registry/index.ts";
 import { agentResourceKinds, isResourceKind } from "./registry/resources.ts";
-import { aestheticIds, frameworks, kinds, type Aesthetic, type Library } from "./registry/schema.ts";
+import { frameworks, kinds, type Aesthetic, type Library } from "./registry/schema.ts";
 
-const INSTRUCTIONS = `tastebase is a curated index of UI libraries with notes on when to use each.
-Before writing UI, do not build parts from scratch. Read the look from the user's words and the project (kit, fonts, colours), then call plan once with the whole brief, or pick for one specific job.
-Call get for each library you will install; it returns usage and the agent note. Install it, then adapt the installed component to the look's type, colour and motion rules and the project's tokens. Write from scratch only what no library covers.
+export const INSTRUCTIONS = `tastebase is a curated index of UI libraries with notes on when to use each.
+Before writing UI, do not build parts from scratch: call pick for one specific job (a toast), or plan once with the whole brief. Read the look from the user's words and the project (kit, fonts, colours); get looks lists every look id. For fonts, colour or references, get that category.
+Reference first: before building a screen, name a real one: the user's, else search Mobbin, Refero or Inspo (free) if connected, else the look's refs.
+Call get for each library you will install and follow its usage and note. Adapt it to the look's type, colour and motion rules and the project's tokens; set a kit's radius, fonts and neutrals first. Write from scratch only what no library covers.
+Before calling UI done, screenshot it at desktop and ~390px and compare with the reference. Check: one focal point, at most one showpiece effect per page, gaps on a 4/8px scale, hierarchy from weight and colour before size, one accent on tinted neutrals, real content, matching radius, borders and shadows, motion that starts where the user acted. The look's rules win where they differ.
 Call trending when asked what is hot.`;
 
 const text = (t: string) => ({ content: [{ type: "text" as const, text: t }] });
@@ -20,6 +22,13 @@ export function createServer(libs: Library[], looks: Aesthetic[], version: strin
   const byId = new Map(libs.map((l) => [l.id, l]));
   const lookById = new Map(looks.map((a) => [a.id, a]));
   const fw = z.enum(frameworks).optional().describe("Only libraries for this framework");
+  const lookArg = z.string().optional().describe("Look id (get looks lists them); detected from the brief when left out");
+  const near = (id: string, ids: Iterable<string>) => [...ids].filter((k) => k.includes(id) || id.includes(k) || editDistance(k, id) <= 2).slice(0, 5);
+  const unknownLook = (id: string) => {
+    // Looks whose signals the id names ("liquid-glass" -> glass), then ids spelled close to it.
+    const close = [...new Set([...detectLooks(looks, id).map((a) => a.id), ...near(id, lookById.keys())])].slice(0, 5);
+    return text(`Unknown look "${id}".${close.length ? ` Closest: ${close.join(", ")}.` : ""} get looks lists every id.`);
+  };
 
   server.registerTool(
     "plan",
@@ -28,47 +37,53 @@ export function createServer(libs: Library[], looks: Aesthetic[], version: strin
       inputSchema: {
         brief: z.string().describe("What is being built, in plain words, including any look: 'iOS-feel habit tracker with charts'"),
         framework: fw,
-        look: z.enum(aestheticIds).optional().describe("Force a look instead of detecting it"),
+        look: lookArg,
       },
       annotations: { readOnlyHint: true },
     },
-    async ({ brief, framework, look }) => text(formatPlan(plan(libs, looks, brief, { framework, look }))),
+    async ({ brief, framework, look }) => (look && !lookById.has(look) ? unknownLook(look) : text(formatPlan(plan(libs, looks, brief, { framework, look })))),
   );
 
   server.registerTool(
     "pick",
     {
       description: "Best 3 libraries for one UI job, e.g. 'copy button feedback', 'bottom sheet', 'hero shader background'.",
-      inputSchema: {
-        need: z.string(),
-        framework: fw,
-        look: z.enum(aestheticIds).optional(),
-      },
+      inputSchema: { need: z.string(), framework: fw, look: lookArg },
       annotations: { readOnlyHint: true },
     },
-    async ({ need, framework, look }) => {
-      const r = pick(libs, need, { framework, look: look ? lookById.get(look) : undefined });
-      return text(r.length ? r.map(line).join("\n") : "No match. Try other words, or call plan with the whole brief.");
+    async ({ need, framework, look: id }) => {
+      if (id && !lookById.has(id)) return unknownLook(id);
+      const look = id ? lookById.get(id) : undefined;
+      // The job's own framework when none is passed ("a React date picker" never gets Vue-only answers).
+      const fw = framework ?? jobFramework(need);
+      const fits = pick(libs, need, { framework: fw, look });
+      const parts = kitParts(libs, need, { framework: fw, look });
+      // The project wins: a kit the job names that ships the part ("date picker, we use shadcn") answers first.
+      const said = words(need);
+      const own = parts.find((p) => said.includes(words(p.lib.name)) || said.includes(words(p.lib.id.replace(/-ui$/, ""))));
+      const lead = own ? `Your kit ships it: ${own.lib.id} (${own.part}). Use that; the rest only if it falls short.\n` : "";
+      return text(lead + formatPick(fits, fits.length ? [] : parts, fw));
     },
   );
 
   server.registerTool(
     "get",
     {
-      description: "Full entry for one library id (usage, agent note, alternatives), a look id for its design rules, a site type (3d-site, motion-site, media-site) for its build rules, or a resource category for linked design resources.",
-      inputSchema: { id: z.string().describe(`Library id like 'vaul', look id like 'apple', or one of ${agentResourceKinds.join(", ")}`) },
+      description: "Full entry for one library id (usage, agent note, alternatives), a look id for its design rules, looks for every look id, a site type (3d-site, motion-site, media-site) for its build rules, or a resource category for linked design resources.",
+      inputSchema: { id: z.string().describe(`Library id like 'vaul', look id like 'apple', looks, or one of ${agentResourceKinds.join(", ")}`) },
       annotations: { readOnlyHint: true },
     },
     async ({ id }) => {
       const l = byId.get(id);
       if (l) return text(formatLibrary(l));
-      const a = lookById.get(id as Aesthetic["id"]);
       const site = siteTypes.find((t) => t.id === id);
       if (site) return text(`${formatSite(site)}\npicks: ${JSON.stringify(site.picks)}`);
       if (isResourceKind(id)) return text(formatResources(id));
-      if (a) return text(formatPlan({ look: a, lookGuessed: false, also: [], items: [], framework: "react", frameworkGuessed: true }).replace(/^framework:.*\n/m, "") + `\npicks: ${JSON.stringify(a.picks)}`);
-      const near = [...byId.keys()].filter((k) => k.includes(id) || id.includes(k) || editDistance(k, id) <= 2).slice(0, 5);
-      return text(`Unknown id "${id}".${near.length ? ` Did you mean: ${near.join(", ")}?` : ""}`);
+      if (id === "looks") return text(formatLooks(looks));
+      const a = lookById.get(id);
+      if (a) return text(formatLook(a));
+      const close = near(id, [...byId.keys(), ...lookById.keys()]);
+      return text(`Unknown id "${id}".${close.length ? ` Did you mean: ${close.join(", ")}?` : ""}`);
     },
   );
 

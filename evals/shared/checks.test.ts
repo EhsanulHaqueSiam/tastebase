@@ -75,8 +75,8 @@ test("an offer is the pick or an alternative, under the job it was offered for, 
   const plain = offers([["plan", { brief }]]);
   // A later pick adds to the plan's offers and never replaces them.
   for (const [kind, ids] of plain) assert.ok([...ids].every((id) => o.get(kind)?.has(id)), kind);
-  const alternative = [...plain.get("feedback")!][1]!;
-  const toast = trace({ calls: [tb("plan", { brief })], files: { "a.tsx": `import x from "${libraries.find((l) => l.id === alternative)!.npm}";` } });
+  const alternative = [...plain.values()].map((ids) => libraries.find((l) => l.id === [...ids][1] && l.npm)).find(Boolean)!;
+  const toast = trace({ calls: [tb("plan", { brief })], files: { "a.tsx": `import x from "${alternative.npm}";` } });
   assert.deepEqual(grade(toast, [adopts("plan")]), []);
   const copied = libraries.find((l) => l.id === "prompt-kit")!;
   // An add-on copied in through the shadcn CLI is used, and so is shadcn/ui under it; the CLI alone names no add-on.
@@ -99,7 +99,8 @@ test("every case can be graded and no two share an id", () => {
 });
 
 test("a design brief the engine cannot read is marked implied, and the rest are read as their look", () => {
-  const unread = briefs.filter((b) => b.look && plan(libraries, aesthetics, b.brief).look.id !== b.look).map((b) => b.id);
+  const read = (brief: string) => plan(libraries, aesthetics, brief).look;
+  const unread = briefs.filter((b) => b.look && (read(b.brief).family ?? read(b.brief).id) !== b.look).map((b) => b.id);
   assert.deepEqual(unread, briefs.filter((b) => b.implied).map((b) => b.id));
 });
 

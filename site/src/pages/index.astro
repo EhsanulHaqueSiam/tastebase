@@ -9,7 +9,7 @@ import Base from "../layouts/Base.astro";
 import { kinds } from "../../../src/registry/schema.ts";
 import { formatPlan } from "../../../src/format.ts";
 import { plan } from "../../../src/engine.ts";
-import { aesthetics, libraries, lite, planJson } from "../lib/server.ts";
+import { aesthetics, libraries, lookChip, planJson, shelfLib } from "../lib/server.ts";
 
 // Prerendered at build time: no Worker CPU per visit. Live stats load in islands from /api/stats.
 export const prerender = true;
@@ -28,7 +28,7 @@ const commands = ["Set up tastebase from https://tastebase.ehsanulsiam.workers.d
   <Hero client:load counts={{ libs: libs.length, looks: aesthetics.length, kinds: kinds.length }} />
   <PlanDemo client:visible initial={planJson(libs, BRIEFS[0]!)} briefs={BRIEFS} />
   <TouchIt client:visible />
-  <Gallery client:visible libs={libs.map(lite)} />
+  <Gallery client:visible libs={libs.map(shelfLib)} looks={aesthetics.map(lookChip)} />
   <Setup client:visible commands={commands} sample={formatPlan(plan(libs, aesthetics, BRIEFS[0]!))} />
   <Footer client:visible />
 </Base>

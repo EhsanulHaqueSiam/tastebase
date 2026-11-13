@@ -5,14 +5,16 @@ use for a job and a look. The registry entries are the product: an agent reads `
 `aesthetic`, `alternatives` and `note` to decide what to install. The website shows the same data and the same
 engine, so what a person sees is what the agent gets.
 
-What it is for:
+It exists for three things, and every change should serve one of them:
 
-1. **An agent knows what goes together.** Which library fits which look, which ones complement each other, all
-   in answers an agent can read cheaply, like retrieval over the registry.
-2. **One prompt, a page worth 9.9/10.** Someone who installs tastebase and follows its flow (MCP plus the skill)
-   gets a page from a single prompt where everything looks right.
-3. **A person can choose by feel.** The site lets people compare libraries by look, trend and what they ship, and
-   see how each one looks before they pick it.
+1. **The agent knows what goes here, and what goes with it.** For each spot in a UI, the right library for the
+   look; for that pick, what complements it. Looks are many (neo-brutalism, glassmorphism, bento, claymorphism and
+   new ones every month), and the agent knows how they differ and which libraries suit each. All of it in data an
+   agent can search and read cheaply, like a well-indexed corpus.
+2. **No screen looks bad.** People iterate and change things, but every screen an agent builds with our flow
+   (skill, MCP or CLI), first try or tenth, looks professionally designed: 9.9 out of 10, never garbage.
+3. **People can taste before they choose.** The site shows how each look and library looks and feels, how looks
+   differ, what is trending, and lets people narrow by look, job and other ways until the choice is obvious.
 
 `evals/README.md` maps each of these to the evals that measure it.
 

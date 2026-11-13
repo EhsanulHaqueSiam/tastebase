@@ -31,6 +31,7 @@ const path = Astro.url.pathname;
     <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600&display=swap" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Instrument+Serif:ital@1&display=swap" />
+    <slot name="head" />
     <ClientRouter />
   </head>
   <body>
@@ -42,11 +43,15 @@ const path = Astro.url.pathname;
         </svg>
         tastebase
       </a>
-      <nav class="hidden gap-5 text-fg2 sm:flex">
-        <a href="/browse" class:list={["transition-colors hover:text-fg", path.startsWith("/browse") && "text-fg"]}>Browse</a>
-        <a href="/atlas" class:list={["transition-colors hover:text-fg", path.startsWith("/atlas") && "text-fg"]}>Atlas</a>
-        <a href="/#plan" class="transition-colors hover:text-fg">Plan</a>
-        <a href="/#mcp" class="transition-colors hover:text-fg">MCP</a>
+      <!-- Phones keep only the current section's link. The header persists, so the script below re-marks it. -->
+      <nav class="flex gap-5 text-fg2">
+        {["/browse", "/atlas", "/looks"].map((href) => (
+          <a href={href} data-section aria-current={path.startsWith(href) ? "page" : undefined} class="transition-colors hover:text-fg aria-[current=page]:text-fg max-sm:not-aria-[current=page]:hidden">
+            {href[1]!.toUpperCase() + href.slice(2)}
+          </a>
+        ))}
+        <a href="/#plan" class="transition-colors hover:text-fg max-sm:hidden">Plan</a>
+        <a href="/#mcp" class="transition-colors hover:text-fg max-sm:hidden">MCP</a>
       </nav>
       <span class="flex-1"></span>
       <button data-open-search aria-label="Search" class="press flex items-center gap-2 rounded-lg bg-white/5 p-2 text-[13px] text-fg2 shadow-[inset_0_0_0_1px_var(--color-line)] backdrop-blur-md hover:text-fg sm:py-1.5 sm:pr-1.5 sm:pl-3">
@@ -59,6 +64,13 @@ const path = Astro.url.pathname;
       <slot />
     </main>
 
+    <script>
+      document.addEventListener("astro:page-load", () =>
+        document.querySelectorAll<HTMLAnchorElement>("[data-section]").forEach((a) =>
+          location.pathname.startsWith(a.pathname) ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current"),
+        ),
+      );
+    </script>
     <Palette client:idle transition:persist="palette" />
     {home && <Dock client:idle />}
   </body>

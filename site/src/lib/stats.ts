@@ -11,5 +11,3 @@ export function useStats(): Stats | undefined {
   }, []);
   return stats;
 }
-
-export const isHot = (s?: Stats[string]) => (s?.starsWeek ?? 0) >= 150;
