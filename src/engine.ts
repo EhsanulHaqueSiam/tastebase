@@ -8,7 +8,7 @@ import type { Aesthetic, AestheticId, Framework, Kind, Library, SiteType } from 
 // Framework names are stop words: the framework filter handles them, and "React" in a use case is not a job. So are
 // the words that name a look ("in the Aurora look"): a look is not a job either.
 const STOP = new Set(
-  "a an and the for of to in on with my me i we our app ui page that this is it be like need want some use make build look style styled aesthetic vibe feel inspired react native vue svelte solid angular expo vanilla js".split(" "),
+  "a an and the for of to in on over with my me i we our app ui page that this is it be like need want some use make build look style styled aesthetic vibe feel inspired react native vue svelte solid angular expo vanilla js".split(" "),
 );
 // Words that mean the same job. Keys and values are stems (see `stem`).
 const SYN: Record<string, string[]> = {
