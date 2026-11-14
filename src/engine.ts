@@ -193,6 +193,13 @@ const idsOf = (l: Library) => {
 
 export type Scored = { lib: Library; score: number; why: string; caution?: string };
 
+// Libraries named by an everyday word: "a motion designer's portfolio" names no library. They count as named only
+// when the brief says them as a library.
+const EVERYDAY: Record<string, RegExp> = { motion: /\b(framer motion|motion\.dev|motion\/react|motion (?:library|package|for react)|(?:use|using|with|in|on) motion\b(?! design))/ };
+/** Whether `text` (as `words`) names the library: its id or name, said as a library when that is an everyday word. */
+const namesLib = (text: string, l: Library) =>
+  (text.includes(idsOf(l).name) || text.includes(idsOf(l).id)) && (!EVERYDAY[l.id] || EVERYDAY[l.id]!.test(text.replace(/\s+/g, " ")));
+
 /** A brief without the look's id, name and signals. */
 const lookless = (text: string, look?: Aesthetic) => (look ? [look.id, look.name.toLowerCase(), ...look.signals].reduce((t, sig) => t.replaceAll(sig, " "), text) : text);
 
@@ -221,6 +228,11 @@ export function pick(
   const elsewhere = slot && !foundation ? terms(NEEDS.filter(([k]) => k !== slot).map(([k]) => quote(want, k)).join(" ")) : undefined;
   const q = elsewhere ? new Set([...[...own].filter((t) => !elsewhere.has(t)), ...terms(`${slot} ${quote(want, slot!)}`)]) : own;
   const ownW = jobOf(want);
+  // In a plan slot, where the brief is a whole page, an avoid line is matched on its own words, not their synonyms: "a
+  // photo carousel and a reservation form" is not bencho's "form controls (select, slider, switch)" via carousel ->
+  // slider. A single job and the base kit keep synonyms ("landing page with animations" is shadcn's "whole point is
+  // motion").
+  const plainW: Job = { ws: ownW.ws.map((w) => [w[0]!]), all: new Set(stems(want)) };
   const qW: Job = elsewhere ? { ws: [...new Map([...ownW.ws.filter((w) => !elsewhere.has(w[0]!)), ...wordsOf(`${slot} ${quote(want, slot!)}`)].map((w) => [w[0], w])).values()], all: q } : ownW;
   // A kind the look added (springs for apple) is filled by its picks only: brief words that happen to match are not a reason.
   const unasked = slot && !foundation && !hits.has(slot);
@@ -246,7 +258,7 @@ export function pick(
     // A base layer is a foundation kit: not a library that also ships a few components (glisse, agent-ui sets), nor an
     // effects kit (Aceternity), which surfaces under motion or background instead.
     if (slot && (foundation ? lib.kind !== slot || isEffectsKit(lib) : lib.kind !== slot && !lib.alsoCovers?.includes(slot))) continue;
-    const named = said.includes(idsOf(lib).name) || said.includes(idsOf(lib).id);
+    const named = namesLib(said, lib);
     if (none && !named) continue;
     // One job is a part of the project's kit, not a reason to adopt a second whole kit (a date picker is not MUI).
     if (!foundation && !named && wholeKit(lib) && lib !== opts.base && !hits.has("component-kit")) continue;
@@ -278,7 +290,7 @@ export function pick(
     if (opts.base && opts.base !== lib) score += offKit(lib, opts.base) ? -6 : pairs(lib, opts.base) ? 2 : 0;
     // The situation before the colon counts, not the alternative it names. Closer than the library's best use case:
     // not this library ("Python code editor" is not tiptap), nor anything that fits the job less; as close: a warning.
-    const { n: avoid, line } = named ? { n: 0, line: undefined } : avoidance(lib, ownW);
+    const { n: avoid, line } = named ? { n: 0, line: undefined } : avoidance(lib, slot && !foundation ? plainW : ownW);
     // A base kit whose avoid line sends the job to an effects kit stays the base, with the warning: effects kits sit on
     // top of one (shadcn/ui: "start from magic-ui ..., keep shadcn for forms").
     const ontop = foundation && !!line && libs.some((l) => isEffectsKit(l) && line.includes(l.id));
@@ -286,7 +298,9 @@ export function pick(
     // number-flow's "big one-off stat").
     const kept = !!slot && picked && avoid < 3;
     if (line && avoid > bestW && !ontop && !kept) {
-      if (!foundation && fit >= ruled) {
+      // In a plan slot only a library of the slot's own kind rules the rest out: a kit's "forms, tables, menus" line
+      // is about another part of a restaurant page, not its photo carousel.
+      if (!foundation && fit >= ruled && (!slot || lib.kind === slot)) {
         if (fit > ruled) {
           peer = false;
           spared.clear();
@@ -323,8 +337,12 @@ export function pick(
   // Go outside the look only when nothing curated for it fits, or only outsiders name what was asked: a minimal
   // counter gets number-flow, not rough-notation; a playful bottom sheet gets vaul, not a set of tactile sliders.
   const answers = (s: Scored) => hits.has(s.lib.kind) && (!asks.has(s.lib.kind) || says(s, s.lib.kind));
+  // A library that names the asked word itself beats one that names only a synonym of it: an organic "photo gallery
+  // carousel" is embla-carousel, not use-gesture's "swipe".
+  const exact = (s: Scored) => hits.has(s.lib.kind) && (!asks.has(s.lib.kind) || s.why === "named in the brief" || asks.get(s.lib.kind)!.every((w) => namesIn([w[0]!], s.lib)));
   const inLook = out.filter((s) => s.home && hits.has(s.lib.kind));
-  const homeFits = !foundation && inLook.length > 0 && (inLook.some(answers) || !out.some((s) => !s.home && answers(s)));
+  const outside = (f: (s: Scored) => boolean) => out.some((s) => !s.home && f(s));
+  const homeFits = !foundation && inLook.length > 0 && (inLook.some(exact) || (!outside(exact) && (inLook.some(answers) || !outside(answers))));
   const fits = out.filter((s) => (!homeFits || s.home) && (s.fit > ruled || (s.fit === ruled && !peer) || spared.has(s.lib.id) || s.why === "named in the brief" || (!!slot && s.picked)));
   // One job: when a library of the asked kind names the ask, the rest of the kind do not fit (a typewriter headline is
   // not a hand-drawn underline). A plan slot leads with the one that names it instead, and keeps its alternatives.
@@ -562,7 +580,7 @@ const SECTIONS: [RegExp, string[]][] = [
   [/\b(dialog|modal|confirm)\b/, ["Dialog|Modal"]],
   [/\bsearch\b/, ["Search Field|Searchbar|Input"]],
   [/\b(avatars?|profiles?|team|testimonials?|reviews?|authors?|players?)\b/, ["Avatar"]],
-  [/\b(dashboard|kpis?|stats?|metrics|overview|home screen)\b/, ["Card"]],
+  [/\b(dashboard|kpis?|stats?|metrics|overview|home screen|cards?)\b/, ["Card"]],
   [/\bsidebar\b/, ["Sidebar"]],
   [/\b(progress|streaks?|goals?)\b/, ["Progress|Progress Bar|Progressbar"]],
   [/\b(sliders?|volume|seek|scrub|now.playing|music player)\b/, ["Slider|Range"]],
@@ -710,7 +728,7 @@ export function plan(libs: Library[], looks: Aesthetic[], brief: string, opts: {
     // Under a kit we do not curate, shadcn registry items would drag in a second setup.
     const r = pick(libs, brief, { framework, look: tuned, kind, limit: 8, base }).filter((s) => !(uncurated && viaShadcn(s.lib)));
     // The project wins: a library the brief names for this job ("we use Tabler Icons") is the pick, like a named kit.
-    const mine = libs.find((l) => l.kind === kind && l.frameworks.includes(framework) && (slotSaid.includes(words(l.name)) || slotSaid.includes(words(l.id))));
+    const mine = libs.find((l) => l.kind === kind && l.frameworks.includes(framework) && namesLib(slotSaid, l));
     if (mine) return [{ kind, pick: r.find((s) => s.lib === mine) ?? { lib: mine, score: 20, why: "named in the brief" }, alternatives: r.filter((s) => s.lib !== mine).slice(0, 2) }];
     // Libraries built for this kind lead, unless they belong to another kit; kits that merely cover it follow.
     // Among them, one whose tagline names what the brief asked for ("confetti") leads the look's general pick.
