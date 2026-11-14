@@ -408,6 +408,29 @@ test("a kind holds a pick for each job the brief names in it", () => {
   }
 });
 
+// Whole pages, as the hill climb built them: every part gets its library, several from one kind when the page has
+// several parts of that kind, and the base kit names the parts its sections need. Builders used 96% of these picks.
+test("a whole page gets a library for every part, and the kit parts for its sections", () => {
+  for (const [brief, stack, parts] of [
+    ["Landing page for Pulse, a fitness app: an animated hero, a feature grid, pricing with a monthly and yearly toggle, a testimonials carousel, an FAQ, and a signup form that shows a toast.", "component-kit:shadcn-ui motion:motion text-effects:number-flow interaction:embla-carousel feedback:sonner icons:lucide", "Button, Accordion, Card, Badge, Input, Label, Avatar, Toggle"],
+    ["Trip planner for a travel app on phones: a swipeable carousel of destinations, a bottom sheet with trip details, a map-free itinerary list you can reorder by drag, and confetti when a trip is booked.", "component-kit:shadcn-ui motion:motion interaction:embla-carousel interaction:vaul interaction:dnd-kit feedback:canvas-confetti icons:lucide", "Button"],
+    ["Onboarding flow for a meditation app on phones: three swipeable intro slides, a progress indicator, a sign-up form, and a toast when the account is created.", "component-kit:shadcn-ui motion:motion interaction:embla-carousel feedback:sonner icons:lucide", "Button, Input, Label, Progress"],
+    ["Docs site for an open-source CLI: a sidebar, a search with cmd+k, code examples with copy buttons, and a dark mode toggle.", "component-kit:shadcn-ui motion:tw-animate-css text-effects:torph command:cmdk code:shiki icons:lucide", "Button, Input, Sidebar, Toggle"],
+    ["Kanban board for a design team: drag cards between columns, a card detail drawer, avatars of assignees, and a toast when a card moves.", "component-kit:shadcn-ui motion:motion interaction:dnd-kit interaction:vaul feedback:sonner icons:lucide", "Button, Avatar, Card"],
+    ["Restaurant landing page, warm and organic: a hero with a slow gradient background, a menu with tabs, a photo gallery carousel, and a reservation form.", "component-kit:shadcn-ui motion:motion interaction:embla-carousel background:paper-shaders icons:lucide", "Button, Input, Label, Tabs"],
+    ["Crypto wallet home screen: a balance that rolls when it changes, a price chart, a recent transactions table, and a send sheet.", "component-kit:shadcn-ui text-effects:number-flow interaction:vaul charts:recharts tables:tanstack-table icons:lucide", "Button, Table, Card"],
+    ["Portfolio for a motion designer: a kinetic headline, scroll-driven project reveals with smooth scroll, and a 3D hero object.", "component-kit:shadcn-ui motion:gsap text-effects:gsap-splittext 3d:r3f scroll:lenis icons:lucide", "Button"],
+    // A Tailwind project keeps a Tailwind kit: Mantine's "projects that avoid Tailwind" is no reason for one.
+    ["Crypto wallet home screen: animated rolling balance number, price chart, recent transactions table, send sheet. Vite + React + Tailwind project.", "*", "*"],
+  ] as const) {
+    const p = plan(libraries, aesthetics, brief);
+    if (stack !== "*") assert.equal(p.items.map((i) => `${i.kind}:${i.pick?.lib.id ?? "-"}`).join(" "), stack, brief);
+    else assert.equal(p.items[0]!.pick?.lib.id, "shadcn-ui", brief);
+    if (parts !== "*") assert.equal(p.items[0]!.components?.join(", "), parts, brief);
+  }
+  assert.match(formatPlan(plan(libraries, aesthetics, "Pricing page with three plans and an FAQ")), /npx shadcn@latest add button accordion card badge/);
+});
+
 test("a plan shows each specialist's usage, written for the package it installs", () => {
   const technical = formatPlan(plan(libraries, aesthetics, "Landing page for Relay, an email API for developers, with a code sample."));
   assert.match(technical, /^code \(code sample\) -> shiki: .*\n {2}import .*\n {2}import \{ codeToHtml \} from 'shiki\/bundle\/web'/m);
