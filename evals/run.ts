@@ -62,7 +62,7 @@ const evals = {
   skill: () => ledger(traces("skill", [...mcpCases, ...skillCases], true, "evals/mcp-tool-use/cases.ts", "evals/skill/cases.ts"), flags(4)),
   design: async () => {
     const r = await ledger(
-      { name: "design", cases: briefs, model: AGENT, agent: (b) => agentInputs(b, "with"), grader: (b) => grading(b, v.judge), run: (b, model, n) => sample(b, model, n, v.force), grade: (b, model, stamp) => gradeBuild(b, model, stamp, v.judge) },
+      { name: "design", cases: briefs, model: AGENT, samples: 3, agent: (b) => agentInputs(b, "with"), grader: (b) => grading(b, v.judge), run: (b, model, n) => sample(b, model, n, v.force), grade: (b, model, stamp) => gradeBuild(b, model, stamp, v.judge) },
       { ...flags(2), check: v.check || v.warn },
     );
     console.log(summary(r.cases, briefs, v.model ?? AGENT, v.judge));

@@ -164,10 +164,10 @@ test("a check only flips when most samples agree, and a regression stays recorde
   // order. Each drawn sample is kept, so it can be graded again. Returns what the ledger made of it.
   const kept = new Map<string, Graded & { call?: string }>();
   let gradeWith = (g: Graded) => g;
-  const step = async (text: string, script: ((Graded & { call?: string }) | Error)[], with_: Partial<Flags> = {}, checker = "g1") => {
+  const step = async (text: string, script: ((Graded & { call?: string }) | Error)[], with_: Partial<Flags> = {}, checker = "g1", samples?: number) => {
     let runs = 0;
     const r = await ledger({
-      name: "t", cases: [{ id: "c" }], model: "m", replay: false, dir, agent: () => text, grader: () => checker,
+      name: "t", cases: [{ id: "c" }], model: "m", replay: false, dir, samples, agent: () => text, grader: () => checker,
       run: async () => {
         const next: (Graded & { call?: string }) | Error = script[runs++] ?? result();
         if (next instanceof Error) throw next;
@@ -259,6 +259,14 @@ test("a check only flips when most samples agree, and a regression stays recorde
   assert.partialDeepStrictEqual(await step("v18", [pass, pass]), { problems: 0, pass: true });
   assert.partialDeepStrictEqual(await step("v18", []), { runs: 0, problems: 0 });
   gradeWith = (g) => g;
+
+  // An eval that asks for three samples draws three even when the first matches the record, and keeps each one's info.
+  const info = (n: number): Graded => ({ fails: [], info: { n } });
+  assert.partialDeepStrictEqual(await step("v19", [info(1), info(2), info(3)], {}, "g1", 3), { runs: 3, pass: true, infos: [{ n: 1 }, { n: 2 }, { n: 3 }] });
+  // A record on fewer is topped up when it is regraded, but a comparison buys nothing.
+  assert.partialDeepStrictEqual(await step("v20", [pass]), { runs: 1 });
+  assert.partialDeepStrictEqual(await step("v20", [pass], { record: false }, "g10", 3), { runs: 0 });
+  assert.equal((await step("v20", [pass, pass], {}, "g10", 3)).samples?.length, 3);
 
   // Another model is never recorded, and what it reports is only what it ran.
   const other = await ledger({ name: "t", cases: [{ id: "c" }, { id: "d" }], model: "m", replay: false, dir, agent: () => "v13", grader: () => "g", run: async () => ({ stamp: "x", calls: [], usd: 0 }), grade: async () => result("z") }, { ...flags, model: "other", case: ["c"] });

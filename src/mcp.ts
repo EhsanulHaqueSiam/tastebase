@@ -9,7 +9,7 @@ import { agentResourceKinds, isResourceKind } from "./registry/resources.ts";
 import { frameworks, kinds, type Aesthetic, type Library } from "./registry/schema.ts";
 
 /** Hash of skills/tastebase/SKILL.md, which states it too; src/skill.test.ts says what to set after editing the skill. */
-export const SKILL_VERSION = "2352d55";
+export const SKILL_VERSION = "e3dced5";
 
 export const INSTRUCTIONS = `tastebase is a curated index of UI libraries with notes on when to use each.
 Before writing UI, do not build parts from scratch: call pick for one specific job (a toast), or plan once with the whole brief. Read the look from the user's words and the project (kit, fonts, colours); get looks lists every look id. For fonts, colour or references, get that category.

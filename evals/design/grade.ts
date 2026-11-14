@@ -181,6 +181,8 @@ export function faults(b: Brief, x: Build, look: Look | undefined, planned: bool
   ].filter((f): f is string => !!f);
 }
 
+const PREFERS = "the judge prefers the build without tastebase";
+
 /** Grades one kept build with tastebase against the build without it that it was made next to. */
 export async function gradeBuild(b: Brief, model: string, stamp: string, judge: string): Promise<Graded> {
   const mineDir = dirOf(model, b.id, "with", stamp), mine = load(mineDir);
@@ -195,7 +197,7 @@ export async function gradeBuild(b: Brief, model: string, stamp: string, judge: 
     usd += judged.usd;
   }
   const [mineLook, plainLook] = [judgedBy(b, mine, judge), judgedBy(b, plain, judge)];
-  const fails = [...faults(b, mine, mineLook?.look, true), ...(better === "without" ? ["the judge prefers the build without tastebase"] : [])];
+  const fails = [...faults(b, mine, mineLook?.look, true), ...(better === "without" ? [PREFERS] : [])];
   const jobs = needs(b, mine);
   const info: Info = {
     look: mineLook?.look, score: mineLook?.score, libs: libsOf(mine), faults: faults(b, mine, mineLook?.look, false).length, needed: jobs.length, adopted: jobs.filter((j) => j.met).length, better,
@@ -228,22 +230,26 @@ function reviewed(rows: Row[], model: string) {
   });
 }
 const rowsOf = (cases: Record<string, Entry>, briefs: Brief[]): Row[] => briefs.flatMap((b) => (cases[b.id]?.info ? [{ b, info: cases[b.id]!.info as Info }] : []));
+/** Every pair a result rests on, not only the one that stands for it: one page per brief is too few to read a trend from. */
+const pairsOf = (cases: Record<string, Entry>, briefs: Brief[]): Row[] => briefs.flatMap((b) => ((cases[b.id]?.infos ?? [cases[b.id]?.info]).filter((i) => i) as Info[]).map((info) => ({ b, info })));
 
 /** The numbers that answer "is the design better with tastebase", over every result given. */
 export function summary(cases: Record<string, Entry>, briefs: Brief[], model: string, judge: string): string {
-  const rows = rowsOf(cases, briefs);
+  const rows = pairsOf(cases, briefs);
   if (!rows.length) return "design: nothing to report";
+  const decided = briefs.filter((b) => cases[b.id]), lost = decided.filter((b) => cases[b.id]!.fails.includes(PREFERS));
   const of = (from: Row[], f: (r: Row) => boolean) => `${from.filter(f).length}/${from.length}`;
   const looks = rows.filter((r) => r.b.look), sum = (f: (i: Info) => number) => rows.reduce((s, r) => s + f(r.info), 0);
   const mean = (f: (i: Info) => number | undefined) => {
     const xs = rows.map((r) => f(r.info)).filter((x) => x !== undefined);
     return xs.length ? (xs.reduce((s, x) => s + x, 0) / xs.length).toFixed(1) : "-";
   };
-  const checked = reviewed(rows, model).filter((p) => p.agrees !== undefined);
+  const checked = reviewed(rowsOf(cases, briefs), model).filter((p) => p.agrees !== undefined);
   // A judge nobody has checked is an opinion. Its totals say so until a person has graded the same pairs.
   const trust = checked.length ? `agrees with your blind picks on ${checked.filter((p) => p.agrees).length} of ${checked.length}` : "not yet checked against a person: pnpm eval design --review";
   return [
-    `design, ${rows.length} briefs built by ${model}. Judge ${judge}, ${trust}.`,
+    `design, ${rows.length} pairs over ${decided.length} briefs built by ${model}. Judge ${judge}, ${trust}.`,
+    `  briefs lost           ${lost.length} of ${decided.length}, where the judge prefers the build without on most pairs${lost.length ? `: ${lost.map((b) => b.id).join(", ")}` : ""}`,
     `  craft score, of 10    with ${mean((i) => i.score)}, without ${mean((i) => i.without.score)} (the goal is 9.9)`,
     `  judge prefers         with ${of(rows, (r) => r.info.better === "with")}, without ${of(rows, (r) => r.info.better === "without")}, tie ${of(rows, (r) => r.info.better === "tie")}`,
     `  reads as its look     with ${of(looks, (r) => r.info.look === r.b.look)}, without ${of(looks, (r) => r.info.without.look === r.b.look)}`,

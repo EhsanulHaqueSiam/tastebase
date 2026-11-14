@@ -30,8 +30,12 @@ export type Probe = {
 export type Ask = { selectors: string[]; click?: string };
 
 // Runs inside the page. Colours go through a canvas so oklch(), lab() and named colours all come back as RGB.
-// shortcut: gradients, images and canvas or requestAnimationFrame loops are not read; add them when a look rule needs them.
+// shortcut: gradients, images and canvas or requestAnimationFrame loops are not counted; add them when a look rule needs them.
 function probe(ask: Ask) {
+  // Under virtual time headless Chrome never fires requestAnimationFrame, so a chart or a Motion entrance would be
+  // shot at its first frame (empty bars, invisible text). Timers do run, so frames run on them.
+  window.requestAnimationFrame = (cb) => window.setTimeout(() => cb(performance.now()), 16);
+  window.cancelAnimationFrame = (id) => window.clearTimeout(id);
   const errors: string[] = [];
   addEventListener("error", (e) => errors.push(String(e.message)));
   addEventListener("unhandledrejection", (e) => errors.push(String(e.reason)));

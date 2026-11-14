@@ -27,8 +27,11 @@ export type Sample = { stamp: string; calls: TbCall[]; usd: number };
  * detail that varies between samples is not a new failure. `note` is only printed. `usd` is what grading cost.
  */
 export type Graded = { fails: string[]; info?: Record<string, unknown>; note?: string; usd?: number };
-/** A recorded result. `samples` are the stamps it rests on; `worse` names checks that got worse and nobody accepted. */
-export type Entry = { pass: boolean; fails: string[]; info?: Record<string, unknown>; calls: TbCall[]; samples: string[]; fp: string; graded: string; worse?: string[] };
+/**
+ * A recorded result. `samples` are the stamps it rests on; `worse` names checks that got worse and nobody accepted.
+ * `info` is from a sample that agrees with the verdict; `infos` has every sample's, in order, when there are several.
+ */
+export type Entry = { pass: boolean; fails: string[]; info?: Record<string, unknown>; infos?: Record<string, unknown>[]; calls: TbCall[]; samples: string[]; fp: string; graded: string; worse?: string[] };
 type Baseline = { model: string; cases: Record<string, Entry> };
 
 /**
@@ -50,6 +53,8 @@ export type Eval<C extends { id: string }> = {
   run: (c: C, model: string, n: number) => Promise<Sample>;
   /** Grades a kept sample. Throws `Gone` when the sample is no longer in the cache, and a fresh one is drawn instead. */
   grade: (c: C, model: string, stamp: string) => Promise<Graded>;
+  /** The fewest samples a recorded result rests on. One unless a single sample is too noisy to decide a case. */
+  samples?: number;
   /** `false` for an eval no agent reads tastebase in, so tool text cannot make it stale. */
   replay?: boolean;
   /** Where baseline.json lives, and unfinished samples too; tests point it elsewhere. */
@@ -163,7 +168,8 @@ export async function ledger<C extends { id: string }>(e: Eval<C>, flags: Flags)
           if (!(err instanceof Gone)) throw err;
           samples.length = results.length = 0;
         }
-      if (!results.length) {
+      const regraded = results.length > 0;
+      if (!regraded) {
         // A sample that matches the record settles the case at once, the cheap and common path. One that differs is
         // drawn again, and a third time if those two differ; then each check is decided by majority.
         const first = await next();
@@ -175,6 +181,8 @@ export async function ledger<C extends { id: string }>(e: Eval<C>, flags: Flags)
         const verdict = vote(results).failing;
         if (!same(await next(), verdict) && results.length < 3) await next();
       }
+      // A comparison that only regrades buys nothing, as above.
+      if (!regraded || recorded) while (results.length < (e.samples ?? 1)) await next();
       if (recorded) rmSync(pendingFile, { force: true });
     } catch (err) {
       if (recorded && (drawn.length || pending.length)) {
@@ -193,7 +201,8 @@ export async function ledger<C extends { id: string }>(e: Eval<C>, flags: Flags)
     const worse = [...failing].filter((f) => !agreed.has(f));
     const regressed = worse.length > 0 && !!prior && !flags.accept;
     if (regressed) problems++;
-    const entry: Entry = { pass: !failing.size, fails, info, calls, samples: samples.map((s) => s.stamp), fp: await fp(calls), graded, worse: regressed ? worse : undefined };
+    const infos = results.length > 1 && results.every((g) => g.info) ? results.map((g) => g.info!) : undefined;
+    const entry: Entry = { pass: !failing.size, fails, info, infos, calls, samples: samples.map((s) => s.stamp), fp: await fp(calls), graded, worse: regressed ? worse : undefined };
     if (recorded) base.cases[c.id] = entry;
     else fresh[c.id] = entry;
     const better = [...agreed].some((f) => !failing.has(f));
