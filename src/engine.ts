@@ -198,10 +198,11 @@ export type Scored = { lib: Library; score: number; why: string; caution?: strin
 
 // Libraries named by an everyday word: "a motion designer's portfolio" names no library. They count as named only
 // when the brief says them as a library.
-const EVERYDAY: Record<string, RegExp> = { motion: /\b(framer motion|motion\.dev|motion\/react|motion (?:library|package|for react)|(?:use|using|with|in|on) motion\b(?! design))/ };
+// Matched on the brief as `words` (lowercase, punctuation gone): "motion.dev" is "motion dev".
+const EVERYDAY: Record<string, RegExp> = { motion: / (?:framer motion|motion dev|motion react|motion (?:library|package)|(?:use|using|with) motion)(?! design| graphic)/ };
 /** Whether `text` (as `words`) names the library: its id or name, said as a library when that is an everyday word. */
 const namesLib = (text: string, l: Library) =>
-  (text.includes(idsOf(l).name) || text.includes(idsOf(l).id)) && (!EVERYDAY[l.id] || EVERYDAY[l.id]!.test(text.replace(/\s+/g, " ")));
+  (text.includes(idsOf(l).name) || text.includes(idsOf(l).id)) && (!EVERYDAY[l.id] || EVERYDAY[l.id]!.test(text));
 
 /** A brief without the look's id, name and signals. */
 const lookless = (text: string, look?: Aesthetic) => (look ? [look.id, look.name.toLowerCase(), ...look.signals].reduce((t, sig) => t.replaceAll(sig, " "), text) : text);
@@ -714,9 +715,15 @@ export function plan(libs: Library[], looks: Aesthetic[], brief: string, opts: {
     const covers = (l: Library, m: string) => wordsOf(m).every((w) => namesIn(w, l));
     const out: PlanItem[] = [{ ...first }];
     const owner = new Map<string, PlanItem>();
+    // The libraries the brief names for this kind ("we use Swiper and Vaul") are its picks, and nothing else is added;
+    // otherwise each further job gets the library that names it, within the brief's exclusions ("no vaul").
+    const lead = first.pick.lib, notSaid = words(not);
+    const named = libs.filter((l) => l.kind === kind && l.frameworks.includes(framework) && namesLib(slotSaid, l) && l !== lead);
+    for (const l of named) out.push({ kind, pick: { lib: l, score: 20, why: "named in the brief" }, alternatives: [] });
+    const exact = (l: Library, m: string) => wordsOf(m).every((w) => namesIn([w[0]!], l));
     for (const m of phrases) {
-      let it = out.find((i) => covers(i.pick!.lib, m));
-      const s = it ? undefined : pick(libs, m, { framework, look: tuned, kind, limit: 8, base }).find((s) => s.lib.kind === kind && covers(s.lib, m));
+      let it = out.find((i) => exact(i.pick!.lib, m)) ?? out.find((i) => covers(i.pick!.lib, m));
+      const s = it || named.length || namesLib(slotSaid, lead) ? undefined : pick(libs, m, { framework, look: tuned, kind, limit: 8, base }).find((s) => s.lib.kind === kind && covers(s.lib, m) && !namesLib(notSaid, s.lib));
       if (s && !out.some((i) => i.pick!.lib === s.lib)) out.push((it = { kind, pick: s, alternatives: [] }));
       owner.set(m, it ?? out[0]!);
     }

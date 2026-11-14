@@ -400,6 +400,9 @@ test("a kind holds a pick for each job the brief names in it", () => {
     ["Habit app with confetti when a goal is done and a toast when a habit is saved", "feedback", "sonner canvas-confetti"],
     ["Landing page with a typewriter headline and animated price counters", "text-effects", "number-flow use-scramble"],
     ["a command menu on cmd+k to jump between shows", "command", "cmdk"],
+    // The brief's own say holds for every job: a library it rules out is never added, the ones it names are the picks.
+    ["product page with a photo carousel and a size guide drawer, without vaul", "interaction", "embla-carousel"],
+    ["product page with a photo carousel and a size guide drawer, we use Swiper and Vaul", "interaction", "vaul swiper"],
     ["Lesson-complete screen for a kids' spelling game: the stars earned, the streak, and a button to start the next lesson.", "feedback", "canvas-confetti"],
   ] as const) {
     const items = plan(libraries, aesthetics, brief).items.filter((i) => i.kind === kind);
@@ -429,6 +432,12 @@ test("a whole page gets a library for every part, and the kit parts for its sect
     if (parts !== "*") assert.equal(p.items[0]!.components?.join(", "), parts, brief);
   }
   assert.match(formatPlan(plan(libraries, aesthetics, "Pricing page with three plans and an FAQ")), /npx shadcn@latest add button accordion card badge/);
+  // A registry kit keeps its scope and the flags its install needs (Fluid Functionalism's --overwrite).
+  assert.match(formatPlan(plan(libraries, aesthetics, "pricing page with an FAQ, we use fluid functionalism")), /add @fluid\/button @fluid\/accordion @fluid\/card @fluid\/badge --overwrite/);
+  // "Motion" names the library only when said as one: "motion.dev" does, "motion graphics" or "a motion designer" do not.
+  const motionWhy = (brief: string) => plan(libraries, aesthetics, brief).items.find((i) => i.kind === "motion")?.pick?.why;
+  assert.equal(motionWhy("Motion.dev portfolio with scroll-driven animations"), "named in the brief");
+  for (const brief of ["portfolio in motion graphics with smooth scroll", "portfolio for a motion designer"]) assert.notEqual(motionWhy(brief), "named in the brief", brief);
 });
 
 test("a plan shows each specialist's usage, written for the package it installs", () => {

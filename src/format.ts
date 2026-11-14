@@ -97,10 +97,12 @@ const planLine = (s: Scored, fw: Framework, base?: Library, cmd = install(s.lib,
 export function kitInstall(l: Library, fw: Framework, parts: string[]): string {
   const cmd = install(l, fw);
   if (!parts.length) return cmd;
-  const m = /^(.*npx shadcn@latest add )(\S+)/.exec(cmd);
+  const m = /^(.*npx shadcn@latest add )(.+)$/.exec(cmd);
   if (!m) return `${cmd} | use its ${parts.join(", ")}`;
-  const scope = /^@[\w-]+\//.exec(m[2]!)?.[0] ?? "";
-  return m[1] + parts.map((p) => scope + p.toLowerCase().replace(/\s+/g, "-")).join(" ");
+  const args = m[2]!.split(/\s+/);
+  const scope = /^@[\w-]+\//.exec(args[0]!)?.[0] ?? "";
+  // Its flags stay: Fluid Functionalism's --overwrite keeps the CLI from prompting.
+  return m[1] + [...parts.map((p) => scope + p.toLowerCase().replace(/\s+/g, "-")), ...args.filter((a) => a.startsWith("-"))].join(" ");
 }
 
 /** A step the plan's installs need before anything else: shadcn registry adds fail on a fresh app until init runs. */
