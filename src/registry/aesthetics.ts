@@ -179,6 +179,7 @@ export default [
     vs: "Not technical: glow and spectacle over precision. Not retro: smooth and futuristic, not period pixels.",
     swatch: { bg: "#05010d", surface: "#0d0720", text: "#e9e6ff", accent: "#00f0ff", radius: 12, font: "display", card: "border:1px solid rgba(0,240,255,.5);box-shadow:0 0 24px rgba(0,240,255,.35)", layout: "tube" },
     signals: ["neon", "cyber", "cyberpunk", "glow", "futuristic", "gaming", "sci-fi", "web3"],
+    needs: ["background"], // its motion rule puts beams and particles in the hero
     picks: {
       "component-kit": ["magic-ui", "aceternity-ui", "react-bits"],
       background: ["paper-shaders", "ogl"],

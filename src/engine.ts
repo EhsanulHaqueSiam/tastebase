@@ -14,11 +14,13 @@ const STOP = new Set(
 const SYN: Record<string, string[]> = {
   notification: ["toast"], snackbar: ["toast"], alert: ["toast"],
   modal: ["dialog"], popup: ["dialog", "popover"], sheet: ["drawer"], bottomsheet: ["drawer"],
-  counter: ["number"], price: ["number"], stat: ["number"], ticker: ["number"], balance: ["number"], balanc: ["number"], pric: ["number"], // "balancing", "pricing"
+  counter: ["number"], streak: ["number"], price: ["number"], stat: ["number"], ticker: ["number"], balance: ["number"], balanc: ["number"], pric: ["number"], // "balancing", "pricing"
   palette: ["command"], spotlight: ["command"], cmdk: ["command"],
   glassmorphism: ["glass"], frost: ["glass"], translucent: ["glass"],
   graph: ["chart"], plot: ["chart"], analytic: ["chart", "dashboard"],
   gradient: ["background", "shader"], shader: ["background"], hero: ["background", "landing"],
+  earn: ["confetti"], achievement: ["confetti"], // "stars earned", an achievement: a celebration; not "unlock" (Face ID unlock)
+  gallery: ["carousel"], lookbook: ["carousel"], lightbox: ["carousel"], productpage: ["gallery", "carousel"],
   carousel: ["slider", "swipe"], swipe: ["gesture"], drag: ["gesture", "dnd"],
   chat: ["agent", "message"], llm: ["agent", "chat"], ai: ["agent"], typ: ["typewriter"],
   resiz: ["resizable"], animation: ["motion", "animate"], animate: ["motion"], transition: ["motion"],
@@ -38,7 +40,7 @@ export function stem(w: string): string {
 // Stemmed content words. Compounds that name one thing stay one word: a progress bar is a kit part, not progress in
 // general (an upload toast).
 const stems = (text: string) =>
-  text.toLowerCase().replace(/bottom sheet/g, "bottomsheet").replace(/progress bar/g, "progressbar").split(/[^a-z0-9]+/).filter((w) => w && !STOP.has(w)).map(stem);
+  text.toLowerCase().replace(/bottom sheet/g, "bottomsheet").replace(/progress bar/g, "progressbar").replace(/product page/g, "product page productpage").split(/[^a-z0-9]+/).filter((w) => w && !STOP.has(w)).map(stem);
 
 const expand = (ws: Iterable<string>) => {
   const out = new Set<string>();
@@ -126,10 +128,10 @@ export function negations(brief: string): { want: string; not: string } {
 
 // Brief words -> the kinds of library an app needs. Order is the order needs are reported in.
 const NEEDS: [Kind, RegExp][] = [
-  ["motion", /\b(animat|motion|transition|spring|micro.?interaction|delight)/], // not "smooth": a smooth checkout is frictionless, not animated
-  ["text-effects", /\b(morph|text effect|scramble|typewriter|typing|counters?\b|(?<!phone )numbers?\b|prices?\b|stats?\b|balances?\b|ticker|copy button)/],
-  ["interaction", /\b(drawer|sheet|bottom.?sheet|carousel|slider|swipe|gesture|drag|sortable|reorder|kanban)/],
-  ["feedback", /\b(toast|notification|snackbar|alert|skeleton|loading|loader|spinner|confetti|celebrat)/], // not "progress": a progress bar is a kit part
+  ["motion", /\b(animat|motion|transition|spring|micro.?interaction|delight|breath|inhale|exhale)/], // not "smooth": a smooth checkout is frictionless, not animated
+  ["text-effects", /\b(morph|text effect|scramble|typewriter|typing|counters?\b|(?<!phone )numbers?\b|prices?\b|stats?\b|balances?\b|ticker|copy button|streaks?\b)/], // not "score": a score gauge is a chart
+  ["interaction", /\b(drawer|sheet|bottom.?sheet|carousel|slider|swipe|gesture|drag|sortable|reorder|kanban|lookbook|lightbox|product page)/], // not "gallery": controls over one can be glass
+  ["feedback", /\b(toast|notification|snackbar|alert|skeleton|loading|loader|spinner|confetti|celebrat|(?:lesson|level|quiz|course|workout) complete|stars? earned|achievement)/], // not "progress": a progress bar is a kit part
   ["command", /\b(command|cmd.?k|spotlight|quick search|search palette)|⌘k/],
   ["glass", /\b(glass(?!es)|translucent|frosted|refract|visionos)/],
   ["background", /\b((?<!solid |solid colou?r |plain |white |black )background|gradient|shader|aurora|grain|noise|dither|particle)/], // a solid colour background is CSS
@@ -139,6 +141,7 @@ const NEEDS: [Kind, RegExp][] = [
   ["scroll", /\b((?<!infinite |virtual |virtualized )scroll(?!bar| area)|parallax|longform|storytelling|scrollytell)/],
   ["tables", /\b(data ?tables?|data ?grids?|spreadsheet|sortable columns|(?<!pricing |periodic |coffee |dining |kitchen |book a |reserve a )tables?\b(?! of contents| tennis| booking| reservation))/],
   ["editor", /\b(rich.?text|wysiwyg|(?:text|markdown|block|document|docs?|code|source|python|sql|json|notion.?(?:like|style)) editor|(?<!(?:video|photo|image|audio|music|level|map|pdf) )editor app|notes? app|note.?taking|flowchart|node.?based|workflow (?:builder|editor|canvas)|diagram editor|node (?:graph|editor)|nodes\b[^.,;]{0,30}\bedges|(?:connect|link) (?:the )?(?:workflow )?(?:nodes|blocks)|graph editor|mind ?map)/],
+  ["code", /\b(code (?:samples?|snippets?|blocks?|examples?)|syntax highlight|highlighted code)/], // not "code editor": that is an editor
   ["icons", /\bicons?\b/],
 ];
 // The same patterns run to the end of the word, to quote what asked for a kind ("confetti", "bottom sheet").
