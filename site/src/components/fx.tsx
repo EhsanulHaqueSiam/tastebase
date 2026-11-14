@@ -1,7 +1,7 @@
 // Shared motion pieces. Each one animates only in response to something (visibility, hover, a state change).
 import { MeshGradient } from "@paper-design/shaders-react";
 import { AnimatePresence, motion, useMotionValue, useReducedMotion, useSpring } from "motion/react";
-import { Check, Copy } from "lucide-react";
+import { ArrowRight, Check, Copy } from "lucide-react";
 import { useRef, useState, type ComponentProps, type PointerEvent, type ReactNode } from "react";
 import { TextMorph } from "torph/react";
 import { toast } from "sonner";
@@ -102,5 +102,18 @@ export function Rise({ children, delay = 0, className }: { children: ReactNode; 
     >
       {children}
     </motion.div>
+  );
+}
+
+/** Pill link whose arrow swaps on hover (.cta in styles.css). `solid` is white on black; otherwise a dark fill. */
+export function ArrowLink({ solid, className = "", children, ...rest }: { solid?: boolean } & ComponentProps<"a">) {
+  const fill = solid ? "text-black [--cta-bg:var(--color-fg)] [--cta-hover:#d9d9de]" : "text-fg [--cta-bg:var(--color-s3)] [--cta-hover:#26262c]";
+  return (
+    <a className={`cta ${fill} ${className}`} {...rest}>
+      <i aria-hidden />
+      <ArrowRight size={16} aria-hidden />
+      <span>{children}</span>
+      <ArrowRight size={16} aria-hidden />
+    </a>
   );
 }

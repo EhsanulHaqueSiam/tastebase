@@ -25,7 +25,7 @@ export type Lite = Pick<Library, "id" | "name" | "tagline" | "kind" | "install">
 export const lite = ({ id, name, tagline, kind, install }: Library): Lite => ({ id, name, tagline, kind, install });
 
 /** A home shelf card: what it shows and what its filters read. */
-export const shelfLib = ({ id, name, tagline, kind, frameworks, aesthetic }: Library) => ({ id, name, tagline, kind, frameworks, aesthetic });
+export const shelfLib = ({ id, name, tagline, kind, frameworks, aesthetic, install, repo }: Library) => ({ id, name, tagline, kind, frameworks, aesthetic, install, repo });
 export type ShelfLib = ReturnType<typeof shelfLib>;
 
 /** A look as a shelf chip: its swatch, the words that find it, and every library it picks. */

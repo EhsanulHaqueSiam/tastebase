@@ -621,7 +621,7 @@ const data = JSON.stringify(Object.fromEntries(aesthetics.map((a) => [a.id, look
   <link slot="head" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Silkscreen&text=!-01234ABCDEFGHIKMNOPRSTUVYabcdeghiklmnoprstuvwy%E2%96%B6&display=swap" />
   <div class="lk">
     <div class="content mx-auto max-w-[1240px] px-4 pt-20 pb-32" data-content>
-      <div class="head">
+      <div class="head enter">
         <div>
           <h1>Looks</h1>
           <p>{aesthetics.length} looks in {families.length} families. Open one for its rules and picks, or pick up to three to compare.</p>
@@ -633,7 +633,7 @@ const data = JSON.stringify(Object.fromEntries(aesthetics.map((a) => [a.id, look
         </div>
       </div>
 
-      <div class="bar" data-bar>
+      <div class="bar enter" data-bar style="animation-delay: 80ms">
         <label class="field">
           <Search size={14} className="text-fg3" />
           <input id="ask" type="search" placeholder="Search looks, like “clay” or “like linear”" autocomplete="off" spellcheck="false" aria-label="Search looks" />
@@ -652,7 +652,7 @@ const data = JSON.stringify(Object.fromEntries(aesthetics.map((a) => [a.id, look
             return (
               <section class="fam" data-group={f.id} aria-labelledby={`fam-${f.id}`}>
                 <h2 id={`fam-${f.id}`}>{f.name}<small data-count={f.id}>{looks.length}</small></h2>
-                <div class="wall">
+                <div class="wall stagger">
                   {looks.map((a) => {
                     const s = a.swatch;
                     return (

@@ -1,11 +1,12 @@
-import { ArrowRight, ChevronDown, Search, X } from "lucide-react";
+import { ChevronDown, Search, X } from "lucide-react";
 import { AnimatePresence, MotionConfig, motion } from "motion/react";
 import { useState, type ComponentProps } from "react";
 import { frameworks, type Framework } from "../../../src/registry/schema.ts";
 import { kindMeta, shot } from "../lib/kinds.ts";
 import type { LookChip, ShelfLib } from "../lib/server.ts";
 import { useStats } from "../lib/stats.ts";
-import { Rise, SpotCard } from "./fx.tsx";
+import { ArrowLink, CopyButton, Rise, SpotCard } from "./fx.tsx";
+import { GithubMark } from "./GithubMark.tsx";
 import { LibMark } from "./LibMark.tsx";
 
 const SORTS = [
@@ -58,7 +59,7 @@ export default function Gallery({ libs, looks }: { libs: ShelfLib[]; looks: Look
     <section id="gallery" aria-labelledby="shelf" className="mx-auto max-w-6xl px-4 py-24">
       <Rise className="flex flex-wrap items-end justify-between gap-4">
         <h2 id="shelf" className="text-[clamp(28px,3.6vw,44px)] leading-tight font-semibold tracking-[-0.035em]">The shelf</h2>
-        <a href="/browse" className="press group inline-flex items-center gap-1.5 text-fg2 hover:text-fg">Browse all <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" /></a>
+        <ArrowLink href="/browse" className="h-9 text-[13.5px]">Browse all</ArrowLink>
       </Rise>
 
       <div className="mt-[18px] flex flex-wrap items-center gap-2">
@@ -112,8 +113,8 @@ export default function Gallery({ libs, looks }: { libs: ShelfLib[]; looks: Look
               const s = stats?.[l.id];
               const badge = sort === "hot" ? (s?.starsWeek ? `+${compact.format(s.starsWeek)}★ wk` : "") : sort === "stars" && s?.stars ? `${compact.format(s.stars)}★` : "";
               return (
-                <motion.div key={l.id} layout initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1, transition: { delay: (i % SHOWN) * 0.02 } }} exit={{ opacity: 0, scale: 0.96 }}>
-                  <a href={`/browse/${l.id}`} className="group block">
+                <motion.div key={l.id} layout className="group relative" initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1, transition: { delay: (i % SHOWN) * 0.02 } }} exit={{ opacity: 0, scale: 0.96 }}>
+                  <a href={`/browse/${l.id}`} className="block">
                     <SpotCard className="overflow-hidden rounded-2xl bg-s1 shadow-[inset_0_0_0_1px_var(--color-line)] transition-shadow duration-300 group-hover:shadow-[inset_0_0_0_1px_var(--color-line2)]">
                       <div className="relative aspect-[16/10] overflow-hidden bg-s2">
                         <img src={shot(l.id)} alt={`${l.name} website`} loading="lazy" className="size-full object-cover object-top transition-transform duration-700 ease-[var(--ease-out)] group-hover:scale-[1.04]" />
@@ -127,10 +128,19 @@ export default function Gallery({ libs, looks }: { libs: ShelfLib[]; looks: Look
                           <span className="block font-medium">{l.name}</span>
                           <span className="block truncate text-[13px] text-fg2">{l.tagline}</span>
                         </span>
-                        <span className="shrink-0 font-mono text-[11.5px] text-fg3">{kindMeta[l.kind].short}</span>
+                        <span className="card-kind shrink-0 font-mono text-[11.5px] text-fg3">{kindMeta[l.kind].short}</span>
                       </div>
                     </SpotCard>
                   </a>
+                  {/* Outside the link so the buttons are not nested in it; they sit over the kind label. */}
+                  <div className="card-acts absolute right-3 bottom-[15px] flex gap-1 bg-[linear-gradient(to_left,var(--color-s1)_75%,transparent)] pl-8">
+                    <CopyButton value={l.install} label="Install" className="h-8" />
+                    {l.repo && (
+                      <a href={l.repo} target="_blank" rel="noreferrer" aria-label={`${l.name} on GitHub`} className="press grid size-8 place-items-center rounded-lg bg-s3 text-fg2 hover:bg-fg hover:text-black">
+                        <GithubMark size={14} />
+                      </a>
+                    )}
+                  </div>
                 </motion.div>
               );
             })}

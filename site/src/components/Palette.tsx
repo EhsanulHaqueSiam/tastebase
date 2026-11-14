@@ -1,5 +1,6 @@
 // Global ⌘K palette and the toast host. Persisted across page transitions (transition:persist in Base.astro).
-// Opens on ⌘K/Ctrl+K, on "/" when the page has no #ask input, or on any [data-open-search] click.
+// Opens on ⌘K/Ctrl+K, on "/" when the page has no #ask input, on any [data-open-search] click, or on a "tb:search"
+// event whose detail prefills the query (HeaderSearch.tsx).
 import { navigate } from "astro:transitions/client";
 import { Command } from "cmdk";
 import { ArrowUpRight, Search } from "lucide-react";
@@ -18,6 +19,8 @@ type Lists = { libs: Row[]; resources: Res[] };
 export default function Palette() {
   const [open, setOpen] = useState(false);
   const [lists, setLists] = useState<Lists>();
+  const [q, setQ] = useState("");
+  useEffect(() => void (open || setQ("")), [open]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -30,9 +33,11 @@ export default function Palette() {
       }
     };
     const onClick = (e: MouseEvent) => (e.target as Element).closest?.("[data-open-search]") && setOpen(true);
+    const onSearch = (e: Event) => (e instanceof CustomEvent && typeof e.detail === "string" && setQ(e.detail), setOpen(true));
     window.addEventListener("keydown", onKey);
+    window.addEventListener("tb:search", onSearch);
     document.addEventListener("click", onClick);
-    return () => (window.removeEventListener("keydown", onKey), document.removeEventListener("click", onClick));
+    return () => (window.removeEventListener("keydown", onKey), window.removeEventListener("tb:search", onSearch), document.removeEventListener("click", onClick));
   }, []);
 
   // Fetch the list the first time the palette opens, not on every page.
@@ -52,7 +57,7 @@ export default function Palette() {
           <motion.div className="fixed inset-0 z-50 grid place-items-start justify-center bg-black/60 px-4 pt-[16vh] backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} onClick={() => setOpen(false)}>
             <motion.div initial={{ opacity: 0, scale: 0.97, y: -8 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ type: "spring", duration: 0.3, bounce: 0.1 }} onClick={(e) => e.stopPropagation()} className="w-full max-w-[560px]">
               <Command label="Search libraries" className="overflow-hidden rounded-2xl bg-s1 shadow-[0_0_0_1px_var(--color-line2),0_40px_100px_-20px_rgb(0_0_0/0.9)]">
-                <div className="flex items-center gap-3 border-b border-line px-4"><Search size={16} className="text-fg3" /><Command.Input autoFocus placeholder="Search libraries, jobs, looks, resources" className="h-12 flex-1 bg-transparent text-[15px] outline-none placeholder:text-fg3" /><span className="kbd">esc</span></div>
+                <div className="flex items-center gap-3 border-b border-line px-4"><Search size={16} className="text-fg3" /><Command.Input autoFocus value={q} onValueChange={setQ} placeholder="Search libraries, jobs, looks, resources" className="h-12 flex-1 bg-transparent text-[15px] outline-none placeholder:text-fg3" /><span className="kbd">esc</span></div>
                 <Command.List className="max-h-[360px] overflow-auto p-2">
                   {lists ? <Command.Empty className="p-6 text-center text-fg3">Nothing found.</Command.Empty> : <Command.Loading><div className="p-6 text-center text-fg3">Loading</div></Command.Loading>}
                   {groups.map(([label, list]) => (
