@@ -102,6 +102,9 @@ Architecture in one page: [docs/internals/overview.md](docs/internals/overview.m
   `skills/tastebase/SKILL.md`): run `pnpm eval`. It calls a model only for cases whose text changed, and
   `pnpm check` fails until you do. A regression is yours to fix; read the trace it names first. It stays
   recorded until the text changes or you `--accept` it, so do not re-run to clear one.
+- Ran the design eval: put its before and after in the PR for a person to check, not only the judge's numbers.
+  `pnpm eval design --compare origin/main` writes one sheet per brief (main's recorded page next to yours, desktop
+  and phone) to the eval cache; upload them and embed them under "Before and after" in the PR body.
 - Test behavior that can break: engine ranking, trending math, registry integrity, the token budget. Add a row
   to an existing test before writing a new one. Do not test what types guarantee, copy text or static markup.
 - Ranking changes: `pnpm test` fails when a pick moves; `pnpm test:update`, then say in the PR why each line in

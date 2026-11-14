@@ -1,4 +1,5 @@
 // pnpm eval [mcp-tool-use|skill|design|usage ...] [--case a,b] [--model m] [--judge m] [--check] [--force] [--accept]
+// pnpm eval design --review | --compare <git ref>
 // With no name it runs all four. Only what changed costs anything; see README.md.
 import { randomUUID } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -6,6 +7,7 @@ import { dirname, join } from "node:path";
 import { parseArgs } from "node:util";
 import { briefs } from "./design/briefs.ts";
 import { agentInputs, sample } from "./design/design.ts";
+import { compare } from "./design/compare.ts";
 import { gradeBuild, grading, review, summary } from "./design/grade.ts";
 import { cases as mcpCases } from "./mcp-tool-use/cases.ts";
 import { cache, project, runAgent, skillFile, sources, type Trace } from "./shared/agent.ts";
@@ -20,7 +22,7 @@ const { values: v, positionals } = parseArgs({
   allowPositionals: true,
   options: {
     case: { type: "string" }, model: { type: "string" }, judge: { type: "string", default: JUDGE }, jobs: { type: "string" },
-    check: { type: "boolean", default: false }, force: { type: "boolean", default: false }, accept: { type: "boolean", default: false }, review: { type: "boolean", default: false },
+    check: { type: "boolean", default: false }, compare: { type: "string" }, force: { type: "boolean", default: false }, accept: { type: "boolean", default: false }, review: { type: "boolean", default: false },
     // For pnpm check: report stale design results without failing, since bringing them up to date may cost a run.
     warn: { type: "boolean", default: false },
   },
@@ -79,7 +81,10 @@ const evals = {
     ),
 };
 
-if (v.review) {
+if (v.compare) {
+  // Before and after sheets for a PR: the ref's recorded pages next to this checkout's. No model is called.
+  for (const png of await compare(v.compare, briefs)) console.log(png);
+} else if (v.review) {
   const baseline = join(import.meta.dirname, "design", "baseline.json");
   console.log(review(existsSync(baseline) ? JSON.parse(readFileSync(baseline, "utf8")).cases : {}, briefs, AGENT));
 } else {

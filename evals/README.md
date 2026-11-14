@@ -165,6 +165,11 @@ kit" counts the builds that used the base kit tastebase named, of those it named
 The craft score is capped by the model that builds the page. The record uses Haiku at low effort to stay cheap, so
 read the score as a trend, and use `--model` to see what a stronger builder makes of the same text.
 
+**Show the pages, not only the numbers.** `pnpm eval design --compare <git ref>` puts the ref's recorded page with
+tastebase next to this checkout's, desktop and phone, one sheet per brief in `<cache>/design/<model>/compare/`, with
+each side's recorded score and verdict. Both are shot again with the current driver. Every PR that ran the design eval
+embeds them (`--compare origin/main`); it calls no model.
+
 **Check the judge before you trust it.** `pnpm eval design --review` writes `review.md` in the cache with every
 pair, unlabelled. Write your pick after each `pick:`, run it again, and it reports how often the judge agreed with
 you. The summary says "not yet checked against a person" until you have. A pick only counts while the judge's
