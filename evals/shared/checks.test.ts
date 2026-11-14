@@ -130,14 +130,14 @@ test("a build is faulted for what the page does and for ignoring what it was off
   assert.deepEqual(judged(minimal, effects, true), []);
   // Asked for a chart: tastebase offered recharts, the page drew its own, or reached for a chart library it was not offered.
   const asked = { ...build, look: "corporate" as Look, calls: plan_(corporate.brief), probe: { key: "", ...page, desktop: { ...probe, found: [true, true] }, mobile: { ...probe, found: [true, true] } } };
-  assert.deepEqual(judged(corporate, { ...asked, ...using("recharts") }, true), []);
-  assert.deepEqual(judged(corporate, { ...asked, ...using() }, true), ["uses no charts library tastebase offered: recharts"]);
-  assert.match(judged(corporate, { ...asked, ...using("uplot") }, true).join(), /goes around the plan: uplot for charts/);
+  assert.deepEqual(judged(corporate, { ...asked, ...using("recharts", "tanstack-table") }, true), []);
+  assert.deepEqual(judged(corporate, { ...asked, ...using("tanstack-table") }, true), ["uses no charts library tastebase offered: recharts"]);
+  assert.match(judged(corporate, { ...asked, ...using("uplot", "tanstack-table") }, true).join(), /goes around the plan: uplot for charts/);
   assert.deepEqual(judged(corporate, { ...asked, ...using(), calls: [] }, false), []);
-  const chart = (desktop: boolean, mobile: boolean) => judged(corporate, { ...asked, ...using("recharts"), probe: { key: "", ...page, desktop: { ...probe, found: [true, desktop] }, mobile: { ...probe, found: [true, mobile] } } }, true);
+  const chart = (desktop: boolean, mobile: boolean) => judged(corporate, { ...asked, ...using("recharts", "tanstack-table"), probe: { key: "", ...page, desktop: { ...probe, found: [true, desktop] }, mobile: { ...probe, found: [true, mobile] } } }, true);
   assert.deepEqual([chart(false, true), chart(true, false), chart(false, false)], [["is missing a chart: at 1440px"], ["is missing a chart: at 390px"], ["is missing a chart: at both widths"]]);
   // A motion or icon library is not going around the plan when the brief never asked for one.
-  assert.deepEqual(judged(corporate, { ...asked, ...using("recharts", "gsap", "phosphor") }, true), []);
+  assert.deepEqual(judged(corporate, { ...asked, ...using("recharts", "tanstack-table", "gsap", "phosphor") }, true), []);
   const sheet = { ...build, look: "apple" as Look, calls: plan_(apple.brief), ...using("vaul"), probe: { key: "", ...page, desktop: { ...probe, text: "today streak ".repeat(9) }, mobile: { ...probe, text: "today streak ".repeat(9) } } };
   assert.deepEqual(judged(apple, { ...sheet, probe: { ...sheet.probe, reduced: { ...probe, click: "opens" as const } } }, true), []);
   assert.match(judged(apple, { ...sheet, probe: { ...sheet.probe, reduced: { ...probe, click: "dead" as const } } }, true).join(), /opens nothing: the control is dead/);

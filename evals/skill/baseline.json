@@ -1,17 +1,17 @@
 {
   "model": "claude-haiku-5-5",
   "cases": {
-    "page-plans-first": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Landing page for Acme Mail, an email API for developers. Dev-tool look like Resend, with a shader background behind the hero. Single App.tsx page.","framework":"react"}],["get",{"id":"paper-shaders"}]],"samples":["210a94f5-fd8d-4ed5-9c8b-873f05607451"],"fp":"8028daee418d","graded":"e10fdb633a72"},
-    "one-job-picks": {"pass":true,"fails":[],"calls":[["pick",{"need":"toast notification after form save","framework":"react"}],["get",{"id":"sonner"}]],"samples":["ac593e32-fa30-4e22-b00a-77a52c6572fe"],"fp":"944645f06e68","graded":"878348408530"},
-    "vue-project": {"pass":true,"fails":[],"calls":[["pick",{"need":"command palette with cmd+k shortcut","framework":"vue"}]],"samples":["2dde1ff6-62f1-4522-8cad-9b0969ab4a0f"],"fp":"900f476cb32a","graded":"9e4b5738713a"},
-    "keeps-project-kit": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Billing page with a plan picker and an invoices table, React component in src/Billing.tsx","framework":"react"}]],"samples":["98badc8a-fa86-4364-92df-548ac40cea86"],"fp":"3a67437c2419","graded":"3ddab88d6c07"},
-    "nothing-fits": {"pass":true,"fails":[],"calls":[],"samples":["3ef69708-5e32-4a43-acb4-07e8c9738417"],"fp":"20ec5e71950e","graded":"a1aabaa40e49"},
-    "trending-when-asked": {"pass":true,"fails":[],"calls":[["trending",{}]],"samples":["472858c5-3961-4bf7-8a6d-297a533015dc"],"fp":"3bb4fff814f6","graded":"9dee87ac9d09"},
-    "control-typo": {"pass":true,"fails":[],"calls":[],"samples":["2752be69-2633-428e-9809-6acf8e69ceca"],"fp":"034d7939a43d","graded":"a6a735349cc6"},
-    "control-backend": {"pass":true,"fails":[],"calls":[],"samples":["15ef7799-24db-4983-abf4-b2586cc32ad6"],"fp":"bd03e8f49627","graded":"ae2daf91ec96"},
-    "pnpm-lockfile": {"pass":false,"fails":["opens the tastebase skill","installs with pnpm"],"calls":[],"samples":["57cf6fdf-9721-468c-b7b7-506386d903e0"],"fp":"f11a672a7c2d","graded":"bf24fa7a9462"},
-    "look-from-project": {"pass":false,"fails":["opens the tastebase skill","tells tastebase \"brutal\""],"calls":[["plan",{"brief":"Pricing section with three plans added to a small React settings page using Tailwind utility classes","framework":"react"}]],"samples":["19325122-b3aa-4392-bc2d-3833075486af"],"fp":"941cd860624a","graded":"64add81cf2f5"},
-    "pauses-shader": {"pass":false,"fails":["opens the tastebase skill"],"calls":[["pick",{"need":"animated shader gradient background","framework":"react"}],["get",{"id":"paper-shaders"}]],"samples":["119239e1-5e4c-44cd-8496-35cf3a596ec3"],"fp":"c876a96695d6","graded":"d0814dfec025"},
-    "fonts-from-resources": {"pass":false,"fails":["opens the tastebase skill"],"calls":[["get",{"id":"fonts"}]],"samples":["f0230009-ce68-4e7f-97e6-4f2783d70984"],"fp":"0e3b39a07450","graded":"22874bcd11f3"}
+    "page-plans-first": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Landing page for Acme Mail, an email API for developers. Dev-tool look like Resend, with a shader background behind the hero.","framework":"react"}],["get",{"id":"paper-shaders"}]],"samples":["67b1fd19-5743-4518-b2ed-3513fdd64a3c"],"fp":"583fe25a3d81","graded":"bb189115d3cb"},
+    "one-job-picks": {"pass":true,"fails":[],"calls":[["pick",{"need":"toast notification after form save","framework":"react"}],["get",{"id":"sonner"}]],"samples":["a409a7a3-646f-432b-b369-bc947c492dbd"],"fp":"82297c345b40","graded":"712b2ccf87ab"},
+    "vue-project": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Command palette opened with cmd+k in a Nuxt 4 / Vue 3 app","framework":"vue"}]],"samples":["86e9c9ce-a211-49dd-8556-4ebf54474e11"],"fp":"dcba40fe3c6c","graded":"30609e6be3e8"},
+    "keeps-project-kit": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Billing page with a plan picker and an invoices table, React + Mantine 8 project","framework":"react"}]],"samples":["db11b3b2-6fb0-4cdd-b3dd-2e129839ef05"],"fp":"403e7246aec7","graded":"d07750678cc2"},
+    "nothing-fits": {"pass":true,"fails":[],"calls":[],"samples":["4badd204-328a-46a6-8bc2-a51147c77b22"],"fp":"d162cd708b42","graded":"f95169d7e930"},
+    "trending-when-asked": {"pass":true,"fails":[],"calls":[["trending",{}]],"samples":["6626e184-58ae-423b-9d72-befa435a7188"],"fp":"23f7060c89d2","graded":"aab9bedf1f82"},
+    "control-typo": {"pass":true,"fails":[],"calls":[],"samples":["09be0475-3f07-4a62-9c0e-fe17623d3076"],"fp":"67e0b20ad38e","graded":"2c2d11ec649b"},
+    "control-backend": {"pass":true,"fails":[],"calls":[],"samples":["667df910-1698-4039-b1cc-90deec1905cb"],"fp":"2185bc3c035e","graded":"0b9870e6e659"},
+    "pnpm-lockfile": {"pass":false,"fails":["opens the tastebase skill","installs with pnpm"],"calls":[],"samples":["c1773b8d-662b-4529-b3a7-318351af4d0a"],"fp":"e0707705c740","graded":"1bc487efa78d"},
+    "look-from-project": {"pass":false,"fails":["opens the tastebase skill","tells tastebase \"brutal\""],"calls":[],"samples":["6871df3c-5813-4191-8df9-9f1a042f91dd"],"fp":"119d02f62699","graded":"0e83e87adffb"},
+    "pauses-shader": {"pass":false,"fails":["opens the tastebase skill"],"calls":[["plan",{"brief":"Animated shader gradient background behind a simple settings form in a React + Tailwind app","framework":"react"}],["get",{"id":"paper-shaders"}]],"samples":["eaada6e1-186e-485b-9d03-c03d1dab2276"],"fp":"df714bc3fd72","graded":"90fb98b5f9a8"},
+    "fonts-from-resources": {"pass":false,"fails":["opens the tastebase skill"],"calls":[["get",{"id":"fonts"}]],"samples":["25c66a68-0b5a-42ef-b3a5-9ac2a97985d1"],"fp":"8c28b401f369","graded":"65888866b3b4"}
   }
 }

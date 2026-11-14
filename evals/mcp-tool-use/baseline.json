@@ -1,13 +1,13 @@
 {
   "model": "claude-haiku-5-5",
   "cases": {
-    "page-plans-first": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Landing page for Acme Mail, an email API for developers. Dev-tool look like Resend, with a shader background behind the hero. React.","framework":"react"}],["get",{"id":"paper-shaders"}]],"samples":["2f6a4d70-ae89-407e-a10d-a2eee90cfcad"],"fp":"520fbc113dcf","graded":"fd32d8de07c6"},
-    "one-job-picks": {"pass":true,"fails":[],"calls":[["pick",{"need":"toast notification after form save","framework":"react"}],["get",{"id":"sonner"}]],"samples":["541ad50f-4f78-4c3e-b59c-550ebf2dd072"],"fp":"669d21d5c3c4","graded":"02d591913fa9"},
-    "vue-project": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Command palette opened with cmd+k in a Nuxt 4 / Vue 3 app","framework":"vue"}],["pick",{"need":"command palette with cmd+k, searchable list, keyboard navigation","framework":"vue"}],["get",{"id":"nuxt-ui"}]],"samples":["243750c3-e5c2-46b7-9c01-99b0b93b289e"],"fp":"f94022b406eb","graded":"e80b94077d70"},
-    "keeps-project-kit": {"pass":true,"fails":[],"calls":[],"samples":["6f68ec2e-6f94-4419-8c9d-43e3bb59feed"],"fp":"f4d57c9626d7","graded":"0360c95dde8a"},
-    "nothing-fits": {"pass":true,"fails":[],"calls":[],"samples":["a4da77d1-8dcd-42f5-bd27-61559875bd76"],"fp":"50c7a82259e0","graded":"8f9936474867"},
-    "trending-when-asked": {"pass":true,"fails":[],"calls":[["trending",{}]],"samples":["59059702-baab-4c8e-b68e-cad8738956d0"],"fp":"18cb4d2eef4d","graded":"61d2819b4477"},
-    "control-typo": {"pass":true,"fails":[],"calls":[],"samples":["2b00b7f3-2194-4fb8-8d58-ca154ef52a0f"],"fp":"15ac3b3daed5","graded":"897b8d4ac25e"},
-    "control-backend": {"pass":true,"fails":[],"calls":[],"samples":["4f1254a0-7434-483c-832c-174402e7740a"],"fp":"3f3a65bebe62","graded":"cb87b02d9521"}
+    "page-plans-first": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Landing page for Acme Mail, an email API for developers. Dev-tool look like Resend, with a shader background behind the hero.","framework":"react"}],["get",{"id":"paper-shaders"}]],"samples":["b185900b-bdf7-4c3d-aad9-840e08793507"],"fp":"0f69f6ba4ab1","graded":"a37fc8ff03e2"},
+    "one-job-picks": {"pass":true,"fails":[],"calls":[["pick",{"need":"toast notification after form save","framework":"react"}],["get",{"id":"sonner"}]],"samples":["f2846834-fbb3-4838-a4c9-1c6926362a54"],"fp":"8757ec053980","graded":"55e5023519e4"},
+    "vue-project": {"pass":true,"fails":[],"calls":[["pick",{"need":"command palette with cmd+k shortcut","framework":"vue"}],["get",{"id":"nuxt-ui"}],["get",{"id":"command-palette"}],["plan",{"brief":"Nuxt 4 app with a command palette opened by cmd+k","framework":"vue"}]],"samples":["6ee40ccf-705b-457f-a425-600866b7e3db"],"fp":"e6ae764e4903","graded":"bb4a43b22110"},
+    "keeps-project-kit": {"pass":true,"fails":[],"calls":[],"samples":["0e48ed79-52db-4fe2-b7a0-0cfd3cf78d46"],"fp":"3ddfb697cbbb","graded":"cae21e5e21be"},
+    "nothing-fits": {"pass":true,"fails":[],"calls":[],"samples":["0f2be3cf-658e-4939-b2ea-a3e3d7c88dfa"],"fp":"42f8264a3f8f","graded":"58d943a23384"},
+    "trending-when-asked": {"pass":true,"fails":[],"calls":[["trending",{}]],"samples":["945ecff0-f15a-4bab-8452-b57241e05fa2"],"fp":"7fa7c2843870","graded":"d8d550b22ef4"},
+    "control-typo": {"pass":true,"fails":[],"calls":[],"samples":["0f9491a0-4e27-4701-9a7a-baff5eb02dee"],"fp":"a2f5426f0b86","graded":"93e916bfb5df"},
+    "control-backend": {"pass":true,"fails":[],"calls":[],"samples":["19b89391-8638-4fbb-9f99-9cdb4341ebf2"],"fp":"1b268fcd6acd","graded":"f5d1d89d8cc5"}
   }
 }
