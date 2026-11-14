@@ -76,6 +76,7 @@
     "spline": {"pass":true,"fails":[],"calls":[],"samples":["spline"],"fp":"124b096cf2bd","graded":"703454885130"},
     "ogl": {"pass":true,"fails":[],"calls":[],"samples":["ogl"],"fp":"b72b21d6b5f6","graded":"703454885130"},
     "recharts": {"pass":true,"fails":[],"calls":[],"samples":["recharts"],"fp":"571da5f0f238","graded":"703454885130"},
+    "shiki": {"pass":true,"fails":[],"calls":[],"samples":["shiki"],"fp":"b37c68370e93","graded":"703454885130"},
     "visx": {"pass":true,"fails":[],"calls":[],"samples":["visx"],"fp":"c3b109a52e9d","graded":"703454885130"},
     "nivo": {"pass":true,"fails":[],"calls":[],"samples":["nivo"],"fp":"9d07ff4fcaa5","graded":"703454885130"},
     "echarts": {"pass":true,"fails":[],"calls":[],"samples":["echarts"],"fp":"127b1b6cf5cb","graded":"703454885130"},

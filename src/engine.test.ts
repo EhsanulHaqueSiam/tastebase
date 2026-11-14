@@ -359,6 +359,21 @@ const GOLDEN: Golden[] = [
   // Eval 3: a flowchart canvas is an editor job the plan must fill, not leave to hand-building.
   ["Workflow automation builder: a flowchart of triggers and actions, dark, technical.", "*", "*", "*", { editor: "xyflow" }],
   ["Vue flowchart editor with connecting nodes", "*", "shadcn-vue", "*", { editor: null }, ["tiptap"]], // React Flow has no Vue build
+  // The design eval's briefs, word for word: every job each page needs, each with its library.
+  ["Pricing page for Tally, an invoicing tool for freelancers: three plans and an FAQ. Quiet and clean, like Linear.", "dark-minimal", "shadcn-ui", "component-kit icons", {  }],
+  ["Home screen for Stride, a habit tracker: today's habits, a weekly streak, and a bottom sheet to add a habit. It should feel like a native iOS app.", "ios-native", "konsta", "component-kit motion text-effects interaction icons", { motion: "motion", "text-effects": "number-flow", interaction: "vaul" }],
+  ["Now-playing screen for a music player in the visionOS style: frosted, translucent panels over the album art.", "spatial", "shadcn-ui", "component-kit glass background icons", { glass: "glisse", background: "paper-shaders" }],
+  ["Lesson-complete screen for a kids' spelling game: the stars earned, the streak, and a button to start the next lesson.", "playful", "heroui", "component-kit motion text-effects feedback icons", { motion: "motion", "text-effects": "number-flow", feedback: "canvas-confetti" }],
+  ["Landing page for a type foundry's new typeface. Brutalist: raw, heavy type, hard edges.", "brutalist", "base-ui", "primitives icons", {  }],
+  ["Article page for a long read about post-war housing in an online architecture magazine.", "editorial", "base-ui", "primitives icons", {  }],
+  ["Leaderboard for a pixel-art arcade game.", "pixel-art", "8bitcn", "component-kit icons", {  }],
+  ["Landing page for a cyberpunk racing game.", "cyberpunk", "base-ui", "primitives background icons", { background: "paper-shaders" }],
+  ["Admin dashboard for a logistics company: a KPI row, a shipments table and one chart.", "corporate", "mantine", "component-kit charts tables icons", { charts: "recharts", tables: "tanstack-table" }],
+  ["Landing page for Relay, an email API for developers, with a code sample.", "technical", "shadcn-ui", "component-kit code icons", { code: "shiki" }],
+  ["Product page for a fine jewellery house's new ring collection.", "luxury", "base-ui", "primitives motion interaction icons", { motion: "gsap", interaction: "embla-carousel" }],
+  ["Home screen for a meditation app with a breathing exercise.", "organic", "shadcn-ui", "component-kit motion icons", { motion: "motion" }],
+  ["Stats page for a podcast host: downloads over time as a chart, the top episodes, a command menu on cmd+k to jump between shows, and a toast when a report is exported.", "?", "shadcn-ui", "component-kit text-effects feedback command charts icons", { "text-effects": "number-flow", feedback: "sonner", command: "cmdk", charts: "recharts" }],
+  ["Support chat for a bank's app: an assistant that streams its answers, suggested first questions, and a thumbs up or down on each answer.", "?", "shadcn-ui", "component-kit agent-ui icons", { "agent-ui": "prompt-kit" }],
 ];
 
 test("golden briefs get what a senior design engineer would pick", () => {

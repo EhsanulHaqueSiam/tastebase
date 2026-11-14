@@ -18,6 +18,7 @@ export const kinds = [
   "scroll", // smooth scroll, scroll-linked animation
   "tables", // data tables and grids: sorting, filtering, virtual rows (TanStack Table)
   "editor", // rich text, block and code editors (Tiptap)
+  "code", // syntax-highlighted code to read, not edit: samples, docs, snippets (Shiki)
 ] as const;
 
 export const aestheticIds = [

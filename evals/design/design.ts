@@ -44,7 +44,7 @@ const ALLOW = ["Bash(pnpm add *)", "Bash(pnpm install)", "Bash(pnpm build)", "Ba
 const RUN = { turns: 60, allow: ALLOW, maxUsd: 3, timeoutMs: 1_200_000 };
 
 const prompt = (brief: string) =>
-  `Build this in the Vite + React + Tailwind project in the current directory:\n\n${brief}\n\nOne page, starting at src/App.tsx. Dependencies are installed; add what you need with pnpm. \`pnpm shot\` builds it and saves desktop and phone screenshots in shots/ for you to read. You are done when \`pnpm build\` passes. Do not start a dev server.`;
+  `Build this in the Vite + React + Tailwind project in the current directory:\n\n${brief}\n\nOne page, starting at src/App.tsx. Dependencies are installed; add what you need with pnpm or the shadcn CLI. \`pnpm shot\` builds it and saves desktop and phone screenshots in shots/ for you to read. You are done when \`pnpm build\` passes. Do not start a dev server.`;
 
 /**
  * What a build depends on besides tastebase's answers and the model, which the ledger adds. The build without

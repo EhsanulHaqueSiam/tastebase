@@ -1195,7 +1195,7 @@ export default [
       "interface sounds for clicks, toggles, payments and notifications without shipping audio files (sounds.ts, Web Audio)",
       "one tactile control that is the moment of a page: slide to confirm, slosh slider, liquid toggle, rolling counter",
       "a like button that pops with a burst while the count rolls up",
-      "a magnifying dock, a fanning photo card stack or a card swap deck on a portfolio or product page",
+      "a magnifying dock, a fanning photo card stack or a card swap deck on a portfolio or shop page",
     ],
     avoidWhen: [
       "everyday form controls (select, slider, switch) that must be accessible and consistent: use base-ui or shadcn-ui",

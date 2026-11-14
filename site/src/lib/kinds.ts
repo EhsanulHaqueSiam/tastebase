@@ -1,5 +1,5 @@
 // Client-safe: labels, icons and colours per kind. No registry import, so islands stay small.
-import { Bell, Box, Boxes, Command, Gem, Image, Layers, LineChart, MessageSquare, MousePointerClick, PenLine, ScrollText, Shapes, Sparkles, Table, Type, type LucideIcon } from "lucide-react";
+import { Bell, Box, Boxes, Code, Command, Gem, Image, Layers, LineChart, MessageSquare, MousePointerClick, PenLine, ScrollText, Shapes, Sparkles, Table, Type, type LucideIcon } from "lucide-react";
 import type { Kind } from "../../../src/registry/schema.ts";
 
 export const kindMeta: Record<Kind, { label: string; short: string; icon: LucideIcon; color: string }> = {
@@ -19,6 +19,7 @@ export const kindMeta: Record<Kind, { label: string; short: string; icon: Lucide
   scroll: { label: "Scroll", short: "Scroll", icon: ScrollText, color: "var(--color-pink)" },
   tables: { label: "Tables", short: "Tables", icon: Table, color: "var(--color-green)" },
   editor: { label: "Editors", short: "Editor", icon: PenLine, color: "var(--color-violet)" },
+  code: { label: "Code blocks", short: "Code", icon: Code, color: "var(--color-cyan)" },
 };
 
 export const shot = (id: string) => `/shots/${id}.webp`;
