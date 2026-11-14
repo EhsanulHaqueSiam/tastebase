@@ -437,7 +437,7 @@ test("a whole page gets a library for every part, and the kit parts for its sect
   // "Motion" names the library only when said as one: "motion.dev" does, "motion graphics" or "a motion designer" do not.
   const motionWhy = (brief: string) => plan(libraries, aesthetics, brief).items.find((i) => i.kind === "motion")?.pick?.why;
   assert.equal(motionWhy("Motion.dev portfolio with scroll-driven animations"), "named in the brief");
-  for (const brief of ["portfolio in motion graphics with smooth scroll", "portfolio for a motion designer", "Portfolio for a motion designer with motionless hero and scroll-driven project reveals"]) assert.notEqual(motionWhy(brief), "named in the brief", brief);
+  for (const brief of ["portfolio in motion graphics with smooth scroll", "portfolio for a motion designer", "Portfolio for a motion designer with motionless hero and scroll-driven project reveals", "Portfolio for a studio working with motion designers, featuring scroll-driven project reveals"]) assert.notEqual(motionWhy(brief), "named in the brief", brief);
 });
 
 test("a plan shows each specialist's usage, written for the package it installs", () => {
