@@ -49,7 +49,10 @@ export default [
     vs: "Not liquid glass: whole windows are glass and content sits on them, with no lensing. Not glassmorphism: no colour blobs; the backdrop is a real environment and depth comes from z-offset, scale and shadow. Not ios-native: 60pt targets and hover highlights instead of tab bars and sheets.",
     swatch: { bg: "linear-gradient(180deg,#5d6f7a,#2f3940)", surface: "rgba(90,90,90,.35)", text: "#ffffff", accent: "#ffffff", radius: 32, font: "sans", card: "backdrop-filter:blur(40px) saturate(150%);border:1px solid rgba(255,255,255,.18);box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 30px 60px rgba(0,0,0,.35)", layout: "float" },
     signals: ["visionos", "vision pro", "apple vision", "spatial ui", "spatial computing", "spatial design"],
-    picks: { "component-kit": ["shadcn-ui"], "3d": ["r3f", "drei", "model-viewer"] },
+    // Its glass is a window, not a lens (its own vs line), so CSS backdrop blur, not a Liquid Glass kit; and its backdrop
+    // is a real photo or room, not a shader. Builders given glisse here dropped it, quoting the vs line.
+    picks: { "component-kit": ["shadcn-ui"], glass: [], background: [], "3d": ["r3f", "drei", "model-viewer"] },
+    needs: [],
     type: "system-ui (SF Pro) one weight heavier than iOS: body 17px medium, titles 29px bold, large titles 48px bold. White primary text, secondary text as 60% white, never grey hex on glass.",
     colour: "Glass windows (blur 40-60px over a ~30% grey fill) on a photographic environment; no solid window backgrounds. Colour comes from content and surroundings: controls are white glyphs, selection is a brighter glass pill, not an accent fill. Inputs sit in darker recessed wells (rgba(0,0,0,.2)).",
     motion: "Pointer or gaze hover brightens a control and scales it about 1.04 within 100ms. Windows open by scaling from 0.9 with a fade ({ type: 'spring', duration: 0.5, bounce: 0 }); pointer tilt stays under 4 degrees. Never move a window while it is being read.",

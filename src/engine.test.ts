@@ -66,11 +66,14 @@ test("negations rule a kind out", () => {
   assert.equal(picks("dashboard without animations and charts").charts, undefined);
 });
 
-test("plans add only what the brief or the look calls for", () => {
+test("plans add what the brief and the look call for, and the defaults every page gets", () => {
+  // Every page moves where the user acts, with the look's motion library; no backdrop it did not ask for.
   for (const brief of ["chat app", "registration form", "product page for a shoe store"]) {
     const p = picks(brief, undefined, "minimal");
-    assert.ok(!p.background && !p.motion, brief);
+    assert.ok(!p.background && p.motion === "motion", brief);
   }
+  assert.equal(picks("admin dashboard", undefined, "corporate").motion, undefined); // a look with no motion library: CSS
+  assert.equal(picks("habit tracker for phones").interaction, "vaul"); // a phone screen's gestures
   // No shader just for being a landing page (the AI look); a look whose backdrop is the point adds one.
   for (const brief of ["marketing site", "landing page", "crypto portfolio tracker"]) assert.equal(picks(brief).background, undefined, brief);
   assert.equal(picks("landing page like stripe").background, "paper-shaders"); // mesh gradient
@@ -118,7 +121,7 @@ test("one coherent stack: a named kit is the base and the rest fits it", () => {
   const [base, ...rest] = plan(libraries, aesthetics, "AI chat app like Claude with tool calls").items.map((i) => i.pick!.lib);
   assert.deepEqual(rest.filter((l) => offKit(l, base!)).map((l) => l.id), []);
   // Chosen as a whole stack: the kit whose chat specialist pairs with it, not the kit with built-in chat.
-  assert.deepEqual([base!.id, rest[0]!.id], ["shadcn-ui", "ai-elements"]);
+  assert.deepEqual([base!.id, rest.find((l) => l.kind === "agent-ui")!.id], ["shadcn-ui", "ai-elements"]);
 });
 
 test("raw looks build on primitives, and the framework is read from the brief", () => {
@@ -276,53 +279,53 @@ test("reasons come from the brief or the look, never a stray word", () => {
 // (98.css, NES.css, GOV.UK) shows up unless the look picks it. Stats-free: the registry carries none in tests.
 type Golden = [brief: string, look: string, base: string, slots: string, must?: Partial<Record<Kind, string | null>>, never?: string[]];
 const GOLDEN: Golden[] = [
-  ["a smooth checkout flow", "?", "shadcn-ui", "component-kit icons", {}, ["glisse"]],
-  ["bottom sheet for filters", "?", "shadcn-ui", "component-kit interaction icons", { interaction: "vaul" }],
-  ["weather app", "?", "shadcn-ui", "component-kit icons"],
-  ["glassmorphism weather app with charts, bottom sheet and toasts", "glassmorphism", "shadcn-ui", "component-kit interaction feedback glass background charts icons", { glass: null, interaction: "vaul", feedback: "sonner" }, ["glisse", "liquid-glass-react"]],
-  ["glassmorphism dashboard", "glassmorphism", "shadcn-ui", "component-kit glass background charts icons", { glass: null }],
-  ["liquid glass music player", "liquid-glass", "shadcn-ui", "component-kit glass background icons", { glass: "glisse" }, ["7-css"]],
+  ["a smooth checkout flow", "?", "shadcn-ui", "component-kit motion icons", {}, ["glisse"]],
+  ["bottom sheet for filters", "?", "shadcn-ui", "component-kit motion interaction icons", { interaction: "vaul" }],
+  ["weather app", "?", "shadcn-ui", "component-kit motion icons"],
+  ["glassmorphism weather app with charts, bottom sheet and toasts", "glassmorphism", "shadcn-ui", "component-kit motion interaction feedback glass background charts icons", { glass: null, interaction: "vaul", feedback: "sonner" }, ["glisse", "liquid-glass-react"]],
+  ["glassmorphism dashboard", "glassmorphism", "shadcn-ui", "component-kit motion glass background charts icons", { glass: null }],
+  ["liquid glass music player", "liquid-glass", "shadcn-ui", "component-kit motion glass background icons", { glass: "glisse" }, ["7-css"]],
   ["iOS-feel habit tracker with a bottom sheet and animated stats", "apple", "shadcn-ui", "component-kit motion text-effects interaction icons", { interaction: "vaul", "text-effects": "number-flow" }],
   ["native ios habit tracker with a bottom sheet", "ios-native", "konsta", "component-kit motion interaction icons", { interaction: "vaul" }],
   ["landing page in the Fluent look", "fluent", "fluent-ui", "component-kit icons", { icons: "fluent-icons" }, ["98-css", "xp-css"]],
   ["landing page in the Memphis look", "memphis", "heroui", "component-kit motion icons"],
-  ["landing page in the Aurora look", "aurora", "shadcn-ui", "component-kit background icons", { background: "paper-shaders" }],
-  ["retro windows 98 style personal homepage", "retro-os", "98-css", "component-kit icons", {}, ["paper-shaders"]],
-  ["Windows XP desktop", "retro-os", "xp-css", "component-kit icons"],
-  ["web1 personal homepage with a guestbook", "web1", "base-ui", "primitives icons", {}, ["paper-shaders"]],
-  ["retro terminal portfolio", "terminal", "webtui", "component-kit icons"],
-  ["coding agent CLI in Ink", "terminal", "termcn", "component-kit agent-ui icons"],
-  ["8-bit game site", "pixel-art", "8bitcn", "component-kit icons", { icons: "pixelarticons" }],
-  ["neo-brutalism portfolio", "neo-brutalism", "neobrutalism-components", "component-kit icons"],
+  ["landing page in the Aurora look", "aurora", "shadcn-ui", "component-kit motion background icons", { background: "paper-shaders" }],
+  ["retro windows 98 style personal homepage", "retro-os", "98-css", "component-kit motion icons", {}, ["paper-shaders"]],
+  ["Windows XP desktop", "retro-os", "xp-css", "component-kit motion icons"],
+  ["web1 personal homepage with a guestbook", "web1", "base-ui", "primitives motion icons", {}, ["paper-shaders"]],
+  ["retro terminal portfolio", "terminal", "webtui", "component-kit motion icons"],
+  ["coding agent CLI in Ink", "terminal", "termcn", "component-kit motion agent-ui icons"],
+  ["8-bit game site", "pixel-art", "8bitcn", "component-kit motion icons", { icons: "pixelarticons" }],
+  ["neo-brutalism portfolio", "neo-brutalism", "neobrutalism-components", "component-kit motion icons"],
   ["claymorphism kids app with progress and confetti", "claymorphism", "heroui", "component-kit motion feedback icons", { feedback: "canvas-confetti" }, ["nes-css"]],
   ["playful fintech app with animated balances", "playful", "heroui", "component-kit motion text-effects icons", { "text-effects": "number-flow" }],
   ["minimal dashboard with no animation and charts", "minimal", "shadcn-ui", "component-kit charts icons", { charts: "recharts" }],
   ["landing page without animations or gradients", "?", "shadcn-ui", "component-kit icons"],
-  ["kanban board for a team", "?", "shadcn-ui", "component-kit interaction icons", { interaction: "dnd-kit" }, ["blocknote"]],
+  ["kanban board for a team", "?", "shadcn-ui", "component-kit motion interaction icons", { interaction: "dnd-kit" }, ["blocknote"]],
   ["animated number counter", "?", "shadcn-ui", "component-kit motion text-effects icons", { "text-effects": "number-flow" }, ["rough-notation"]],
-  ["drag and drop file upload", "?", "shadcn-ui", "component-kit interaction icons", { interaction: null }, ["blocknote", "vaul"]],
-  ["Python code editor", "?", "shadcn-ui", "component-kit editor icons", { editor: null }, ["tiptap", "blocknote"]],
-  ["editor app", "?", "shadcn-ui", "component-kit editor icons", { editor: "tiptap" }],
-  ["notes app", "document", "shadcn-ui", "component-kit editor icons", { editor: "blocknote" }],
-  ["docs editor", "document", "shadcn-ui", "component-kit editor icons"],
-  ["notion style block editor", "document", "shadcn-ui", "component-kit editor icons", { editor: "blocknote" }, ["shadergradient"]],
-  ["React Notion-like block editor on shadcn", "document", "shadcn-ui", "component-kit editor icons", { editor: "blocknote" }],
-  ["data journalism site", "?", "shadcn-ui", "component-kit charts icons", {}, ["pele"]],
-  ["data story about rents", "scrollytelling", "base-ui", "primitives charts scroll icons", { scroll: "scrollama" }],
+  ["drag and drop file upload", "?", "shadcn-ui", "component-kit motion interaction icons", { interaction: null }, ["blocknote", "vaul"]],
+  ["Python code editor", "?", "shadcn-ui", "component-kit motion editor icons", { editor: null }, ["tiptap", "blocknote"]],
+  ["editor app", "?", "shadcn-ui", "component-kit motion editor icons", { editor: "tiptap" }],
+  ["notes app", "document", "shadcn-ui", "component-kit motion editor icons", { editor: "blocknote" }],
+  ["docs editor", "document", "shadcn-ui", "component-kit motion editor icons"],
+  ["notion style block editor", "document", "shadcn-ui", "component-kit motion editor icons", { editor: "blocknote" }, ["shadergradient"]],
+  ["React Notion-like block editor on shadcn", "document", "shadcn-ui", "component-kit motion editor icons", { editor: "blocknote" }],
+  ["data journalism site", "?", "shadcn-ui", "component-kit motion charts icons", {}, ["pele"]],
+  ["data story about rents", "scrollytelling", "base-ui", "primitives motion charts scroll icons", { scroll: "scrollama" }],
   ["luxury fashion ecommerce store", "luxury", "base-ui", "primitives motion icons", {}, ["material-symbols"]],
-  ["dev-tool landing page like Resend with a shader hero", "technical", "shadcn-ui", "component-kit background icons", { background: "paper-shaders" }],
-  ["dev-tool landing page like Linear with a shader hero", "dark-minimal", "shadcn-ui", "component-kit background icons", { background: "paper-shaders" }], // the brief's ask beats the look's no-shader default
+  ["dev-tool landing page like Resend with a shader hero", "technical", "shadcn-ui", "component-kit motion background icons", { background: "paper-shaders" }],
+  ["dev-tool landing page like Linear with a shader hero", "dark-minimal", "shadcn-ui", "component-kit motion background icons", { background: "paper-shaders" }], // the brief's ask beats the look's no-shader default
   ["admin panel, we use mantine, with charts and toasts", "corporate", "mantine", "component-kit feedback charts icons", { feedback: "mantine" }],
-  ["bloomberg terminal style trading dashboard", "data-dense", "mantine", "component-kit charts tables icons", { tables: "ag-grid" }],
+  ["bloomberg terminal style trading dashboard", "data-dense", "mantine", "component-kit motion charts tables icons", { tables: "ag-grid" }],
   ["government benefits application form", "civic", "govuk-frontend", "component-kit icons"],
   ["material design 3 settings screen", "material-you", "*", "component-kit motion icons", { icons: "material-symbols" }],
-  ["nuxt marketing site with liquid glass cards", "liquid-glass", "nuxt-ui", "component-kit glass icons", {}, ["wired-elements"]],
+  ["nuxt marketing site with liquid glass cards", "liquid-glass", "nuxt-ui", "component-kit motion glass icons", {}, ["wired-elements"]],
   ["vue admin app with toasts", "corporate", "shadcn-vue", "component-kit feedback icons", { feedback: "sonner" }, ["canvas-confetti", "skullet", "ding"]], // vue-sonner
-  ["svelte app with toasts", "?", "shadcn-svelte", "component-kit feedback icons", { feedback: "sonner" }],
+  ["svelte app with toasts", "?", "shadcn-svelte", "component-kit motion feedback icons", { feedback: "sonner" }],
   ["playful app using Mantine with confetti on completion", "playful", "mantine", "component-kit motion feedback icons", { feedback: "canvas-confetti" }],
   ["landing page with animations", "?", "shadcn-ui", "component-kit motion icons", { motion: "motion" }, ["kobra", "paper-shaders"]],
   ["we use chakra, admin dashboard", "corporate", "-", "component-kit charts icons", {}, ["mantine", "shadcn-ui"]],
-  ["Mac OS 9 Platinum desktop", "mac-classic", "base-ui", "primitives icons", {}, ["system-css"]],
+  ["Mac OS 9 Platinum desktop", "mac-classic", "base-ui", "primitives motion icons", {}, ["system-css"]],
   ["US government benefits application form", "civic", "uswds", "component-kit icons", {}, ["govuk-frontend"]],
   ["landing page with a 3d hero", "?", "shadcn-ui", "component-kit motion 3d icons", { "3d": "r3f", motion: "gsap" }, ["paper-shaders"]], // a 3D site: its scroll and camera moves run on GSAP
   ["crypto portfolio tracker", "fintech", "shadcn-ui", "component-kit text-effects icons", { "text-effects": "number-flow" }, ["paper-shaders"]], // fintech's amounts roll
@@ -331,24 +334,24 @@ const GOLDEN: Golden[] = [
   ["Landing page for Slow Batch, a subscription. Feel like a risograph printed zine, two inks, grainy, a little off-register.", "risograph", "*", "*"],
   ["Svelte page where our podcast creators schedule a new episode: date and time, a switch for paid subscribers only, tag the guests. Calm and modern.", "*", "shadcn-svelte", "*"],
   ["React dashboard, not Angular, with charts", "corporate", "shadcn-ui", "component-kit charts icons", { charts: "recharts" }],
-  ["Next.js app with a solid color background", "?", "shadcn-ui", "component-kit icons"],
-  ["landing page like stripe", "mesh-gradient", "shadcn-ui", "component-kit background icons", { background: "paper-shaders" }],
-  ["file upload page with a progress bar", "?", "shadcn-ui", "component-kit icons", {}, ["sonner", "ding", "amicro"]],
-  ["React map with draggable markers", "?", "shadcn-ui", "component-kit interaction icons", { interaction: null }, ["vaul", "use-gesture", "rare-ui"]],
-  ["React app with a text editor for Python code", "?", "shadcn-ui", "component-kit editor icons", { editor: null }, ["tiptap", "blocknote"]],
-  ["project management app with a gantt chart", "?", "shadcn-ui", "component-kit charts icons", { charts: null }, ["recharts", "lightweight-charts"]],
+  ["Next.js app with a solid color background", "?", "shadcn-ui", "component-kit motion icons"],
+  ["landing page like stripe", "mesh-gradient", "shadcn-ui", "component-kit motion background icons", { background: "paper-shaders" }],
+  ["file upload page with a progress bar", "?", "shadcn-ui", "component-kit motion icons", {}, ["sonner", "ding", "amicro"]],
+  ["React map with draggable markers", "?", "shadcn-ui", "component-kit motion interaction icons", { interaction: null }, ["vaul", "use-gesture", "rare-ui"]],
+  ["React app with a text editor for Python code", "?", "shadcn-ui", "component-kit motion editor icons", { editor: null }, ["tiptap", "blocknote"]],
+  ["project management app with a gantt chart", "?", "shadcn-ui", "component-kit motion charts icons", { charts: null }, ["recharts", "lightweight-charts"]],
   ["svelte admin with a data table", "corporate", "shadcn-svelte", "component-kit tables icons", { tables: "tanstack-table" }, ["skullet", "govuk-frontend"]],
-  ["svelte landing page with smooth scroll", "?", "shadcn-svelte", "component-kit scroll icons", { scroll: "lenis" }],
+  ["svelte landing page with smooth scroll", "?", "shadcn-svelte", "component-kit motion scroll icons", { scroll: "lenis" }],
   ["Expo habit tracker with animated stats and a bottom sheet", "?", "*", "component-kit motion text-effects interaction icons", {}, ["glisse", "vaul"]],
   ["Expo meditation app with a bottom sheet", "organic", "panelui", "component-kit interaction icons", { interaction: "panelui" }], // its BottomSheet part
   ["angular admin dashboard with a data table and toasts", "corporate", "spartan-ng", "component-kit feedback charts tables icons", {}, ["skullet"]],
   ["plain html government service page", "civic", "govuk-frontend", "component-kit icons"],
-  ["vanilla js landing page with a shader hero", "?", "*", "component-kit background icons", { background: "paper-shaders" }],
+  ["vanilla js landing page with a shader hero", "?", "*", "component-kit motion background icons", { background: "paper-shaders" }],
   // From building real screens with the shipped skill: one kit, a chart when spending is broken down.
-  ["Notes app on mobile with a Notion-like editor, minimal. Vite + React + Tailwind.", "document", "shadcn-ui", "component-kit editor icons", { editor: "blocknote" }],
+  ["Notes app on mobile with a Notion-like editor, minimal. Vite + React + Tailwind.", "document", "shadcn-ui", "component-kit motion interaction editor icons", { editor: "blocknote" }],
   ["admin panel with no tailwind, charts and toasts", "corporate", "mantine", "component-kit feedback charts icons"], // "no Tailwind" is shadcn/ui's own avoid line
   ["Budgeting app home screen for a neobank: balance, spending by category, recent transactions.", "fintech", "shadcn-ui", "component-kit text-effects charts icons", { charts: "recharts", "text-effects": "number-flow" }],
-  ["pricing page with a plan breakdown", "?", "shadcn-ui", "component-kit icons"],
+  ["pricing page with a plan breakdown", "?", "shadcn-ui", "component-kit motion icons"],
   // Round-4 review: a technique said no to keeps its kind; a celebration is confetti; a dark brief on a light look.
   ["meditation app, calm, soft gradients, no shaders", "*", "*", "*", {}, ["paper-shaders", "shadergradient"]],
   ["habit tracker for kids, streak celebration", "playful", "*", "*", { feedback: "canvas-confetti" }], // "kids" is playful
@@ -360,20 +363,20 @@ const GOLDEN: Golden[] = [
   ["Workflow automation builder: a flowchart of triggers and actions, dark, technical.", "*", "*", "*", { editor: "xyflow" }],
   ["Vue flowchart editor with connecting nodes", "*", "shadcn-vue", "*", { editor: null }, ["tiptap"]], // React Flow has no Vue build
   // The design eval's briefs, word for word: every job each page needs, each with its library.
-  ["Pricing page for Tally, an invoicing tool for freelancers: three plans and an FAQ. Quiet and clean, like Linear.", "dark-minimal", "shadcn-ui", "component-kit icons", {  }],
+  ["Pricing page for Tally, an invoicing tool for freelancers: three plans and an FAQ. Quiet and clean, like Linear.", "dark-minimal", "shadcn-ui", "component-kit motion icons", {  }],
   ["Home screen for Stride, a habit tracker: today's habits, a weekly streak, and a bottom sheet to add a habit. It should feel like a native iOS app.", "ios-native", "konsta", "component-kit motion text-effects interaction icons", { motion: "motion", "text-effects": "number-flow", interaction: "vaul" }],
-  ["Now-playing screen for a music player in the visionOS style: frosted, translucent panels over the album art.", "spatial", "shadcn-ui", "component-kit glass background icons", { glass: "glisse", background: "paper-shaders" }],
+  ["Now-playing screen for a music player in the visionOS style: frosted, translucent panels over the album art.", "spatial", "shadcn-ui", "component-kit motion glass icons", { glass: null }], // its glass is CSS blur and its backdrop the art
   ["Lesson-complete screen for a kids' spelling game: the stars earned, the streak, and a button to start the next lesson.", "playful", "heroui", "component-kit motion text-effects feedback icons", { motion: "motion", "text-effects": "number-flow", feedback: "canvas-confetti" }],
-  ["Landing page for a type foundry's new typeface. Brutalist: raw, heavy type, hard edges.", "brutalist", "base-ui", "primitives icons", {  }],
-  ["Article page for a long read about post-war housing in an online architecture magazine.", "editorial", "base-ui", "primitives icons", {  }],
-  ["Leaderboard for a pixel-art arcade game.", "pixel-art", "8bitcn", "component-kit icons", {  }],
-  ["Landing page for a cyberpunk racing game.", "cyberpunk", "base-ui", "primitives background icons", { background: "paper-shaders" }],
+  ["Landing page for a type foundry's new typeface. Brutalist: raw, heavy type, hard edges.", "brutalist", "base-ui", "primitives motion icons", {  }],
+  ["Article page for a long read about post-war housing in an online architecture magazine.", "editorial", "base-ui", "primitives motion icons", {  }],
+  ["Leaderboard for a pixel-art arcade game.", "pixel-art", "8bitcn", "component-kit motion icons", {  }],
+  ["Landing page for a cyberpunk racing game.", "cyberpunk", "base-ui", "primitives motion background icons", { background: "paper-shaders" }],
   ["Admin dashboard for a logistics company: a KPI row, a shipments table and one chart.", "corporate", "mantine", "component-kit charts tables icons", { charts: "recharts", tables: "tanstack-table" }],
-  ["Landing page for Relay, an email API for developers, with a code sample.", "technical", "shadcn-ui", "component-kit code icons", { code: "shiki" }],
+  ["Landing page for Relay, an email API for developers, with a code sample.", "technical", "shadcn-ui", "component-kit motion code icons", { code: "shiki" }],
   ["Product page for a fine jewellery house's new ring collection, with a size guide that opens in a drawer.", "luxury", "base-ui", "primitives motion interaction interaction icons", { motion: "gsap", interaction: "embla-carousel" }],
   ["Home screen for a meditation app with a breathing exercise.", "organic", "shadcn-ui", "component-kit motion icons", { motion: "motion" }],
-  ["Stats page for a podcast host: downloads over time as a chart, the top episodes, a command menu on cmd+k to jump between shows, and a toast when a report is exported.", "?", "shadcn-ui", "component-kit text-effects feedback command charts icons", { "text-effects": "number-flow", feedback: "sonner", command: "cmdk", charts: "recharts" }],
-  ["Support chat for a bank's app: an assistant that streams its answers, suggested first questions, and a thumbs up or down on each answer.", "?", "shadcn-ui", "component-kit agent-ui icons", { "agent-ui": "prompt-kit" }],
+  ["Stats page for a podcast host: downloads over time as a chart, the top episodes, a command menu on cmd+k to jump between shows, and a toast when a report is exported.", "?", "shadcn-ui", "component-kit motion text-effects feedback command charts icons", { "text-effects": "number-flow", feedback: "sonner", command: "cmdk", charts: "recharts" }],
+  ["Support chat for a bank's app: an assistant that streams its answers, suggested first questions, and a thumbs up or down on each answer.", "?", "shadcn-ui", "component-kit motion agent-ui icons", { "agent-ui": "prompt-kit" }],
 ];
 
 test("golden briefs get what a senior design engineer would pick", () => {
@@ -448,7 +451,7 @@ const briefs: Brief[] = [
   { brief: "pixel art game leaderboard", look: "retro", has: { icons: "pixelarticons" } },
   { brief: "wedding invitation site, elegant", look: "luxury", miss: "'elegant' is an everyday word that never names a look alone, and 'wedding' is no signal" },
   { brief: "onboarding flow for a duolingo style language app", look: "playful" },
-  { brief: "visionOS style music player with frosted panels", look: "glass", has: { glass: "glisse" } },
+  { brief: "visionOS style music player with frosted panels", look: "glass" }, // its glass is CSS blur: see the golden rows
   { brief: "meditation app with breathing exercise", look: "organic" },
   { brief: "simple brutalist portfolio", look: "brutalist" },
   { brief: "todo app", look: "default" },

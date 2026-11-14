@@ -477,6 +477,8 @@ export type PlanItem = {
   part?: string;
   /** The brief's words this pick answers ("bottom sheet"); unset for what the look added unasked. */
   asked?: string;
+  /** For the base kit: the parts the page's sections need ("Accordion" for an FAQ), in the kit's own names. */
+  components?: string[];
 };
 export type Plan = {
   look: Aesthetic;
@@ -547,11 +549,67 @@ const avoided = (look: Aesthetic) => {
   return new Set(BARE.filter(([, nouns]) => nouns.some((n) => items.has(words(n)))).map(([k]) => k));
 };
 
+// The job a default kind is filled for when the look picks nothing for it.
+const DEFAULT_JOB: Partial<Record<Kind, string>> = { interaction: "a bottom sheet that follows the finger and swipes away" };
+
+// Kit parts a page's sections call for: what in the brief asks, then the parts, each as the names kits give the same
+// part ("Input|Text Field"); the first the base kit ships is taken.
+const SECTIONS: [RegExp, string[]][] = [
+  [/\b(faq|frequently asked)/, ["Accordion"]],
+  [/\b(pricing|plans?|tiers?|subscriptions?)\b/, ["Card", "Badge|Chip"]],
+  [/\b(leaderboard|rankings?|high ?scores?)\b/, ["Leaderboard|Table"]],
+  [/\b(tables?|shipments|orders|invoices|transactions)\b/, ["Table"]],
+  [/\b(form|sign ?up|log ?in|contact|checkout|add (?:a|an))\b/, ["Input|Text Field|Text Input|List Input", "Label"]],
+  [/\b(settings?|preferences)\b/, ["Switch|Toggle", "Select|Native Select"]],
+  [/\btabs?\b/, ["Tabs"]],
+  [/\b(dialog|modal|confirm)\b/, ["Dialog|Modal"]],
+  [/\bsearch\b/, ["Search Field|Searchbar|Input"]],
+  [/\b(avatars?|profiles?|team|testimonials?|reviews?|authors?|players?)\b/, ["Avatar"]],
+  [/\b(dashboard|kpis?|stats?|metrics|overview|home screen)\b/, ["Card"]],
+  [/\bsidebar\b/, ["Sidebar"]],
+  [/\b(progress|streaks?|goals?)\b/, ["Progress|Progress Bar|Progressbar"]],
+  [/\b(sliders?|volume|seek|scrub|now.playing|music player)\b/, ["Slider|Range"]],
+  [/\b(thumbs|ratings?|votes?)\b/, ["Toggle Group|Toggle"]],
+  [/\b(chat|assistant)\b/, ["Textarea|Text Area", "Scroll Area"]],
+  [/\b(calendar|schedul\w*)\b/, ["Calendar"]],
+  [/\b(habits?|todos?|checklist|tasks?)\b/, ["Checkbox"]],
+  [/\b(sizes?|metals?|variants?|colou?r options?)\b/, ["Radio Group|Toggle Group|Segmented|Segmented Control"]],
+  [/\b(suggested|suggestions?|tags?|status)\b/, ["Badge|Chip"]],
+  [/\bdropdown\b/, ["Dropdown Menu|Menu"]],
+];
+// Kit parts a specialist in the plan does instead: the kit's Carousel is not used next to embla-carousel.
+const PART_KIND: Record<string, Kind> = {
+  carousel: "interaction", drawer: "interaction", sheet: "interaction", "action sheet": "interaction", chart: "charts",
+  command: "command", spotlight: "command", sonner: "feedback", toast: "feedback", notification: "feedback",
+  skeleton: "feedback", spinner: "feedback", "data table": "tables", message: "agent-ui", bubble: "agent-ui",
+  "message scroller": "agent-ui", messages: "agent-ui", messagebar: "agent-ui", attachment: "agent-ui", "code block": "code",
+};
+
+/** The base kit's parts a page needs: a Button always, then each section's parts the kit ships, then any part the
+ * brief names outright ("a leaderboard"), minus what a specialist in the plan does instead. */
+export function kitComponents(kit: Library, text: string, items: PlanItem[]): string[] {
+  const parts = kit.parts?.free ?? [];
+  if (!parts.length) return [];
+  const has = new Map(parts.map((p) => [p.toLowerCase(), p]));
+  const taken = new Set(items.filter((i) => i.pick && i.pick.lib !== kit).map((i) => i.kind));
+  const out = new Set<string>();
+  const add = (names: string) => {
+    const p = names.toLowerCase().split("|").map((n) => has.get(n)).find(Boolean);
+    if (p && !(PART_KIND[p.toLowerCase()] && taken.has(PART_KIND[p.toLowerCase()]!))) out.add(p);
+  };
+  add("Button");
+  const said = words(text);
+  for (const [re, ps] of SECTIONS) if (re.test(text)) ps.forEach(add);
+  for (const p of parts) if (p.includes(" ") || p.length > 5) if (said.includes(words(p))) add(p);
+  return [...out].slice(0, 8);
+}
+
 /** Picks for a whole app brief: the base kit first, then one per job, ranked to fit that kit and the look. A kind holds
  * several when the brief names several jobs in it ("a carousel and a drawer"). */
 export function plan(libs: Library[], looks: Aesthetic[], brief: string, opts: { framework?: Framework; look?: string } = {}): Plan {
   const { want, not } = negations(brief);
   const found = opts.look ? looks.filter((a) => a.id === opts.look) : detectLooks(looks, want);
+  const mobileWords = /\b(mobile|phones?|iphone|android|ios app|pwa|expo|react native)\b/.test(want);
   const fallback = looks.find((a) => a.id === "minimal") ?? looks[0];
   if (!fallback) throw new Error("registry has no aesthetics");
   const look = found[0] ?? fallback;
@@ -559,8 +617,11 @@ export function plan(libs: Library[], looks: Aesthetic[], brief: string, opts: {
   const named = opts.framework ?? detectFramework(want);
   const site = detectSite(want);
   // The site type's picks score as the look's own in its slots, so they are candidates even where the look has none.
-  const tuned = site ? { ...look, picks: { ...look.picks, ...site.picks } } : look;
+  // A style's family words are look words too ("frosted" for visionOS): they ask for the look, not for a library.
+  const famWords = looks.find((a) => a.id === look.family)?.signals ?? [];
+  const tuned = { ...look, signals: [...look.signals, ...famWords], picks: site ? { ...look.picks, ...site.picks } : look.picks };
   const framework = named ?? "react";
+  const mobile = mobileWords || framework === "react-native";
 
   // A kit the brief names ("we use mantine", "on shadcn") is the base, whatever the look prefers.
   const said = words(want);
@@ -607,6 +668,11 @@ export function plan(libs: Library[], looks: Aesthetic[], brief: string, opts: {
   // What the look adds unasked (glass adds a backdrop), minus what its own rules avoid (Memphis is flat: no shader). A
   // page gets no shader just for being a landing page, and a 3D scene is the page's one showpiece: no backdrop with it.
   const extras = new Set<Kind>(look.needs);
+  // Defaults every page gets: motion where the user acts (presses, menus, sheets, entrances), with the look's own
+  // motion library, unless the look has none (corporate, civic: CSS transitions only); and on a phone screen, gestures
+  // (sheets and lists that follow the finger).
+  if (look.picks.motion?.length) extras.add("motion");
+  if (mobile) extras.add("interaction");
   for (const k of avoided(look)) extras.delete(k);
   if (asked.has("3d")) extras.delete("background");
   // A site type adds what carries it (a motion-led site scrubs and smooths scroll) whatever the look's motion rule, and
@@ -639,8 +705,10 @@ export function plan(libs: Library[], looks: Aesthetic[], brief: string, opts: {
   };
   // The best pick for one kind under this base layer, with its alternatives.
   const slot = (kind: Kind, layer: Library | undefined, base: Library | undefined): PlanItem[] => {
-    // Under a kit we do not curate, shadcn registry items would drag in a second setup.
-    const r = pick(libs, brief, { framework, look: tuned, kind, limit: 8, base }).filter((s) => !(uncurated && viaShadcn(s.lib)));
+    // Under a kit we do not curate, shadcn registry items would drag in a second setup. A default the look picks nothing
+    // for is filled for its usual job (a phone screen's gestures: a sheet that follows the finger).
+    const job = !asked.has(kind) && !tuned.picks[kind]?.length && DEFAULT_JOB[kind];
+    const r = pick(libs, job || brief, { framework, look: tuned, kind, limit: 8, base }).filter((s) => !(uncurated && viaShadcn(s.lib)));
     // The project wins: a library the brief names for this job ("we use Tabler Icons") is the pick, like a named kit.
     const mine = libs.find((l) => l.kind === kind && l.frameworks.includes(framework) && (slotSaid.includes(words(l.name)) || slotSaid.includes(words(l.id))));
     if (mine) return [{ kind, pick: r.find((s) => s.lib === mine) ?? { lib: mine, score: 20, why: "named in the brief" }, alternatives: r.filter((s) => s.lib !== mine).slice(0, 2) }];
@@ -681,6 +749,7 @@ export function plan(libs: Library[], looks: Aesthetic[], brief: string, opts: {
       const alt = slots(cand.lib);
       if (total(cand, alt) > total(baseItem.pick, items)) [baseItem, items] = [{ kind: baseKind, pick: cand, alternatives: ranked.filter((_, j) => j !== i + 1).slice(0, 2) }, alt];
     }
+  if (baseItem.pick) baseItem = { ...baseItem, components: kitComponents(baseItem.pick.lib, lookless(want, look), items) };
   return {
     look,
     lookGuessed: !found.length,
@@ -692,6 +761,6 @@ export function plan(libs: Library[], looks: Aesthetic[], brief: string, opts: {
     skipped: [...ruledOut],
     uncurated,
     darkOnLight: /\bdark\b/.test(want) && (luminance(look.swatch.bg) ?? 0) > 0.5,
-    mobile: /\b(mobile|phone|iphone|android|ios app|pwa|expo|react native)\b/.test(want) || framework === "react-native",
+    mobile,
   };
 }
