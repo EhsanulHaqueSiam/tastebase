@@ -1,17 +1,17 @@
 {
   "model": "claude-haiku-5-5",
   "cases": {
-    "page-plans-first": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Landing page for Acme Mail, an email API for developers. Dev-tool look like Resend, with a shader background behind the hero.","framework":"react"}],["get",{"id":"paper-shaders"}],["get",{"id":"lucide"}]],"samples":["7c99aaed-0951-4224-a62a-7acb8f863df9","e631ef41-d4ab-4a23-ad21-84116560e69a"],"fp":"df44c1dfe12d","graded":"7b3ee6760086"},
-    "one-job-picks": {"pass":true,"fails":[],"calls":[["pick",{"need":"toast notification after form save","framework":"react"}],["get",{"id":"sonner"}]],"samples":["e99c47a5-0494-4227-abdd-14fd676e799b"],"fp":"87a1b0e62865","graded":"c5eb82b7e1ed"},
-    "vue-project": {"pass":true,"fails":[],"calls":[["pick",{"need":"command palette with cmd+k search","framework":"vue"}]],"samples":["133ca134-77ed-4cfd-b536-c9542a070df9"],"fp":"440ba5de6531","graded":"68ca91afc447"},
-    "keeps-project-kit": {"pass":true,"fails":[],"calls":[],"samples":["84a9f387-636c-4105-a790-0be1beae8933"],"fp":"37bfdab3a797","graded":"d85db38a297b"},
-    "nothing-fits": {"pass":true,"fails":[],"calls":[],"samples":["ab46de04-00a4-465a-8f3c-02c4462ab621"],"fp":"adfc21bc1778","graded":"0db5e53f330f"},
-    "trending-when-asked": {"pass":true,"fails":[],"calls":[["trending",{}]],"samples":["518f92b4-9b13-45a3-a662-e91c3fd3ca60"],"fp":"d1039d6bb572","graded":"9cf3ba072888"},
-    "control-typo": {"pass":true,"fails":[],"calls":[],"samples":["12bdf981-d1b0-4f8d-8efa-4102ef5ef021"],"fp":"0b3f95ee94d2","graded":"6a8d188874bf"},
-    "control-backend": {"pass":true,"fails":[],"calls":[],"samples":["b89b6c63-7874-4f9e-968b-3e7873cbb794"],"fp":"9ac6562df34a","graded":"c2927487a4e0"},
-    "pnpm-lockfile": {"pass":false,"fails":["opens the tastebase skill","installs with pnpm"],"calls":[["get",{"id":"sonner"}]],"samples":["4c5c4569-db15-402b-b74a-5fca6c749636"],"fp":"350ec18359dd","graded":"b3ff0dedc948"},
-    "look-from-project": {"pass":false,"fails":["opens the tastebase skill","tells tastebase \"brutal\""],"calls":[],"samples":["fdb79d07-a51c-493b-b5b4-76b532a61741"],"fp":"332fcf5642cf","graded":"63d76ce3a649"},
-    "pauses-shader": {"pass":false,"fails":["opens the tastebase skill"],"calls":[["pick",{"need":"animated shader gradient background","framework":"react"}],["get",{"id":"paper-shaders"}]],"samples":["7cd9bb17-75fb-4ccf-aaf5-371d3aadbfaa"],"fp":"b7d827f6fd58","graded":"d80aab28f009"},
-    "fonts-from-resources": {"pass":false,"fails":["opens the tastebase skill"],"calls":[["get",{"id":"fonts"}]],"samples":["b61d558a-b64d-4bbe-a2da-971e61c60a55"],"fp":"df0ba27f8942","graded":"f7304a7ae8d2"}
+    "page-plans-first": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Landing page for Acme Mail, an email API for developers. Dev-tool look like Resend, with a shader background behind the hero.","framework":"react"}],["get",{"id":"paper-shaders"}],["get",{"id":"lucide"}]],"samples":["7c99aaed-0951-4224-a62a-7acb8f863df9","e631ef41-d4ab-4a23-ad21-84116560e69a"],"fp":"df44c1dfe12d","graded":"e10fdb633a72"},
+    "one-job-picks": {"pass":true,"fails":[],"calls":[["pick",{"need":"toast notification after form save","framework":"react"}],["get",{"id":"sonner"}]],"samples":["e99c47a5-0494-4227-abdd-14fd676e799b"],"fp":"87a1b0e62865","graded":"878348408530"},
+    "vue-project": {"pass":true,"fails":[],"calls":[["pick",{"need":"command palette with cmd+k search","framework":"vue"}]],"samples":["133ca134-77ed-4cfd-b536-c9542a070df9"],"fp":"440ba5de6531","graded":"9e4b5738713a"},
+    "keeps-project-kit": {"pass":true,"fails":[],"calls":[],"samples":["84a9f387-636c-4105-a790-0be1beae8933"],"fp":"37bfdab3a797","graded":"3ddab88d6c07"},
+    "nothing-fits": {"pass":true,"fails":[],"calls":[],"samples":["ab46de04-00a4-465a-8f3c-02c4462ab621"],"fp":"adfc21bc1778","graded":"a1aabaa40e49"},
+    "trending-when-asked": {"pass":true,"fails":[],"calls":[["trending",{}]],"samples":["518f92b4-9b13-45a3-a662-e91c3fd3ca60"],"fp":"d1039d6bb572","graded":"9dee87ac9d09"},
+    "control-typo": {"pass":true,"fails":[],"calls":[],"samples":["12bdf981-d1b0-4f8d-8efa-4102ef5ef021"],"fp":"0b3f95ee94d2","graded":"a6a735349cc6"},
+    "control-backend": {"pass":true,"fails":[],"calls":[],"samples":["b89b6c63-7874-4f9e-968b-3e7873cbb794"],"fp":"9ac6562df34a","graded":"ae2daf91ec96"},
+    "pnpm-lockfile": {"pass":false,"fails":["opens the tastebase skill","installs with pnpm"],"calls":[["get",{"id":"sonner"}]],"samples":["4c5c4569-db15-402b-b74a-5fca6c749636"],"fp":"350ec18359dd","graded":"bf24fa7a9462"},
+    "look-from-project": {"pass":false,"fails":["opens the tastebase skill","tells tastebase \"brutal\""],"calls":[],"samples":["fdb79d07-a51c-493b-b5b4-76b532a61741"],"fp":"332fcf5642cf","graded":"64add81cf2f5"},
+    "pauses-shader": {"pass":false,"fails":["opens the tastebase skill"],"calls":[["pick",{"need":"animated shader gradient background","framework":"react"}],["get",{"id":"paper-shaders"}]],"samples":["7cd9bb17-75fb-4ccf-aaf5-371d3aadbfaa"],"fp":"b7d827f6fd58","graded":"d0814dfec025"},
+    "fonts-from-resources": {"pass":false,"fails":["opens the tastebase skill"],"calls":[["get",{"id":"fonts"}]],"samples":["b61d558a-b64d-4bbe-a2da-971e61c60a55"],"fp":"df0ba27f8942","graded":"22874bcd11f3"}
   }
 }

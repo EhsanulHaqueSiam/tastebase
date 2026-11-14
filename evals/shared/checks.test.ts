@@ -153,6 +153,9 @@ test("every library is recognised from its own install and usage, and only impli
   // A feature of a larger package is told apart by its own import, not the package's.
   assert.deepEqual(used(trace({ files: { "a.tsx": 'import { useState, startTransition } from "react";' } }), false), []);
   assert.deepEqual(used(trace({ files: { "a.tsx": 'import { ViewTransition } from "react";' } }), false), ["react-view-transition"]);
+  // Another package's import is not a library's signature, however unique it is among the usages.
+  const common = 'import { useEffect, useRef, useCallback } from "react";\nimport Link from "next/link";\nimport { curveNatural } from "d3-shape";';
+  assert.deepEqual(used(trace({ files: { "a.tsx": common } }), false), []);
 });
 
 test("a check only flips when most samples agree, and a regression stays recorded until it is accepted", async (t) => {

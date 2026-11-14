@@ -88,7 +88,14 @@ const installs = (t: Trace, npm: string) =>
 const pairs = (l: Library) => declarations(l.usage).flatMap((d) => d.names.map((name) => `${d.from} ${name}`));
 const counts = new Map<string, number>();
 for (const l of libraries) for (const p of new Set(pairs(l))) counts.set(p, (counts.get(p) ?? 0) + 1);
-const signature = new Map(libraries.map((l) => [l.id, pairs(l).find((p) => counts.get(p) === 1)]));
+const packageOf = (from: string) => from.split("/").slice(0, from.startsWith("@") ? 2 : 1).join("/");
+// Only the library's own code can sign for it: a copied-in path, its package or scope, or a package its install
+// names. `useEffect` from react, unique to one usage, is still in nearly every page.
+const own = (l: Library, from: string) =>
+  /^(?:@\/|\.|\$|~\/)/.test(from) ||
+  (!!l.npm && (within(from, l.npm) || (l.npm.startsWith("@") && from.startsWith(`${l.npm.split("/")[0]}/`)))) ||
+  new RegExp(`(?<![\\w@/.-])${escape(packageOf(from))}(?![\\w-])`).test(l.install);
+const signature = new Map(libraries.map((l) => [l.id, pairs(l).find((p) => counts.get(p) === 1 && own(l, p.split(" ")[0]!))]));
 const signed = (files: Files, id: string) => {
   const [from, name] = signature.get(id)?.split(" ") ?? [];
   return !!from && sourceDeclarations(files).some((d) => d.from === from && d.names.includes(name!));
