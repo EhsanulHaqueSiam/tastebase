@@ -80,26 +80,26 @@ async function build(b: Brief, arm: Arm, model: string): Promise<Build & { usd: 
 }
 
 /**
- * The newest kept build without tastebase made from the same inputs, or a new one. `fresh` always makes a new one.
- * A kept build that failed, or lost its page, is skipped: a broken opponent would count every page with tastebase
- * as better, or could never be graded.
+ * The `n`th newest kept build without tastebase made from the same inputs, or a new one, so each sample of a brief
+ * meets a different page. `fresh` always makes a new one. A kept build that failed, or lost its page, is skipped: a
+ * broken opponent would count every page with tastebase as better, or could never be graded.
  */
-async function opponent(b: Brief, model: string, fresh: boolean): Promise<Build & { usd: number }> {
+async function opponent(b: Brief, model: string, n: number, fresh: boolean): Promise<Build & { usd: number }> {
   const root = join(builds(model, b.id), "without"), agent = hash(agentInputs(b, "without"));
   const kept = fresh || !existsSync(root) ? [] : readdirSync(root).map((s) => ({ dir: join(root, s), at: statSync(join(root, s)).mtimeMs })).sort((x, y) => y.at - x.at);
-  for (const { dir } of kept) {
+  const usable = kept.flatMap(({ dir }) => {
     const x = load(dir);
-    if (x?.agent === agent && x.built && existsSync(join(dir, "dist", "index.html"))) return { ...x, usd: 0 };
-  }
-  return build(b, "without", model);
+    return x?.agent === agent && x.built && existsSync(join(dir, "dist", "index.html")) ? [x] : [];
+  });
+  return usable[n] ? { ...usable[n], usd: 0 } : build(b, "without", model);
 }
 
 /**
- * One paid sample of a brief: a new build with tastebase, next to the kept build without it (or a new one when the
- * inputs changed or `force` asks for it, once per run of the case).
+ * One paid sample of a brief: a new build with tastebase, next to the `n`th kept build without it (or a new one when
+ * there is none, the inputs changed, or `force` asks for it).
  */
 export async function sample(b: Brief, model: string, n: number, force: boolean): Promise<Sample> {
-  const [plain, mine] = await Promise.all([opponent(b, model, force && n === 0), build(b, "with", model)]);
+  const [plain, mine] = await Promise.all([opponent(b, model, n, force), build(b, "with", model)]);
   const { usd, ...kept } = mine;
   writeFileSync(join(dirOf(model, b.id, "with", mine.stamp), "build.json"), JSON.stringify({ ...kept, opponent: plain.stamp }, null, 2));
   return { stamp: mine.stamp, calls: mine.calls, usd: usd + plain.usd };

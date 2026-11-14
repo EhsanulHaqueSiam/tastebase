@@ -55,7 +55,8 @@ export const formatResources = (kind: ResourceKind) =>
 /** What carries the page (3D, scroll motion, photo and video) and how to build it: a plan line, or `get <id>`. */
 export const formatSite = (s: SiteType) => `site: ${s.name} (its rules beat the look's motion rule) | ${s.build} | avoid: ${s.avoid.join("; ")}`;
 
-// The design rules every look answer starts with.
+// The design rules every look answer starts with. The last two hold for every look: in the design eval, pages lost
+// to a missing part of the brief or to a bold look breaking the page far more often than to a library choice.
 const rules = (L: Aesthetic) => [
   `vs: ${L.vs}`,
   `type: ${L.type}`,
@@ -63,6 +64,8 @@ const rules = (L: Aesthetic) => [
   `motion: ${L.motion}`,
   `avoid: ${L.avoid.join("; ")}`,
   refs(L),
+  "brief first: build every part it names before styling; the first screen shows the main content working, not an empty hero",
+  "never, whatever the look: text under 4.5:1 contrast (on glass, over its lightest backdrop); a headline clipped or split mid-word at 390px; a font named, not loaded",
 ];
 const lookName = (L: Aesthetic) => `${L.name} (${L.id}${L.family ? `, ${L.family} family` : ""})`;
 

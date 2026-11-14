@@ -5,7 +5,7 @@ description: Use before writing any UI (pages, components, animations, icons, ba
 
 # tastebase
 
-Skill version 2352d55.
+Skill version e3dced5.
 
 Do not build a UI part from scratch when a proven library already has it. tastebase (MCP server `tastebase`)
 knows which library fits which job and which look.
@@ -41,24 +41,27 @@ knows which library fits which job and which look.
 6. **Build only the gaps.** Write from scratch only what no library covers, and say which parts those are.
 7. **Check before you call it done.** Render every screen and look at a screenshot at desktop width and at
    ~390px, next to your references. Run the craft check below on what you see and fix each "no". Where the
-   look's rules differ (a gradient look, a maximal look), the look wins.
+   look's rules differ (a gradient look, a maximal look), the look wins, except on item 1.
 
 ## Craft check
 
-1. **Focal point.** What is the screen for, and is that the biggest, highest-contrast thing on it? One primary
+1. **The brief, unbroken.** Every part the brief names is there and works, and the first screen shows the main
+   one, not an empty hero. No look excuses text under 4.5:1 contrast, a headline clipped or split mid-word at
+   390px, or a font you named that never loaded.
+2. **Focal point.** What is the screen for, and is that the biggest, highest-contrast thing on it? One primary
    button; the others become secondary or text links. The fix is usually removing things.
-2. **Spacing.** Every gap sits on a 4 or 8px scale (8, 16, 24, 32). Related items sit closer together than groups
+3. **Spacing.** Every gap sits on a 4 or 8px scale (8, 16, 24, 32). Related items sit closer together than groups
    do, so spacing does the grouping, not boxes and lines.
-3. **Type.** Hierarchy comes from weight and colour before size. One or two fonts, slightly tighter tracking on
+4. **Type.** Hierarchy comes from weight and colour before size. One or two fonts, slightly tighter tracking on
    headings, short lines, few sizes per card.
-4. **Colour.** Tinted neutrals for most of the screen; one accent, only on the primary action, focus and links.
-5. **Content.** Real names, numbers, prices and copy for this product. No lorem ipsum or Jane Doe. Ask the user
+5. **Colour.** Tinted neutrals for most of the screen; one accent, only on the primary action, focus and links.
+6. **Content.** Real names, numbers, prices and copy for this product. No lorem ipsum or Jane Doe. Ask the user
    for what you lack; never invent testimonials or stats.
-6. **Details.** One radius scale, with nested radius = outer radius minus padding. Thin, subtle 1px borders, soft
+7. **Details.** One radius scale, with nested radius = outer radius minus padding. Thin, subtle 1px borders, soft
    layered shadows, icons at one size and stroke, aligned with their text.
-7. **Motion.** Motion starts where the user acted: a menu grows from its button, toasts slide in from the edge and
+8. **Motion.** Motion starts where the user acted: a menu grows from its button, toasts slide in from the edge and
    stack, a sheet follows the finger. Short ease-out, closing faster than opening.
-8. **Composition.** Each width is balanced: no dead half-screen or column ending far above its neighbour at desktop.
+9. **Composition.** Each width is balanced: no dead half-screen or column ending far above its neighbour at desktop.
    On mobile, every tap target is at least 44px (checkboxes and icon buttons included).
 
 ## Changing an existing screen

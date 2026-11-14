@@ -33,7 +33,7 @@ It needs the `claude` CLI, signed in. Each case runs headless Claude Code in a t
 from this checkout. Your own CLAUDE.md, plugins, hooks and MCP servers are left out, and a run where the server
 or the skill did not reach the agent is an error, not a failure.
 
-Flags: `--case a,b`, `--force` (draw new samples even when nothing changed; for design, also a new page without
+Flags: `--case a,b`, `--force` (draw new samples even when nothing changed; for design, also new pages without
 tastebase), `--model <id>` and `--judge <id>` (compare another builder or judge; printed and summarised, never
 recorded; another judge re-judges the kept pages and builds nothing), `--accept` (record a case that got worse), `--jobs <n>`.
 
@@ -57,8 +57,8 @@ runs. So a change to one library re-runs only the cases whose answers mention it
 re-runs every case; a change to a check costs nothing. If the kept samples are gone (another machine, a cleared
 cache), new ones are drawn instead.
 
-The page without tastebase never reads tastebase's text, so it is built once per machine and kept as the fixed
-opponent; only a change to the prompt, the starter or the builder model makes a new one.
+A page without tastebase never reads tastebase's text, so it is built once per machine and kept as a fixed
+opponent; only a change to the prompt, the starter or the builder model makes new ones.
 
 `pnpm check` runs `pnpm eval mcp-tool-use skill usage --check`, so CI fails while a result is stale or an
 unaccepted regression is recorded. CI never calls a model and has no kept samples, so bring results up to date
@@ -128,8 +128,9 @@ snippet against the package.
 
 ## The design eval
 
-Each brief in `design/briefs.ts` is built twice by the same model in the same Vite + React + Tailwind starter:
-once with tastebase and once without. The starter's build typechecks, so a prop or export a library does not have
+Each brief in `design/briefs.ts` is built by the same model in the same Vite + React + Tailwind starter, three times
+with tastebase and three times without, and each build with it is judged against its own build without. One page is
+too noisy to decide a brief: a single bad build used to. The starter's build typechecks, so a prop or export a library does not have
 fails the build. Some briefs name their look, some only imply it through the product, and two name none and are
 about reaching for the right library.
 
@@ -150,7 +151,8 @@ The build with tastebase passes when all of this holds:
 - **The judge does not prefer the build without tastebase.** The pair is shown unlabelled, twice, in both orders;
   a verdict only counts when both orders agree.
 
-The totals printed after a run are the numbers to watch over time. "Works and is as asked" counts the same checks
+A brief's checks are decided by most of its three builds, as in every eval. The totals printed after a run count
+every pair, and are the numbers to watch over time. "Works and is as asked" counts the same checks
 for both builds; using what tastebase offered and the judge's preference have rows of their own.
 
 The craft score is capped by the model that builds the page. The record uses Haiku at low effort to stay cheap, so
