@@ -16,7 +16,7 @@ const sh = promisify(execFile);
 
 // A bare Vite + React + Tailwind app, as `pnpm create vite` plus the Tailwind plugin leaves it. The build
 // typechecks, as that template's does, so a prop or export a library does not have fails the build.
-export const TEMPLATE: Files = {
+const TEMPLATE: Files = {
   "package.json": JSON.stringify(
     {
       name: "acme-page", private: true, type: "module",
@@ -46,9 +46,9 @@ const CLIS = [...new Set(libraries.flatMap((l) => [l.install, ...Object.values(l
 const ALLOW = ["Bash(which *)", "Bash(pnpm --version)", "Bash(pnpm -v)", "Bash(pnpm add *)", "Bash(pnpm install)", "Bash(pnpm build)", "Bash(pnpm run build)", "Bash(pnpm shot)", "Bash(pnpm run shot)", ...CLIS.flatMap((c) => [`Bash(npx ${c} *)`, `Bash(npx -y ${c} *)`, `Bash(npx --yes ${c} *)`, `Bash(pnpm dlx ${c} *)`])];
 
 // How the build agent runs. Part of what a build depends on, so changing it builds the pages again.
-export const RUN = { turns: 60, allow: ALLOW, maxUsd: 3, timeoutMs: 1_200_000 };
+const RUN = { turns: 60, allow: ALLOW, maxUsd: 3, timeoutMs: 1_200_000 };
 
-export const prompt = (brief: string) =>
+const prompt = (brief: string) =>
   `Build this in the Vite + React + Tailwind project in the current directory:\n\n${brief}\n\nOne page, starting at src/App.tsx. Dependencies are installed; add what you need with pnpm or the shadcn CLI. \`pnpm shot\` builds it and saves desktop and phone screenshots in shots/ for you to read. You are done when \`pnpm build\` passes. Do not start a dev server.`;
 
 /**
