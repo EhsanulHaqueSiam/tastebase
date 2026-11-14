@@ -40,8 +40,8 @@ export type Verdict = { winner: "A" | "B" | "tie"; why: string };
 export type Pair = { a: Arm; first: Verdict; second: Verdict; better: Arm | "tie" };
 /**
  * What is recorded for a brief besides pass or fail. `faults` counts the checks both builds face, so the two arms
- * compare like for like. `needed` and `adopted` count the kinds of library the brief calls for, and how many of
- * them the page met with one tastebase offered. `stamp` and `opponent` name the builds behind the numbers.
+ * compare like for like. `needed` and `adopted` count the library jobs the brief calls for (a kind named twice is
+ * two), and how many of them the page met with a library tastebase offered. `stamp` and `opponent` name the builds behind the numbers.
  */
 export type Info = {
   look?: Look; score?: number; gap?: string; libs: string[];
@@ -139,14 +139,19 @@ async function compare(b: Brief, model: string, mine: Build, plain: Build, judge
 export const libsOf = (x: Pick<Build, "files" | "commands">) =>
   used({ calls: x.commands.map((command) => ({ name: "Bash", input: { command }, result: "", tastebase: false })), text: "", files: x.files, usd: 0 }, false);
 
-/** For each kind of library the brief calls for: what tastebase offered for it and what the page used for that job. */
+/**
+ * For each kind of library the brief calls for: what tastebase offered for it, and what the page used. `jobs` is how
+ * often the brief names the kind; `adopted` how many of those jobs an offered library does (one library, one job).
+ */
 export function needs(b: Brief, x: Build) {
   const offered = offers(x.calls), libs = libsOf(x), kindOf = (id: string) => libraries.find((l) => l.id === id)?.kind;
-  return (b.needs ?? []).map((kind: Kind) => {
+  return [...new Set(b.needs)].map((kind: Kind) => {
+    const jobs = b.needs!.filter((k) => k === kind).length;
     const options = offered.get(kind) ?? new Set<string>();
     // Offered for this job counts whatever its own kind; anything else counts when it is built for the job.
     const took = libs.filter((id) => options.has(id) || kindOf(id) === kind);
-    return { kind, options: [...options], met: took.some((id) => options.has(id)), around: took.filter((id) => !options.has(id)) };
+    const adopted = Math.min(jobs, took.filter((id) => options.has(id)).length);
+    return { kind, jobs, adopted, options: [...options], met: adopted === jobs, around: took.filter((id) => !options.has(id)) };
   });
 }
 
@@ -179,7 +184,9 @@ export function faults(b: Brief, x: Build, look: Look | undefined, planned: bool
       return missing.length > 0 && `is missing ${label}: ${missing.length === 2 ? "at both widths" : missing[0] === mobile ? "at 390px" : "at 1440px"}`;
     }),
     !!b.click && reduced.click !== "opens" && `pressing "${b.click}" opens nothing: the control is ${reduced.click === "dead" ? "dead" : "missing"}`,
-    ...(planned ? jobs.map((j) => !j.met && `uses no ${j.kind} library tastebase offered: ${j.options[0] ?? "it never asked for one"}`) : []),
+    ...(planned
+      ? jobs.map((j) => !j.met && (j.jobs > 1 ? `uses too few ${j.kind} libraries tastebase offered: ${j.adopted} for ${j.jobs} jobs, offered ${j.options.join(", ") || "none"}` : `uses no ${j.kind} library tastebase offered: ${j.options[0] ?? "it never asked for one"}`))
+      : []),
     planned && around.length > 0 && `goes around the plan: ${around.join("; ")}`,
   ].filter((f): f is string => !!f);
 }
@@ -205,7 +212,7 @@ export async function gradeBuild(b: Brief, model: string, stamp: string, judge: 
   const offered = offers(mine.calls), kits = [...(offered.get("component-kit") ?? []), ...(offered.get("primitives") ?? [])];
   const info: Info = {
     kit: kits.length ? libsOf(mine).some((id) => kits.includes(id)) : undefined,
-    look: mineLook?.look, score: mineLook?.score, gap: mineLook?.gap, libs: libsOf(mine), faults: faults(b, mine, mineLook?.look, false).length, needed: jobs.length, adopted: jobs.filter((j) => j.met).length, better,
+    look: mineLook?.look, score: mineLook?.score, gap: mineLook?.gap, libs: libsOf(mine), faults: faults(b, mine, mineLook?.look, false).length, needed: jobs.reduce((n, j) => n + j.jobs, 0), adopted: jobs.reduce((n, j) => n + j.adopted, 0), better,
     stamp, opponent: plain.stamp, pair,
     without: { look: plainLook?.look, score: plainLook?.score, gap: plainLook?.gap, libs: libsOf(plain), faults: faults(b, plain, plainLook?.look, false).length },
   };

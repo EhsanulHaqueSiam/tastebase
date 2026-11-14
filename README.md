@@ -19,7 +19,7 @@ it, installs them and adapts them, and builds from scratch only what no library 
 
 | Tool | Input | Returns | Typical cost |
 | --- | --- | --- | --- |
-| `plan` | a whole brief: "iOS-feel habit tracker with charts" | the look's type/colour/motion rules, one library per need with install command and reason | ~570 tokens |
+| `plan` | a whole brief: "iOS-feel habit tracker with charts" | the look's type/colour/motion rules, a library for each job (two from one kind when the brief names two jobs in it), with install command, usage and reason | ~820 tokens |
 | `pick` | one job: "copy button that confirms" | top 3 with reasons and "careful" notes | ~160 tokens |
 | `get` | an id (`vaul`) or a look (`apple`) | usage, agent note, adoption, use/avoid lists, alternatives | ~400 tokens |
 | `trending` | optional kind or framework | libraries gaining the most GitHub stars this week | ~250 tokens |

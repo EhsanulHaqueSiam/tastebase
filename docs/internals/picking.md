@@ -1,6 +1,6 @@
 # How picking works
 
-`pick(need)` scores every library for one job; `plan(brief)` chooses a base kit, then runs `pick` once per need.
+`pick(need)` scores every library for one job; `plan(brief)` chooses a base kit, then runs `pick` once per need, and again for each further job the brief names in a kind.
 
 ## Matching
 
@@ -106,13 +106,23 @@ it matched itself, and wins ties.
    (panelui's BottomSheet on React Native); when something does but none fits the job, nothing is. Unforced, the top
    three ranked kits each get a full plan and the highest total wins, so a chat app gets shadcn/ui with AI Elements,
    not Astryx's built-in chat.
-5. **Framework** is read from the brief with its negations cut out ("React, not Angular" is React), else React,
+5. **Several jobs in one kind.** Each phrase that asked for a kind ("carousel", "bottom sheet") belongs to the slot's
+   pick when the pick names it, else to the first library of the kind that names it (`pick` on the phrase alone, under
+   the same look and base), which gets its own line: a product page with a size-guide drawer gets embla-carousel and
+   vaul, a typewriter headline beside rolling prices use-scramble and number-flow. A phrase nothing names stays with
+   the slot's pick, so one job is never split. Extra jobs do not count toward choosing the base kit.
+6. **Framework** is read from the brief with its negations cut out ("React, not Angular" is React), else React,
    flagged as assumed. "Solid" names SolidJS only as `solidjs`, `solid-js` or `solid start`. Installs come from
    `installWith[base kit]` (BlockNote on shadcn/ui), then `installFor[framework]` (vue-sonner), then `install`;
    `install` in `format.ts` is the one resolver the MCP answer and the site's plan both use.
 
 Plan lines give the use case a library was picked for in place of its tagline (`get` has the rest), and a price only
-for mostly paid libraries.
+for mostly paid libraries. Each slot says why it is there: the brief's words it answers (`interaction (drawer) ->
+vaul`), or the look or site type that needs it (`background (the Cyberpunk look needs it)`); builders skipped a
+look's shader hero listed with no reason.
+Every specialist (not the base kit or icons) carries its `usage`, unindented, when its install is the default one:
+in the design eval, builders that got only an install command hand-wrote the part, and those that read the usage
+installed it.
 
 Registry text is parsed once per Worker (`parsed` cache): the first plan in an isolate costs about 7ms, later ones
 under 1ms.

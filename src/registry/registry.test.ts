@@ -30,8 +30,8 @@ test("entries sharing a repo or npm package mark all but one with partOf, so sta
 // A library that cannot be reached by the jobs it lists is dead weight, however good its entry reads. Every rival
 // is made to trend, so a library that only wins on a tie fails here before it fails for a user. Reached means offered
 // by pick, or by a plan as a pick or an alternative: a kit is a plan's base, not the answer to one job.
-// shortcut: 91 of the jobs libraries list do not offer them yet; the ceiling only goes down, lower it as rows are fixed.
-const STRANDED = 91;
+// shortcut: 90 of the jobs libraries list do not offer them yet; the ceiling only goes down, lower it as rows are fixed.
+const STRANDED = 90;
 test("every library is offered for the jobs it claims, even while its rivals trend", () => {
   const unreached: string[] = [];
   const stranded: string[] = [];

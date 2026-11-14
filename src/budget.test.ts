@@ -33,7 +33,11 @@ const EVERY_LOOK = [
 const BUDGET = {
   instructions: 325, // sent with every session that connects, whether or not it calls a tool; 25 of it tells agents their skill is stale
   schemas: 700, // every tool definition together, loaded when an agent first reaches for tastebase
-  plan: 1010, // raised from 800: a site type's build line (3D, motion-led, media-led) adds up to 115; the rules every look shares (brief first, never broken) add 60; the line that says to install the picks first adds 15
+  // raised from 800: a site type's build line (3D, motion-led, media-led) adds up to 115; the rules every look shares
+  // (brief first, never broken) add 60; the line that says to install the picks first adds 15. Raised from 1010: each
+  // specialist pick carries its usage, about 100 tokens each and 630 for this worst case of six, since builders that
+  // saw only an install hand-wrote the part; one `get` per pick would cost more. Each slot also says why it is there.
+  plan: 1660,
   pick: 250,
   get: 650, // raised from 550 for the cost line and parts list (capped); saves a docs fetch per library
 };

@@ -37,7 +37,7 @@ export function createServer(libs: Library[], looks: Aesthetic[], version: strin
   server.registerTool(
     "plan",
     {
-      description: "Call first for any page or screen, before writing it: detects the look from the brief, then returns one library per need with install commands, then the look's design rules.",
+      description: "Call first for any page or screen, before writing it: detects the look from the brief, then returns a library for each job with its install and usage, then the look's design rules.",
       inputSchema: {
         brief: z.string().describe("What is being built, in plain words, including any look: 'iOS-feel habit tracker with charts'"),
         framework: fw,

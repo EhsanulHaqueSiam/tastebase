@@ -469,7 +469,15 @@ function detectSite(brief: string): SiteType | undefined {
   return siteTypes.map((s) => ({ s, n: said(s) })).filter((x) => x.n > 0).sort((a, b) => b.n - a.n)[0]?.s;
 }
 
-export type PlanItem = { kind: Kind; pick?: Scored; alternatives: Scored[]; /** The base kit's part that covers it. */ part?: string };
+export type PlanItem = {
+  kind: Kind;
+  pick?: Scored;
+  alternatives: Scored[];
+  /** The base kit's part that covers it. */
+  part?: string;
+  /** The brief's words this pick answers ("bottom sheet"); unset for what the look added unasked. */
+  asked?: string;
+};
 export type Plan = {
   look: Aesthetic;
   lookGuessed: boolean;
@@ -539,7 +547,8 @@ const avoided = (look: Aesthetic) => {
   return new Set(BARE.filter(([, nouns]) => nouns.some((n) => items.has(words(n)))).map(([k]) => k));
 };
 
-/** One pick per need for a whole app brief: the base kit first, then each need ranked to fit that kit and the look. */
+/** Picks for a whole app brief: the base kit first, then one per job, ranked to fit that kit and the look. A kind holds
+ * several when the brief names several jobs in it ("a carousel and a drawer"). */
 export function plan(libs: Library[], looks: Aesthetic[], brief: string, opts: { framework?: Framework; look?: string } = {}): Plan {
   const { want, not } = negations(brief);
   const found = opts.look ? looks.filter((a) => a.id === opts.look) : detectLooks(looks, want);
@@ -606,42 +615,63 @@ export function plan(libs: Library[], looks: Aesthetic[], brief: string, opts: {
   for (const k of site?.drops ?? []) extras.delete(k);
   const needs = new Set([...asked, ...extras, "icons" as const]);
   const slotSaid = words(lookless(want, look));
+  // One kind can hold several jobs ("a photo carousel and a size-guide drawer"). Each phrase the slot's pick does not
+  // name gets the library of that kind that does, when there is one; a phrase nothing names stays with the slot's pick.
+  const jobs = (kind: Kind, items: PlanItem[], base: Library | undefined): PlanItem[] => {
+    const [first] = items;
+    if (!first?.pick || !asked.has(kind)) return items;
+    const phrases = [...new Set(want.match(QUOTE.get(kind)!) ?? [])];
+    const covers = (l: Library, m: string) => wordsOf(m).every((w) => namesIn(w, l));
+    const out: PlanItem[] = [{ ...first }];
+    const owner = new Map<string, PlanItem>();
+    for (const m of phrases) {
+      let it = out.find((i) => covers(i.pick!.lib, m));
+      const s = it ? undefined : pick(libs, m, { framework, look: tuned, kind, limit: 8, base }).find((s) => s.lib.kind === kind && covers(s.lib, m));
+      if (s && !out.some((i) => i.pick!.lib === s.lib)) out.push((it = { kind, pick: s, alternatives: [] }));
+      owner.set(m, it ?? out[0]!);
+    }
+    for (const it of out) it.asked = phrases.filter((m) => owner.get(m) === it).join(", ") || undefined;
+    return out;
+  };
   const slots = (layer: Library | undefined) => {
     const base = layer?.kind === "component-kit" ? layer : undefined;
-    return NEEDS.map(([k]) => k).filter((k) => needs.has(k) && k !== baseKind && !ruledOut.has(k)).flatMap((kind): PlanItem[] => {
-      // Under a kit we do not curate, shadcn registry items would drag in a second setup.
-      const r = pick(libs, brief, { framework, look: tuned, kind, limit: 8, base }).filter((s) => !(uncurated && viaShadcn(s.lib)));
-      // The project wins: a library the brief names for this job ("we use Tabler Icons") is the pick, like a named kit.
-      const mine = libs.find((l) => l.kind === kind && l.frameworks.includes(framework) && (slotSaid.includes(words(l.name)) || slotSaid.includes(words(l.id))));
-      if (mine) return [{ kind, pick: r.find((s) => s.lib === mine) ?? { lib: mine, score: 20, why: "named in the brief" }, alternatives: r.filter((s) => s.lib !== mine).slice(0, 2) }];
-      // Libraries built for this kind lead, unless they belong to another kit; kits that merely cover it follow.
-      // Among them, one whose tagline names what the brief asked for ("confetti") leads the look's general pick.
-      const asks = [...terms(quote(want, kind))];
-      const lead = (s: Scored) => 2 * Number(s.lib.kind === kind && !(base && offKit(s.lib, base))) + Number(names(asks, `${s.lib.tagline} ${s.why}`));
-      r.sort((x, y) => lead(y) - lead(x));
-      // The site type's picks lead their kinds whatever the look: a motion-led site scrubs with GSAP.
-      const first = site?.picks[kind];
-      if (first) r.sort((x, y) => rankIn(first, x.lib.id) - rankIn(first, y.lib.id));
-      // Prefer what the base kit already ships over an extra install, unless a specialist is made to pair with it. It
-      // must ship the thing asked for, not just the kind: Mantine's notifications are toasts, not confetti.
-      if (base?.alsoCovers?.includes(kind) && (!asks.length || namesIn(asks, base, true)) && !r.some((s) => s.lib.kind === kind && pairs(s.lib, base))) {
-        const ships = r.find((s) => s.lib === base) ?? { lib: base, score: 0, why: base.tagline };
-        return [{ kind, pick: ships, alternatives: r.filter((s) => s !== ships && lead(s) >= 2).slice(0, 2) }];
-      }
-      // The look's pick shuns the base kit (Phosphor under shadcn/ui): the base kit's own pairing for this kind leads,
-      // scored as the look's pick would have been on-kit (its -6 undone, +2 for pairing) so the stack is not docked.
-      const mate = base && r[0] && offKit(r[0].lib, base) ? libs.find((l) => l.kind === kind && l.frameworks.includes(framework) && base.pairsWith?.includes(l.id)) : undefined;
-      if (mate) return [{ kind, pick: { lib: mate, score: r[0]!.score + 8, why: `pairs with ${base!.name}` }, alternatives: r.slice(0, 2) }];
-      if (r[0]) return [{ kind, pick: r[0], alternatives: r.slice(1, 3) }];
-      if (!asked.has(kind)) return []; // the look added it, but nothing it picks runs on this framework (glass on React Native)
-      // Nothing curated runs on this framework; the base kit may ship the part (panelui's BottomSheet on React Native).
-      // When something does but none fits the job (a gantt chart), the kit's generic part does not either.
-      const gap = !libs.some((l) => l.kind === kind && l.frameworks.includes(framework));
-      const part = gap && layer && kitParts([layer], quote(want, kind), { framework })[0]?.part;
-      return [part ? { kind, pick: { lib: layer, score: 0, why: part }, alternatives: [], part } : { kind, alternatives: [] }];
-    });
+    return NEEDS.map(([k]) => k).filter((k) => needs.has(k) && k !== baseKind && !ruledOut.has(k)).flatMap((kind) => jobs(kind, slot(kind, layer, base), base));
   };
-  const total = (b: Scored | undefined, items: PlanItem[]) => (b?.score ?? 0) + items.reduce((n, i) => n + (i.pick?.score ?? 0), 0);
+  // The best pick for one kind under this base layer, with its alternatives.
+  const slot = (kind: Kind, layer: Library | undefined, base: Library | undefined): PlanItem[] => {
+    // Under a kit we do not curate, shadcn registry items would drag in a second setup.
+    const r = pick(libs, brief, { framework, look: tuned, kind, limit: 8, base }).filter((s) => !(uncurated && viaShadcn(s.lib)));
+    // The project wins: a library the brief names for this job ("we use Tabler Icons") is the pick, like a named kit.
+    const mine = libs.find((l) => l.kind === kind && l.frameworks.includes(framework) && (slotSaid.includes(words(l.name)) || slotSaid.includes(words(l.id))));
+    if (mine) return [{ kind, pick: r.find((s) => s.lib === mine) ?? { lib: mine, score: 20, why: "named in the brief" }, alternatives: r.filter((s) => s.lib !== mine).slice(0, 2) }];
+    // Libraries built for this kind lead, unless they belong to another kit; kits that merely cover it follow.
+    // Among them, one whose tagline names what the brief asked for ("confetti") leads the look's general pick.
+    const asks = [...terms(quote(want, kind))];
+    const lead = (s: Scored) => 2 * Number(s.lib.kind === kind && !(base && offKit(s.lib, base))) + Number(names(asks, `${s.lib.tagline} ${s.why}`));
+    r.sort((x, y) => lead(y) - lead(x));
+    // The site type's picks lead their kinds whatever the look: a motion-led site scrubs with GSAP.
+    const first = site?.picks[kind];
+    if (first) r.sort((x, y) => rankIn(first, x.lib.id) - rankIn(first, y.lib.id));
+    // Prefer what the base kit already ships over an extra install, unless a specialist is made to pair with it. It
+    // must ship the thing asked for, not just the kind: Mantine's notifications are toasts, not confetti.
+    if (base?.alsoCovers?.includes(kind) && (!asks.length || namesIn(asks, base, true)) && !r.some((s) => s.lib.kind === kind && pairs(s.lib, base))) {
+      const ships = r.find((s) => s.lib === base) ?? { lib: base, score: 0, why: base.tagline };
+      return [{ kind, pick: ships, alternatives: r.filter((s) => s !== ships && lead(s) >= 2).slice(0, 2) }];
+    }
+    // The look's pick shuns the base kit (Phosphor under shadcn/ui): the base kit's own pairing for this kind leads,
+    // scored as the look's pick would have been on-kit (its -6 undone, +2 for pairing) so the stack is not docked.
+    const mate = base && r[0] && offKit(r[0].lib, base) ? libs.find((l) => l.kind === kind && l.frameworks.includes(framework) && base.pairsWith?.includes(l.id)) : undefined;
+    if (mate) return [{ kind, pick: { lib: mate, score: r[0]!.score + 8, why: `pairs with ${base!.name}` }, alternatives: r.slice(0, 2) }];
+    if (r[0]) return [{ kind, pick: r[0], alternatives: r.slice(1, 3) }];
+    if (!asked.has(kind)) return []; // the look added it, but nothing it picks runs on this framework (glass on React Native)
+    // Nothing curated runs on this framework; the base kit may ship the part (panelui's BottomSheet on React Native).
+    // When something does but none fits the job (a gantt chart), the kit's generic part does not either.
+    const gap = !libs.some((l) => l.kind === kind && l.frameworks.includes(framework));
+    const part = gap && layer && kitParts([layer], quote(want, kind), { framework })[0]?.part;
+    return [part ? { kind, pick: { lib: layer, score: 0, why: part }, alternatives: [], part } : { kind, alternatives: [] }];
+  };
+  // A kind's extra jobs do not count: a base kit is judged by its best pick per kind, not by how many jobs a kind has.
+  const total = (b: Scored | undefined, items: PlanItem[]) => (b?.score ?? 0) + items.reduce((n, i, j) => n + (items.findIndex((x) => x.kind === i.kind) === j ? i.pick?.score ?? 0 : 0), 0);
   let baseItem = chosenItem;
   let items = slots(chosenItem.pick?.lib);
   // Unforced, choose the base by the whole stack it leads to: a kit that wins on its own words but strands the

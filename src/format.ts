@@ -112,7 +112,7 @@ export function formatPlan(p: Plan): string {
     `look: ${lookName(p.look)}${p.lookGuessed ? "; none named in the brief, so defaulted: pass look to change" : ""}${p.also.length ? `; also fits: ${p.also.map((a) => a.id).join(", ")}` : ""}`,
     `framework: ${p.framework}${p.frameworkGuessed ? " (assumed; pass framework)" : ""}`,
     ...(p.skipped.length ? [`left out (brief said no): ${p.skipped.join(", ")}`] : []),
-    "install these first, then adapt them to the rules below; hand-write only the gaps",
+    "install these first and build each part the brief asks for with its pick (usage under it), then adapt them to the rules below; hand-write only the gaps",
   ];
   // shadcn registry installs fail on a fresh app until init has run; say it once, non-interactively.
   const init = firstStep(p);
@@ -124,7 +124,17 @@ export function formatPlan(p: Plan): string {
     else if (!it.pick)
       out.push(`${it.kind} -> ${emptySlot(p, it.kind)}`);
     else if (i > 0 && it.pick.lib === base) out.push(`${it.kind} -> ${base.id}: the base kit ships it${it.part ? ` (${it.part})` : ""}${rest}`);
-    else out.push(`${it.pick.lib.addOn ? `add-on for ${base?.id ?? "the kit"}` : it.kind} -> ${planLine(it.pick, p.framework, base)}${rest}`);
+    else {
+      // Why the slot is there: the brief's words, or the look or site that needs it. Builders skipped a look's shader
+      // hero that the plan listed with no reason, as if it were optional.
+      const why = i === 0 ? undefined : it.asked ?? ((p.site?.needs.includes(it.kind) && `a ${p.site.name} needs it`) || (p.look.needs?.includes(it.kind) && `the ${p.look.name} look needs it`) || undefined);
+      out.push(`${it.pick.lib.addOn ? `add-on for ${base?.id ?? "the kit"}` : it.kind}${why ? ` (${why})` : ""} -> ${planLine(it.pick, p.framework, base)}${rest}`);
+      // Each specialist brings its usage: builders that saw only an install hand-wrote the part instead. Not the base kit
+      // or icons, which every builder installs or knows. The usage is written for the default install; another
+      // framework's or kit's package has its own API (vue-sonner, @blocknote/shadcn). Its indentation and blank lines
+      // go: they were a quarter of it.
+      if (i > 0 && it.kind !== "icons" && install(it.pick.lib, p.framework, base) === it.pick.lib.install) out.push(it.pick.lib.usage.split("\n").flatMap((l) => (l.trim() ? [`  ${l.trim()}`] : [])).join("\n"));
+    }
   }
   out.push(
     "",

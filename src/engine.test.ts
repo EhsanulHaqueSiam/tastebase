@@ -370,7 +370,7 @@ const GOLDEN: Golden[] = [
   ["Landing page for a cyberpunk racing game.", "cyberpunk", "base-ui", "primitives background icons", { background: "paper-shaders" }],
   ["Admin dashboard for a logistics company: a KPI row, a shipments table and one chart.", "corporate", "mantine", "component-kit charts tables icons", { charts: "recharts", tables: "tanstack-table" }],
   ["Landing page for Relay, an email API for developers, with a code sample.", "technical", "shadcn-ui", "component-kit code icons", { code: "shiki" }],
-  ["Product page for a fine jewellery house's new ring collection.", "luxury", "base-ui", "primitives motion interaction icons", { motion: "gsap", interaction: "embla-carousel" }],
+  ["Product page for a fine jewellery house's new ring collection, with a size guide that opens in a drawer.", "luxury", "base-ui", "primitives motion interaction interaction icons", { motion: "gsap", interaction: "embla-carousel" }],
   ["Home screen for a meditation app with a breathing exercise.", "organic", "shadcn-ui", "component-kit motion icons", { motion: "motion" }],
   ["Stats page for a podcast host: downloads over time as a chart, the top episodes, a command menu on cmd+k to jump between shows, and a toast when a report is exported.", "?", "shadcn-ui", "component-kit text-effects feedback command charts icons", { "text-effects": "number-flow", feedback: "sonner", command: "cmdk", charts: "recharts" }],
   ["Support chat for a bank's app: an assistant that streams its answers, suggested first questions, and a thumbs up or down on each answer.", "?", "shadcn-ui", "component-kit agent-ui icons", { "agent-ui": "prompt-kit" }],
@@ -387,6 +387,31 @@ test("golden briefs get what a senior design engineer would pick", () => {
     const lookPicks = new Set(Object.values(p.look.picks).flat());
     assert.deepEqual(shown.filter((l) => never.includes(l.id) || (l.themed && !lookPicks.has(l.id)) || !l.frameworks.includes(p.framework)).map((l) => l.id), [], `${brief}: shown`);
   }
+});
+
+// A kind holds one pick per job the brief names in it, each the library that names that job; one job stays one pick.
+test("a kind holds a pick for each job the brief names in it", () => {
+  for (const [brief, kind, ids] of [
+    ["Product page for a ring collection: a photo carousel and a size guide in a bottom sheet.", "interaction", "embla-carousel vaul"],
+    ["Kanban board with drag and drop cards and a drawer for card details", "interaction", "dnd-kit vaul"],
+    ["Habit app with confetti when a goal is done and a toast when a habit is saved", "feedback", "sonner canvas-confetti"],
+    ["Landing page with a typewriter headline and animated price counters", "text-effects", "number-flow use-scramble"],
+    ["a command menu on cmd+k to jump between shows", "command", "cmdk"],
+    ["Lesson-complete screen for a kids' spelling game: the stars earned, the streak, and a button to start the next lesson.", "feedback", "canvas-confetti"],
+  ] as const) {
+    const items = plan(libraries, aesthetics, brief).items.filter((i) => i.kind === kind);
+    assert.deepEqual(items.map((i) => i.pick?.lib.id), ids.split(" "), brief);
+    assert.ok(items.every((i) => i.asked), `${brief}: each says what it answers`);
+  }
+});
+
+test("a plan shows each specialist's usage, written for the package it installs", () => {
+  const technical = formatPlan(plan(libraries, aesthetics, "Landing page for Relay, an email API for developers, with a code sample."));
+  assert.match(technical, /^code \(code sample\) -> shiki: .*\n {2}import .*\n {2}import \{ codeToHtml \} from 'shiki\/bundle\/web'/m);
+  assert.doesNotMatch(technical, /lucide-react'/); // icons need no usage
+  assert.doesNotMatch(formatPlan(plan(libraries, aesthetics, "vue admin app with toasts")), /from 'sonner'/); // vue-sonner's own API
+  // A slot the brief never asked for says what needs it, so it does not read as optional.
+  assert.match(formatPlan(plan(libraries, aesthetics, "Landing page for a cyberpunk racing game.")), /^background \(the Cyberpunk look needs it\) -> paper-shaders/m);
 });
 
 // What carries the page is separate from its look: its picks lead their kinds, and what fights it is left out.
