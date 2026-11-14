@@ -1,5 +1,5 @@
-import { ArrowRight, Sparkles } from "lucide-react";
-import { CopyButton, Magnetic, Rise } from "./fx.tsx";
+import { Sparkles } from "lucide-react";
+import { ArrowLink, CopyButton, Magnetic, Rise } from "./fx.tsx";
 
 /** Install section: hosted MCP first (no install), npx as the offline option, and a real plan answer. */
 export default function Setup({ commands, sample }: { commands: string[]; sample: string }) {
@@ -23,9 +23,7 @@ export default function Setup({ commands, sample }: { commands: string[]; sample
           </p>
           <div className="mt-6">
             <Magnetic>
-              <a href="/browse" className="sweep press inline-flex h-11 items-center gap-2 rounded-xl bg-fg px-5 font-medium text-black hover:shadow-[0_0_0_5px_rgb(255_255_255/0.1)]">
-                Browse the shelf <ArrowRight size={16} />
-              </a>
+              <ArrowLink solid href="/browse" className="h-11">Browse the shelf</ArrowLink>
             </Magnetic>
           </div>
         </Rise>

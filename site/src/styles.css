@@ -22,6 +22,9 @@
   --font-serif: "Instrument Serif", ui-serif, Georgia, serif;
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-io: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-quart: cubic-bezier(0.165, 0.84, 0.44, 1);
+  /* spring with ~8% overshoot, sampled for CSS; use with 800ms */
+  --spring: linear(0, 0.024, 0.086, 0.174, 0.278, 0.388, 0.5, 0.606, 0.704, 0.791, 0.866, 0.929, 0.979, 1.018, 1.047, 1.066, 1.078, 1.083, 1.083, 1.079, 1.073, 1.065, 1.056, 1.047, 1.037, 1.029, 1.021, 1.014, 1.009, 1.004, 1, 0.997, 0.995, 0.994, 0.993, 0.993, 0.993, 0.994, 0.995, 0.997, 1);
 }
 
 html { background: #000; color: var(--color-fg); color-scheme: dark; }
@@ -77,3 +80,53 @@ body { font-family: var(--font-sans); font-size: 14px; line-height: 1.5; -webkit
 .rise > *:nth-child(2) { animation-delay: 40ms; } .rise > *:nth-child(3) { animation-delay: 80ms; }
 .rise > *:nth-child(4) { animation-delay: 120ms; } .rise > *:nth-child(n + 5) { animation-delay: 160ms; }
 @keyframes rise { from { opacity: 0; transform: translateX(8px); } }
+
+/* Header hover pill: one pill glides to the hovered nav link (positioned by the script in Base.astro). */
+[data-nav-pill] {
+  position: absolute; left: 0; top: 0; width: 0; height: 0; border-radius: 8px; background: var(--color-s3); opacity: 0; pointer-events: none;
+  transition: transform 590ms var(--ease-quart), width 590ms var(--ease-quart), height 590ms var(--ease-quart), opacity 200ms ease-out;
+}
+[data-nav-pill][data-instant] { transition: opacity 200ms ease-out; }
+
+/* Arrow button (ArrowLink in fx.tsx): on hover the arrow leaves right, a new one enters left, the label moves over. */
+.cta { --d: 620ms; --e: cubic-bezier(0.2, 1, 0.25, 1); position: relative; display: inline-flex; align-items: center; overflow: hidden; isolation: isolate; border-radius: 999px; padding: 0 40px 0 18px; font-weight: 500; transition: transform 160ms var(--ease-out); }
+.cta:active { transform: scale(0.97); }
+.cta > * { transition: transform var(--d) var(--e); }
+.cta > i { position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: var(--cta-bg); transition: transform var(--d) var(--e), background-color var(--d) var(--e); }
+.cta > svg { position: absolute; top: 50%; }
+.cta > svg:first-of-type { left: 0; transform: translate(-100%, -50%); }
+.cta > svg:last-of-type { right: 0; transform: translate(-18px, -50%); transition-delay: 80ms; }
+@media (hover: hover) and (pointer: fine) {
+  .cta:hover > i { background: var(--cta-hover); transform: scaleY(0.955); }
+  .cta:hover > span { transform: translateX(22px); }
+  .cta:hover > svg:first-of-type { transform: translate(18px, -50%); }
+  .cta:hover > svg:last-of-type { transform: translate(100%, -50%); transition-delay: 0ms; }
+}
+
+/* Page entry, once per page load: the header fades in from blur, titles rise out of blur, then content rises in. */
+body > header > * { animation: blur-in 900ms var(--ease-quart) backwards; }
+.enter { animation: enter 900ms var(--ease-quart) backwards; }
+.enter-late { animation: enter-late 800ms var(--spring) 360ms backwards; }
+.stagger > * { animation: enter-late 800ms var(--spring) backwards; animation-delay: 360ms; }
+.stagger > :nth-child(2) { animation-delay: 400ms; } .stagger > :nth-child(3) { animation-delay: 440ms; }
+.stagger > :nth-child(4) { animation-delay: 480ms; } .stagger > :nth-child(n + 5) { animation-delay: 520ms; }
+@keyframes blur-in { from { opacity: 0; filter: blur(7px); } }
+@keyframes enter { from { opacity: 0; filter: blur(7px); transform: translateY(20px); } }
+@keyframes enter-late { from { opacity: 0; transform: translateY(32px); } }
+
+/* Shelf card quick actions: shown on hover or focus where there is hover, always on touch, in place of the kind label. */
+@media (hover: hover) {
+  .card-acts { opacity: 0; transition: opacity 300ms var(--ease-out); }
+  .group:hover .card-acts, .card-acts:focus-within { opacity: 1; }
+  .card-kind { transition: opacity 200ms; }
+  .group:hover .card-kind, .group:has(.card-acts:focus-within) .card-kind { opacity: 0; }
+}
+@media (hover: none) { .card-kind { display: none; } }
+
+/* Header search (HeaderSearch.tsx): grows on a spring, panes swap through a blur. */
+.island { position: relative; height: 34px; width: 36px; border-radius: 10px; overflow: clip; background: rgb(255 255 255 / 0.05); box-shadow: inset 0 0 0 1px var(--color-line); backdrop-filter: blur(12px); transition: width 800ms var(--spring), box-shadow 200ms var(--ease-quart); }
+@media (min-width: 640px) { .island { width: 116px; } }
+.island:hover { box-shadow: inset 0 0 0 1px var(--color-line2); }
+.island[data-open] { width: min(420px, 42vw); box-shadow: inset 0 0 0 1px rgb(91 124 255 / 0.6), 0 0 0 4px rgb(91 124 255 / 0.12); }
+.island-pane { position: absolute; inset: 0; display: flex; align-items: center; gap: 8px; font-size: 13px; white-space: nowrap; border-radius: inherit; transition: opacity 500ms var(--ease-quart), filter 500ms var(--ease-quart); }
+.island[data-open] > button, .island:not([data-open]) > label { opacity: 0; filter: blur(6px); pointer-events: none; }

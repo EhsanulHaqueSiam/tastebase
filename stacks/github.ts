@@ -26,13 +26,14 @@ export default Alchemy.Stack(
   Effect.gen(function* () {
     const { accountId } = yield* yield* Cloudflare.CloudflareEnvironment;
 
-    // Only what alchemy.run.ts needs: Workers with assets, cron, KV and logs, plus the remote state store.
+    // Only what alchemy.run.ts needs: Workers with assets, cron, KV and logs, plus the remote state store
+    // (its auth token sits in the Secrets Store; binding it into the preview worker that reads it needs Write).
     const ci = yield* Cloudflare.ApiToken.AccountApiToken("CIToken", {
       accountId,
       policies: [
         {
           effect: "allow",
-          permissionGroups: ["Workers Scripts Write", "Workers KV Storage Write", "Account Settings Write", "Workers Tail Read"],
+          permissionGroups: ["Workers Scripts Write", "Workers KV Storage Write", "Account Settings Write", "Workers Tail Read", "Secrets Store Write"],
           resources: { [`com.cloudflare.api.account.${accountId}`]: "*" },
         },
       ],

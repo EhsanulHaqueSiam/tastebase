@@ -30,7 +30,7 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
 
 <Base title="Atlas · tastebase" description="Every library grouped by look: what looks alike sits together, with what is free and what each one ships.">
   <div class="atlas mx-auto max-w-[1240px] px-4 pt-20 pb-24" data-view="islands">
-    <div class="flex flex-wrap items-end justify-between gap-3">
+    <div class="enter flex flex-wrap items-end justify-between gap-3">
       <div>
         <h1 class="text-[22px] font-semibold tracking-[-0.02em]">Atlas</h1>
         <p class="mt-1 text-[13.5px] text-fg2">Libraries grouped by look. Close together means they look alike.</p>
@@ -47,7 +47,7 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
       </div>
     </div>
 
-    <nav class="tabs" aria-label="Category">
+    <nav class="tabs enter" aria-label="Category" style="animation-delay: 80ms">
       {views.map((v) => <a href={`#${v.id}`} data-tab={v.id}>{v.label}<small>{v.libs.length}</small></a>)}
       <a href="#resources" data-tab="resources" class="sm:ml-auto">Resources<small>{resources.length}</small></a>
     </nav>
