@@ -65,7 +65,7 @@ exports[`picks only move on purpose 1`] = `
   "smooth scrolling => lenis",
   "show a notification => sonner, react-hot-toast, bencho",
   "copy to clipboard button => coss-ui, smoothui, torph",
-  "rich text editor => tiptap, blocknote",
+  "rich text editor => tiptap",
   "video player => none"
 ]
 `;

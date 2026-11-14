@@ -112,7 +112,7 @@ export function firstStep(p: Plan): string | undefined {
 
 /** What to do with a slot nothing curated fills: the look's own "no library", a framework gap, or a job we do not cover. */
 export const emptySlot = (p: Plan, kind: Kind) =>
-  p.look.picks[kind]?.length === 0 ? "no library in this look: plain CSS" : DIY[p.framework] ? `none curated for ${p.framework}; build it with ${DIY[p.framework]}` : "none curated for this; use a dedicated library or build it";
+  p.look.picks[kind]?.length === 0 ? "no library in this look: plain CSS" : kind === "motion" && !p.look.picks.motion ? "no motion library in this look: CSS transitions, as its motion rule says" : DIY[p.framework] ? `none curated for ${p.framework}; build it with ${DIY[p.framework]}` : "none curated for this; use a dedicated library or build it";
 
 /** Phone screens: kit defaults (32px buttons, 16px checkboxes) fail touch, and the keyboard covers the field. */
 export const MOBILE = "tap targets 44px or more (kit defaults are often 32px; size up buttons, checkboxes, toolbar icons), inputs 16px+ so iOS does not zoom, keep the focused field above the keyboard (viewport meta interactive-widget=resizes-content on the web)";

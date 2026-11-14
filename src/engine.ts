@@ -88,6 +88,9 @@ const matched = ({ ws, all }: Job, text: string, shared = overlap(all, text)) =>
   for (const [w, ...syn] of ws) if (t.has(w!) || syn.some((a) => raw.includes(a))) n++;
   return Math.min(n, shared);
 };
+// A use case without what it rules out: "projects that avoid Tailwind entirely" is no reason for a Tailwind brief.
+const uses = new WeakMap<Library, string[]>();
+const usesOf = (l: Library) => uses.get(l) ?? uses.set(l, l.useFor.map((u) => negations(u).want)).get(l)!;
 // The situation each avoid line describes: the text before its colon, not the alternative it names.
 const situations = new WeakMap<Library, string[]>();
 // Negated words describe what the situation lacks ("no Tailwind in the stack"), so a brief that says Tailwind is no match.
@@ -264,11 +267,12 @@ export function pick(
     if (!foundation && !named && wholeKit(lib) && lib !== opts.base && !hits.has("component-kit")) continue;
     const picked = !!look && [...(slot ? [slot] : hits)].some((k) => look.picks[k]?.includes(lib.id));
     let best = "", bestN = 0, sum = 0, bestW = 0;
-    for (const u of lib.useFor) {
-      const n = overlap(q, u);
+    for (const [k, u] of lib.useFor.entries()) {
+      const t = usesOf(lib)[k]!;
+      const n = overlap(q, t);
       sum += n;
       if (n > bestN) [best, bestN] = [u, n];
-      if (n > bestW) bestW = Math.max(bestW, matched(qW, u, n)); // never above n, q's term overlap
+      if (n > bestW) bestW = Math.max(bestW, matched(qW, t, n)); // never above n, q's term overlap
     }
     const fit = Math.max(bestW, matched(qW, lib.tagline)); // job words its best use case or tagline names
     const kindFit = hits.has(lib.kind) ? (hits.size > 1 ? (lib.kind === (slot ?? lead) ? 6 : -1) : 4) : lib.alsoCovers?.some((k) => hits.has(k)) ? 1.5 : 0;
@@ -653,7 +657,7 @@ export function plan(libs: Library[], looks: Aesthetic[], brief: string, opts: {
   // Of several, the one the brief names by its id ("Windows XP" -> xp-css over 98-css), else one whose use cases it
   // clearly describes ("a coding-agent CLI in Ink" -> termcn over webtui), else the first.
   const ws = jobOf(want);
-  const describes = (l: Library) => Math.max(0, ...l.useFor.map((u) => matched(ws, u)));
+  const describes = (l: Library) => Math.max(0, ...usesOf(l).map((u) => matched(ws, u)));
   const avoids = (l: Library) => avoidance(l, ws, 1).n;
   const fitting = (ownKind && !uncurated ? look.picks[ownKind]! : [])
     .flatMap((id) => libs.filter((l) => l.id === id && l.frameworks.includes(framework) && !isEffectsKit(l)))
