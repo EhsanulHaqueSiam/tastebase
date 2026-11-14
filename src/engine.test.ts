@@ -73,7 +73,7 @@ test("plans add what the brief and the look call for, and the defaults every pag
     assert.ok(!p.background && p.motion === "motion", brief);
   }
   assert.equal(picks("admin dashboard", undefined, "corporate").motion, undefined); // a look with no motion library: CSS
-  assert.equal(picks("habit tracker for phones").interaction, "vaul"); // a phone screen's gestures
+  assert.equal(picks("habit tracker for phones").interaction, undefined); // motion does its gestures; a sheet library needs a sheet
   // No shader just for being a landing page (the AI look); a look whose backdrop is the point adds one.
   for (const brief of ["marketing site", "landing page", "crypto portfolio tracker"]) assert.equal(picks(brief).background, undefined, brief);
   assert.equal(picks("landing page like stripe").background, "paper-shaders"); // mesh gradient
@@ -348,7 +348,7 @@ const GOLDEN: Golden[] = [
   ["plain html government service page", "civic", "govuk-frontend", "component-kit icons"],
   ["vanilla js landing page with a shader hero", "?", "*", "component-kit motion background icons", { background: "paper-shaders" }],
   // From building real screens with the shipped skill: one kit, a chart when spending is broken down.
-  ["Notes app on mobile with a Notion-like editor, minimal. Vite + React + Tailwind.", "document", "shadcn-ui", "component-kit motion interaction editor icons", { editor: "blocknote" }],
+  ["Notes app on mobile with a Notion-like editor, minimal. Vite + React + Tailwind.", "document", "shadcn-ui", "component-kit motion editor icons", { editor: "blocknote" }],
   ["admin panel with no tailwind, charts and toasts", "corporate", "mantine", "component-kit feedback charts icons"], // "no Tailwind" is shadcn/ui's own avoid line
   ["Budgeting app home screen for a neobank: balance, spending by category, recent transactions.", "fintech", "shadcn-ui", "component-kit text-effects charts icons", { charts: "recharts", "text-effects": "number-flow" }],
   ["pricing page with a plan breakdown", "?", "shadcn-ui", "component-kit motion icons"],

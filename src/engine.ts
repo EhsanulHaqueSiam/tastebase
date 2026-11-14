@@ -129,7 +129,7 @@ export function negations(brief: string): { want: string; not: string } {
 // Brief words -> the kinds of library an app needs. Order is the order needs are reported in.
 const NEEDS: [Kind, RegExp][] = [
   ["motion", /\b(animat|motion|transition|spring|micro.?interaction|delight|breath|inhale|exhale)/], // not "smooth": a smooth checkout is frictionless, not animated
-  ["text-effects", /\b(morph|text effect|scramble|typewriter|typing|counters?\b|(?<!phone )numbers?\b|prices?\b|stats?\b|balances?\b|ticker|copy button|streaks?\b)/], // not "score": a score gauge is a chart
+  ["text-effects", /\b(morph|text effect|scramble|typewriter|typing|counters?\b|(?<!phone )numbers?\b|prices?\b|stats?\b|balances?\b|ticker|copy button|streaks?\b|monthly (?:and|or|\/) (?:yearly|annual)|pricing (?:toggle|switch))/], // not "score": a score gauge is a chart
   ["interaction", /\b(drawer|sheet|bottom.?sheet|carousel|slider|swipe|gesture|drag|sortable|reorder|kanban|lookbook|lightbox|product page)/], // not "gallery": controls over one can be glass
   ["feedback", /\b(toast|notification|snackbar|alert|skeleton|loading|loader|spinner|confetti|celebrat|(?:lesson|level|quiz|course|workout) complete|stars? earned|achievement)/], // not "progress": a progress bar is a kit part
   ["command", /\b(command|cmd.?k|spotlight|quick search|search palette)|⌘k/],
@@ -549,9 +549,6 @@ const avoided = (look: Aesthetic) => {
   return new Set(BARE.filter(([, nouns]) => nouns.some((n) => items.has(words(n)))).map(([k]) => k));
 };
 
-// The job a default kind is filled for when the look picks nothing for it.
-const DEFAULT_JOB: Partial<Record<Kind, string>> = { interaction: "a bottom sheet that follows the finger and swipes away" };
-
 // Kit parts a page's sections call for: what in the brief asks, then the parts, each as the names kits give the same
 // part ("Input|Text Field"); the first the base kit ships is taken.
 const SECTIONS: [RegExp, string[]][] = [
@@ -654,11 +651,17 @@ export function plan(libs: Library[], looks: Aesthetic[], brief: string, opts: {
   // An alternative base its own avoidWhen warns about is no alternative ("US government": not govuk-frontend).
   // Nor an add-on (audiocn's players and meters): it sits on a kit. One that fits the brief best gets its own line.
   const kits = kit || uncurated ? [] : pick(libs, brief, { framework, look, kind: baseKind, limit: 8 });
-  const ranked = kits.filter((s) => s.lib !== chosen && !paywalled(s.lib) && !s.lib.addOn && !(chosen && s.caution));
+  // An experimental kit (boardui) goes behind proven ones unless the look picks it: "dashboard" made a new copy-in kit
+  // the base over shadcn/ui, and builders could not run its CLI.
+  const proven = (s: Scored) => s.lib.maturity !== "experimental" || !!look.picks[baseKind]?.includes(s.lib.id);
+  const fitKits = kits.filter((s) => s.lib !== chosen && !paywalled(s.lib) && !s.lib.addOn && !(chosen && s.caution));
+  const ranked = [...fitKits].sort((a, b) => Number(proven(b)) - Number(proven(a)));
+  // It is still offered, as an alternative in its fit order.
+  const others = (s?: Scored) => fitKits.filter((x) => x !== s).slice(0, 2);
   const addOn: PlanItem[] = kits[0]?.lib.addOn ? [{ kind: baseKind, pick: kits[0], alternatives: [] }] : [];
   const chosenItem: PlanItem = chosen
-    ? { kind: baseKind, pick: { lib: chosen, score: 0, why: kit ? "named in the brief" : "look's own kit" }, alternatives: ranked.slice(0, 2) }
-    : { kind: baseKind, pick: ranked[0], alternatives: ranked.slice(1, 3) };
+    ? { kind: baseKind, pick: { lib: chosen, score: 0, why: kit ? "named in the brief" : "look's own kit" }, alternatives: others() }
+    : { kind: baseKind, pick: ranked[0], alternatives: others(ranked[0]) };
 
   // Saying no to the kind itself ("without charts", "no animation") rules it out. Saying no to one technique while
   // asking for the kind in other words ("soft gradients, no shaders") keeps the slot; pick drops the shaders.
@@ -668,11 +671,10 @@ export function plan(libs: Library[], looks: Aesthetic[], brief: string, opts: {
   // What the look adds unasked (glass adds a backdrop), minus what its own rules avoid (Memphis is flat: no shader). A
   // page gets no shader just for being a landing page, and a 3D scene is the page's one showpiece: no backdrop with it.
   const extras = new Set<Kind>(look.needs);
-  // Defaults every page gets: motion where the user acts (presses, menus, sheets, entrances), with the look's own
-  // motion library, unless the look has none (corporate, civic: CSS transitions only); and on a phone screen, gestures
-  // (sheets and lists that follow the finger).
+  // A default every page gets: motion where the user acts (presses, drags, menus, entrances), with the look's own
+  // motion library, unless the look has none (corporate, civic: CSS transitions only). It covers gestures too; a sheet
+  // or carousel library comes only with a part that asks for one: builders never used one added for a phone screen.
   if (look.picks.motion?.length) extras.add("motion");
-  if (mobile) extras.add("interaction");
   for (const k of avoided(look)) extras.delete(k);
   if (asked.has("3d")) extras.delete("background");
   // A site type adds what carries it (a motion-led site scrubs and smooths scroll) whatever the look's motion rule, and
@@ -705,10 +707,8 @@ export function plan(libs: Library[], looks: Aesthetic[], brief: string, opts: {
   };
   // The best pick for one kind under this base layer, with its alternatives.
   const slot = (kind: Kind, layer: Library | undefined, base: Library | undefined): PlanItem[] => {
-    // Under a kit we do not curate, shadcn registry items would drag in a second setup. A default the look picks nothing
-    // for is filled for its usual job (a phone screen's gestures: a sheet that follows the finger).
-    const job = !asked.has(kind) && !tuned.picks[kind]?.length && DEFAULT_JOB[kind];
-    const r = pick(libs, job || brief, { framework, look: tuned, kind, limit: 8, base }).filter((s) => !(uncurated && viaShadcn(s.lib)));
+    // Under a kit we do not curate, shadcn registry items would drag in a second setup.
+    const r = pick(libs, brief, { framework, look: tuned, kind, limit: 8, base }).filter((s) => !(uncurated && viaShadcn(s.lib)));
     // The project wins: a library the brief names for this job ("we use Tabler Icons") is the pick, like a named kit.
     const mine = libs.find((l) => l.kind === kind && l.frameworks.includes(framework) && (slotSaid.includes(words(l.name)) || slotSaid.includes(words(l.id))));
     if (mine) return [{ kind, pick: r.find((s) => s.lib === mine) ?? { lib: mine, score: 20, why: "named in the brief" }, alternatives: r.filter((s) => s.lib !== mine).slice(0, 2) }];
@@ -745,9 +745,10 @@ export function plan(libs: Library[], looks: Aesthetic[], brief: string, opts: {
   // Unforced, choose the base by the whole stack it leads to: a kit that wins on its own words but strands the
   // best specialist for the brief's main job (Astryx vs assistant-ui for a chat app) loses to one that pairs.
   if (!chosen && !uncurated && baseKind === "component-kit")
-    for (const [i, cand] of ranked.slice(1, 3).entries()) {
+    for (const cand of ranked.slice(1, 3)) {
+      if (!proven(cand)) continue;
       const alt = slots(cand.lib);
-      if (total(cand, alt) > total(baseItem.pick, items)) [baseItem, items] = [{ kind: baseKind, pick: cand, alternatives: ranked.filter((_, j) => j !== i + 1).slice(0, 2) }, alt];
+      if (total(cand, alt) > total(baseItem.pick, items)) [baseItem, items] = [{ kind: baseKind, pick: cand, alternatives: others(cand) }, alt];
     }
   if (baseItem.pick) baseItem = { ...baseItem, components: kitComponents(baseItem.pick.lib, lookless(want, look), items) };
   return {

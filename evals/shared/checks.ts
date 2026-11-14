@@ -91,8 +91,14 @@ for (const l of libraries) for (const p of new Set(pairs(l))) counts.set(p, (cou
 const packageOf = (from: string) => from.split("/").slice(0, from.startsWith("@") ? 2 : 1).join("/");
 // Only the library's own code can sign for it: a copied-in path, its package or scope, or a package its install
 // names. `useEffect` from react, unique to one usage, is still in nearly every page.
+const STOCK = new Set(libraries.find((l) => l.id === "shadcn-ui")?.parts?.free.map((p) => p.toLowerCase().replace(/\s+/g, "-")));
+// A stock shadcn/ui part's path (`@/components/ui/card`) is shadcn/ui's unless the library's own install adds that part.
+const stockOf = (l: Library, from: string) => {
+  const part = /^@\/components\/ui\/([\w-]+)$/.exec(from)?.[1];
+  return !!part && STOCK.has(part) && l.id !== "shadcn-ui" && !new RegExp(`\\b${part}\\b`).test(l.install);
+};
 const own = (l: Library, from: string) =>
-  /^(?:@\/|\.|\$|~\/)/.test(from) ||
+  (/^(?:@\/|\.|\$|~\/)/.test(from) && !stockOf(l, from)) ||
   (!!l.npm && (within(from, l.npm) || (l.npm.startsWith("@") && from.startsWith(`${l.npm.split("/")[0]}/`)))) ||
   new RegExp(`(?<![\\w@/.-])${escape(packageOf(from))}(?![\\w-])`).test(l.install);
 const signature = new Map(libraries.map((l) => [l.id, pairs(l).find((p) => counts.get(p) === 1 && own(l, p.split(" ")[0]!))]));

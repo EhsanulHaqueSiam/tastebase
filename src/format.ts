@@ -118,7 +118,7 @@ export const emptySlot = (p: Plan, kind: Kind) =>
 export const MOBILE = "tap targets 44px or more (kit defaults are often 32px; size up buttons, checkboxes, toolbar icons), inputs 16px+ so iOS does not zoom, keep the focused field above the keyboard (viewport meta interactive-widget=resizes-content on the web)";
 
 // Why a default slot is there (see the engine's defaults): every page moves where the user acts; a phone screen is touched.
-const DEFAULT_WHY: Partial<Record<Kind, string>> = { motion: "presses, menus and entrances", interaction: "a phone screen's gestures", icons: "every icon on the page" };
+const DEFAULT_WHY: Partial<Record<Kind, string>> = { motion: "presses, gestures, menus and entrances", icons: "every icon on the page" };
 
 // Picks lead the plan: with the look's rules first, builders read the rules, hand-wrote the page and skipped every install.
 export function formatPlan(p: Plan): string {

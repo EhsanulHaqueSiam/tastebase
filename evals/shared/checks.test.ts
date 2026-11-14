@@ -161,6 +161,9 @@ test("every library is recognised from its own install and usage, and only impli
   // Another package's import is not a library's signature, however unique it is among the usages.
   const common = 'import { useEffect, useRef, useCallback } from "react";\nimport Link from "next/link";\nimport { curveNatural } from "d3-shape";';
   assert.deepEqual(used(trace({ files: { "a.tsx": common } }), false), []);
+  // A stock shadcn/ui part that shadcn init and add write is shadcn/ui's, not a registry that restyles it.
+  const card = 'import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";';
+  assert.deepEqual(used(trace({ files: { "components.json": "{}", "a.tsx": card } }), false), ["shadcn-ui"]);
 });
 
 test("a check only flips when most samples agree, and a regression stays recorded until it is accepted", async (t) => {
