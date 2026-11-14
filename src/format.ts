@@ -71,7 +71,7 @@ const lookName = (L: Aesthetic) => `${L.name} (${L.id}${L.family ? `, ${L.family
 
 /** `get <look id>`: the look's rules and its picks per kind. */
 export const formatLook = (L: Aesthetic) =>
-  [`look: ${lookName(L)}: ${L.summary}`, ...rules(L), `picks: ${Object.entries(L.picks).map(([k, ids]) => `${k} ${ids!.length ? ids!.join(", ") : "none (plain CSS)"}`).join("; ")}`].join("\n");
+  [`look: ${lookName(L)}: ${L.summary}`, ...rules(L), `picks: ${Object.entries(L.picks).map(([k, ids]) => `${k} ${ids!.length ? ids!.join(", ") : "none (plain CSS)"}`).join("; ")}`, "building a page: plan it with the brief and this look for the installs"].join("\n");
 
 /** `get looks`: every look id, styles grouped under their family. */
 export const formatLooks = (looks: Aesthetic[]) =>
@@ -105,17 +105,14 @@ export const emptySlot = (p: Plan, kind: Kind) =>
 /** Phone screens: kit defaults (32px buttons, 16px checkboxes) fail touch, and the keyboard covers the field. */
 export const MOBILE = "tap targets 44px or more (kit defaults are often 32px; size up buttons, checkboxes, toolbar icons), inputs 16px+ so iOS does not zoom, keep the focused field above the keyboard (viewport meta interactive-widget=resizes-content on the web)";
 
+// Picks lead the plan: with the look's rules first, builders read the rules, hand-wrote the page and skipped every install.
 export function formatPlan(p: Plan): string {
   const base = p.items[0]?.pick?.lib;
   const out = [
     `look: ${lookName(p.look)}${p.lookGuessed ? "; none named in the brief, so defaulted: pass look to change" : ""}${p.also.length ? `; also fits: ${p.also.map((a) => a.id).join(", ")}` : ""}`,
     `framework: ${p.framework}${p.frameworkGuessed ? " (assumed; pass framework)" : ""}`,
-    ...rules(p.look),
-    ...(p.site ? [formatSite(p.site)] : []),
-    ...(p.mobile ? [`mobile: ${MOBILE}`] : []),
-    ...(p.darkOnLight ? ["dark: this look is light by default; keep its type, accent and rules, swap the ground to near-black (#0b0b0c), raise surfaces by lightness not shadow, text #ededed"] : []),
     ...(p.skipped.length ? [`left out (brief said no): ${p.skipped.join(", ")}`] : []),
-    "",
+    "install these first, then adapt them to the rules below; hand-write only the gaps",
   ];
   // shadcn registry installs fail on a fresh app until init has run; say it once, non-interactively.
   const init = firstStep(p);
@@ -127,8 +124,15 @@ export function formatPlan(p: Plan): string {
     else if (!it.pick)
       out.push(`${it.kind} -> ${emptySlot(p, it.kind)}`);
     else if (i > 0 && it.pick.lib === base) out.push(`${it.kind} -> ${base.id}: the base kit ships it${it.part ? ` (${it.part})` : ""}${rest}`);
-    else out.push(`${it.kind} -> ${planLine(it.pick, p.framework, base)}${rest}`);
+    else out.push(`${it.pick.lib.addOn ? `add-on for ${base?.id ?? "the kit"}` : it.kind} -> ${planLine(it.pick, p.framework, base)}${rest}`);
   }
+  out.push(
+    "",
+    ...rules(p.look),
+    ...(p.site ? [formatSite(p.site)] : []),
+    ...(p.mobile ? [`mobile: ${MOBILE}`] : []),
+    ...(p.darkOnLight ? ["dark: this look is light by default; keep its type, accent and rules, swap the ground to near-black (#0b0b0c), raise surfaces by lightness not shadow, text #ededed"] : []),
+  );
   return out.join("\n");
 }
 

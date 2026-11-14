@@ -266,8 +266,11 @@ export function pick(
       if (lib.themed && (look || !matched(ownW, lib.tagline.split(":")[0]!) || Math.max(matched(ownW, lib.tagline), ...lib.useFor.map((u) => matched(ownW, u))) < 2)) continue;
       if (!foundation && (unasked || (hits.size ? !kindFit || fit < 1 : fit < 2))) continue;
     }
-    // A kind the look added ranks in the look's own order; words in the brief are about other things.
-    let score = unasked ? 0 : bestN * 3 + (sum - bestN) + kindFit + overlap(q, `${lib.id} ${lib.name} ${lib.tagline}`) * 2 + overlap(q, lib.note) * 0.5;
+    // A kind the look added ranks in the look's own order; words in the brief are about other things. A base kit serves
+    // the whole app, so one word its use cases share with the brief is no reason ("invoicing tool" is not Mantine's
+    // "internal tool", glass "panels" not an admin panel), unless that word is the kit's own name (Nuxt UI for "nuxt").
+    const stray = foundation && !named && fit < 2 && !overlap(q, `${lib.id} ${lib.name}`);
+    let score = unasked ? 0 : stray ? kindFit : bestN * 3 + (sum - bestN) + kindFit + overlap(q, `${lib.id} ${lib.name} ${lib.tagline}`) * 2 + overlap(q, lib.note) * 0.5;
     if (look) score += lookBonus(lib, look, usable);
     if (opts.base && opts.base !== lib) score += offKit(lib, opts.base) ? -6 : pairs(lib, opts.base) ? 2 : 0;
     // The situation before the colon counts, not the alternative it names. Closer than the library's best use case:
@@ -303,7 +306,7 @@ export function pick(
     if (score <= 0 && !named) continue;
     score += Math.min(1.5, (lib.stats?.starsWeek ?? 0) / 400); // momentum breaks ties, never overrides fit
     const home = named || picked || !family || lib.aesthetic.includes(family as AestheticId);
-    const why = named ? "named in the brief" : (!unasked && best) || (picked ? "look's pick" : lib.tagline);
+    const why = named ? "named in the brief" : (!unasked && !stray && best) || (picked ? "look's pick" : lib.tagline);
     out.push({ lib, score: score + MATURITY[lib.maturity], why, caution, home, fit, picked });
   }
   // What asked for each kind ("typewriter", "confetti", "bottom sheet"), not counting the look's own words ("aurora").
@@ -576,7 +579,10 @@ export function plan(libs: Library[], looks: Aesthetic[], brief: string, opts: {
   const baseKind: Kind = kit?.kind ?? (own && ownKind) ?? (RAW.includes(family) && !uncurated ? "primitives" : "component-kit");
   // Unforced, never a kit that is mostly paid (Kobra): the base is the one thing a plan cannot swap out later.
   // An alternative base its own avoidWhen warns about is no alternative ("US government": not govuk-frontend).
-  const ranked = kit || uncurated ? [] : pick(libs, brief, { framework, look, kind: baseKind, limit: 8 }).filter((s) => s.lib !== chosen && !paywalled(s.lib) && !(chosen && s.caution));
+  // Nor an add-on (audiocn's players and meters): it sits on a kit. One that fits the brief best gets its own line.
+  const kits = kit || uncurated ? [] : pick(libs, brief, { framework, look, kind: baseKind, limit: 8 });
+  const ranked = kits.filter((s) => s.lib !== chosen && !paywalled(s.lib) && !s.lib.addOn && !(chosen && s.caution));
+  const addOn: PlanItem[] = kits[0]?.lib.addOn ? [{ kind: baseKind, pick: kits[0], alternatives: [] }] : [];
   const chosenItem: PlanItem = chosen
     ? { kind: baseKind, pick: { lib: chosen, score: 0, why: kit ? "named in the brief" : "look's own kit" }, alternatives: ranked.slice(0, 2) }
     : { kind: baseKind, pick: ranked[0], alternatives: ranked.slice(1, 3) };
@@ -647,7 +653,7 @@ export function plan(libs: Library[], looks: Aesthetic[], brief: string, opts: {
     lookGuessed: !found.length,
     also: found.slice(1, 3),
     site,
-    items: [baseItem, ...items],
+    items: [baseItem, ...addOn, ...items],
     framework,
     frameworkGuessed: !named,
     skipped: [...ruledOut],

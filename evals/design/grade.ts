@@ -16,7 +16,8 @@ import { inspect, type Probe } from "./page.ts";
 
 export type Arm = "with" | "without";
 export type Look = AestheticId | "none";
-type Judged = { look: Look; score: number };
+/** `gap` is what the judge says most keeps the page from a 10: the to-do list behind the craft score. */
+type Judged = { look: Look; score: number; gap?: string };
 /**
  * One built page, kept in `<cache>/design/<model>/<brief>/<arm>/<stamp>/` with its `dist`. `agent` says what it was
  * built from. A build with tastebase names the build without it that it is compared with (`opponent`). `probe` and
@@ -43,9 +44,11 @@ export type Pair = { a: Arm; first: Verdict; second: Verdict; better: Arm | "tie
  * them the page met with one tastebase offered. `stamp` and `opponent` name the builds behind the numbers.
  */
 export type Info = {
-  look?: Look; score?: number; libs: string[]; faults: number; needed: number; adopted: number; better: Arm | "tie";
+  look?: Look; score?: number; gap?: string; libs: string[];
+  /** Whether the page uses the base kit (component kit or primitives) tastebase offered; absent when none was offered. */
+  kit?: boolean; faults: number; needed: number; adopted: number; better: Arm | "tie";
   stamp: string; opponent: string; pair?: string;
-  without: { look?: Look; score?: number; libs: string[]; faults: number };
+  without: { look?: Look; score?: number; gap?: string; libs: string[]; faults: number };
 };
 
 export const builds = (model: string, id: string) => join(cache, "design", model, id);
@@ -57,9 +60,9 @@ export const selectors = (b: Brief) => Object.values(b.has ?? {}).filter((v) => 
 export const stable = (b: Brief) => JSON.stringify(b, (_, v) => (v instanceof RegExp ? String(v) : v));
 
 // The judge's questions. They are part of what grading depends on, so changing one asks the judge again.
-const lookQuestion = `Read desktop.png and mobile.png: two screenshots of one web page. Which of these looks does it show? Answer none when it is a plain page with no clear look.\n\n${aesthetics.map((a) => `${a.id}: ${a.summary}`).join("\n")}\n\nThen score how well it is made, 1 to 10, as a senior product designer would for shipped work: 10 is flawless, 7 is solid but generic, 4 has clear problems.`;
+const lookQuestion = `Read desktop.png and mobile.png: two screenshots of one web page. Which of these looks does it show? Answer none when it is a plain page with no clear look.\n\n${aesthetics.map((a) => `${a.id}: ${a.summary}`).join("\n")}\n\nThen score how well it is made, 1 to 10, as a senior product designer would for shipped work: 10 is flawless, 7 is solid but generic, 4 has clear problems. In one sentence, say what most keeps it from a 10.`;
 const compareQuestion = (brief: string) => `Two builds, A and B, of this brief:\n\n${brief}\n\nRead a-desktop.png, a-mobile.png, b-desktop.png and b-mobile.png: a desktop and a phone screenshot of each. As a senior product designer, which build fits the brief better and is better made? Say why in one sentence.`;
-const PROBE = [sources("evals/design/page.ts"), chromium];
+const PROBE = [sources("evals/design/page.ts", "evals/design/browser.ts"), chromium];
 /** Everything grading depends on besides the builds themselves. */
 // The look question is built from the looks' summaries in the registry, so it is hashed as asked, not as written here.
 export const grading = (b: Brief, judge: string) => [sources("evals/design/grade.ts", "evals/shared/checks.ts"), evidence, PROBE, judge, lookQuestion, stable(b)];
@@ -92,7 +95,7 @@ async function measure(b: Brief, dir: string, x: Build, judge: string): Promise<
   // for the craft alone, so it can be compared across briefs and over time.
   const judgeKey = lookKey(b, judge);
   if (x.judged?.[judgeKey]) return 0;
-  const { answer, usd } = await ask<Judged>(dir, judge, lookQuestion, { look: { type: "string", enum: [...aestheticIds, "none"] }, score: { type: "integer", minimum: 1, maximum: 10 } });
+  const { answer, usd } = await ask<Judged>(dir, judge, lookQuestion, { look: { type: "string", enum: [...aestheticIds, "none"] }, score: { type: "integer", minimum: 1, maximum: 10 }, gap: { type: "string" } });
   x.judged = { ...x.judged, [judgeKey]: answer };
   save(dir, x);
   return usd;
@@ -199,10 +202,12 @@ export async function gradeBuild(b: Brief, model: string, stamp: string, judge: 
   const [mineLook, plainLook] = [judgedBy(b, mine, judge), judgedBy(b, plain, judge)];
   const fails = [...faults(b, mine, mineLook?.look, true), ...(better === "without" ? [PREFERS] : [])];
   const jobs = needs(b, mine);
+  const offered = offers(mine.calls), kits = [...(offered.get("component-kit") ?? []), ...(offered.get("primitives") ?? [])];
   const info: Info = {
-    look: mineLook?.look, score: mineLook?.score, libs: libsOf(mine), faults: faults(b, mine, mineLook?.look, false).length, needed: jobs.length, adopted: jobs.filter((j) => j.met).length, better,
+    kit: kits.length ? libsOf(mine).some((id) => kits.includes(id)) : undefined,
+    look: mineLook?.look, score: mineLook?.score, gap: mineLook?.gap, libs: libsOf(mine), faults: faults(b, mine, mineLook?.look, false).length, needed: jobs.length, adopted: jobs.filter((j) => j.met).length, better,
     stamp, opponent: plain.stamp, pair,
-    without: { look: plainLook?.look, score: plainLook?.score, libs: libsOf(plain), faults: faults(b, plain, plainLook?.look, false).length },
+    without: { look: plainLook?.look, score: plainLook?.score, gap: plainLook?.gap, libs: libsOf(plain), faults: faults(b, plain, plainLook?.look, false).length },
   };
   return { fails, info, usd, note: `better: ${better}; build ${mineDir}` };
 }
@@ -255,6 +260,7 @@ export function summary(cases: Record<string, Entry>, briefs: Brief[], model: st
     `  reads as its look     with ${of(looks, (r) => r.info.look === r.b.look)}, without ${of(looks, (r) => r.info.without.look === r.b.look)}`,
     `  works and is as asked with ${of(rows, (r) => r.info.faults === 0)}, without ${of(rows, (r) => r.info.without.faults === 0)}`,
     `  jobs met by an offer  ${sum((i) => i.adopted)} of ${sum((i) => i.needed)} (for each library the brief calls for, the page uses one tastebase offered)`,
+    `  uses the offered kit  ${of(rows.filter((r) => r.info.kit !== undefined), (r) => !!r.info.kit)} (of the builds tastebase offered a base kit)`,
   ].join("\n");
 }
 
