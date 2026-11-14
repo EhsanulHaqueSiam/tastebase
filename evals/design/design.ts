@@ -19,7 +19,7 @@ const TEMPLATE: Files = {
   "package.json": JSON.stringify(
     {
       name: "acme-page", private: true, type: "module",
-      scripts: { dev: "vite", build: "tsc --noEmit && vite build" },
+      scripts: { dev: "vite", build: "tsc --noEmit && vite build", shot: "tsc --noEmit && vite build && node --experimental-strip-types --no-warnings shot/shot.ts" },
       dependencies: { react: "^19.3.1", "react-dom": "^19.3.1" },
       devDependencies: { "@tailwindcss/vite": "^4.3.5", "@types/react": "^19.3.0", "@types/react-dom": "^19.3.0", "@vitejs/plugin-react": "^6.3.0", tailwindcss: "^4.3.5", typescript: "^7.0.2", vite: "^8.3.8" },
     },
@@ -31,17 +31,20 @@ const TEMPLATE: Files = {
   "src/main.tsx": 'import { StrictMode } from "react";\nimport { createRoot } from "react-dom/client";\nimport App from "./App.tsx";\nimport "./index.css";\n\ncreateRoot(document.getElementById("root")!).render(<StrictMode><App /></StrictMode>);\n',
   "src/index.css": '@import "tailwindcss";\n',
   "src/App.tsx": "export default function App() {\n  return <main />;\n}\n",
+  // `pnpm shot`: the agent can look at its page. Outside src, so the app's own typecheck never sees it.
+  "shot/shot.ts": readFileSync(join(import.meta.dirname, "shot.ts"), "utf8"),
+  "shot/browser.ts": readFileSync(join(import.meta.dirname, "browser.ts"), "utf8"),
 };
 
 // The only commands a build agent may run that change anything. This narrows what it can do; it is not a sandbox:
 // the agent writes code and `pnpm build` runs it, so run this eval only against registry text you have read.
-const ALLOW = ["Bash(pnpm add *)", "Bash(pnpm install)", "Bash(pnpm build)", "Bash(pnpm run build)", "Bash(pnpm dlx shadcn@latest *)", "Bash(npx shadcn@latest *)"];
+const ALLOW = ["Bash(pnpm add *)", "Bash(pnpm install)", "Bash(pnpm build)", "Bash(pnpm run build)", "Bash(pnpm shot)", "Bash(pnpm run shot)", "Bash(pnpm dlx shadcn@latest *)", "Bash(npx shadcn@latest *)"];
 
 // How the build agent runs. Part of what a build depends on, so changing it builds the pages again.
 const RUN = { turns: 60, allow: ALLOW, maxUsd: 3, timeoutMs: 1_200_000 };
 
 const prompt = (brief: string) =>
-  `Build this in the Vite + React + Tailwind project in the current directory:\n\n${brief}\n\nOne page, starting at src/App.tsx. Dependencies are installed; add what you need with pnpm. You are done when \`pnpm build\` passes. Do not start a dev server.`;
+  `Build this in the Vite + React + Tailwind project in the current directory:\n\n${brief}\n\nOne page, starting at src/App.tsx. Dependencies are installed; add what you need with pnpm. \`pnpm shot\` builds it and saves desktop and phone screenshots in shots/ for you to read. You are done when \`pnpm build\` passes. Do not start a dev server.`;
 
 /**
  * What a build depends on besides tastebase's answers and the model, which the ledger adds. The build without
@@ -50,7 +53,7 @@ const prompt = (brief: string) =>
 export const agentInputs = (b: Brief, arm: Arm) => [sources("evals/shared/agent.ts"), TEMPLATE, RUN, prompt(b.brief), arm === "with" && readFileSync(skillFile, "utf8")];
 
 // The files that show which libraries a build used. Everything else the agent wrote is the page itself, kept in dist.
-const EVIDENCE = /\.(?:[cm]?[jt]sx?|css)$|(?:^|\/)(?:package|components)\.json$/;
+const EVIDENCE = /^(?!shot\/).*(?:\.(?:[cm]?[jt]sx?|css)$|(?:^|\/)(?:package|components)\.json$)/;
 
 /** Builds one arm of a brief and keeps it, page and all, under a new stamp. */
 async function build(b: Brief, arm: Arm, model: string): Promise<Build & { usd: number }> {

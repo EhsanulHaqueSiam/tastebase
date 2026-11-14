@@ -130,9 +130,14 @@ snippet against the package.
 
 Each brief in `design/briefs.ts` is built by the same model in the same Vite + React + Tailwind starter, three times
 with tastebase and three times without, and each build with it is judged against its own build without. One page is
-too noisy to decide a brief: a single bad build used to. The starter's build typechecks, so a prop or export a library does not have
-fails the build. Some briefs name their look, some only imply it through the product, and two name none and are
+too noisy to decide a brief: a single bad build used to. The starter's build typechecks, so a prop or export a library
+does not have fails the build, and `pnpm shot` saves desktop and phone screenshots for the agent to read, as an agent
+with a browser would. Some briefs name their look, some only imply it through the product, and two name none and are
 about reaching for the right library.
+
+Pages are opened in real headless Chrome (`design/browser.ts`, over the DevTools protocol) and shot once their
+entrances have played out, so charts, Motion and scroll-in content look as they do for a visitor. Chrome's one-shot
+`--screenshot` mode never ran `requestAnimationFrame` or `IntersectionObserver`, and showed such pages empty.
 
 The build with tastebase passes when all of this holds:
 
@@ -146,17 +151,24 @@ The build with tastebase passes when all of this holds:
 - **It follows the look's countable rules** (`limits`), and stops looping for a visitor who asked for less motion.
 - **It uses what it was offered.** For each kind of library the brief calls for (`needs`), the page uses one
   tastebase offered. A different library for one of those jobs is a fault too.
-- **A craft score.** The look judge also scores the page out of 10. It is reported, not gated, and is the number
-  the single-prompt goal of 9.9 is read from.
+- **A craft score.** The look judge also scores the page out of 10, and says in a sentence what most keeps it from a
+  10 (`gap` in each result's `infos`: the to-do list). It is reported, not gated, and is the number the single-prompt
+  goal of 9.9 is read from.
 - **The judge does not prefer the build without tastebase.** The pair is shown unlabelled, twice, in both orders;
   a verdict only counts when both orders agree.
 
 A brief's checks are decided by most of its three builds, as in every eval. The totals printed after a run count
 every pair, and are the numbers to watch over time. "Works and is as asked" counts the same checks
-for both builds; using what tastebase offered and the judge's preference have rows of their own.
+for both builds; using what tastebase offered and the judge's preference have rows of their own. "Uses the offered
+kit" counts the builds that used the base kit tastebase named, of those it named one for.
 
 The craft score is capped by the model that builds the page. The record uses Haiku at low effort to stay cheap, so
 read the score as a trend, and use `--model` to see what a stronger builder makes of the same text.
+
+**Show the pages, not only the numbers.** `pnpm eval design --compare <git ref>` puts the ref's recorded page with
+tastebase next to this checkout's, desktop and phone, one sheet per brief in `<cache>/design/<model>/compare/`, with
+each side's recorded score and verdict. Both are shot again with the current driver. Every PR that ran the design eval
+embeds them (`--compare origin/main`); it calls no model.
 
 **Check the judge before you trust it.** `pnpm eval design --review` writes `review.md` in the cache with every
 pair, unlabelled. Write your pick after each `pick:`, run it again, and it reports how often the judge agreed with
@@ -174,8 +186,8 @@ kept pages and builds nothing.
 - `usage` checks that a snippet's imports compile against the package. It does not check props or call signatures.
 - A trace case that hits its turn cap is graded as finished; its note says so, since a check it failed may be the
   cap's doing.
-- The design eval is not sandboxed. Its agent may only run `pnpm add`, `pnpm install`, `pnpm build` and the
-  shadcn CLI, and inherits no environment variables beyond the ones the CLI and pnpm need, but it writes code and
+- The design eval is not sandboxed. Its agent may only run `pnpm add`, `pnpm install`, `pnpm build`, `pnpm shot`
+  and the shadcn CLI, and inherits no environment variables beyond the ones the CLI and pnpm need, but it writes code and
   that code is built on your machine. The other evals allow no installs.
 - The recorded model is Haiku at low effort, pinned by full id: cheap, and a strict test of how clear the text
   is. A stronger model passes more; check with `--model` before concluding a rule cannot work.

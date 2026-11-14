@@ -95,6 +95,8 @@ export type Library = {
    * it. The registry index sets it for every entry in data/themed.ts; set it here for one that lives elsewhere.
    */
   themed?: true;
+  /** A kit of parts for one domain (audio, documents) that sits on another kit: offered for its job, never an app's base. */
+  addOn?: true;
   /** Filled by the Worker's cron (src/trending.ts); leave out in data files. */
   stats?: { stars?: number; starsWeek?: number; downloadsWeek?: number; updatedAt?: string };
 };

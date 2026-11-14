@@ -1,14 +1,11 @@
 // Opens a built page in headless Chrome at desktop and phone width: a screenshot of each, and numbers read from
 // the live page. The numbers are the look rules and the brief's asks that can be checked without a judge.
-import { execFile } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
 import { extname, join, normalize } from "node:path";
-import { promisify } from "node:util";
 import { chromium } from "../../scripts/chromium.ts";
-
-const run = promisify(execFile);
+import { browse } from "./browser.ts";
 
 export type Probe = {
   /** Uncaught errors and rejected promises while the page loaded. */
@@ -32,10 +29,6 @@ export type Ask = { selectors: string[]; click?: string };
 // Runs inside the page. Colours go through a canvas so oklch(), lab() and named colours all come back as RGB.
 // shortcut: gradients, images and canvas or requestAnimationFrame loops are not counted; add them when a look rule needs them.
 function probe(ask: Ask) {
-  // Under virtual time headless Chrome never fires requestAnimationFrame, so a chart or a Motion entrance would be
-  // shot at its first frame (empty bars, invisible text). Timers do run, so frames run on them.
-  window.requestAnimationFrame = (cb) => window.setTimeout(() => cb(performance.now()), 16);
-  window.cancelAnimationFrame = (id) => window.clearTimeout(id);
   const errors: string[] = [];
   addEventListener("error", (e) => errors.push(String(e.message)));
   addEventListener("unhandledrejection", (e) => errors.push(String(e.reason)));
@@ -87,13 +80,8 @@ function probe(ask: Ask) {
           }),
         ),
       };
-      const write = () => {
-        const out = document.createElement("script");
-        out.type = "application/json";
-        out.id = "tb-probe";
-        out.textContent = JSON.stringify(result);
-        top!.document.head.append(out);
-      };
+      // Read by `inspect`, which screenshots the page once it is there.
+      const write = () => ((window as Window & { tbProbe?: string }).tbProbe = JSON.stringify(result));
       if (!ask.click) return write();
       const control = visible('button, [role="button"], a').find((el) => new RegExp(ask.click!, "i").test(`${(el as HTMLElement).innerText} ${el.getAttribute("aria-label") ?? ""}`)) as HTMLElement | undefined;
       if (!control) return (result.click = "missing"), write();
@@ -109,6 +97,8 @@ function probe(ask: Ask) {
 }
 
 const TYPES: Record<string, string> = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".json": "application/json", ".png": "image/png", ".jpg": "image/jpeg", ".webp": "image/webp", ".woff2": "font/woff2" };
+// The probe's result once entrances have played out: no CSS animation or transition still running, loops aside.
+const SETTLED = "document.getAnimations().some((a) => a.playState === 'running' && a.effect?.getComputedTiming().iterations !== Infinity) ? undefined : window.tbProbe";
 const NOTHING: Probe = { errors: ["page did not finish loading"], accents: 0, loops: 0, overflow: 0, text: "", found: [] };
 
 /**
@@ -118,8 +108,6 @@ const NOTHING: Probe = { errors: ["page did not finish loading"], accents: 0, lo
 export async function inspect(dist: string, out: string, ask: Ask): Promise<{ desktop: Probe; mobile: Probe; reduced: Probe }> {
   const server = createServer((req, res) => {
     const { pathname, searchParams: q } = new URL(req.url ?? "/", "http://x");
-    // Headless Chrome never lays a window out narrower than 500px, so the page is shown in a frame of the size wanted.
-    if (pathname === "/__frame") return res.setHeader("content-type", "text/html").end(`<body style="margin:0;background:#000"><iframe src="/${q.has("click") ? "?click" : ""}" style="border:0;display:block;width:${Number(q.get("w"))}px;height:${Number(q.get("h"))}px"></iframe>`);
     const path = join(dist, normalize(pathname));
     const file = existsSync(path) && extname(path) ? path : join(dist, "index.html");
     const html = extname(file) === ".html";
@@ -130,17 +118,16 @@ export async function inspect(dist: string, out: string, ask: Ask): Promise<{ de
   await new Promise<void>((done) => server.listen(0, "127.0.0.1", done));
   const origin = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
   try {
-    const at = async (name: string, w: number, h: number, ...more: string[]): Promise<Probe> => {
-      const args = ["--headless=new", "--hide-scrollbars", "--virtual-time-budget=8000", `--window-size=${w},${h}`, `--screenshot=${join(out, `${name}.png`)}`, "--dump-dom", ...more, `${origin}/__frame?w=${w}&h=${h}${name === "reduced" ? "&click" : ""}`];
-      const { stdout } = await run(chromium, args, { timeout: 60_000, maxBuffer: 64 << 20 });
-      const found = /<script type="application\/json" id="tb-probe">([\s\S]*?)<\/script>/.exec(stdout)?.[1];
-      // No probe output means the page never reached `load`: the script that should render it crashed.
-      return found ? JSON.parse(found) : NOTHING;
-    };
-    // shortcut: the first screen only, since Chrome's CLI cannot capture a full page; switch to a driver if the judge needs more.
-    // Motion preference is forced both ways, or the result would follow the setting of the machine running the eval.
-    const moving = "--force-prefers-no-reduced-motion";
-    return { desktop: await at("desktop", 1440, 900, moving), mobile: await at("mobile", 390, 844, moving), reduced: await at("reduced", 1440, 900, "--force-prefers-reduced-motion") };
+    // shortcut: the first screen only; scroll and stitch if the judge needs more.
+    // Motion preference is set both ways, or the result would follow the setting of the machine running the eval.
+    return await browse(chromium, async (shoot) => {
+      const at = async (name: string, width: number, height: number, reduced: boolean): Promise<Probe> => {
+        const found = await shoot(`${origin}/${name === "reduced" ? "?click" : ""}`, { width, height, reduced, png: join(out, `${name}.png`) }, SETTLED);
+        // No probe output means the page never reached `load`: the script that should render it crashed.
+        return found ? JSON.parse(found) : NOTHING;
+      };
+      return { desktop: await at("desktop", 1440, 900, false), mobile: await at("mobile", 390, 844, false), reduced: await at("reduced", 1440, 900, true) };
+    });
   } finally {
     server.close();
   }
