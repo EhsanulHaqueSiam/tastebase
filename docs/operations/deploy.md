@@ -33,8 +33,8 @@ All four stay skipped until the repository variable `DEPLOY_ENABLED` is `true`.
 
 ## One-time CI setup
 
-`stacks/github.ts` declares the GitHub side: a Cloudflare API token scoped to Workers, KV, account settings
-and tail; the `CLOUDFLARE_API_TOKEN` and `STATS_GITHUB_TOKEN` secrets; the `CLOUDFLARE_ACCOUNT_ID` and
+`stacks/github.ts` declares the GitHub side: a Cloudflare API token scoped to Workers, KV, account settings,
+tail and Secrets Store write (the state store keeps its auth token there, and binding it needs write); the `CLOUDFLARE_API_TOKEN` and `STATS_GITHUB_TOKEN` secrets; the `CLOUDFLARE_ACCOUNT_ID` and
 `DEPLOY_ENABLED` variables; the `preview` and `library` labels. Done for this repo on 2026-11-08; re-run to
 rotate the token or change any of it:
 
