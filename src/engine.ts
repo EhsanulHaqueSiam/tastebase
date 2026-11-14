@@ -199,7 +199,7 @@ export type Scored = { lib: Library; score: number; why: string; caution?: strin
 // Libraries named by an everyday word: "a motion designer's portfolio" names no library. They count as named only
 // when the brief says them as a library.
 // Matched on the brief as `words` (lowercase, punctuation gone): "motion.dev" is "motion dev".
-const EVERYDAY: Record<string, RegExp> = { motion: / (?:framer motion|motion dev|motion react|motion (?:library|package)|(?:use|using|with) motion)(?! design| graphic)/ };
+const EVERYDAY: Record<string, RegExp> = { motion: / (?:framer motion|motion dev|motion react|motion (?:library|package)|(?:use|using|with) motion) (?!design |graphic )/ };
 /** Whether `text` (as `words`) names the library: its id or name, said as a library when that is an everyday word. */
 const namesLib = (text: string, l: Library) =>
   (text.includes(idsOf(l).name) || text.includes(idsOf(l).id)) && (!EVERYDAY[l.id] || EVERYDAY[l.id]!.test(text));
