@@ -27,7 +27,7 @@ const chart = "svg, canvas", table = 'table, [role="table"], [role="grid"]';
 export const briefs: Brief[] = [
   { id: "minimal", look: "minimal", brief: "Pricing page for Tally, an invoicing tool for freelancers: three plans and an FAQ. Quiet and clean, like Linear.", has: { "three prices": /(\$\s?\d[\s\S]*){3}/, "an FAQ": /faq|questions/ }, limits: { accents: 1, loops: 0 } },
   { id: "apple", look: "apple", brief: "Home screen for Stride, a habit tracker: today's habits, a weekly streak, and a bottom sheet to add a habit. It should feel like a native iOS app.", needs: ["interaction"], has: { "the streak": /streak/ }, click: "add|new" },
-  { id: "glass", look: "glass", brief: "Now-playing screen for a music player in the visionOS style: frosted, translucent panels over the album art.", needs: ["glass"], has: { "playback controls": "button" } },
+  { id: "glass", look: "glass", brief: "Now-playing screen for a music player in the visionOS style: frosted, translucent panels over the album art.", has: { "playback controls": "button" } },
   { id: "playful", look: "playful", brief: "Lesson-complete screen for a kids' spelling game: the stars earned, the streak, and a button to start the next lesson.", needs: ["feedback"], has: { "a way to the next lesson": /next|continue|start lesson/ } },
   { id: "brutalist", look: "brutalist", brief: "Landing page for a type foundry's new typeface. Brutalist: raw, heavy type, hard edges.", limits: { accents: 1 } },
   { id: "editorial", look: "editorial", brief: "Article page for a long read about post-war housing in an online architecture magazine.", has: { "a long article": /[\s\S]{1500}/ } },
