@@ -39,7 +39,7 @@ export function createServer(libs: Library[], looks: Aesthetic[], version: strin
     {
       description: "Call first for any page or screen, before writing it: detects the look from the brief, then returns a library for each job with its install and usage, then the look's design rules.",
       inputSchema: {
-        brief: z.string().describe("What is being built, in plain words, including any look: 'iOS-feel habit tracker with charts'"),
+        brief: z.string().describe("What is being built, its look and the project's stack: 'iOS-feel habit tracker with charts, Vite + React + Tailwind'"),
         framework: fw,
         look: lookArg,
       },

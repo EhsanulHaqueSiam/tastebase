@@ -127,9 +127,10 @@ export function formatPlan(p: Plan): string {
     `look: ${lookName(p.look)}${p.lookGuessed ? "; none named in the brief, so defaulted: pass look to change" : ""}${p.also.length ? `; also fits: ${p.also.map((a) => a.id).join(", ")}` : ""}`,
     `framework: ${p.framework}${p.frameworkGuessed ? " (assumed; pass framework)" : ""}`,
     ...(p.skipped.length ? [`left out (brief said no): ${p.skipped.join(", ")}`] : []),
-    // Builders read this and still hand-wrote listed parts, "to keep dependencies minimal" or because "the project has
-    // no shadcn setup". So: every line is to be used, and shadcn's init is the setup.
-    `build with every line below: run its install${p.items.some((it) => it.pick && /shadcn@latest/.test(install(it.pick.lib, p.framework, base))) ? " (shadcn init sets up any React + Tailwind app, nothing to prepare)" : ""}, then build its part with it (usage under it) and adapt it to the rules below. Each is a small, proven package; hand-write only what no line covers`,
+    // Builders read this and still hand-wrote listed parts, "to keep dependencies minimal", because "the project has no
+    // shadcn setup", because init "would rewrite the CSS, tsconfig and Vite config", or with "native <details> rather
+    // than a library for one accordion". So: every line is to be used, and what shadcn's init touches.
+    `build with every line below: run its install${p.items.some((it) => it.pick && /shadcn@latest/.test(install(it.pick.lib, p.framework, base))) ? " (shadcn init works in any React + Tailwind app and adds only components.json, lib/utils.ts and theme tokens)" : ""}, build its part with it (usage under it), then adapt it to the rules below. A hand-written stand-in for a listed part (a <details> for an Accordion) is a miss`,
   ];
   // shadcn registry installs fail on a fresh app until init has run; say it once, non-interactively.
   const init = firstStep(p);

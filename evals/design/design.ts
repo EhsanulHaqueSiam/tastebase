@@ -43,7 +43,7 @@ export const TEMPLATE: Files = {
 // -y or --yes, or through pnpm dlx. Builders denied `npx --yes shadcn@latest init` hand-wrote the kit, where a person
 // would have approved it.
 const CLIS = [...new Set(libraries.flatMap((l) => [l.install, ...Object.values(l.installWith ?? {})]).flatMap((c) => [...c.matchAll(/\bnpx\s+(?:-y\s+|--yes\s+)?(\S+@latest)/g)].map((m) => m[1]!)))].sort();
-const ALLOW = ["Bash(pnpm add *)", "Bash(pnpm install)", "Bash(pnpm build)", "Bash(pnpm run build)", "Bash(pnpm shot)", "Bash(pnpm run shot)", ...CLIS.flatMap((c) => [`Bash(npx ${c} *)`, `Bash(npx -y ${c} *)`, `Bash(npx --yes ${c} *)`, `Bash(pnpm dlx ${c} *)`])];
+const ALLOW = ["Bash(which *)", "Bash(pnpm --version)", "Bash(pnpm -v)", "Bash(pnpm add *)", "Bash(pnpm install)", "Bash(pnpm build)", "Bash(pnpm run build)", "Bash(pnpm shot)", "Bash(pnpm run shot)", ...CLIS.flatMap((c) => [`Bash(npx ${c} *)`, `Bash(npx -y ${c} *)`, `Bash(npx --yes ${c} *)`, `Bash(pnpm dlx ${c} *)`])];
 
 // How the build agent runs. Part of what a build depends on, so changing it builds the pages again.
 export const RUN = { turns: 60, allow: ALLOW, maxUsd: 3, timeoutMs: 1_200_000 };
