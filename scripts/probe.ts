@@ -25,7 +25,7 @@ try {
   const { tools } = await client.listTools();
   check(["get", "pick", "plan", "trending"].every((n) => tools.some((t) => t.name === n)), "MCP tools", `${tools.map((t) => t.name).join(", ")} (~${tokens(JSON.stringify(tools))} tokens of schema)`);
   const calls: [string, Record<string, unknown>, RegExp][] = [
-    ["plan", { brief: "iOS-feel habit tracker with a bottom sheet and animated stats" }, /interaction -> vaul/],
+    ["plan", { brief: "iOS-feel habit tracker with a bottom sheet and animated stats" }, /^interaction (\([^)]*\) )?-> vaul/m],
     ["pick", { need: "copy button that confirms" }, /^torph:/],
     ["get", { id: "sonner" }, /^Sonner \(sonner\)/],
     ["trending", {}, /\S/],
