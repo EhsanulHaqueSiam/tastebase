@@ -11,7 +11,8 @@ export type Brief = {
   implied?: true;
   /** Kinds of library the brief's features call for: every job it asks for that a library does clearly better than
    * hand-written code (a gallery, highlighted code, a celebration), not one CSS does as well (a breathing circle, a
-   * small static table). The page must use one tastebase offered for each. */
+   * small static table), and the look's own showpiece (a shader hero for cyberpunk). The page must use one tastebase
+   * offered for each; a kind named twice is two jobs ("a gallery and a drawer"), met by two different libraries. */
   needs?: Kind[];
   /** What the page must contain to be what was asked for: a pattern in its text, or a CSS selector. */
   has?: Record<string, RegExp | string>;
@@ -31,10 +32,10 @@ export const briefs: Brief[] = [
   { id: "brutalist", look: "brutalist", brief: "Landing page for a type foundry's new typeface. Brutalist: raw, heavy type, hard edges.", limits: { accents: 1 } },
   { id: "editorial", look: "editorial", brief: "Article page for a long read about post-war housing in an online architecture magazine.", has: { "a long article": /[\s\S]{1500}/ } },
   { id: "retro", look: "retro", brief: "Leaderboard for a pixel-art arcade game.", has: { "a ranked list": `ol, li, ${table}` } },
-  { id: "neon", look: "neon", brief: "Landing page for a cyberpunk racing game.", limits: { accents: 2 } },
+  { id: "neon", look: "neon", brief: "Landing page for a cyberpunk racing game.", needs: ["background"], limits: { accents: 2 } },
   { id: "corporate", look: "corporate", brief: "Admin dashboard for a logistics company: a KPI row, a shipments table and one chart.", needs: ["charts"], has: { "a table": table, "a chart": chart }, limits: { loops: 0 } },
   { id: "technical", look: "technical", brief: "Landing page for Relay, an email API for developers, with a code sample.", needs: ["code"], has: { "a code sample": "pre, code" } },
-  { id: "luxury", look: "luxury", brief: "Product page for a fine jewellery house's new ring collection.", needs: ["interaction"], limits: { accents: 1 } },
+  { id: "luxury", look: "luxury", brief: "Product page for a fine jewellery house's new ring collection, with a size guide that opens in a drawer.", needs: ["interaction", "interaction"], limits: { accents: 1 } },
   { id: "organic", look: "organic", brief: "Home screen for a meditation app with a breathing exercise." },
   // No look asked for: these are about reaching for the right library for each job.
   { id: "podcast-analytics", brief: "Stats page for a podcast host: downloads over time as a chart, the top episodes, a command menu on cmd+k to jump between shows, and a toast when a report is exported.", needs: ["charts", "command", "feedback"], has: { "a chart": chart }, click: "export" },

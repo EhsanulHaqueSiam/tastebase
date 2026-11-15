@@ -1,6 +1,6 @@
 # How picking works
 
-`pick(need)` scores every library for one job; `plan(brief)` chooses a base kit, then runs `pick` once per need.
+`pick(need)` scores every library for one job; `plan(brief)` chooses a base kit, then runs `pick` once per need, and again for each further job the brief names in a kind.
 
 ## Matching
 
@@ -41,7 +41,13 @@ skipping this, so it holds inside plan slots too. On top of it:
   than its best use case: the library is out, and so is anything that fits the job less. When the library does the
   job's own kind, anything that fits only as well goes too ("gantt chart": recharts says no, and no chart library
   names gantt, so nothing), except what the line sends the job to ("revenue chart": lightweight-charts says recharts).
-  As close as its best use case: −3 and `careful`.
+  As close as its best use case: −3 and `careful`. In a plan slot, where the brief is a whole page, an avoid line is
+  matched on the brief's own words (no synonyms), and only a library of the slot's kind rules out the rest: a kit's
+  "forms, tables, menus" line, or bencho's "form controls (slider)" via carousel → slider, is about another part of a
+  restaurant page, not its photo carousel.
+- **Use cases are read without what they rule out** ("projects that avoid Tailwind entirely" does not fit a Tailwind
+  brief; "blocks, not one rich text field" does not fit a rich text editor).
+- **Everyday names** (`EVERYDAY`): "a motion designer" does not name Motion; "framer motion" or "with motion" does.
 - **Whole kits are bases, not answers.** A kit installed whole (Mantine, MUI, Vuetify) never answers one job and never
   fills a slot under another base: a date picker is the project kit's part, or React Aria, not MUI.
 - **The thing asked for.** In a single `pick`, when a library of the job's kind names what asked for the kind
@@ -81,9 +87,16 @@ it matched itself, and wins ties.
    one the brief names by id ("Windows XP" → xp-css), else one whose use cases it clearly describes, else the first.
    Else the best ranked foundation kit, `primitives` for raw families (brutalist, editorial, luxury, retro). Effects
    kits (component kits that also cover motion, background or text-effects, like Aceternity) never rank as the base,
-   nor do mostly paid kits (`paywalled`: Kobra). A base kit whose avoid line sends the job to an effects kit stays the
-   base with that line as `careful` (shadcn/ui for a motion-first landing page, with Magic UI on top).
-2. **Needs**: kinds the brief names, icons, and the look's `needs` (data: apple adds motion and sheets, glass adds
+   nor do mostly paid kits (`paywalled`: Kobra). An experimental kit (boardui) goes behind proven ones unless the look
+   picks it, and stays an alternative. A base kit whose avoid line sends the job to an effects kit stays the base with
+   that line as `careful` (shadcn/ui for a motion-first landing page, with Magic UI on top).
+   **Its parts** (`kitComponents`): a Button, then the parts each section of the brief calls for (`SECTIONS`: an FAQ
+   is an Accordion, pricing is Card and Badge, a leaderboard is 8bitcn's Leaderboard or a Table), and any part the
+   brief names outright, in the kit's own names, minus what a specialist in the plan does instead (no kit Carousel
+   next to embla-carousel). A shadcn-style install adds them by name; an npm kit's line lists them. Builders skipped a
+   kit whose line named no parts ("the page is one file").
+2. **Needs**: kinds the brief names, icons, motion where the look has a motion library (presses, gestures, menus and
+   entrances move on every page; corporate and civic looks have none, so CSS), and the look's `needs` (data: apple adds motion and sheets, glass adds
    glass and a backdrop, aurora and mesh gradient a backdrop, document an editor; a style's list replaces its
    family's). A page gets no shader for being a landing page: that is the AI look. Kinds the look's `avoid` list names
    bare ("gradients and glass") are never added unasked. A 3D scene is the page's one showpiece, so a backdrop the
@@ -106,13 +119,27 @@ it matched itself, and wins ties.
    (panelui's BottomSheet on React Native); when something does but none fits the job, nothing is. Unforced, the top
    three ranked kits each get a full plan and the highest total wins, so a chat app gets shadcn/ui with AI Elements,
    not Astryx's built-in chat.
-5. **Framework** is read from the brief with its negations cut out ("React, not Angular" is React), else React,
+5. **Several jobs in one kind.** Each phrase that asked for a kind ("carousel", "bottom sheet") belongs to the slot's
+   pick when the pick names it, else to the first library of the kind that names it (`pick` on the phrase alone, under
+   the same look and base), which gets its own line: a product page with a size-guide drawer gets embla-carousel and
+   vaul, a typewriter headline beside rolling prices use-scramble and number-flow. A phrase nothing names stays with
+   the slot's pick, so one job is never split. Extra jobs do not count toward choosing the base kit.
+6. **Framework** is read from the brief with its negations cut out ("React, not Angular" is React), else React,
    flagged as assumed. "Solid" names SolidJS only as `solidjs`, `solid-js` or `solid start`. Installs come from
    `installWith[base kit]` (BlockNote on shadcn/ui), then `installFor[framework]` (vue-sonner), then `install`;
    `install` in `format.ts` is the one resolver the MCP answer and the site's plan both use.
 
 Plan lines give the use case a library was picked for in place of its tagline (`get` has the rest), and a price only
-for mostly paid libraries.
+for mostly paid libraries. Each slot says why it is there: the brief's words it answers (`interaction (drawer) ->
+vaul`), or the look or site type that needs it (`background (the Cyberpunk look needs it)`); builders skipped a
+look's shader hero listed with no reason.
+Every specialist (not the base kit or a default slot: icons, motion) carries its `usage`, unindented, when its
+install is the default one: in the design eval, builders that got only an install command hand-wrote the part, and
+those that read the usage installed it. The plan opens with "build with every line" and answers the reasons builders
+gave for skipping (shadcn init "rewrites my config", a `<details>` "is enough for one accordion"), and closes the
+picks with "done when every package above is imported where its part is". A judge-free hill climb (builds only, about
+1¢ each) took the share of picks builders used from 46% to 98% on the design briefs, and 96% on six briefs it was
+not tuned on.
 
 Registry text is parsed once per Worker (`parsed` cache): the first plan in an isolate costs about 7ms, later ones
 under 1ms.

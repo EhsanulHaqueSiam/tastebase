@@ -141,6 +141,11 @@ test("a build is faulted for what the page does and for ignoring what it was off
   const sheet = { ...build, look: "apple" as Look, calls: plan_(apple.brief), ...using("vaul"), probe: { key: "", ...page, desktop: { ...probe, text: "today streak ".repeat(9) }, mobile: { ...probe, text: "today streak ".repeat(9) } } };
   assert.deepEqual(judged(apple, { ...sheet, probe: { ...sheet.probe, reduced: { ...probe, click: "opens" as const } } }, true), []);
   assert.match(judged(apple, { ...sheet, probe: { ...sheet.probe, reduced: { ...probe, click: "dead" as const } } }, true).join(), /opens nothing: the control is dead/);
+  // Two interaction jobs (a gallery and a size-guide drawer): one offered library is half of them.
+  const luxury = briefs.find((b) => b.id === "luxury")!;
+  const ring = { ...build, look: "luxury" as Look, calls: plan_(luxury.brief) };
+  assert.deepEqual(judged(luxury, { ...ring, ...using("embla-carousel", "vaul") }, true), []);
+  assert.match(judged(luxury, { ...ring, ...using("embla-carousel") }, true).join(), /uses too few interaction libraries tastebase offered: 1 for 2 jobs/);
 });
 
 test("every library is recognised from its own install and usage, and only implies what it pairs with", () => {
@@ -156,6 +161,9 @@ test("every library is recognised from its own install and usage, and only impli
   // Another package's import is not a library's signature, however unique it is among the usages.
   const common = 'import { useEffect, useRef, useCallback } from "react";\nimport Link from "next/link";\nimport { curveNatural } from "d3-shape";';
   assert.deepEqual(used(trace({ files: { "a.tsx": common } }), false), []);
+  // A stock shadcn/ui part that shadcn init and add write is shadcn/ui's, not a registry that restyles it.
+  const card = 'import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";';
+  assert.deepEqual(used(trace({ files: { "components.json": "{}", "a.tsx": card } }), false), ["shadcn-ui"]);
 });
 
 test("a check only flips when most samples agree, and a regression stays recorded until it is accepted", async (t) => {

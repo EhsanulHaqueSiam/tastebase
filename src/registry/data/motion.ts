@@ -1040,7 +1040,7 @@ export default [
     alternatives: ["liquid-glass-react"],
     install: "npm i glisse",
     usage:
-      "import { Button, Switch } from 'glisse'\n\n<Switch aria-label=\"Wi-Fi\" defaultChecked />\n<Button variant=\"filled\">Continue</Button>",
+      "import { Button, Glass, Slider } from 'glisse'\nimport { Pause } from 'lucide-react'\n\n// A floating panel over a photo or video: Glass is the surface, its controls are glass too.\n<Glass className=\"absolute inset-x-4 bottom-4 flex items-center gap-3 rounded-3xl p-3\">\n  <Button icon={<Pause />} aria-label=\"Pause\" />\n  <Slider aria-label=\"Position\" value={position} max={duration} onValueChange={seek} className=\"flex-1\" />\n  <Button variant=\"filled\">Continue</Button>\n</Glass>",
     note: "Styles inject themselves; theme with the --lg-* CSS variables and data-theme=\"dark\" (or prefers-color-scheme). True refraction of the live backdrop only happens in Chromium; Safari and Firefox get a blurred glass fallback, so design for that baseline. Use <Glass> for custom surfaces. Keep text on glass high contrast and use glass sparingly, for floating controls only.",
     weight: "medium",
     a11y: "ok",

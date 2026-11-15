@@ -5,7 +5,7 @@ description: Use before writing any UI (pages, components, animations, icons, ba
 
 # tastebase
 
-Skill version e3dced5.
+Skill version ec4967f.
 
 Do not build a UI part from scratch when a proven library already has it. tastebase (MCP server `tastebase`)
 knows which library fits which job and which look.
@@ -30,7 +30,8 @@ knows which library fits which job and which look.
    and the plan only fills gaps. Say what you do not want ("no animation"). One part inside existing UI: call
    `pick` with the job ("copy button that confirms", "bottom sheet", "animated price") and the look; if no library
    fits, it says so and names the kit part to use, if any. Pass `framework` if the project is not React.
-4. **Read before installing.** Call `get` for each library you will use, and follow its usage and note.
+4. **Use every pick.** Each plan line is a part the brief or the look needs, with its usage under it: install that
+   library and build the part with it, rather than writing your own. Call `get` for a library's note and parts.
 5. **Install, then adapt.** Install with the project's package manager (`pnpm add` / `bun add` when the
    lockfile says so; run `npx shadcn@latest add ...` as given, after a non-interactive
    `npx shadcn@latest init -b base -p nova` in a fresh app). Add every kit part the screen needs (card, input,

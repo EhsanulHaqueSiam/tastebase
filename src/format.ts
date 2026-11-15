@@ -56,7 +56,8 @@ export const formatResources = (kind: ResourceKind) =>
 export const formatSite = (s: SiteType) => `site: ${s.name} (its rules beat the look's motion rule) | ${s.build} | avoid: ${s.avoid.join("; ")}`;
 
 // The design rules every look answer starts with. The last two hold for every look: in the design eval, pages lost
-// to a missing part of the brief or to a bold look breaking the page far more often than to a library choice.
+// to a missing part of the brief or to a bold look breaking the page far more often than to a library choice, and
+// the judge's most common note on a lost page was a narrow column stranded in empty space at desktop width.
 const rules = (L: Aesthetic) => [
   `vs: ${L.vs}`,
   `type: ${L.type}`,
@@ -64,7 +65,7 @@ const rules = (L: Aesthetic) => [
   `motion: ${L.motion}`,
   `avoid: ${L.avoid.join("; ")}`,
   refs(L),
-  "brief first: build every part it names before styling; the first screen shows the main content working, not an empty hero",
+  "brief first: build every part it names before styling; the first screen shows the main content working, not an empty hero; at desktop width fill it (columns, a side panel), never a phone-width column in empty space",
   "never, whatever the look: text under 4.5:1 contrast (on glass, over its lightest backdrop); a headline clipped or split mid-word at 390px; a font named, not loaded",
 ];
 const lookName = (L: Aesthetic) => `${L.name} (${L.id}${L.family ? `, ${L.family} family` : ""})`;
@@ -88,8 +89,21 @@ const DIY: Partial<Record<Framework, string>> = { "react-native": "React Native'
 const SOURCES = new Set(["look's pick", "look's own kit", "named in the brief"]);
 /** A plan line: the use case it was picked for stands in for its tagline (get has the rest), and only a mostly paid
  * library names its price. */
-const planLine = (s: Scored, fw: Framework, base?: Library) =>
-  `${s.lib.id}: ${s.why === s.lib.tagline ? s.why : SOURCES.has(s.why) ? `${s.lib.tagline} (${s.why})` : s.why} | ${install(s.lib, fw, base)}${paywalled(s.lib) ? ` | mostly paid: ${s.lib.paid?.price}` : ""}${hot(s.lib)}${s.caution ? ` | careful: ${s.caution}` : ""}`;
+const planLine = (s: Scored, fw: Framework, base?: Library, cmd = install(s.lib, fw, base)) =>
+  `${s.lib.id}: ${s.why === s.lib.tagline ? s.why : SOURCES.has(s.why) ? `${s.lib.tagline} (${s.why})` : s.why} | ${cmd}${paywalled(s.lib) ? ` | mostly paid: ${s.lib.paid?.price}` : ""}${hot(s.lib)}${s.caution ? ` | careful: ${s.caution}` : ""}`;
+
+/** The base kit's install with the parts the page needs: a shadcn-style registry adds them by name, an npm kit lists
+ * them. Builders skipped a kit whose line named no parts ("the page is one file"). */
+export function kitInstall(l: Library, fw: Framework, parts: string[]): string {
+  const cmd = install(l, fw);
+  if (!parts.length) return cmd;
+  const m = /^(.*npx shadcn@latest add )(.+)$/.exec(cmd);
+  if (!m) return `${cmd} | use its ${parts.join(", ")}`;
+  const args = m[2]!.split(/\s+/);
+  const scope = /^@[\w-]+\//.exec(args[0]!)?.[0] ?? "";
+  // Its flags stay: Fluid Functionalism's --overwrite keeps the CLI from prompting.
+  return m[1] + [...parts.map((p) => scope + p.toLowerCase().replace(/\s+/g, "-")), ...args.filter((a) => a.startsWith("-"))].join(" ");
+}
 
 /** A step the plan's installs need before anything else: shadcn registry adds fail on a fresh app until init runs. */
 export function firstStep(p: Plan): string | undefined {
@@ -100,10 +114,13 @@ export function firstStep(p: Plan): string | undefined {
 
 /** What to do with a slot nothing curated fills: the look's own "no library", a framework gap, or a job we do not cover. */
 export const emptySlot = (p: Plan, kind: Kind) =>
-  p.look.picks[kind]?.length === 0 ? "no library in this look: plain CSS" : DIY[p.framework] ? `none curated for ${p.framework}; build it with ${DIY[p.framework]}` : "none curated for this; use a dedicated library or build it";
+  p.look.picks[kind]?.length === 0 ? "no library in this look: plain CSS" : kind === "motion" && !p.look.picks.motion ? "no motion library in this look: CSS transitions, as its motion rule says" : DIY[p.framework] ? `none curated for ${p.framework}; build it with ${DIY[p.framework]}` : "none curated for this; use a dedicated library or build it";
 
 /** Phone screens: kit defaults (32px buttons, 16px checkboxes) fail touch, and the keyboard covers the field. */
 export const MOBILE = "tap targets 44px or more (kit defaults are often 32px; size up buttons, checkboxes, toolbar icons), inputs 16px+ so iOS does not zoom, keep the focused field above the keyboard (viewport meta interactive-widget=resizes-content on the web)";
+
+// Why a default slot is there (see the engine's defaults): every page moves where the user acts; a phone screen is touched.
+const DEFAULT_WHY: Partial<Record<Kind, string>> = { motion: "presses, gestures, menus and entrances", icons: "every icon on the page" };
 
 // Picks lead the plan: with the look's rules first, builders read the rules, hand-wrote the page and skipped every install.
 export function formatPlan(p: Plan): string {
@@ -112,7 +129,10 @@ export function formatPlan(p: Plan): string {
     `look: ${lookName(p.look)}${p.lookGuessed ? "; none named in the brief, so defaulted: pass look to change" : ""}${p.also.length ? `; also fits: ${p.also.map((a) => a.id).join(", ")}` : ""}`,
     `framework: ${p.framework}${p.frameworkGuessed ? " (assumed; pass framework)" : ""}`,
     ...(p.skipped.length ? [`left out (brief said no): ${p.skipped.join(", ")}`] : []),
-    "install these first, then adapt them to the rules below; hand-write only the gaps",
+    // Builders read this and still hand-wrote listed parts, "to keep dependencies minimal", because "the project has no
+    // shadcn setup", because init "would rewrite the CSS, tsconfig and Vite config", or with "native <details> rather
+    // than a library for one accordion". So: every line is to be used, and what shadcn's init touches.
+    `build with every line below: run its install${p.items.some((it) => it.pick && /shadcn@latest/.test(install(it.pick.lib, p.framework, base))) ? " (shadcn init works in any React + Tailwind app and adds only components.json, lib/utils.ts and theme tokens)" : ""}, build its part with it (usage under it), then adapt it to the rules below. A hand-written stand-in for a listed part (a <details> for an Accordion) is a miss`,
   ];
   // shadcn registry installs fail on a fresh app until init has run; say it once, non-interactively.
   const init = firstStep(p);
@@ -124,8 +144,21 @@ export function formatPlan(p: Plan): string {
     else if (!it.pick)
       out.push(`${it.kind} -> ${emptySlot(p, it.kind)}`);
     else if (i > 0 && it.pick.lib === base) out.push(`${it.kind} -> ${base.id}: the base kit ships it${it.part ? ` (${it.part})` : ""}${rest}`);
-    else out.push(`${it.pick.lib.addOn ? `add-on for ${base?.id ?? "the kit"}` : it.kind} -> ${planLine(it.pick, p.framework, base)}${rest}`);
+    else {
+      // Why the slot is there: the brief's words, or the look or site that needs it. Builders skipped a look's shader
+      // hero that the plan listed with no reason, as if it were optional.
+      const why = i === 0 ? (it.components?.length ? "its parts for this page" : undefined) : it.asked ?? ((p.site?.needs.includes(it.kind) && `a ${p.site.name} needs it`) || (p.look.needs?.includes(it.kind) && `the ${p.look.name} look needs it`) || DEFAULT_WHY[it.kind] || undefined);
+      const cmd = i === 0 ? kitInstall(it.pick.lib, p.framework, it.components ?? []) : undefined;
+      out.push(`${it.pick.lib.addOn ? `add-on for ${base?.id ?? "the kit"}` : it.kind}${why ? ` (${why})` : ""} -> ${planLine(it.pick, p.framework, base, cmd)}${rest}`);
+      // Each specialist brings its usage: builders that saw only an install hand-wrote the part instead. Not the base kit
+      // or a default slot (icons, motion where the user acts), which builders install and know. The usage is written for the default install; another
+      // framework's or kit's package has its own API (vue-sonner, @blocknote/shadcn). Its indentation and blank lines
+      // go: they were a quarter of it.
+      if (i > 0 && why !== DEFAULT_WHY[it.kind] && install(it.pick.lib, p.framework, base) === it.pick.lib.install) out.push(it.pick.lib.usage.split("\n").flatMap((l) => (l.trim() ? [`  ${l.trim()}`] : [])).join("\n"));
+    }
   }
+  // Builders that skipped picks still called the page done once it built; a check they can run on their own files.
+  out.push("done when: every package above is imported where its part is, and no listed part is hand-written");
   out.push(
     "",
     ...rules(p.look),

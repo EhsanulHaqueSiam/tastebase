@@ -6,6 +6,7 @@ import { randomUUID } from "node:crypto";
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { promisify } from "node:util";
+import { libraries } from "../../src/registry/index.ts";
 import { project, runAgent, skillFile, sources, type Files } from "../shared/agent.ts";
 import { hash, type Sample, type TbCall } from "../shared/ledger.ts";
 import type { Brief } from "./briefs.ts";
@@ -38,7 +39,11 @@ const TEMPLATE: Files = {
 
 // The only commands a build agent may run that change anything. This narrows what it can do; it is not a sandbox:
 // the agent writes code and `pnpm build` runs it, so run this eval only against registry text you have read.
-const ALLOW = ["Bash(pnpm add *)", "Bash(pnpm install)", "Bash(pnpm build)", "Bash(pnpm run build)", "Bash(pnpm shot)", "Bash(pnpm run shot)", "Bash(pnpm dlx shadcn@latest *)", "Bash(npx shadcn@latest *)"];
+// Every registry CLI a plan can hand out (shadcn@latest, boardui@latest...) is allowed as builders write it: plain, with
+// -y or --yes, or through pnpm dlx. Builders denied `npx --yes shadcn@latest init` hand-wrote the kit, where a person
+// would have approved it.
+const CLIS = [...new Set(libraries.flatMap((l) => [l.install, ...Object.values(l.installWith ?? {})]).flatMap((c) => [...c.matchAll(/\bnpx\s+(?:-y\s+|--yes\s+)?(\S+@latest)/g)].map((m) => m[1]!)))].sort();
+const ALLOW = ["Bash(which *)", "Bash(pnpm --version)", "Bash(pnpm -v)", "Bash(pnpm add *)", "Bash(pnpm install)", "Bash(pnpm build)", "Bash(pnpm run build)", "Bash(pnpm shot)", "Bash(pnpm run shot)", ...CLIS.flatMap((c) => [`Bash(npx ${c} *)`, `Bash(npx -y ${c} *)`, `Bash(npx --yes ${c} *)`, `Bash(pnpm dlx ${c} *)`])];
 
 // How the build agent runs. Part of what a build depends on, so changing it builds the pages again.
 const RUN = { turns: 60, allow: ALLOW, maxUsd: 3, timeoutMs: 1_200_000 };

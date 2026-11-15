@@ -43,7 +43,7 @@ Keep things simple: the smallest model that makes the correct behavior unsurpris
 - **look**: an aesthetic guide (`Aesthetic`, `src/registry/aesthetics.ts`): signals, picks per kind, type/colour/motion rules.
 - **site type**: what carries the page, apart from its look: `3d-site`, `motion-site`, `media-site` (`SiteType`,
   `src/registry/sites.ts`). Signals, needs, kinds it drops, picks per kind, build rules.
-- **pick**: best libraries for one job. **plan**: one pick per need for a whole brief.
+- **pick**: best libraries for one job. **plan**: a pick per job for a whole brief, several per kind when it names several.
 - **stats**: stars, weekly star gain, npm downloads. Written to KV by the cron; never committed.
 - **stage**: an isolated Alchemy deployment: `prod`, `pr-<n>` previews, `dev_<user>` local.
 

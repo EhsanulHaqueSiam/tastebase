@@ -51,7 +51,7 @@
     "react-hot-toast": {"pass":true,"fails":[],"calls":[],"samples":["react-hot-toast"],"fp":"0911829abde7","graded":"703454885130"},
     "canvas-confetti": {"pass":true,"fails":[],"calls":[],"samples":["canvas-confetti"],"fp":"07de303644dd","graded":"703454885130"},
     "lenis": {"pass":true,"fails":[],"calls":[],"samples":["lenis"],"fp":"b920dea067f8","graded":"703454885130"},
-    "glisse": {"pass":true,"fails":[],"calls":[],"samples":["glisse"],"fp":"88b2a178b369","graded":"703454885130"},
+    "glisse": {"pass":true,"fails":[],"calls":[],"samples":["glisse"],"fp":"3ac4896d6afd","graded":"703454885130"},
     "liquid-glass-react": {"pass":true,"fails":[],"calls":[],"samples":["liquid-glass-react"],"fp":"f7d7af44dcf7","graded":"703454885130"},
     "liquid-glass": {"pass":true,"fails":[],"calls":[],"samples":["liquid-glass"],"fp":"fd4be7cd5b6d","graded":"703454885130"},
     "skullet": {"pass":true,"fails":[],"calls":[],"samples":["skullet"],"fp":"3ca36f6889a6","graded":"703454885130"},
