@@ -332,8 +332,8 @@ export default [
     alternatives: ["iconify"],
     install: "npm i pixelarticons",
     usage:
-      "import { Heart } from 'pixelarticons/react/Heart'\n\n<Heart width={24} height={24} aria-hidden />",
-    note: "Render at exact multiples of 24px and keep `shape-rendering: crispEdges` on the svg if a parent scales it. Per-icon imports (`pixelarticons/react/Heart`) keep the bundle small. Pairs with a dithered Paper Shaders background and a pixel or mono font for a complete retro look. Outside React import 'pixelarticons/fonts/pixelart-icons-font.css' and use `pixelart-icons-font-heart` classes, or inline the files in pixelarticons/svg.",
+      "import { Heart } from 'pixelarticons/react'\n\n<Heart width={24} height={24} aria-hidden />",
+    note: "Render at exact multiples of 24px and keep `shape-rendering: crispEdges` on the svg if a parent scales it. Import from 'pixelarticons/react' (the per-icon paths no longer resolve); named imports tree-shake. Pairs with a dithered Paper Shaders background and a pixel or mono font for a complete retro look. Outside React import 'pixelarticons/fonts/pixelart-icons-font.css' and use `pixelart-icons-font-heart` classes, or inline the files in pixelarticons/svg.",
     weight: "tiny",
     a11y: "ok",
     maturity: "stable",

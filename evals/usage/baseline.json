@@ -64,7 +64,7 @@
     "iconoir": {"pass":true,"fails":[],"calls":[],"samples":["iconoir"],"fp":"91ea60586510","graded":"703454885130"},
     "hugeicons": {"pass":true,"fails":[],"calls":[],"samples":["hugeicons"],"fp":"ab4c16b5c82c","graded":"703454885130"},
     "remixicon": {"pass":true,"fails":[],"calls":[],"samples":["remixicon"],"fp":"469f115f5261","graded":"703454885130"},
-    "pixelarticons": {"pass":false,"fails":["usage does not compile against pixelarticons: Cannot find module 'pixelarticons/react/Heart' or its corresponding type declarations."],"calls":[],"samples":["pixelarticons"],"fp":"45bebe3a5c35","graded":"703454885130"},
+    "pixelarticons": {"pass":true,"fails":[],"calls":[],"samples":["pixelarticons","pixelarticons"],"fp":"dd475cccc5b1","graded":"703454885130"},
     "web3icons": {"pass":true,"fails":[],"calls":[],"samples":["web3icons"],"fp":"c5e5b3e012a9","graded":"703454885130"},
     "morphicons": {"pass":true,"fails":[],"calls":[],"samples":["morphicons"],"fp":"dc573beaa578","graded":"703454885130"},
     "paper-shaders": {"pass":true,"fails":[],"calls":[],"samples":["paper-shaders"],"fp":"b46b85dbde86","graded":"703454885130"},

@@ -1,13 +1,13 @@
 {
   "model": "claude-haiku-5-5",
   "cases": {
-    "page-plans-first": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Landing page for Acme Mail, an email API for developers. Dev-tool look like Resend, with a shader background behind the hero. Single file src/App.tsx.","framework":"react"}]],"samples":["4796bf40-5283-445a-9244-3e3188d1967f"],"fp":"af67273c472a","graded":"39319cb1eddf"},
-    "one-job-picks": {"pass":true,"fails":[],"calls":[["pick",{"need":"toast notification after form save","framework":"react"}]],"samples":["98f67b92-ad6c-4cde-9bce-9de5f04f6dcb","46a40f36-435f-47e3-ac05-4a529f8cd8e3","13bdcdd2-da26-4413-8095-79cd1717eca5"],"fp":"c5ad604bb8ff","graded":"27f1ae324b7f"},
-    "vue-project": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Command palette opened with cmd+k, Nuxt 4 + Vue 3 app","framework":"vue"}]],"samples":["9971768a-c3eb-42f8-8ff7-5dd3dc9f7a4d"],"fp":"c87796d72667","graded":"ed790223fb0f"},
-    "keeps-project-kit": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Billing page with a plan picker and an invoices table, React + TypeScript, in src/Billing.tsx","framework":"react"}]],"samples":["7c459b45-03fb-48ca-81f8-8a669c7c4579"],"fp":"b0c88cfa8b11","graded":"9b53a69e8b43"},
-    "nothing-fits": {"pass":true,"fails":[],"calls":[],"samples":["8ecddd46-5032-48d8-bfa1-03b9c5ddead9"],"fp":"9120758bc185","graded":"d6844456d148"},
-    "trending-when-asked": {"pass":true,"fails":[],"calls":[["trending",{}]],"samples":["eacbf3c9-01a8-43b7-be02-2be29b0ffa79"],"fp":"4d394c382bb6","graded":"d94cd22f93ce"},
-    "control-typo": {"pass":true,"fails":[],"calls":[],"samples":["3b0ab645-db67-4177-8ecc-da1757b0487c"],"fp":"18b681b1c0ca","graded":"9380383ead37"},
-    "control-backend": {"pass":true,"fails":[],"calls":[],"samples":["dfed1955-a41f-4ebf-9251-613e8ed6a3fc"],"fp":"f2744e209c09","graded":"f392600cd9ca"}
+    "page-plans-first": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Landing page for Acme Mail, an email API for developers. Dev-tool look like Resend, shader background behind the hero. Stack: React + Vite + Tailwind, single src/App.tsx.","framework":"react"}]],"samples":["001d8055-0987-4ca7-9e4e-cf36add14843"],"fp":"3ba0df61838d","graded":"750dc6b10995"},
+    "one-job-picks": {"pass":true,"fails":[],"calls":[["pick",{"need":"toast notification","framework":"react"}]],"samples":["82c1ff64-a623-44af-8d5e-4a5465c448bd"],"fp":"1594b76a0800","graded":"db3d301834e5"},
+    "vue-project": {"pass":true,"fails":[],"calls":[["pick",{"need":"command palette with cmd+k, searchable command list, keyboard navigation","framework":"vue"}]],"samples":["e4c6bb2d-f39f-45ee-b8be-68b7ed7ae7b3"],"fp":"cf38e3c3b929","graded":"ab57cb551074"},
+    "keeps-project-kit": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Billing page with a plan picker and an invoices table, React + Mantine 8 + Tailwind 4 + Vite + TypeScript","framework":"react"}]],"samples":["4c14e7be-1f6c-44af-a23b-4581d8851fa1"],"fp":"aabf9794846b","graded":"bca3531543fa"},
+    "nothing-fits": {"pass":true,"fails":[],"calls":[],"samples":["f29ae00d-5e48-422e-89f8-2e24a295075f"],"fp":"d2c682bf8bb7","graded":"b04c0cffbc85"},
+    "trending-when-asked": {"pass":true,"fails":[],"calls":[["trending",{}]],"samples":["66e3609f-de05-42a8-84d0-8743e494492f"],"fp":"7864d046e59e","graded":"a3b4294fa289"},
+    "control-typo": {"pass":true,"fails":[],"calls":[],"samples":["61b7be3b-235a-4bd6-956f-e2dfcd4df959"],"fp":"c831cc247b64","graded":"643ad43b2d35"},
+    "control-backend": {"pass":true,"fails":[],"calls":[],"samples":["6d4b9156-aac4-4e7b-96e0-96581993012c"],"fp":"3e163ac0d41e","graded":"16fcceddf522"}
   }
 }
