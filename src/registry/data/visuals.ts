@@ -26,8 +26,8 @@ export default [
     install: "npm i lucide-react",
     installFor: { vue: "npm i @lucide/vue", svelte: "npm i @lucide/svelte", solid: "npm i lucide-solid", angular: "npm i @lucide/angular", vanilla: "npm i lucide", "react-native": "npx expo install lucide-react-native react-native-svg" },
     usage:
-      "import { Search } from 'lucide-react'\n\n<Search size={16} strokeWidth={1.5} aria-hidden />",
-    note: "Default pick when the kit is shadcn/ui; its components already import lucide-react. Set strokeWidth once per product (1.5 at 16-20px reads finer and more premium than the default 2) and keep it consistent. Use `absoluteStrokeWidth` when scaling icons up so lines do not thicken. Icons are decorative by default: add aria-hidden next to visible text, or an aria-label on the parent icon-only button.",
+      "import { LucideProvider, Search } from 'lucide-react'\n\n<LucideProvider size={16} strokeWidth={1.5}>\n  <Search aria-hidden />\n</LucideProvider>",
+    note: "Default pick when the kit is shadcn/ui; its components already import lucide-react. Wrap the app in LucideProvider to set size and strokeWidth once (1.5 at 16-20px reads finer and more premium than the default 2), not per icon. Use `nonScalingStroke` when scaling icons up so lines do not thicken. Icons are decorative by default: add aria-hidden next to visible text, or an aria-label on the parent icon-only button.",
     weight: "tiny",
     a11y: "ok",
     maturity: "established",
@@ -64,7 +64,7 @@ export default [
     install: "npm i @phosphor-icons/react",
     installFor: { vue: "npm i @phosphor-icons/vue", svelte: "npm i phosphor-svelte", solid: "npm i @phosphor-icons/web", angular: "npm i @phosphor-icons/web", vanilla: "npm i @phosphor-icons/web", "react-native": "npx expo install phosphor-react-native react-native-svg" },
     usage:
-      "import { HeartIcon } from '@phosphor-icons/react'\n\n<HeartIcon size={20} weight={liked ? 'fill' : 'regular'} aria-hidden />",
+      "import { IconContext, HeartIcon } from '@phosphor-icons/react'\n\n<IconContext.Provider value={{ size: 20, weight: 'regular' }}>\n  <HeartIcon weight={liked ? 'fill' : 'regular'} aria-hidden />\n</IconContext.Provider>",
     note: "The weight system is the reason to pick it: flip regular to fill for active states instead of changing colour alone. Wrap the app in IconContext.Provider to set size and weight once. Pick one weight for the product (light or regular) and keep bold and fill for emphasis only. shadcn's Lyra preset uses Phosphor, so it is a supported shadcn icon library. Solid, Angular and plain HTML: import '@phosphor-icons/web/regular' (one import per weight) and use `ph ph-heart` classes on an `<i>`.",
     weight: "small",
     a11y: "ok",

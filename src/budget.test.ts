@@ -39,7 +39,8 @@ const BUDGET = {
   // saw only an install hand-wrote the part; one `get` per pick would cost more. Each slot also says why it is there;
   // the line that says to build with every pick adds 20, and the desktop-width rule 25. The base kit's parts for the
   // page, the default slots' reasons and the "done when" line add 90; answering why builders skipped installs, 15.
-  plan: 1820,
+  // Raised from 1820: the icon pick shows how to set size and stroke once (35), since builders sized each icon apart.
+  plan: 1860,
   pick: 250,
   get: 650, // raised from 550 for the cost line and parts list (capped); saves a docs fetch per library
 };

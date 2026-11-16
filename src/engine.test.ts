@@ -443,7 +443,7 @@ test("a whole page gets a library for every part, and the kit parts for its sect
 test("a plan shows each specialist's usage, written for the package it installs", () => {
   const technical = formatPlan(plan(libraries, aesthetics, "Landing page for Relay, an email API for developers, with a code sample."));
   assert.match(technical, /^code \(code sample\) -> shiki: .*\n {2}import .*\n {2}import \{ codeToHtml \} from 'shiki\/bundle\/web'/m);
-  assert.doesNotMatch(technical, /lucide-react'/); // icons need no usage
+  assert.match(technical, /^icons \(.*\) -> lucide: .*\n {2}import \{ LucideProvider/m); // size and stroke set once, not per icon
   assert.doesNotMatch(formatPlan(plan(libraries, aesthetics, "vue admin app with toasts")), /from 'sonner'/); // vue-sonner's own API
   // A slot the brief never asked for says what needs it, so it does not read as optional.
   assert.match(formatPlan(plan(libraries, aesthetics, "Landing page for a cyberpunk racing game.")), /^background \(the Cyberpunk look needs it\) -> paper-shaders/m);

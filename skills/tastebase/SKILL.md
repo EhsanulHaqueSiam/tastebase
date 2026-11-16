@@ -5,7 +5,7 @@ description: Use before writing any UI (pages, components, animations, icons, ba
 
 # tastebase
 
-Skill version ec4967f.
+Skill version 10f7990.
 
 Do not build a UI part from scratch when a proven library already has it. tastebase (MCP server `tastebase`)
 knows which library fits which job and which look.
@@ -19,7 +19,8 @@ knows which library fits which job and which look.
    `get references` (Refero Styles and Devault give a real site's DESIGN.md), and tell the user in one line how to
    connect one: Mobbin (Pro plan): `claude plugin marketplace add mobbin/skills && claude plugin install mobbin@mobbin`;
    Refero (paid MCP; the free Refero Skill: `npx skills add https://github.com/referodesign/refero_skill --skill refero-design`);
-   Inspo (free): `npx -y inspo-mcp install`. Name the references you used.
+   Inspo (free): `npx -y inspo-mcp install`. Name the references you used and keep their images (videos for
+   motion) for step 8.
 2. **Read the look.** Take it from the user's words ("like Linear", "liquid glass", "neo-brutalism") and from the
    project: its component kit, fonts, colours, DESIGN.md. `get looks` lists every look id by family; `get <look>`
    gives its rules, how it differs from look-alikes (`vs`) and its references. If neither says, `plan` picks one;
@@ -43,6 +44,15 @@ knows which library fits which job and which look.
 7. **Check before you call it done.** Render every screen and look at a screenshot at desktop width and at
    ~390px, next to your references. Run the craft check below on what you see and fix each "no". Where the
    look's rules differ (a gradient look, a maximal look), the look wins, except on item 1.
+8. **Review until 9.5.** Reviewers: the `council` skill if you have it (three reviewers on different models), else
+   one fresh subagent that did not build it; with neither, review it yourself, strictly. Each scores out of 10 and
+   names the fixes that would raise the score. Fix what holds up, capture again and review again, until every score
+   is 9.5 or more. Fixes serve the brief: do not add scope to raise a score.
+   - **Screens:** one PNG with every screen at desktop and ~390px, given with the reference images from step 1 and
+     the craft check.
+   - **Motion:** record each interaction and give frames from it (6 to 8 per transition, with their times) or a
+     breakdown (what moves, from where, how long, which easing, how it exits), with the references' videos and the
+     `emil-design-eng` skill if you have it, else the craft check's motion item.
 
 ## Craft check
 
@@ -59,7 +69,8 @@ knows which library fits which job and which look.
 6. **Content.** Real names, numbers, prices and copy for this product. No lorem ipsum or Jane Doe. Ask the user
    for what you lack; never invent testimonials or stats.
 7. **Details.** One radius scale, with nested radius = outer radius minus padding. Thin, subtle 1px borders, soft
-   layered shadows, icons at one size and stroke, aligned with their text.
+   layered shadows, icons from one library at one size and stroke (set once with its provider, as the plan's usage
+   shows), aligned with their text.
 8. **Motion.** Motion starts where the user acted: a menu grows from its button, toasts slide in from the edge and
    stack, a sheet follows the finger. Short ease-out, closing faster than opening.
 9. **Composition.** Each width is balanced: no dead half-screen or column ending far above its neighbour at desktop.
