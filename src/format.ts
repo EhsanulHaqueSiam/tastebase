@@ -120,7 +120,7 @@ export const emptySlot = (p: Plan, kind: Kind) =>
 export const MOBILE = "tap targets 44px or more (kit defaults are often 32px; size up buttons, checkboxes, toolbar icons), inputs 16px+ so iOS does not zoom, keep the focused field above the keyboard (viewport meta interactive-widget=resizes-content on the web)";
 
 // Why a default slot is there (see the engine's defaults): every page moves where the user acts; a phone screen is touched.
-const DEFAULT_WHY: Partial<Record<Kind, string>> = { motion: "presses, gestures, menus and entrances", icons: "every icon on the page" };
+const DEFAULT_WHY: Partial<Record<Kind, string>> = { motion: "presses, gestures, menus and entrances", icons: "every icon on the page: one size and stroke, set once" };
 
 // Picks lead the plan: with the look's rules first, builders read the rules, hand-wrote the page and skipped every install.
 export function formatPlan(p: Plan): string {
@@ -151,10 +151,11 @@ export function formatPlan(p: Plan): string {
       const cmd = i === 0 ? kitInstall(it.pick.lib, p.framework, it.components ?? []) : undefined;
       out.push(`${it.pick.lib.addOn ? `add-on for ${base?.id ?? "the kit"}` : it.kind}${why ? ` (${why})` : ""} -> ${planLine(it.pick, p.framework, base, cmd)}${rest}`);
       // Each specialist brings its usage: builders that saw only an install hand-wrote the part instead. Not the base kit
-      // or a default slot (icons, motion where the user acts), which builders install and know. The usage is written for the default install; another
+      // or motion where the user acts, which builders install and know. Icons do: builders knew lucide but set size and
+      // stroke per icon (26/18/18px, strokes 2.2 and 3 on one page); the usage sets them once. The usage is written for the default install; another
       // framework's or kit's package has its own API (vue-sonner, @blocknote/shadcn). Its indentation and blank lines
       // go: they were a quarter of it.
-      if (i > 0 && why !== DEFAULT_WHY[it.kind] && install(it.pick.lib, p.framework, base) === it.pick.lib.install) out.push(it.pick.lib.usage.split("\n").flatMap((l) => (l.trim() ? [`  ${l.trim()}`] : [])).join("\n"));
+      if (i > 0 && (it.kind === "icons" || why !== DEFAULT_WHY[it.kind]) && install(it.pick.lib, p.framework, base) === it.pick.lib.install) out.push(it.pick.lib.usage.split("\n").flatMap((l) => (l.trim() ? [`  ${l.trim()}`] : [])).join("\n"));
     }
   }
   // Builders that skipped picks still called the page done once it built; a check they can run on their own files.
