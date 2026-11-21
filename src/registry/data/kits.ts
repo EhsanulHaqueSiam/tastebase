@@ -1101,7 +1101,7 @@ export default [
         "Command.Separator", "Command.Empty", "Command.Loading", "useCommandState",
       ],
     },
-    url: "https://cmdk.paco.me",
+    url: "https://github.com/dip/cmdk", // cmdk.paco.me now redirects here
     repo: "https://github.com/dip/cmdk",
     npm: "cmdk",
     author: "Paco Coursey",
