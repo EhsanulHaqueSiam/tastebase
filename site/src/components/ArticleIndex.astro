@@ -1,0 +1,34 @@
+---
+// /best and /alternatives: every article as a card, its count and the first three libraries it covers.
+import { ArrowUpRight } from "lucide-react";
+import type { Article } from "../lib/articles.ts";
+
+interface Props {
+  title: string;
+  lede: string;
+  label: string;
+  articles: Article[];
+}
+const { title, lede, label, articles } = Astro.props;
+---
+
+<div class="mx-auto max-w-[1440px] px-4 pt-20 pb-32 lg:px-6">
+  <h1 class="enter text-[clamp(32px,4vw,44px)] leading-none font-semibold tracking-[-0.04em]">{title}</h1>
+  <p class="enter mt-3 max-w-3xl text-[15.5px] text-fg2">{lede}</p>
+  <div class="mt-8 flex items-center gap-4 text-[14px] font-medium">
+    <span>{label}</span><span class="h-px flex-1 border-t border-dashed border-line2"></span><span class="text-fg2">{articles.length} articles</span>
+  </div>
+  <ul class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
+    {
+      articles.map((a) => (
+        <li>
+          <a href={a.path} class="group flex h-full min-h-[210px] flex-col rounded-2xl bg-s1 p-5 shadow-[0_0_0_1px_var(--color-line)] transition-[translate,box-shadow] duration-200 ease-[var(--ease-out)] hover:-translate-y-1 hover:shadow-[0_0_0_1px_var(--color-line2),0_18px_40px_-12px_var(--drop-lift)]">
+            <span class="text-[22px] leading-[1.05] font-semibold tracking-[-0.03em]">{a.title}</span>
+            <span class="mt-3 text-[13.5px] text-fg2">{a.libs.length} libraries, including {a.libs.slice(0, 3).map((l) => l.name).join(", ")}</span>
+            <span class="mt-auto grid size-8 place-items-center self-end rounded-lg bg-s3 text-fg2 transition-colors group-hover:bg-fg group-hover:text-bg"><ArrowUpRight size={15} /></span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</div>

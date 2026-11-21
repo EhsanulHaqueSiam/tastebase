@@ -41,7 +41,7 @@ export default function PlanDemo({ initial, briefs }: { initial: PlanJson; brief
             <textarea value={brief} onChange={(e) => setBrief(e.target.value)} rows={3} className="w-full resize-none rounded-xl bg-transparent p-3 text-[15px] outline-none" aria-label="App brief" />
             <div className="flex flex-wrap gap-1.5 p-1.5">
               {briefs.map((b) => (
-                <button key={b} onClick={() => setBrief(b)} className={`press rounded-full px-3 py-1.5 text-[12.5px] ${b === brief ? "bg-fg text-black" : "bg-s3 text-fg2 hover:text-fg"}`}>
+                <button key={b} onClick={() => setBrief(b)} className={`press rounded-full px-3 py-1.5 text-[12.5px] ${b === brief ? "bg-fg text-bg" : "bg-s3 text-fg2 hover:text-fg"}`}>
                   {b.split(" with")[0]}
                 </button>
               ))}

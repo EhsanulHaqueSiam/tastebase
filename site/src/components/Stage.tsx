@@ -2,6 +2,7 @@ import { ArrowUpRight } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { shot } from "../lib/kinds.ts";
+import { withUtm } from "../lib/utm.ts";
 import { demos } from "./Demos.tsx";
 
 /** Center pane on a library page: the live demo when we have one, else a screenshot of its site. */
@@ -18,7 +19,7 @@ export default function Stage({ id, name, url }: { id: string; name: string; url
           </button>
         ))}
         <span className="flex-1" />
-        <a href={url} target="_blank" rel="noreferrer" className="press inline-flex items-center gap-1 text-[12.5px] text-fg2 hover:text-fg">Open site <ArrowUpRight size={13} /></a>
+        <a href={withUtm(url, "embed")} target="_blank" rel="noopener" className="press inline-flex items-center gap-1 text-[12.5px] text-fg2 hover:text-fg">Open site <ArrowUpRight size={13} /></a>
       </div>
       <div className="dots relative grid flex-1 place-items-center overflow-hidden p-6">
         <AnimatePresence mode="wait">

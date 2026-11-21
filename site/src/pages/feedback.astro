@@ -1,0 +1,19 @@
+---
+// /feedback: anything about the site, a pick or the MCP server. The form emails the admin (/api/forms). Prerendered.
+import Form from "../components/Form.tsx";
+import FormPage from "../components/FormPage.astro";
+import Base from "../layouts/Base.astro";
+
+export const prerender = true;
+---
+
+<Base title="Feedback · tastebase" description="Tell us what's wrong, missing or great on tastebase.">
+  <FormPage
+    title="Feedback"
+    lede="A wrong pick, a broken page, a library we should drop, or something you liked. It all helps."
+    listTitle="Good feedback"
+    points={["For a wrong pick, paste the exact brief or job you asked for.", "For a bug, say what you did and what you expected.", "Leave an email if you'd like a reply."]}
+  >
+    <Form client:load form="feedback" />
+  </FormPage>
+</Base>

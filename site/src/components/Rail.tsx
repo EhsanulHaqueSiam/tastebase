@@ -44,7 +44,7 @@ export default function Rail({ path: initial }: { path: string }) {
 
   return (
     <MotionConfig reducedMotion="user">
-      <nav aria-label="Sections" className="fixed inset-y-0 left-0 z-40 hidden w-14 flex-col items-center gap-1 py-3 lg:flex" onPointerLeave={hide}>
+      <nav aria-label="Sections" data-shell="rail" className="fixed inset-y-0 left-0 z-40 hidden w-14 flex-col items-center gap-1 py-3 lg:flex" onPointerLeave={hide}>
         <a href="/" aria-label="tastebase home" className="group mb-3 grid size-9 place-items-center">
           <svg viewBox="0 0 100 100" className="size-5" aria-hidden="true">
             <g fill="none" stroke="currentColor" strokeWidth="13" strokeLinecap="round"><path d="M44 18V64Q44 80 60 80H68" /><path d="M28 40H64" /></g>

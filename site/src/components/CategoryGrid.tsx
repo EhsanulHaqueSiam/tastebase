@@ -1,8 +1,10 @@
 // A category page's grid: a pricing filter (All, Free, Paid, Freemium, each with its count) over a 4-column card grid,
-// with an empty state that offers the way back. The filter lives in ?pricing= so a filtered page can be linked.
+// with an empty state that offers the way back. Sponsors lead the grid and follow every 8th card (lib/sponsors.ts).
+// The filter lives in ?pricing= so a filtered page can be linked.
 import { SearchX } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { Listing, Pricing } from "../lib/categories.ts";
+import { liveSponsors, sponsors, withSponsors } from "../lib/sponsors.ts";
 import { ListingCard } from "./ListingCard.tsx";
 
 const FILTERS = [["all", "All"], ["free", "Free"], ["paid", "Paid"], ["freemium", "Freemium"]] as const;
@@ -11,6 +13,8 @@ const isFilter = (v: string | null): v is Filter => FILTERS.some(([id]) => id ==
 
 export default function CategoryGrid({ items, label }: { items: Listing[]; label: string }) {
   const [filter, setFilter] = useState<Filter>("all");
+  const [live, setLive] = useState<ReturnType<typeof liveSponsors>>([]);
+  useEffect(() => setLive(liveSponsors(sponsors)), []); // after hydration: the date check runs at view time, not build time
   useEffect(() => {
     const p = new URLSearchParams(location.search).get("pricing");
     if (isFilter(p)) setFilter(p);
@@ -40,7 +44,7 @@ export default function CategoryGrid({ items, label }: { items: Listing[]; label
 
       {shown.length ? (
         <div className="mt-6 grid grid-cols-2 gap-3 pb-10 sm:gap-5 lg:grid-cols-4">
-          {shown.map((item, i) => <ListingCard key={item.id} item={item} eager={i < 4} />)}
+          {withSponsors(shown, live).map((slot, i) => ("sponsor" in slot ? <ListingCard key={slot.key} sponsor={slot.sponsor} where="category-grid" /> : <ListingCard key={slot.key} item={slot.item} eager={i < 4} />))}
         </div>
       ) : (
         <div role="status" className="mt-6 flex min-h-56 flex-col items-center justify-center rounded-xl bg-s1 px-6 py-10 text-center shadow-[inset_0_0_0_1px_var(--color-line)]">

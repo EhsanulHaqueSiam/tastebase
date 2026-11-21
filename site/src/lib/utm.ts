@@ -12,3 +12,24 @@ export function withUtm(url: string, content?: string) {
   if (content) u.searchParams.set("utm_content", content);
   return u.toString();
 }
+
+/** Shares a page of ours (the Web Share sheet where there is one, else the clipboard), tagged so shared visits are
+ *  told apart from organic ones. Resolves "copied" when it fell back to the clipboard, "shared" otherwise. */
+export async function sharePage(title: string, content: string): Promise<"shared" | "copied" | "cancelled"> {
+  const u = new URL(location.href);
+  u.search = "";
+  u.searchParams.set("utm_source", "share");
+  u.searchParams.set("utm_medium", "share-button");
+  u.searchParams.set("utm_content", content);
+  const url = u.toString();
+  try {
+    if (navigator.share) {
+      await navigator.share({ title: `${title} · tastebase`, text: `${title}, on tastebase`, url });
+      return "shared";
+    }
+    await navigator.clipboard.writeText(url);
+    return "copied";
+  } catch {
+    return "cancelled"; // dismissed the share sheet, or the clipboard is blocked
+  }
+}
