@@ -1,6 +1,7 @@
 ---
 // Page shell: head, header, view transitions, and the islands that persist across pages (palette + toasts).
 import { ClientRouter } from "astro:transitions";
+import AccountButton from "../components/AccountButton.tsx";
 import BackToTop from "../components/BackToTop.tsx";
 import { GithubMark } from "../components/GithubMark.tsx";
 import HeaderSearch from "../components/HeaderSearch.tsx";
@@ -56,6 +57,7 @@ const current = sections.find((s) => isCurrent(s.href, path));
       <span class="hidden text-[13.5px] text-fg2 lg:inline">tastebase <span class="mx-1.5 text-fg3">/</span> <b class="font-medium text-fg" data-crumb>{current?.label ?? ""}</b></span>
       <span class="flex-1"></span>
       <HeaderSearch client:idle />
+      <AccountButton client:idle />
       <a href="https://github.com/EhsanulHaqueSiam/tastebase" aria-label="GitHub" class="press text-fg2 hover:text-fg lg:hidden"><GithubMark size={18} /></a>
     </header>
 

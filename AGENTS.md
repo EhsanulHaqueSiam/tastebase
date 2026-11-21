@@ -30,9 +30,9 @@ This codebase is yours: what it's for and how it's built are your call, and you'
    compact text, not JSON. If you raise a budget, say why in the PR.
 3. **The site feels premium and stays light.** Motion is feedback, not decoration on a loop. No continuously
    repainting animation except shaders, which pause offscreen and under `prefers-reduced-motion`.
-4. **It runs on Cloudflare's free plan.** One Worker, one KV namespace, one Analytics Engine dataset, Workers AI (screenshot matching, free daily allocation), an hourly cron. The limits that bite:
+4. **It runs on Cloudflare's free plan.** One Worker, one KV namespace, one D1 database (accounts, hearts, folders), one Analytics Engine dataset, Workers AI (screenshot matching, free daily allocation), an hourly cron. The limits that bite:
    10ms CPU per request (keep pages prerendered; check `pnpm logs` for `cpu:`), 50 subrequests per invocation,
-   1,000 KV writes a day.
+   1,000 KV writes a day, D1's 100,000 row writes and 5 million row reads a day.
 
 Keep things simple: the smallest model that makes the correct behavior unsurprising. Fight scope creep.
 

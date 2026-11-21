@@ -2,6 +2,7 @@
 // Library page, three panes: kinds sidebar, live stage + code tabs, and the notes an agent reads.
 import { ArrowUpRight, Check, CircleDollarSign, Package, X } from "lucide-react";
 import CodeTabs from "../../components/CodeTabs.tsx";
+import FolderPicker from "../../components/FolderPicker.tsx";
 import McpSetup from "../../components/McpSetup.tsx";
 import { integrations } from "../../../../src/registry/integrations.ts";
 import { CopyButton } from "../../components/fx.tsx";
@@ -75,6 +76,7 @@ const facts: [string, string][] = [
           <h1 class="text-lg font-semibold tracking-[-0.02em]" transition:name="lib-name">{lib.name}</h1>
           <div class="text-[13px] text-fg2">by {lib.author}</div>
         </div>
+        <FolderPicker client:idle id={lib.id} name={lib.name} label className="ml-auto" />
       </div>
       <p class="mt-3 text-fg2">{lib.tagline}</p>
       <div class="mt-3 flex gap-3 text-[13px] text-fg2">

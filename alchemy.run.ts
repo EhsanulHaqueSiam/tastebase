@@ -16,6 +16,8 @@ import * as Effect from "effect/Effect";
 import path from "node:path";
 
 export const Stats = Cloudflare.KV.Namespace("Stats");
+// Accounts (better-auth), hearts and folders. Absolute path: `pnpm dev` runs from site/, CI from the root.
+export const Db = Cloudflare.D1.Database("Db", { migrations: path.join(import.meta.dirname, "migrations") });
 
 export const Website = Cloudflare.Website.Astro(
   "Website",
@@ -46,10 +48,23 @@ export const Website = Cloudflare.Website.Astro(
       // account id. Both are optional: without them the cron skips usage and everything else runs.
       ...(process.env.USAGE_API_TOKEN && { USAGE_API_TOKEN: Config.Redacted("USAGE_API_TOKEN") }),
       ...(process.env.CLOUDFLARE_ACCOUNT_ID && { CF_ACCOUNT_ID: process.env.CLOUDFLARE_ACCOUNT_ID }),
+      DB: Db,
+      // GitHub sign-in (site/src/lib/auth.ts). One OAuth app serves every stage: its redirect URIs are prod,
+      // any *.ehsanulsiam.workers.dev (previews), localhost:1337 and 127.0.0.1 on any port. Optional: without the keys (CI checks) the site
+      // runs signed out and /api/auth/* answers 404.
+      ...authEnv(),
     },
   };
   }),
 );
+
+// All three or none: a half-configured provider would fail at sign-in, not at deploy. Another provider (X, Google)
+// adds its two keys here and in site/src/lib/auth.ts.
+function authEnv() {
+  const { AUTH_GITHUB_ID, AUTH_GITHUB_SECRET, BETTER_AUTH_SECRET } = process.env;
+  if (!AUTH_GITHUB_ID || !AUTH_GITHUB_SECRET || !BETTER_AUTH_SECRET) return undefined;
+  return { AUTH_GITHUB_ID, AUTH_GITHUB_SECRET: Config.Redacted("AUTH_GITHUB_SECRET"), BETTER_AUTH_SECRET: Config.Redacted("BETTER_AUTH_SECRET") };
+}
 
 export type WebsiteEnv = Cloudflare.InferEnv<typeof Website>;
 
@@ -62,6 +77,7 @@ export default Alchemy.Stack(
   Effect.gen(function* () {
     const site = yield* Website;
     const stats = yield* Stats;
-    return { url: site.url, workerName: site.workerName, statsNamespaceId: stats.namespaceId };
+    const db = yield* Db;
+    return { url: site.url, workerName: site.workerName, statsNamespaceId: stats.namespaceId, databaseId: db.databaseId };
   }),
 );

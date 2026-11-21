@@ -7,6 +7,7 @@ import { haptic } from "../lib/haptics.ts";
 import { kindMeta, shot } from "../lib/kinds.ts";
 import { toggleSaved, useSaved } from "../lib/saved.ts";
 import type { ShelfLib } from "../lib/server.ts";
+import FolderPicker from "./FolderPicker.tsx";
 import { CopyButton, SpotCard } from "./fx.tsx";
 import { GithubMark } from "./GithubMark.tsx";
 import { LibMark } from "./LibMark.tsx";
@@ -52,7 +53,7 @@ export function KindIcon({ kind, size = 15 }: { kind: Kind; size?: number }) {
 // Seven spokes of paired confetti for the save burst, from Bencho's Like block.
 const CONFETTI = ["#f48ea7", "#cc8ef5", "#8ce8c3", "#91d2fa", "#f5a524", "#e5484d", "#9fc7fa"];
 
-/** Heart toggle for one library; saved ids live in localStorage (lib/saved.ts). Saving blooms and bursts (.lk-* in
+/** Heart toggle for one library; saved ids live in the account when signed in, else localStorage (lib/saved.ts). Saving blooms and bursts (.lk-* in
  *  styles.css, after Bencho's Like) and gives a success haptic on phones; unsaving is quiet. */
 export function SaveButton({ id, name, className = "" }: { id: string; name: string; className?: string }) {
   const on = useSaved().includes(id);
@@ -88,7 +89,7 @@ export function SaveButton({ id, name, className = "" }: { id: string; name: str
   );
 }
 
-/** Screenshot card: links to the library page; install, GitHub and save sit outside the link. */
+/** Screenshot card: links to the library page; install, GitHub, folder and save sit outside the link. */
 export function LibCard({ lib, badge, pick }: { lib: ShelfLib; badge?: string; pick?: boolean }) {
   return (
     <div className="anim-host group relative">
@@ -119,6 +120,7 @@ export function LibCard({ lib, badge, pick }: { lib: ShelfLib; badge?: string; p
             <GithubMark size={14} />
           </a>
         )}
+        <FolderPicker id={lib.id} name={lib.name} />
       </div>
     </div>
   );

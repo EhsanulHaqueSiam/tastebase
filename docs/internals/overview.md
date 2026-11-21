@@ -6,6 +6,10 @@ src/registry (data) ──> src/engine.ts (pick, plan) ──> src/format.ts (co
         │                       └──> site/src/lib/server.ts ──> /api/plan, /api/pick, prerendered pages
         │                                                      └──> /mcp (hosted)   src/cli.ts (stdio)
         └── src/trending.ts <── cron (hourly) ──> KV `stats:v1` ──> merged in at request time
+
+browser ──> /api/auth/* (better-auth, GitHub) ──┐
+        ──> /api/me, /api/saved, /api/folders ──┴──> D1 (migrations/): user, session, saved, folder
+        ──> /f/<id> (SSR, a shared folder)
 ```
 
 One Cloudflare Worker (declared in `alchemy.run.ts`) does everything:
@@ -15,6 +19,8 @@ One Cloudflare Worker (declared in `alchemy.run.ts`) does everything:
 - **`/mcp`** is the same `createServer` as the npx CLI, behind the SDK's web-standard Streamable HTTP
   transport. Stateless: a fresh server per request, JSON responses, nothing to store.
 - **`/api/*`** returns JSON for islands (hero search, plan box, ⌘K palette). Same engine as MCP.
+- **Accounts** (`site/src/lib/auth.ts`, `auth-data.ts`): better-auth on D1, GitHub sign-in, a session cookie.
+  The browser store (`site/src/lib/saved.ts`) holds hearts and folders for every island.
 - **`scheduled()`** (`site/src/worker.ts`) refreshes the 24 stalest libraries' stats each hour.
 
 ## Decisions and their reasons
@@ -35,6 +41,19 @@ One Cloudflare Worker (declared in `alchemy.run.ts`) does everything:
 - **Prerendered pages, live stats from `/api/stats`.** The free plan allows 10ms of CPU per request; an SSR
   render of the home page took ~126ms on a cache miss. Static pages cost nothing, and one cached KV read
   per visitor fills in the live numbers.
+- **Signed-out visits never reach the Worker for account data.** Pages stay static; the browser asks `/api/me`
+  only when it started a sign-in itself (a localStorage flag), so the free plan's 100k requests a day are spent on
+  people who have accounts. Signed out, hearts stay in localStorage; the first sign-in on a device moves them into
+  the account and clears them locally.
+- **Hearts and folders hold registry ids only.** The API drops any id the registry does not know, which also bounds
+  what one account can store; folders are capped at 100 per user. Every write is scoped `where userId = ?`, and a
+  folder that is not yours answers 404, never 403, so private ids do not leak.
+- **One GitHub OAuth app for every stage.** Its redirect URIs are prod, `*.ehsanulsiam.workers.dev` (wildcard, so
+  `pr-<n>` previews sign in too), `localhost:1337` and `127.0.0.1` on any port (GitHub's loopback rule). better-auth
+  builds the callback from the request host, limited to those hosts (`baseURL.allowedHosts`). Without the keys
+  (CI's `pnpm check`) `/api/auth/*` answers 404 and the site runs signed out.
+- **`/f/<id>` renders per request, its cards in the browser** (`client:only`). The server does one D1 read for a
+  public folder (for a private one, a session read and a second folder read) and no React render, inside the 10ms CPU budget.
 - **`build.format: "file"`.** Directory output (`motion/index.html`) makes Cloudflare's asset layer redirect
   `/browse/motion` to `/browse/motion/`, an extra hop on every library link.
 
@@ -45,5 +64,10 @@ One Cloudflare Worker (declared in `alchemy.run.ts`) does everything:
 - In dev, Astro's dev server does not load the custom Worker entry, so `scheduled()` never runs locally. The
   dev-only `/api/dev/cron` route calls the same `runStatsRefresh`.
 - `Astro.locals.runtime.env` is gone in Astro 6+. Read bindings with `import { env } from "cloudflare:workers"`.
+- `pnpm dev` on a port other than 1337: sign in at `http://127.0.0.1:<port>`, not `localhost:<port>`; GitHub only
+  accepts other ports on the loopback IP.
+- D1 migrations in `migrations/` are applied by Alchemy on deploy (and to the local D1 on `pnpm dev`); add a new
+  numbered file, never edit an applied one. `0001_accounts.sql` holds better-auth's tables as its `getMigrations`
+  compiles them; regenerate that part when upgrading better-auth adds columns.
 - TextMorph renders a hidden copy of its text for screen readers, so `textContent` of a morphing heading
   shows the word twice. Query the visible spans, not `textContent`.
