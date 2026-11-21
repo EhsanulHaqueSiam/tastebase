@@ -1,7 +1,8 @@
 ---
-import Footer from "../components/Footer.tsx";
 import Gallery from "../components/Gallery.tsx";
 import Hero from "../components/Hero.tsx";
+import HomeFeatures from "../components/HomeFeatures.tsx";
+import { ListingCard } from "../components/ListingCard.tsx";
 import PlanDemo from "../components/PlanDemo.tsx";
 import Setup from "../components/Setup.tsx";
 import TouchIt from "../components/TouchIt.tsx";
@@ -10,6 +11,9 @@ import { kinds } from "../../../src/registry/schema.ts";
 import { formatPlan } from "../../../src/format.ts";
 import { plan } from "../../../src/engine.ts";
 import { aesthetics, libraries, lookChip, planJson, shelfLib } from "../lib/server.ts";
+import { comparisons, roundups } from "../lib/articles.ts";
+import { categories } from "../lib/categories.ts";
+import { listedResources, recentListings } from "../lib/listings.ts";
 
 // Prerendered at build time: no Worker CPU per visit. Live stats load in islands from /api/stats.
 export const prerender = true;
@@ -21,14 +25,22 @@ const BRIEFS = [
   "dense analytics dashboard with charts and a command menu",
 ];
 const libs = libraries;
+const sample = libraries.find((l) => l.id === "vaul") ?? libraries[0]!;
+const recent = recentListings(10);
 const commands = ["Set up tastebase from https://tastebase.ehsanulsiam.workers.dev/llms.txt"];
 ---
 
 <Base>
-  <Hero client:load counts={{ libs: libs.length, looks: aesthetics.length, kinds: kinds.length }} />
+  <Hero client:load counts={{ libs: libs.length, resources: listedResources.length, looks: aesthetics.length, kinds: kinds.length }} />
+  <HomeFeatures client:visible categories={categories.length} libraries={Math.floor(libs.length / 10) * 10} articles={roundups.length + comparisons.length} sample={{ name: sample.name, tagline: sample.tagline }} />
+  <section aria-labelledby="recent" class="mx-auto w-full max-w-[1250px] px-4 pb-20 md:px-8">
+    <h2 id="recent" class="text-[24px] leading-[1.05] font-medium tracking-[-0.03em] sm:text-[30px] md:text-[36px]">Recently added</h2>
+    <ul class="mt-8 grid grid-cols-2 gap-3 md:mt-10 md:grid-cols-3 md:gap-5 lg:grid-cols-5">
+      {recent.map((item) => <li class="flex"><div class="w-full"><ListingCard item={item} compact /></div></li>)}
+    </ul>
+  </section>
   <PlanDemo client:visible initial={planJson(libs, BRIEFS[0]!)} briefs={BRIEFS} />
   <TouchIt client:visible />
   <Gallery client:visible libs={libs.map(shelfLib)} looks={aesthetics.map(lookChip)} />
   <Setup client:visible commands={commands} sample={formatPlan(plan(libs, aesthetics, BRIEFS[0]!))} />
-  <Footer client:visible />
 </Base>

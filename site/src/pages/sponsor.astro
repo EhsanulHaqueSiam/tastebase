@@ -1,0 +1,29 @@
+---
+// /sponsor: what a sponsorship gets, live reach numbers, and the inquiry form (/api/forms). Prerendered.
+import Form from "../components/Form.tsx";
+import FormPage from "../components/FormPage.astro";
+import Reach from "../components/Reach.tsx";
+import Base from "../layouts/Base.astro";
+import { allListings } from "../lib/listings.ts";
+
+export const prerender = true;
+---
+
+<Base title="Sponsor · tastebase" description="Put your product in front of people while they choose UI libraries.">
+  <FormPage
+    title="Become a sponsor"
+    lede="tastebase is free and open source. Sponsors keep it that way, and get seen by people choosing what to build with."
+    listTitle="What sponsors get"
+    points={[
+      "Your card first in every category grid, and again after every 8th card.",
+      "First in search and the ⌘K palette.",
+      "First in “Try these” on every library and resource page.",
+      "A slot in the homepage strip under the search.",
+      "Links marked rel=sponsored. Agent answers (MCP, CLI) never carry ads.",
+    ]}
+  >
+    <Reach slot="before" client:idle listings={allListings.length} />
+    <h2 class="mt-10 text-[18px] font-semibold tracking-[-0.02em]">Tell us what you have in mind. We reply with dates and a price.</h2>
+    <Form client:load form="sponsor" />
+  </FormPage>
+</Base>

@@ -4,15 +4,20 @@ import { AnimatePresence, motion, useScroll, useTransform } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { TextMorph } from "torph/react";
 import type { Lite } from "../lib/server.ts";
+import { liveSponsors, sponsors, type Sponsor } from "../lib/sponsors.ts";
 import { useTheme } from "../lib/theme.ts";
+import { withUtm } from "../lib/utm.ts";
 import { ShaderBg } from "./fx.tsx";
 import { LibMark } from "./LibMark.tsx";
 
 const WORDS = ["ui library", "toast", "drawer", "shader", "icon set", "text morph", "glass", "chart"];
 type Hit = { lib: Lite; why: string };
 
-/** Hero: morphing headline, live search against /api/pick, rolling counts. Lifts and blurs away on scroll. */
-export default function Hero({ counts }: { counts: { libs: number; looks: number; kinds: number } }) {
+/** Hero: morphing headline, live search against /api/pick (a running sponsor first), rolling counts and the sponsor
+ *  strip (four slots after Design Index's; empty ones invite a sponsor). Lifts and blurs away on scroll. */
+export default function Hero({ counts }: { counts: { libs: number; resources: number; looks: number; kinds: number } }) {
+  const [ads, setAds] = useState<Sponsor[]>([]);
+  useEffect(() => setAds(liveSponsors(sponsors, Date.now(), "home")), []); // at view time: an ended sponsor drops out
   // The word changes only when the user points at or presses it: the site has no motion on a loop.
   const [w, setW] = useState(0);
   const next = () => setW((i) => (i + 1) % WORDS.length);
@@ -31,7 +36,7 @@ export default function Hero({ counts }: { counts: { libs: number; looks: number
     return () => (clearTimeout(t), ctl.abort());
   }, [q]);
 
-  const [shown, setShown] = useState({ libs: 0, looks: 0, kinds: 0 });
+  const [shown, setShown] = useState({ libs: 0, resources: 0, looks: 0, kinds: 0 });
   useEffect(() => {
     const t = setTimeout(() => setShown(counts), 300);
     return () => clearTimeout(t);
@@ -76,6 +81,17 @@ export default function Hero({ counts }: { counts: { libs: number; looks: number
           </label>
           <motion.ul layout className="mt-2 overflow-hidden rounded-2xl bg-bg/70 backdrop-blur-xl" style={{ boxShadow: hits.length ? "0 0 0 1px var(--color-line2)" : "none" }}>
             <AnimatePresence initial={false}>
+              {hits.length > 0 && ads.filter((ad) => !ad.homepageOnly).slice(0, 1).map((ad) => (
+                <motion.li key={`ad-${ad.id}`} layout initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, transition: { duration: 0.12 } }}>
+                  <a href={withUtm(ad.url, "hero-search")} target="_blank" rel="sponsored noopener" className="group flex items-center gap-3 px-3 py-2.5 transition-colors hover:bg-s2">
+                    <img src={ad.image} alt="" className="h-8 w-14 shrink-0 rounded-md object-cover" />
+                    <span className="min-w-0 flex-1">
+                      <span className="block font-medium">{ad.name} <span className="ml-1 font-mono text-[10px] tracking-[0.1em] text-fg3 uppercase">Sponsored</span></span>
+                      <span className="block truncate text-[13px] text-fg2">{ad.description}</span>
+                    </span>
+                  </a>
+                </motion.li>
+              ))}
               {hits.map((h, i) => (
                 <motion.li key={h.lib.id} layout initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0, transition: { delay: i * 0.035 } }} exit={{ opacity: 0, transition: { duration: 0.12 } }}>
                   <a href={`/browse/${h.lib.id}`} className="group flex items-center gap-3 px-3 py-2.5 transition-colors hover:bg-s2">
@@ -94,9 +110,21 @@ export default function Hero({ counts }: { counts: { libs: number; looks: number
         </motion.div>
         <div className="mt-6 flex flex-wrap justify-center gap-5 text-[13px] text-fg2 tabular-nums">
           <span><NumberFlow value={shown.libs} /> libraries</span>
+          <span><NumberFlow value={shown.resources} /> resources</span>
           <span><NumberFlow value={shown.looks} /> looks</span>
           <span><NumberFlow value={shown.kinds} /> kinds of job</span>
         </div>
+        <ul className="mt-8 grid w-full max-w-[600px] grid-cols-2 border-y border-dashed border-line2 sm:grid-cols-4" aria-label="Sponsors">
+          {Array.from({ length: 4 }, (_, i) => ads[i]).map((ad, i) => (
+            <li key={ad?.id ?? i} className={`flex h-14 border-dashed border-line2 ${i % 2 ? "border-l" : ""} ${i === 2 ? "max-sm:border-t sm:border-l" : ""} ${i === 3 ? "max-sm:border-t" : ""}`}>
+              {ad ? (
+                <a href={withUtm(ad.url, "home-strip")} target="_blank" rel="sponsored noopener" className="grid flex-1 place-items-center truncate px-3 text-[15px] font-semibold tracking-[-0.01em] text-fg2 transition-colors hover:text-fg">{ad.name}</a>
+              ) : (
+                <a href="/sponsor" className="grid flex-1 place-items-center text-[13px] text-fg3 transition-colors hover:text-fg">+ sponsor</a>
+              )}
+            </li>
+          ))}
+        </ul>
       </motion.div>
     </section>
   );

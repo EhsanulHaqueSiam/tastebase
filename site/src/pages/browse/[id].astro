@@ -9,6 +9,7 @@ import { GithubMark } from "../../components/GithubMark.tsx";
 import { LibMark } from "../../components/LibMark.tsx";
 import Detail from "../../components/Detail.astro";
 import Base from "../../layouts/Base.astro";
+import { altSlug, hasAlternatives } from "../../lib/articles.ts";
 import { libraryListing, relatedTo } from "../../lib/listings.ts";
 import { withUtm } from "../../lib/utm.ts";
 import { libraries } from "../../lib/server.ts";
@@ -129,6 +130,7 @@ const item = libraryListing(lib);
           ) : null,
         )
       }
+      {hasAlternatives(lib) && <a href={`/alternatives/${altSlug(lib)}`} class="mt-3 inline-block text-[13px] text-fg2 underline underline-offset-4 hover:text-fg">Compare {lib.name} with its alternatives</a>}
       <div class="mt-6 overflow-hidden rounded-xl shadow-[inset_0_0_0_1px_var(--color-line)]">
         <CodeTabs client:visible usage={lib.usage} prompt={prompt} install={lib.install} />
       </div>
