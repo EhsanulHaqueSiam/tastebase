@@ -117,7 +117,7 @@ export default function Directory({ libs }: { libs: ShelfLib[] }) {
 
         {view === "grid" ? (
           <div className="mt-2.5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            {all.map((l) => <div key={l.id} hidden={!shown.has(l.id)} className="[contain-intrinsic-size:auto_330px] [content-visibility:auto]"><LibCard lib={l} badge={statBadge(sort, stats?.[l.id])} /></div>)}
+            {all.map((l, i) => <div key={l.id} hidden={!shown.has(l.id)} className="[contain-intrinsic-size:auto_330px] [content-visibility:auto]"><LibCard lib={l} badge={statBadge(sort, stats?.[l.id])} eager={i < 3} /></div>)}
           </div>
         ) : (
           <ul className="mt-2.5 overflow-hidden rounded-2xl shadow-[inset_0_0_0_1px_var(--color-line)]">

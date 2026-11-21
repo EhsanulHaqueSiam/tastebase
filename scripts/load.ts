@@ -28,6 +28,9 @@ const steps: Step[] = [
   { name: "GET /api/plan", run: () => fetch(`${base}/api/plan?brief=${encodeURIComponent(any(briefs))}`) },
   { name: "GET /api/libs", run: () => fetch(`${base}/api/libs`) },
   { name: "GET /api/stats", run: () => fetch(`${base}/api/stats`) },
+  { name: "GET /api/views", run: () => fetch(`${base}/api/views`) },
+  // Every page view sends this; the Worker only counts same-origin posts. Previews write to the dev dataset, not prod's.
+  { name: "POST /api/hit", run: () => fetch(`${base}/api/hit`, { method: "POST", headers: { origin: base } }) },
   { name: "MCP initialize", run: () => mcp({ jsonrpc: "2.0", id: 1, method: "initialize", params: { protocolVersion: "2025-06-18", capabilities: {}, clientInfo: { name: "tastebase-load", version: "0" } } }) },
   { name: "MCP pick", run: () => mcp({ jsonrpc: "2.0", id: 2, method: "tools/call", params: { name: "pick", arguments: { need: any(queries) } } }) },
   { name: "MCP plan", run: () => mcp({ jsonrpc: "2.0", id: 3, method: "tools/call", params: { name: "plan", arguments: { brief: any(briefs) } } }) },
@@ -72,33 +75,48 @@ const visitor = async () => {
   }
 };
 
-// CLI users: several `tastebase` stdio servers at once, each initialised and asked for a plan, timed end to end.
-const cliUser = (i: number) =>
-  new Promise<void>((done) => {
-    const t0 = performance.now();
-    const proc = spawn(process.execPath, ["--experimental-strip-types", "--no-warnings", "src/cli.ts"], { stdio: ["pipe", "pipe", "ignore"] });
-    let buf = "", started = 0;
-    const timer = setTimeout(() => { record("CLI plan (stdio)", performance.now() - t0, "timeout"); proc.kill(); done(); }, 30_000);
-    proc.stdout.on("data", (d) => {
-      buf += d;
-      for (let nl = buf.indexOf("\n"); nl >= 0; nl = buf.indexOf("\n")) {
-        const msg = JSON.parse(buf.slice(0, nl));
-        buf = buf.slice(nl + 1);
-        if (msg.id === 1) {
-          record("CLI start (stdio)", performance.now() - t0);
-          started = performance.now();
-          proc.stdin.write(JSON.stringify({ jsonrpc: "2.0", method: "notifications/initialized" }) + "\n");
-          proc.stdin.write(JSON.stringify({ jsonrpc: "2.0", id: 2, method: "tools/call", params: { name: "plan", arguments: { brief: briefs[i % briefs.length] } } }) + "\n");
-        } else if (msg.id === 2) {
-          record("CLI plan (stdio)", performance.now() - started, msg.result?.content?.[0]?.text ? undefined : "empty answer");
-          clearTimeout(timer);
-          proc.kill();
-          done();
-        }
-      }
-    });
-    proc.stdin.write(JSON.stringify({ jsonrpc: "2.0", id: 1, method: "initialize", params: { protocolVersion: "2025-06-18", capabilities: {}, clientInfo: { name: "load", version: "0" } } }) + "\n");
+// CLI users: several `tastebase` stdio servers running for the whole test, as agents keep them: each starts, then
+// keeps asking for plans, picks and entries with the same think time as the visitors, every answer timed.
+const cliUser = async (i: number) => {
+  const t0 = performance.now();
+  const proc = spawn(process.execPath, ["--experimental-strip-types", "--no-warnings", "src/cli.ts"], { stdio: ["pipe", "pipe", "ignore"] });
+  const pending = new Map<number, (msg: { result?: { content?: { text?: string }[] }; error?: { message: string } }) => void>();
+  let buf = "", id = 0;
+  proc.stdout.on("data", (d) => {
+    buf += d;
+    for (let nl = buf.indexOf("\n"); nl >= 0; nl = buf.indexOf("\n")) {
+      const msg = JSON.parse(buf.slice(0, nl));
+      buf = buf.slice(nl + 1);
+      pending.get(msg.id)?.(msg);
+      pending.delete(msg.id);
+    }
   });
+  const call = (method: string, params: object) =>
+    Promise.race([
+      new Promise<Parameters<NonNullable<ReturnType<typeof pending.get>>>[0]>((ok) => { pending.set(++id, ok); proc.stdin.write(JSON.stringify({ jsonrpc: "2.0", id, method, params }) + "\n"); }),
+      new Promise<never>((_, fail) => setTimeout(() => fail(new Error("timeout")), 30_000)),
+    ]);
+  try {
+    await call("initialize", { protocolVersion: "2025-06-18", capabilities: {}, clientInfo: { name: "load", version: "0" } });
+    record("CLI start (stdio)", performance.now() - t0);
+    proc.stdin.write(JSON.stringify({ jsonrpc: "2.0", method: "notifications/initialized" }) + "\n");
+    for (let n = 0; Date.now() < end; n++) {
+      const [name, tool, args] = ([["CLI plan (stdio)", "plan", { brief: any(briefs) }], ["CLI pick (stdio)", "pick", { need: any(queries) }], ["CLI get (stdio)", "get", { id: any(ids) }]] as const)[(n + i) % 3]!;
+      const t = performance.now();
+      try {
+        const msg = await call("tools/call", { name: tool, arguments: args });
+        record(name, performance.now() - t, msg.result?.content?.[0]?.text ? undefined : (msg.error?.message ?? "empty answer"));
+      } catch (e) {
+        record(name, performance.now() - t, (e as Error).message);
+      }
+      await new Promise((r) => setTimeout(r, 300 + Math.random() * 700));
+    }
+  } catch (e) {
+    record("CLI start (stdio)", performance.now() - t0, (e as Error).message);
+  } finally {
+    proc.kill();
+  }
+};
 
 console.log(`${users} visitors for ${seconds}s against ${base}, and ${cliProcs} CLI processes at once`);
 const t0 = Date.now();

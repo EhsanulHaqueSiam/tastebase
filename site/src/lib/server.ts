@@ -14,10 +14,28 @@ export { aesthetics, libraries };
 plan(libraries, aesthetics, "warm-up: landing page dashboard with charts");
 pick(libraries, "toast");
 
+// The cron rewrites stats hourly, so an isolate keeps the merged registry for a minute: one KV read per isolate per
+// minute instead of one per API or MCP call (the free plan allows 100,000 KV reads a day, the same as requests).
+const STATS_TTL_MS = 60_000;
+// Only the resolved value is kept: a KV promise from one request must not be awaited by another.
+let merged: { at: number; libs: Library[] } | undefined;
+
 /** Registry merged with the latest stats the cron wrote. Missing stats (first deploy, local dev) are fine. */
 export async function getLibraries(): Promise<Library[]> {
+  if (merged && Date.now() - merged.at < STATS_TTL_MS) return merged.libs;
   const stats = await env.STATS?.get<Stats>(STATS_KEY, "json").catch(() => null);
-  return withStats(libraries, stats ?? {});
+  merged = { at: Date.now(), libs: withStats(libraries, stats ?? {}) };
+  return merged.libs;
+}
+
+const kvTexts = new Map<string, { at: number; text: string }>();
+/** A KV value as text, kept per isolate for a minute like the stats above; "{}" when missing. */
+export async function kvText(key: string): Promise<string> {
+  const hit = kvTexts.get(key);
+  if (hit && Date.now() - hit.at < STATS_TTL_MS) return hit.text;
+  const text = (await env.STATS?.get(key).catch(() => null)) ?? "{}";
+  kvTexts.set(key, { at: Date.now(), text });
+  return text;
 }
 
 /** What a card or list row needs. */

@@ -29,11 +29,15 @@ const pages: { name: string; path: string; live?: boolean }[] = [
   { name: "alternatives", path: "/alternatives" },
   { name: "alternatives-detail", path: "/alternatives/recharts-alternatives" },
   { name: "best", path: "/best" },
+  { name: "best-detail", path: "/best/best-component-kits" },
   { name: "integrations", path: "/integrations" },
   { name: "match", path: "/match" },
   { name: "folders", path: "/folders" },
   { name: "about", path: "/about" },
   { name: "submit", path: "/submit" },
+  { name: "contribute", path: "/contribute" },
+  { name: "sponsor", path: "/sponsor" },
+  { name: "feedback", path: "/feedback" },
   { name: "not-found", path: "/no-such-page" },
 ].filter((p) => !only || only.includes(p.name));
 
@@ -72,6 +76,14 @@ const OBSERVE = `(() => {
   po("event", (e) => { if (e.interactionId) m.events.push([e.name, e.duration, e.startTime]); }, { durationThreshold: 16 });
   document.addEventListener("astro:page-load", () => m.navs.push(performance.now()));
   addEventListener("error", (e) => m.errors.push(String(e.message || e.target?.src || e.type)), true);
+  // The live preview: when, from navigation start, it shows the site (or its screenshot, for sites that refuse framing).
+  const t = setInterval(() => {
+    const f = document.querySelector('iframe[title$="website"]');
+    const shot = document.querySelector('img[alt$="website"]');
+    const state = f ? (f.parentElement.querySelector('[aria-hidden="true"]') ? "live" : "") : shot && shot.complete && shot.naturalWidth ? "screenshot" : "";
+    if (state) { m.live = state; m.liveAt = performance.now(); clearInterval(t); }
+  }, 25);
+  setTimeout(() => clearInterval(t), 30000);
 })();`;
 
 type Interaction = { name: string; inp: number; ms?: number; note?: string };
@@ -100,7 +112,7 @@ async function networkIdle(inflight: () => number, quietMs = 600, maxMs = 15_000
 }
 
 /** Clicks the centre of the first visible element matching `selector` (skipping `skip` matches) with real input events. */
-async function click(tab: Tab, selector: string, index = 0) {
+async function click(tab: Tab, selector: string, index = 0, touch = false) {
   const box = await evaluate<{ x: number; y: number; label: string } | null>(tab, `(() => {
     const els = [...document.querySelectorAll(${JSON.stringify(selector)})].filter((e) => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(e).visibility !== "hidden"; });
     const el = els[${index}]; if (!el) return null;
@@ -119,8 +131,12 @@ async function click(tab: Tab, selector: string, index = 0) {
     return { x, y, hit: !!top && (el === top || el.contains(top)) };
   })()`);
   if (!at) return null;
-  for (const type of ["mouseMoved", "mousePressed", "mouseReleased"] as const)
-    await tab.send("Input.dispatchMouseEvent", { type, x: at.x, y: at.y, button: "left", clickCount: type === "mouseMoved" ? 0 : 1 });
+  if (touch) {
+    await tab.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x: at.x, y: at.y }] });
+    await tab.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+  } else
+    for (const type of ["mouseMoved", "mousePressed", "mouseReleased"] as const)
+      await tab.send("Input.dispatchMouseEvent", { type, x: at.x, y: at.y, button: "left", clickCount: type === "mouseMoved" ? 0 : 1 });
   return at.hit ? box.label : `${box.label} (covered by another element)`;
 }
 
@@ -186,25 +202,26 @@ async function measure(openTab: () => Promise<Tab>, page: (typeof pages)[number]
 
     // Behaviour: the live preview, then every tab-like control, the search box, ⌘K, and a page-to-page navigation.
     const interactions: Interaction[] = [];
+    const tap = (selector: string, index = 0) => click(tab, selector, index, mobile);
+    // A click that lands on something covering the control is a failure, not a pass.
+    const covered = (label: string) => (label.endsWith("(covered by another element)") ? "the control was covered by another element" : undefined);
     let liveMs: number | undefined, live: string | undefined;
     if (page.live && !mobile) {
-      const t0 = Date.now();
-      for (; Date.now() - t0 < 15_000; await sleep(200)) {
-        live = await evaluate<string>(tab, `(() => { const f = document.querySelector('iframe[title$="website"]'); if (f) return f.parentElement.querySelector('[aria-hidden="true"]') ? "live" : ""; return document.querySelector('img[alt$="website"]')?.complete ? "screenshot" : ""; })()`);
-        if (live) break;
-      }
-      liveMs = live ? Date.now() - t0 : undefined;
-      live ??= "never loaded";
+      for (const end = Date.now() + 15_000; Date.now() < end && !(await evaluate<string>(tab, "window.__bench.live ?? ''")); await sleep(200));
+      const p = await evaluate<{ live?: string; liveAt?: number }>(tab, "({ live: window.__bench.live, liveAt: window.__bench.liveAt })");
+      live = p.live ?? "never loaded";
+      liveMs = p.liveAt ? round(p.liveAt, 0) : undefined;
+      interactions.push({ name: `live preview shows the ${live === "screenshot" ? "screenshot" : "site"}`, inp: 0, ms: liveMs, note: live === "never loaded" ? "the live preview never loaded" : undefined });
     }
     const controls = await evaluate<number>(tab, `document.querySelectorAll('nav.tabs a, .seg button, .rfilter button, [role=tab], [data-set-view], [data-set-free], main button[aria-pressed]').length`);
     for (let i = 0; i < Math.min(controls, 8); i++) {
       const before = await eventCount(tab);
-      const label = await click(tab, "nav.tabs a, .seg button, .rfilter button, [role=tab], [data-set-view], [data-set-free], main button[aria-pressed]", i);
-      if (label) interactions.push({ name: `click "${label}"`, inp: await slowestSince(tab, before) });
+      const label = await tap("nav.tabs a, .seg button, .rfilter button, [role=tab], [data-set-view], [data-set-free], main button[aria-pressed]", i);
+      if (label) interactions.push({ name: `click "${label}"`, inp: await slowestSince(tab, before), note: covered(label) });
     }
     if (await evaluate<boolean>(tab, `!!document.querySelector('main input[type=search], main input[type=text], main textarea')`)) {
       const before = await eventCount(tab);
-      await click(tab, "main input[type=search], main input[type=text], main textarea");
+      await tap("main input[type=search], main input[type=text], main textarea");
       for (const ch of "toast") await key(tab, ch);
       interactions.push({ name: "type in search", inp: await slowestSince(tab, before) });
     }
@@ -217,10 +234,21 @@ async function measure(openTab: () => Promise<Tab>, page: (typeof pages)[number]
       await sleep(600); // let the palette finish closing before clicking the page under it
     }
     {
+      const shell = mobile ? '[data-shell="header"] button, nav[aria-label="Sections"]:not([data-shell]) button' : '[data-shell="header"] button, nav[data-shell="rail"] button';
+      const n = await evaluate<number>(tab, `[...document.querySelectorAll(${JSON.stringify(shell)})].filter((e) => e.getBoundingClientRect().width > 0).length`);
+      for (let i = 0; i < Math.min(n, 6); i++) {
+        const before = await eventCount(tab);
+        const label = await tap(shell, i);
+        if (label) interactions.push({ name: `shell "${label}"`, inp: await slowestSince(tab, before), note: covered(label) });
+        await key(tab, "Escape"); // close whatever it opened (palette, sign-in sheet, drawer)
+        await sleep(600);
+      }
+    }
+    {
       const navs = await evaluate<number>(tab, "window.__bench.navs.length");
       const before = await eventCount(tab);
       const t0 = Date.now();
-      const target = await click(tab, `main a[href^="/browse/"], main a[href^="/best/"], main a[href="/atlas"]`);
+      const target = await tap(`main a[href^="/browse/"], main a[href^="/best/"], main a[href="/atlas"]`);
       if (target) {
         let ms: number | undefined;
         for (; Date.now() - t0 < 10_000; await sleep(50)) if ((await evaluate<number>(tab, "window.__bench?.navs.length ?? 0")) > navs || (await evaluate<number>(tab, "performance.getEntriesByType('navigation').length")) === 1 && (await evaluate<string>(tab, "location.pathname")) !== page.path) { ms = Date.now() - t0; break; }
@@ -238,6 +266,9 @@ async function measure(openTab: () => Promise<Tab>, page: (typeof pages)[number]
     await tab.close();
   }
 }
+
+// Warm Cloudflare's edge first: the first request after a deploy fills its cache once, and is not what visitors get.
+await Promise.all(pages.map((p) => fetch(base + p.path).then((r) => r.arrayBuffer()).catch(() => {})));
 
 const results: Result[] = [];
 await withChrome(async (openTab) => {
@@ -259,7 +290,7 @@ await withChrome(async (openTab) => {
 mkdirSync("bench-results", { recursive: true });
 const file = `bench-results/${new Date().toISOString().replace(/[:.]/g, "-")}.json`;
 writeFileSync(file, JSON.stringify({ base, runs, results }, null, 1));
-const low = results.filter((r) => r.loadScore < min || r.interactionScore < min || r.overflow || r.consoleErrors.length || r.failed.length);
+const low = results.filter((r) => r.loadScore < min || r.interactionScore < min || r.overflow || r.consoleErrors.length || r.failed.length || r.live === "never loaded");
 const avg = (k: "loadScore" | "interactionScore", p: string) => round(results.filter((r) => r.profile === p).reduce((s, r) => s + r[k], 0) / Math.max(1, results.filter((r) => r.profile === p).length), 2);
 console.log(`\nmean load: desktop ${avg("loadScore", "desktop")}, mobile ${avg("loadScore", "mobile")} · mean interaction: desktop ${avg("interactionScore", "desktop")}, mobile ${avg("interactionScore", "mobile")}`);
 console.log(low.length ? `${low.length} page/profile results below ${min} or with problems. Details: ${file}` : `every page scores ${min}+ with no problems. Details: ${file}`);

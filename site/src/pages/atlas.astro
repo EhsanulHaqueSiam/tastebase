@@ -3,6 +3,7 @@
 import { chain, groupByLook, islands, ISLAND, lookAffinity, partsMatrix, paywalled, type Group } from "../../../src/atlas.ts";
 import { resourceKinds, resources } from "../../../src/registry/resources.ts";
 import type { Kind, Library } from "../../../src/registry/schema.ts";
+import Lazy from "../components/Lazy.astro";
 import Base from "../layouts/Base.astro";
 import { kindMeta, shot } from "../lib/kinds.ts";
 import { aesthetics, libraries } from "../lib/server.ts";
@@ -56,6 +57,7 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
     {
       views.map((v) => (
         <section class="panel" id={v.id} data-panel={v.id} hidden={v.id !== "component-kit"}>
+          <Lazy when={v.id !== "component-kit"}>
           <div class="isles-scroll" data-only="islands">
             <div class="isles dots" style={`height:${v.map.height}px;min-width:${v.map.width}px`}>
               {v.map.islands.map((i) => (
@@ -81,17 +83,18 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
           </div>
 
           <div class="mood" data-only="mood">
-            {v.mood.map((g) => (
+            <template data-mood>
+            {v.mood.map((g, gi) => (
               <section>
                 <header class="ghead row">
                   <h2>{title(g)}<small>{g.libs.length}</small></h2>
                   <p>{g.bestFree ? <>best free <b>{g.bestFree.name}</b></> : "no free pick yet"}</p>
                 </header>
                 <ul>
-                  {g.libs.map((l) => (
+                  {g.libs.map((l, li) => (
                     <li class:list={["tile", paywalled(l) && "t-paid"]}>
                       <a href={`/browse/${l.id}`} class="press">
-                        <img class="shot" src={shot(l.id)} alt={`${l.name} site`} loading="lazy" decoding="async" width="1200" height="750" />
+                        <img class="shot" src={shot(l.id)} alt={`${l.name} site`} loading={gi === 0 && li < 4 ? "eager" : "lazy"} decoding="async" width="1200" height="750" />
                         <span><img src={`/marks/${l.id}.png`} alt="" width="16" height="16" loading="lazy" />{l.name}{paywalled(l) && <sup>paid</sup>}</span>
                       </a>
                     </li>
@@ -99,6 +102,7 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
                 </ul>
               </section>
             ))}
+            </template>
           </div>
 
           {v.id !== "all" && (
@@ -153,6 +157,7 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
               )}
             </>
           )}
+          </Lazy>
         </section>
       ))
     }
@@ -160,6 +165,7 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
     <img class="tip" alt="" width="240" height="150" decoding="async" hidden />
 
     <section class="panel" id="resources" data-panel="resources" hidden>
+      <template data-lazy>
       <p class="max-w-[720px] text-[13.5px] text-fg2">Not installed, but they help you design. tastebase only links to them. If your agent already has one connected under your own account, its plan answer says what to search for. Agents can list one category with <code>get fonts</code>, <code>get agent-tools</code> and so on.</p>
       <div class="rfilter" role="group" aria-label="Resource category">
         <button type="button" data-rkind="all" aria-pressed="true">All<small>{resources.length}</small></button>
@@ -178,6 +184,7 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
           ))}
         </tbody>
       </table>
+      </template>
     </section>
   </div>
 
@@ -188,7 +195,13 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
       if (!root) return;
       const store = (k: string, v?: string) => { try { return v === undefined ? localStorage.getItem(k) : localStorage.setItem(k, v); } catch { return null; } };
       const press = (attr: string, val: string) => root.querySelectorAll<HTMLButtonElement>(`[${attr}]`).forEach((b) => b.setAttribute("aria-pressed", String(b.getAttribute(attr) === val)));
-      const view = (v: string) => { root.dataset.view = v; press("data-set-view", v); store("atlas:view", v); };
+      // Hidden tabs and every moodboard ship as <template>s (28k nodes otherwise); each is built in on first use.
+      const current = () => root.querySelector<HTMLElement>("[data-panel]:not([hidden])");
+      const build = (scope: ParentNode | null, sel: string) => scope?.querySelectorAll<HTMLTemplateElement>(sel).forEach((t) => t.replaceWith(t.content));
+      const view = (v: string) => {
+        if (v === "mood") build(current(), "template[data-mood]");
+        root.dataset.view = v; press("data-set-view", v); store("atlas:view", v);
+      };
       const free = (f: string) => { root.toggleAttribute("data-free", f === "1"); press("data-set-free", f); store("atlas:free", f); };
       const rkind = (k: string) => {
         press("data-rkind", k);
@@ -197,14 +210,21 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
       // #resources/tools opens the Resources tab filtered to one category.
       const tab = () => {
         const [id, sub] = location.hash.slice(1).split("/");
-        if (id === "resources") rkind(sub && root.querySelector(`[data-rkind="${CSS.escape(sub)}"]`) ? sub : "all");
         const t = root.querySelector(`[data-panel="${CSS.escape(id)}"]`) ? id : "component-kit";
+        const panel = root.querySelector<HTMLElement>(`[data-panel="${CSS.escape(t)}"]`);
+        build(panel, ":scope > template[data-lazy]");
+        if (root.dataset.view === "mood") build(panel, "template[data-mood]");
+        if (id === "resources") rkind(sub && root.querySelector(`[data-rkind="${CSS.escape(sub)}"]`) ? sub : "all");
         root.querySelectorAll<HTMLElement>("[data-panel]").forEach((p) => p.toggleAttribute("hidden", p.dataset.panel !== t));
         root.querySelectorAll<HTMLElement>("[data-tab]").forEach((a) => a.toggleAttribute("aria-current", a.dataset.tab === t));
       };
       // Switching tabs keeps the scroll position; the hash still makes each tab linkable.
       root.querySelectorAll<HTMLAnchorElement>("[data-tab]").forEach((a) => a.addEventListener("click", (e) => { e.preventDefault(); history.replaceState(null, "", a.hash); tab(); }));
-      root.querySelectorAll<HTMLElement>("[data-rkind]").forEach((b) => b.addEventListener("click", () => { history.replaceState(null, "", b.dataset.rkind === "all" ? "#resources" : `#resources/${b.dataset.rkind}`); rkind(b.dataset.rkind!); }));
+      // Delegated: the resource filter is built in with its tab, after this runs.
+      root.addEventListener("click", (e) => {
+        const b = (e.target as Element).closest<HTMLElement>("[data-rkind]");
+        if (b) { history.replaceState(null, "", b.dataset.rkind === "all" ? "#resources" : `#resources/${b.dataset.rkind}`); rkind(b.dataset.rkind!); }
+      });
       root.querySelectorAll<HTMLElement>("[data-set-view]").forEach((b) => b.addEventListener("click", () => view(b.dataset.setView!)));
       root.querySelectorAll<HTMLElement>("[data-set-free]").forEach((b) => b.addEventListener("click", () => free(b.dataset.setFree!)));
       view(store("atlas:view") === "mood" ? "mood" : "islands");

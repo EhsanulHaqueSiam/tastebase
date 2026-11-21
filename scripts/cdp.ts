@@ -39,13 +39,19 @@ export async function withChrome<T>(use: (openTab: () => Promise<Tab>) => Promis
         waiting.set(++id, { ok, fail });
         ws.send(JSON.stringify({ id, method, params, sessionId }));
       });
+    // Each tab gets its own browser context (an incognito-like profile), so one page's localStorage, cookies and
+    // cache never leak into the next measurement (a saved Atlas view or theme would otherwise follow every run).
     const openTab = async (): Promise<Tab> => {
-      const { targetId } = await raw("Target.createTarget", { url: "about:blank" });
+      const { browserContextId } = await raw("Target.createBrowserContext", { disposeOnDetach: true });
+      const { targetId } = await raw("Target.createTarget", { url: "about:blank", browserContextId });
       const { sessionId } = await raw("Target.attachToTarget", { targetId, flatten: true });
       return {
         send: (method, params = {}) => raw(method, params, sessionId),
         on: (method, fn) => listeners.set(`${sessionId}:${method}`, [...(listeners.get(`${sessionId}:${method}`) ?? []), fn]),
-        close: async () => void (await raw("Target.closeTarget", { targetId })),
+        close: async () => {
+          await raw("Target.closeTarget", { targetId });
+          await raw("Target.disposeBrowserContext", { browserContextId }).catch(() => {});
+        },
       };
     };
     const out = await use(openTab);

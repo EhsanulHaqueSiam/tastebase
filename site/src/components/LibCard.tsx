@@ -91,13 +91,14 @@ export function SaveButton({ id, name, className = "" }: { id: string; name: str
 
 /** Screenshot card: links to the library page; install, GitHub, folder and save sit outside the link. */
 // Memoized: the directory keeps every card mounted and re-renders on each filter change.
-export const LibCard = memo(function LibCard({ lib, badge, pick }: { lib: ShelfLib; badge?: string; pick?: boolean }) {
+/** `eager` for the first cards on screen: their screenshot is often the page's largest paint. */
+export const LibCard = memo(function LibCard({ lib, badge, pick, eager }: { lib: ShelfLib; badge?: string; pick?: boolean; eager?: boolean }) {
   return (
     <div className="anim-host group relative">
       <a href={`/browse/${lib.id}`} className="block">
         <SpotCard className="overflow-hidden rounded-2xl bg-s1 shadow-[inset_0_0_0_1px_var(--color-line)] transition-shadow duration-300 group-hover:shadow-[inset_0_0_0_1px_var(--color-line2)]">
           <div className="relative aspect-[16/10] overflow-hidden bg-s2">
-            <img src={shot(lib.id)} alt={`${lib.name} website`} loading="lazy" className="size-full object-cover object-top transition-transform duration-700 ease-[var(--ease-out)] group-hover:scale-[1.04]" />
+            <img src={shot(lib.id)} alt={`${lib.name} website`} loading={eager ? "eager" : "lazy"} fetchPriority={eager ? "high" : undefined} className="size-full object-cover object-top transition-transform duration-700 ease-[var(--ease-out)] group-hover:scale-[1.04]" />
             <span className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-s1 to-transparent" />
             {badge && <span className="absolute top-2.5 left-2.5 rounded-md bg-black/60 px-1.5 py-0.5 font-mono text-[11px] font-medium text-fg backdrop-blur-md">{badge}</span>}
             {pick && <span className="absolute top-3 right-12 rounded-md bg-fg px-1.5 py-0.5 font-mono text-[11px] font-medium text-bg">pick</span>}
