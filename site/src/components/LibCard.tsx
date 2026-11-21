@@ -1,6 +1,6 @@
 // The library card shared by the home shelf and the /browse directory, plus the sort and save pieces both use.
 import { Heart } from "lucide-react";
-import { useState, type CSSProperties } from "react";
+import { memo, useState, type CSSProperties } from "react";
 import type { Framework, Kind } from "../../../src/registry/schema.ts";
 import type { Stats } from "../../../src/trending.ts";
 import { haptic } from "../lib/haptics.ts";
@@ -90,7 +90,8 @@ export function SaveButton({ id, name, className = "" }: { id: string; name: str
 }
 
 /** Screenshot card: links to the library page; install, GitHub, folder and save sit outside the link. */
-export function LibCard({ lib, badge, pick }: { lib: ShelfLib; badge?: string; pick?: boolean }) {
+// Memoized: the directory keeps every card mounted and re-renders on each filter change.
+export const LibCard = memo(function LibCard({ lib, badge, pick }: { lib: ShelfLib; badge?: string; pick?: boolean }) {
   return (
     <div className="anim-host group relative">
       <a href={`/browse/${lib.id}`} className="block">
@@ -124,4 +125,4 @@ export function LibCard({ lib, badge, pick }: { lib: ShelfLib; badge?: string; p
       </div>
     </div>
   );
-}
+});

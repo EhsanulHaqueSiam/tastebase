@@ -1,0 +1,8 @@
+# Cloudflare static-asset headers. Screenshots, marks and sponsor logos keep their names when recaptured, so they get a
+# day of fresh cache and a week of stale-while-revalidate instead of the default revalidate-on-every-load.
+/shots/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+/marks/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+/sponsors/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
