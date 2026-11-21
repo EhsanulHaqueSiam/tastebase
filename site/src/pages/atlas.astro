@@ -7,7 +7,6 @@ import Lazy from "../components/Lazy.astro";
 import Base from "../layouts/Base.astro";
 import { kindMeta, shot } from "../lib/kinds.ts";
 import { aesthetics, libraries } from "../lib/server.ts";
-import { withUtm } from "../lib/utm.ts";
 
 export const prerender = true;
 
@@ -26,7 +25,6 @@ const views = tabs.map((t) => {
 const title = (g: Group) => g.looks.join(" / ");
 // Resources listed in category order; the filter above the table narrows to one category.
 const resKinds = (Object.keys(resourceKinds) as (keyof typeof resourceKinds)[]).filter((k) => resources.some((r) => r.kind === k));
-const resSorted = resKinds.flatMap((k) => resources.filter((r) => r.kind === k));
 const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.length ?? 0] as const;
 ---
 
@@ -175,16 +173,8 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
       </div>
       <table class="rtbl">
         <thead><tr><th scope="col">Name</th><th scope="col">Good for</th><th scope="col">Cost</th><th scope="col">With your agent</th></tr></thead>
-        <tbody>
-          {resSorted.map((r) => (
-            <tr data-kind={r.kind}>
-              <td><a href={withUtm(r.url, "atlas")} target="_blank" rel="noopener">{r.name}</a></td>
-              <td>{r.goodFor}</td>
-              <td class:list={[!r.free && "text-fg3"]}>{r.cost}</td>
-              <td>{r.mcp ? <a href={r.mcp.url} target="_blank" rel="noreferrer">{r.mcp.name}{r.mcp.needsPaidPlan && " (paid plan)"}</a> : <span class="text-fg3">link only</span>}</td>
-            </tr>
-          ))}
-        </tbody>
+        <!-- Rows load from /atlas-rows.html when the tab first opens (atlas-rows.html.ts). -->
+        <tbody data-rows></tbody>
       </table>
       </template>
     </section>
@@ -216,7 +206,16 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
         const panel = root.querySelector<HTMLElement>(`[data-panel="${CSS.escape(t)}"]`);
         build(panel, ":scope > template[data-lazy]");
         if (root.dataset.view === "mood") build(panel, "template[data-mood]");
-        if (id === "resources") rkind(sub && root.querySelector(`[data-rkind="${CSS.escape(sub)}"]`) ? sub : "all");
+        if (id === "resources") {
+          const k = sub && root.querySelector(`[data-rkind="${CSS.escape(sub)}"]`) ? sub : "all";
+          const body = root.querySelector<HTMLElement>("tbody[data-rows]");
+          if (body && !body.dataset.loaded) {
+            body.dataset.loaded = "1";
+            body.innerHTML = '<tr><td colspan="4" class="text-fg3">Loading resources</td></tr>';
+            fetch("/atlas-rows.html").then((r) => r.text()).then((html) => ((body.innerHTML = html), rkind(k))).catch(() => (body.innerHTML = '<tr><td colspan="4" class="text-fg3">Could not load the resources; reload to try again.</td></tr>'));
+          }
+          rkind(k);
+        }
         root.querySelectorAll<HTMLElement>("[data-panel]").forEach((p) => p.toggleAttribute("hidden", p.dataset.panel !== t));
         root.querySelectorAll<HTMLElement>("[data-tab]").forEach((a) => a.toggleAttribute("aria-current", a.dataset.tab === t));
       };
@@ -340,13 +339,13 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
   .rfilter button:hover, .rfilter button[aria-pressed="true"] { color: var(--color-fg); }
   .rfilter button[aria-pressed="true"] { border-color: var(--color-fg); }
   .rfilter small { margin-left: 5px; color: var(--color-fg3); font-variant-numeric: tabular-nums; font-size: 12px; }
-  .rtbl tr[hidden] { display: none; }
+  .rtbl :global(tr[hidden]) { display: none; }
   .rtbl { margin-top: 4px; width: 100%; border-collapse: collapse; font-size: 13px; }
   .rtbl th { border-bottom: 1px solid var(--color-line2); padding: 6px 10px 6px 0; text-align: left; font-weight: 500; color: var(--color-fg3); }
-  .rtbl td { border-bottom: 1px solid var(--color-line); padding: 9px 10px 9px 0; vertical-align: top; }
-  .rtbl td:nth-child(2) { color: var(--color-fg2); }
-  .rtbl a:hover { text-decoration: underline; text-underline-offset: 3px; }
-  @media (max-width: 700px) { .rtbl th:nth-child(2), .rtbl td:nth-child(2) { display: none; } }
+  .rtbl :global(td) { border-bottom: 1px solid var(--color-line); padding: 9px 10px 9px 0; vertical-align: top; }
+  .rtbl :global(td:nth-child(2)) { color: var(--color-fg2); }
+  .rtbl :global(a:hover) { text-decoration: underline; text-underline-offset: 3px; }
+  @media (max-width: 700px) { .rtbl th:nth-child(2), .rtbl :global(td:nth-child(2)) { display: none; } }
 
   /* Narrow screens: islands stack in similarity order instead of floating on a canvas. */
   @media (max-width: 760px) {

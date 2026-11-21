@@ -18,6 +18,12 @@ what one page downloads, largest first. A Bombadil violation prints a `--reprodu
 Interactions click one second after a control scrolls into view, as a person would; clicking the instant it appears
 measures hydration, which the load phase already counts as blocking time.
 
+Two judgement calls, stated so they can be argued with. INP counts each event to the end of the main thread's work
+for it (its handlers, through the end of any long animation frame), not to the next presented frame: headless Chrome
+can hold a frame back for seconds where a visitor's browser does not (a header click measured 3.7s headless and 24ms
+in the real browser). And the live preview, another site loading in a frame, is held to the phone LCP curve (2.5s
+scores 0.9) on desktop too; navigation between our own pages keeps each profile's own curve.
+
 ## Free plan capacity
 
 Prerendered pages, bundles, fonts, screenshots and marks are static assets: free, unlimited, and served without the

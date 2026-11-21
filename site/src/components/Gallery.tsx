@@ -71,9 +71,12 @@ export default function Gallery({ libs, looks }: { libs: ShelfLib[]; looks: Look
             {frameworks.map((f) => <option key={f} value={f}>{FW[f]}</option>)}
           </select>
         </label>
-        <Seg label="Sort">
-          {SORTS.map(([id, label]) => <button key={id} type="button" aria-pressed={sort === id} onClick={() => setSort(id)}>{label}</button>)}
-        </Seg>
+        {/* Scrolls inside its row on narrow screens: five sorts are wider than a 390px phone. */}
+        <div className="max-w-full min-w-0 overflow-x-auto [scrollbar-width:none]">
+          <Seg label="Sort">
+            {SORTS.map(([id, label]) => <button key={id} type="button" aria-pressed={sort === id} onClick={() => setSort(id)}>{label}</button>)}
+          </Seg>
+        </div>
       </div>
 
       <div role="group" aria-label="Look" className="mt-2.5 flex gap-1.5 overflow-x-auto p-0.5 [scrollbar-width:none]">

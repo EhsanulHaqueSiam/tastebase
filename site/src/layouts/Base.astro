@@ -147,6 +147,11 @@ const graph = [
       import { startSound } from "../lib/sound.ts";
       import { toggleNav } from "../lib/rail.ts";
       document.addEventListener("astro:page-load", countView);
+      // A view transition is aborted when the viewport resizes mid-navigation (a phone's URL bar hiding): the page still
+      // swaps, only the animation is skipped, so the rejection the browser raises is noise, not an error.
+      addEventListener("unhandledrejection", (e) => {
+        if (e.reason instanceof DOMException && e.reason.name === "InvalidStateError" && /transition was aborted/i.test(e.reason.message)) e.preventDefault();
+      });
       startSound();
       // The header's "Show sidebar" button, there only while the rail is hidden. The header persists, so one listener.
       document.addEventListener("click", (e) => (e.target as Element).closest?.("[data-toggle-nav]") && toggleNav());

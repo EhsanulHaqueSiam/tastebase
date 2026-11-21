@@ -212,7 +212,8 @@ async function measure(openTab: () => Promise<Tab>, page: (typeof pages)[number]
     // Total blocking time between first paint and now, as Lighthouse counts it.
     const tbt = m.longTasks.filter(([s]) => s >= m.fcp).reduce((sum, [, d]) => sum + Math.max(0, d - 50), 0);
     const domNodes = await evaluate<number>(tab, "document.getElementsByTagName('*').length");
-    const overflow = await evaluate<boolean>(tab, "document.documentElement.scrollWidth > innerWidth + 1");
+    // Checked again after the clicks below too: islands that hydrate on scroll can widen the page later.
+    let overflow = await evaluate<boolean>(tab, "document.documentElement.scrollWidth > document.documentElement.clientWidth + 1");
     const c = curves[profile];
     const parts = { fcp: m.fcp, lcp: m.lcp || m.fcp, tbt, cls: m.cls };
     const loadScore = 10 * Object.entries(weights).reduce((s, [k, w]) => s + w * logNormal(parts[k as keyof typeof parts], c[k as keyof typeof c]), 0);
@@ -262,6 +263,7 @@ async function measure(openTab: () => Promise<Tab>, page: (typeof pages)[number]
         await sleep(600);
       }
     }
+    overflow ||= await evaluate<boolean>(tab, "document.documentElement.scrollWidth > document.documentElement.clientWidth + 1");
     {
       const navs = await evaluate<number>(tab, "window.__bench.navs.length");
       const before = await eventCount(tab);
@@ -276,7 +278,9 @@ async function measure(openTab: () => Promise<Tab>, page: (typeof pages)[number]
     // Responsiveness by INP, and how long a page-to-page navigation or the live preview takes to show, on the LCP
     // curve for this profile; the score is the worse of the two, halved when any step failed outright.
     const worst = Math.max(0, ...interactions.map((i) => i.inp));
-    const timed = interactions.filter((i) => i.ms !== undefined).map((i) => logNormal(i.ms!, c.lcp));
+    // Navigation is held to this profile's LCP curve. The live preview is another site loading in a frame, outside our
+    // control past starting it early, so it is held to Lighthouse's phone LCP curve (2.5s scores 0.9) on any profile.
+    const timed = interactions.filter((i) => i.ms !== undefined).map((i) => logNormal(i.ms!, i.name.startsWith("live preview") ? curves.mobile.lcp : c.lcp));
     const interactionScore = interactions.length ? 10 * Math.min(logNormal(worst || 1, inpCurve), ...timed) * (interactions.some((i) => i.note) ? 0.5 : 1) : 10;
     return {
       page: page.name, profile, ttfb: round(ttfb, 0), fcp: round(m.fcp, 0), lcp: round(m.lcp || m.fcp, 0), cls: round(m.cls, 3), tbt: round(tbt, 0),
