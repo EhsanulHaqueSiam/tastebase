@@ -7,6 +7,9 @@ import HeaderSearch from "../components/HeaderSearch.tsx";
 import Palette from "../components/Palette.tsx";
 import Rail from "../components/Rail.tsx";
 import TabBar from "../components/TabBar.tsx";
+import ThemeToggle from "../components/ThemeToggle.tsx";
+import SessionToasts from "../components/SessionToasts.tsx";
+import SiteFooter from "../components/SiteFooter.astro";
 import { ProgressiveBlur } from "../components/ui/progressive-blur.tsx";
 import { isCurrent, sections } from "../lib/nav.ts";
 import "../styles.css";
@@ -25,6 +28,20 @@ const current = sections.find((s) => isCurrent(s, path));
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#000000" />
+    <!-- Theme before first paint, and again after each client navigation (the router replaces <html>'s attributes). -->
+    <script is:inline>
+      (() => {
+        const apply = () => {
+          let t = "dark";
+          try { t = localStorage.getItem("tb-theme") === "light" ? "light" : "dark"; } catch {}
+          document.documentElement.dataset.theme = t;
+          document.querySelector('meta[name="theme-color"]')?.setAttribute("content", t === "light" ? "#ffffff" : "#000000");
+        };
+        apply();
+        document.addEventListener("astro:after-swap", apply);
+      })();
+    </script>
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta property="og:title" content={title} />
@@ -45,7 +62,7 @@ const current = sections.find((s) => isCurrent(s, path));
 
     <header data-shell="header" class="fixed inset-x-0 top-0 z-40 flex h-14 items-center gap-4 px-5 lg:left-14 lg:pl-2.5" transition:persist="header">
       <!-- Phones: content scrolls under the header, so it fades out through a progressive blur (Motion Primitives). -->
-      <div aria-hidden="true" class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-20 bg-gradient-to-b from-black/80 to-transparent lg:hidden"><ProgressiveBlur direction="top" blurLayers={6} blurIntensity={0.6} className="h-full" /></div>
+      <div aria-hidden="true" class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-20 bg-gradient-to-b from-bg/80 to-transparent lg:hidden"><ProgressiveBlur direction="top" blurLayers={6} blurIntensity={0.6} className="h-full" /></div>
       <a href="/" class="group flex items-center gap-2 font-semibold tracking-[-0.02em] lg:hidden">
         <svg viewBox="0 0 100 100" class="size-[18px]" aria-hidden="true">
           <g fill="none" stroke="currentColor" stroke-width="13" stroke-linecap="round"><path d="M44 18V64Q44 80 60 80H68" /><path d="M28 40H64" /></g>
@@ -56,15 +73,17 @@ const current = sections.find((s) => isCurrent(s, path));
       <span class="hidden text-[13.5px] text-fg2 lg:inline">tastebase <span class="mx-1.5 text-fg3">/</span> <b class="font-medium text-fg" data-crumb>{current?.label ?? ""}</b></span>
       <span class="flex-1"></span>
       <HeaderSearch client:idle />
+      <ThemeToggle client:idle className="size-9 rounded-[10px]" />
       <a href="https://github.com/EhsanulHaqueSiam/tastebase" aria-label="GitHub" class="press text-fg2 hover:text-fg lg:hidden"><GithubMark size={18} /></a>
     </header>
 
     <!-- The inset frame: one fixed ring whose huge spread paints the gutters black, so pages keep scrolling the window
          and need no layout of their own. Painted once; scrolling never repaints it. -->
-    <div aria-hidden="true" data-shell="frame" class="pointer-events-none fixed top-14 right-2 bottom-2 left-16 z-30 hidden rounded-2xl shadow-[0_0_0_100vmax_#000,inset_0_0_0_1px_var(--color-line2)] lg:block"></div>
+    <div aria-hidden="true" data-shell="frame" class="pointer-events-none fixed top-14 right-2 bottom-2 left-16 z-30 hidden rounded-2xl shadow-[0_0_0_100vmax_var(--color-bg),inset_0_0_0_1px_var(--color-line2)] lg:block"></div>
 
     <main transition:animate="fade" data-shell="main" class="lg:pr-2 lg:pl-16">
       <slot />
+      <SiteFooter />
     </main>
 
     <script>
@@ -96,8 +115,27 @@ const current = sections.find((s) => isCurrent(s, path));
       });
       addEventListener("resize", () => document.querySelectorAll<HTMLElement>(".seg[data-pill]").forEach((s) => move(s, false)));
     </script>
+    <script>
+      // WebMCP: browsers with an in-page agent (navigator.modelContext) get tastebase's picker as a tool. Registered once;
+      // the script is a module, so client navigations don't run it again.
+      type Tool = { name: string; description: string; inputSchema: object; execute: (args: { need?: string }) => Promise<unknown> };
+      const mc = (navigator as Navigator & { modelContext?: { registerTool?: (tool: Tool) => void } }).modelContext;
+      mc?.registerTool?.({
+        name: "search_tastebase",
+        description: "Find the best UI libraries for one job (a toast, a bottom sheet, a chart, a shader hero) from tastebase's curated registry, with why and the install command.",
+        inputSchema: { type: "object", properties: { need: { type: "string", description: "The job, in plain words: 'toast', 'iOS-like bottom sheet', 'Vue data table'." } }, required: ["need"] },
+        async execute({ need = "" }) {
+          const res = await fetch(`/api/pick?q=${encodeURIComponent(need)}`);
+          if (!res.ok) return { content: [{ type: "text", text: `tastebase could not answer (${res.status}).` }], isError: true };
+          const picks: { lib: { id: string; name: string; tagline: string; install: string }; why: string }[] = await res.json();
+          const text = picks.length ? picks.map((p) => `${p.lib.name}: ${p.why}. ${p.lib.install}. ${location.origin}/browse/${p.lib.id}`).join("\n") : "Nothing in the registry fits that job.";
+          return { content: [{ type: "text", text }] };
+        },
+      });
+    </script>
     <Palette client:idle transition:persist="palette" />
     <TabBar client:load transition:persist="tabbar" />
     <BackToTop client:idle />
+    <SessionToasts client:idle transition:persist="toasts" />
   </body>
 </html>

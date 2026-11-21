@@ -1,0 +1,149 @@
+---
+// The footer on every page (after Design Index's): a wavy ribbon with text running along it, an about paragraph and a
+// submit box, a six-column sitemap that rises in as it scrolls into view, social links, credits and a huge clipped
+// wordmark. The ribbon's text moves only while the page scrolls (its offset follows scroll position), never on a loop.
+import { ArrowUpRight, HeartHandshake, Package } from "lucide-react";
+import { GithubMark } from "./GithubMark.tsx";
+
+const REPO = "https://github.com/EhsanulHaqueSiam/tastebase";
+const groups: [string, [string, string][]][] = [
+  ["Product", [["Home", "/"], ["Browse", "/browse"], ["Components", "/components"], ["Match a screenshot", "/match"], ["Looks", "/looks"], ["Atlas", "/atlas"]]],
+  ["Resources", [["Tools", "/tools"], ["UI", "/ui"], ["Inspiration", "/inspiration"], ["Mockups", "/mockups"]]],
+  ["Graphics", [["Icons", "/icons"], ["Illustrations", "/illustrations"]]],
+  ["Style", [["Fonts", "/fonts"], ["Colours", "/colours"]]],
+  ["Articles", [["Best icon libraries", "/best/best-icon-libraries"], ["Best animation libraries", "/best/best-animation-libraries"], ["Lucide alternatives", "/alternatives/lucide-alternatives"], ["All articles", "/best"]]],
+  ["Support", [["Submit a tool", "/submit"], ["Feedback", "/feedback"], ["Sponsor", "/sponsor"], ["Contribute", "/contribute"], ["Integrations", "/integrations"]]],
+];
+// The ribbon: a wave in a 1200x520 box (Design Index's TextLoop geometry), drawn as a thick stroke with text on it.
+const CY = 260, A = 55;
+const wave = `M -320 ${CY} Q -160 ${CY - A} 0 ${CY} T 320 ${CY} T 640 ${CY} T 960 ${CY} T 1280 ${CY} T 1520 ${CY}`;
+const unit = "Find the right UI library ✦ ";
+const year = new Date().getFullYear();
+---
+
+<footer class="relative mt-24 overflow-hidden border-t-0" data-footer>
+  <div class="w-full overflow-hidden pt-4" aria-hidden="true">
+    <div class="-my-[33%] -ml-[60%] w-[220%] sm:mx-0 sm:-my-[15%] sm:w-full">
+      <svg viewBox="0 0 1200 520" class="block h-auto w-full" data-ribbon>
+        <path id="ribbon-path" d={wave} fill="none" stroke="var(--color-blue)" stroke-width="48" stroke-linecap="round" />
+        <text class="fill-white text-[28px] font-bold tracking-[2px] uppercase select-none" dominant-baseline="central">
+          <textPath href="#ribbon-path" data-unit={unit.toUpperCase()}>{unit.toUpperCase().repeat(8)}</textPath>
+        </text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="mx-auto w-full max-w-7xl px-6 pt-10">
+    <div class="flex flex-col gap-6 pb-10 lg:flex-row lg:items-stretch lg:justify-between">
+      <div class="flex flex-col">
+        <a href="/" aria-label="tastebase home" class="inline-flex items-center gap-2.5 transition-opacity hover:opacity-90">
+          <svg viewBox="0 0 100 100" class="size-8" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="13" stroke-linecap="round"><path d="M44 18V64Q44 80 60 80H68"></path><path d="M28 40H64"></path></g><circle cx="76" cy="24" r="7.5" class="fill-blue"></circle></svg>
+          <span class="text-[20px] leading-none font-semibold tracking-[-0.03em]">tastebase</span>
+        </a>
+        <p class="mt-3 max-w-lg text-[13.5px] leading-[1.6] text-fg2">
+          tastebase is a hand-picked registry of UI libraries and design resources, each with a note on when to use it. Describe what you're building and it picks a library for every part of the page, for you or your coding agent through MCP. Every entry is checked by hand against its docs, npm and GitHub.
+        </p>
+      </div>
+      <div class="lg:max-w-[360px]">
+        <p class="flex items-center gap-2 font-mono text-[11px] font-medium tracking-[0.1em] text-fg3 uppercase"><HeartHandshake size={15} /> Contribute</p>
+        <p class="mt-2.5 text-[13.5px] leading-[1.6] text-fg2">Know a library or resource we're missing? Send it in.</p>
+        <a href="/submit" class="press group mt-3.5 inline-flex h-10 items-center gap-2 rounded-xl bg-fg pr-3 pl-4 text-[13.5px] font-medium text-bg transition-opacity hover:opacity-90">
+          Submit a tool
+          <span class="grid size-6 place-items-center rounded-lg bg-bg/15"><ArrowUpRight size={14} class="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></span>
+        </a>
+      </div>
+    </div>
+
+    <nav aria-label="Footer" class="hidden lg:block">
+      <div class="grid grid-cols-6 gap-x-8">
+        {
+          groups.map(([title, links], i) => (
+            <div class="footer-col border-t border-line pt-5" style={`--from: ${i * 7}%`}>
+              <p class="font-mono text-[11px] font-medium tracking-[0.1em] text-fg3 uppercase">{title}</p>
+              <ul class="mt-3.5 space-y-2">
+                {links.map(([label, href]) => (
+                  <li><a href={href} class="footer-link text-[13.5px]"><span>{label}</span></a></li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
+      </div>
+    </nav>
+    <nav aria-label="Footer" class="lg:hidden">
+      {
+        groups.map(([title, links], i) => (
+          <details class="group border-b border-line" open={i === 0}>
+            <summary class="flex h-12 cursor-pointer list-none items-center justify-between font-mono text-[11px] font-medium tracking-[0.1em] text-fg3 uppercase [&::-webkit-details-marker]:hidden">
+              {title}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="size-4 transition-transform duration-200 group-open:rotate-180"><path d="m6 9.5 6 6 6-6"></path></svg>
+            </summary>
+            <ul class="space-y-2.5 pb-4">{links.map(([label, href]) => <li><a href={href} class="text-[14px]">{label}</a></li>)}</ul>
+          </details>
+        ))
+      }
+    </nav>
+
+    <div class="mt-12 flex flex-col gap-5 border-t border-line py-6 lg:flex-row lg:items-center lg:justify-between lg:gap-8">
+      <div class="flex flex-col gap-2 text-[12.5px] text-fg3">
+        <span class="tabular-nums">© {year} tastebase. Every library belongs to its authors; we only write the notes.</span>
+        <!-- Rare UI's licence asks for this visible link; the rest are credited because the site's motion is theirs. -->
+        <span>Motion by <a href="https://lucide-animated.com" class="hover:text-fg">lucide-animated</a>, <a href="https://motion-primitives.com" class="hover:text-fg">Motion Primitives</a>, <a href="https://bencho.dev" class="hover:text-fg">Bencho</a>, <a href="https://rareui.com" class="hover:text-fg">Rare UI</a>, <a href="https://transitions.dev" class="hover:text-fg">transitions.dev</a>, <a href="https://skullet.lochie.me" class="hover:text-fg">Skullet</a> and <a href="https://haptics.lochie.me" class="hover:text-fg">WebHaptics</a>. Layout after <a href="https://designindex.xyz" class="hover:text-fg">Design Index</a>.</span>
+      </div>
+      <div class="flex items-center gap-4 text-fg2">
+        <a href={REPO} target="_blank" rel="noopener" aria-label="GitHub" class="transition-colors hover:text-fg"><GithubMark size={20} /></a>
+        <a href="https://www.npmjs.com/package/tastebase" target="_blank" rel="noopener" aria-label="npm" class="transition-colors hover:text-fg"><Package size={20} /></a>
+      </div>
+    </div>
+  </div>
+
+  <div aria-hidden="true" class="mx-auto w-full max-w-7xl overflow-hidden px-4 select-none sm:px-6">
+    <div class="h-[8.5vw] max-h-[9.5rem] overflow-hidden sm:h-[9.5vw] xl:h-[9.5rem]">
+      <p class="text-center text-[15.5vw] leading-none font-semibold tracking-[-0.05em] whitespace-nowrap text-fg/5 xl:text-[14rem]">tastebase</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer-link span { position: relative; }
+  .footer-link span::after {
+    content: ""; position: absolute; inset-inline: 0; bottom: -1px; height: 1px; background: currentColor;
+    transform: scaleX(0); transform-origin: left; transition: transform 220ms var(--ease-out);
+  }
+  .footer-link:hover span::after { transform: scaleX(1); }
+  @keyframes footer-rise { from { opacity: 0; transform: translateY(16px); } }
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .footer-col { animation: footer-rise linear both; animation-timeline: view(); animation-range: entry var(--from) entry calc(var(--from) + 48%); }
+    }
+  }
+</style>
+
+<script>
+  // The ribbon's text fills its path exactly (as many repeats as fit, spaced to the length) and slides along it as the
+  // page scrolls: one repeat of travel per screen of scroll, so it loops seamlessly. Idle when off screen.
+  const setup = () => {
+    const svg = document.querySelector<SVGSVGElement>("[data-footer] [data-ribbon]");
+    const path = svg?.querySelector<SVGPathElement>("path");
+    const tp = svg?.querySelector<SVGTextPathElement>("textPath");
+    if (!svg || !path || !tp) return;
+    const text = tp.parentElement as unknown as SVGTextContentElement;
+    const unit = tp.dataset.unit!;
+    tp.textContent = unit;
+    const unitWidth = text.getComputedTextLength();
+    const length = path.getTotalLength();
+    const reps = Math.max(1, Math.round(length / unitWidth)) + 1; // one extra repeat to slide into
+    tp.textContent = unit.repeat(reps);
+    text.setAttribute("textLength", String((length / (reps - 1)) * reps));
+    text.setAttribute("lengthAdjust", "spacing");
+    const step = length / (reps - 1);
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let on = false, frame = 0;
+    const draw = () => ((frame = 0), tp.setAttribute("startOffset", String(-((scrollY / innerHeight) * step) % step)));
+    const onScroll = () => on && !frame && (frame = requestAnimationFrame(draw));
+    new IntersectionObserver(([e]) => (on = !!e?.isIntersecting)).observe(svg);
+    addEventListener("scroll", onScroll, { passive: true });
+    document.addEventListener("astro:before-swap", () => removeEventListener("scroll", onScroll), { once: true });
+  };
+  document.addEventListener("astro:page-load", () => document.fonts.ready.then(setup));
+</script>

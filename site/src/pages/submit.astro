@@ -1,0 +1,20 @@
+---
+// /submit: suggest a library or resource. The form emails the admin (/api/forms). Prerendered.
+import Form from "../components/Form.tsx";
+import FormPage from "../components/FormPage.astro";
+import Base from "../layouts/Base.astro";
+
+export const prerender = true;
+---
+
+<Base title="Submit a tool · tastebase" description="Suggest a UI library or design resource for tastebase. Every submission is tried by hand.">
+  <FormPage
+    title="Submit a tool"
+    lede="Know a library or design resource we should list? Send it and we'll try it for quality, usefulness and whether an agent can pick it well."
+    listTitle="Before you submit"
+    points={["UI libraries and design resources only.", "We try every submission by hand before it's listed.", "Listings link straight to the site, no paid placement."]}
+  >
+    <Form client:load form="submit" />
+    <p class="mt-6 text-[13px] text-fg3">Prefer GitHub? <a href="/contribute" class="text-fg2 underline underline-offset-4 hover:text-fg">Open an issue or a pull request</a>.</p>
+  </FormPage>
+</Base>

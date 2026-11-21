@@ -27,7 +27,31 @@
   --spring: linear(0, 0.024, 0.086, 0.174, 0.278, 0.388, 0.5, 0.606, 0.704, 0.791, 0.866, 0.929, 0.979, 1.018, 1.047, 1.066, 1.078, 1.083, 1.083, 1.079, 1.073, 1.065, 1.056, 1.047, 1.037, 1.029, 1.021, 1.014, 1.009, 1.004, 1, 0.997, 0.995, 0.994, 0.993, 0.993, 0.993, 0.994, 0.995, 0.997, 1);
 }
 
-html { background: #000; color: var(--color-fg); color-scheme: dark; }
+:root { --drop: rgb(0 0 0 / 0.5); --drop-lift: rgb(0 0 0 / 0.8); }
+
+/* Light theme (ThemeToggle.tsx): every token gets a light value; accents darken so they still read on white. */
+:root[data-theme="light"] {
+  --color-bg: #fff;
+  --color-s1: #f7f7f8;
+  --color-s2: #efeff1;
+  --color-s3: #e4e4e8;
+  --color-fg: #0a0a0b;
+  --color-fg2: #55555c;
+  --color-fg3: #6b6b73;
+  --color-line: rgb(0 0 0 / 0.08);
+  --color-line2: rgb(0 0 0 / 0.14);
+  --color-blue: #3355ff;
+  --color-green: #12865a;
+  --color-violet: #6d4fd6;
+  --color-amber: #a8650c;
+  --color-pink: #c2337f;
+  --color-cyan: #0a8396;
+  --drop: rgb(0 0 0 / 0.06);
+  --drop-lift: rgb(0 0 0 / 0.14);
+  color-scheme: light;
+}
+
+html { background: var(--color-bg); color: var(--color-fg); color-scheme: dark; }
 body { font-family: var(--font-sans); font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
 ::selection { background: rgb(91 124 255 / 0.4); }
 :focus-visible { outline: 2px solid var(--color-blue); outline-offset: 2px; border-radius: 8px; }
@@ -49,7 +73,7 @@ body { font-family: var(--font-sans); font-size: 14px; line-height: 1.5; -webkit
 .spot { position: relative; isolation: isolate; }
 .spot::before {
   content: ""; position: absolute; inset: 0; border-radius: inherit; z-index: -1; pointer-events: none; opacity: 0;
-  background: radial-gradient(320px circle at var(--x, 50%) var(--y, 50%), rgb(255 255 255 / 0.07), transparent 60%);
+  background: radial-gradient(320px circle at var(--x, 50%) var(--y, 50%), color-mix(in srgb, var(--color-fg) 7%, transparent), transparent 60%);
   transition: opacity 300ms;
 }
 .spot:hover::before { opacity: 1; }
@@ -61,7 +85,7 @@ body { font-family: var(--font-sans); font-size: 14px; line-height: 1.5; -webkit
 .seg button[aria-pressed="true"] { background: var(--color-s3); color: var(--color-fg); }
 
 .kbd { font: 500 11px var(--font-mono); color: var(--color-fg2); background: var(--color-s3); border-radius: 5px; padding: 2px 6px; box-shadow: inset 0 -1px 0 rgb(255 255 255 / 0.06); }
-.dots { background: radial-gradient(circle at 1px 1px, rgb(255 255 255 / 0.06) 1px, transparent 0) 0 0 / 20px 20px; }
+.dots { background: radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--color-fg) 7%, transparent) 1px, transparent 0) 0 0 / 20px 20px; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: 1ms !important; animation-duration: 1ms !important; }
@@ -155,7 +179,7 @@ body > header > * { animation: blur-in 900ms var(--ease-quart) backwards; }
 @media (hover: none) { .card-kind { display: none; } }
 
 /* Header search (HeaderSearch.tsx): grows on a spring, panes swap through a blur. */
-.island { position: relative; height: 34px; width: 36px; border-radius: 10px; overflow: clip; background: rgb(255 255 255 / 0.05); box-shadow: inset 0 0 0 1px var(--color-line); backdrop-filter: blur(12px); transition: width 800ms var(--spring), box-shadow 200ms var(--ease-quart); }
+.island { position: relative; height: 34px; width: 36px; border-radius: 10px; overflow: clip; background: color-mix(in srgb, var(--color-fg) 5%, transparent); box-shadow: inset 0 0 0 1px var(--color-line); backdrop-filter: blur(12px); transition: width 800ms var(--spring), box-shadow 200ms var(--ease-quart); }
 @media (min-width: 640px) { .island { width: 116px; } }
 .island:hover { box-shadow: inset 0 0 0 1px var(--color-line2); }
 .island[data-open] { width: min(420px, 42vw); box-shadow: inset 0 0 0 1px rgb(91 124 255 / 0.6), 0 0 0 4px rgb(91 124 255 / 0.12); }
@@ -201,3 +225,6 @@ body > header > * { animation: blur-in 900ms var(--ease-quart) backwards; }
   [data-rail-hidden] [data-shell="frame"] { left: 8px; }
   [data-rail-hidden] [data-shell="main"] { padding-left: 8px; }
 }
+
+/* The palette's input sits in a field that is already the focus state. */
+[cmdk-input]:focus-visible { outline: none; }

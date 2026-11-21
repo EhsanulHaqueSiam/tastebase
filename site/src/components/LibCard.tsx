@@ -98,7 +98,7 @@ export function LibCard({ lib, badge, pick }: { lib: ShelfLib; badge?: string; p
             <img src={shot(lib.id)} alt={`${lib.name} website`} loading="lazy" className="size-full object-cover object-top transition-transform duration-700 ease-[var(--ease-out)] group-hover:scale-[1.04]" />
             <span className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-s1 to-transparent" />
             {badge && <span className="absolute top-2.5 left-2.5 rounded-md bg-black/60 px-1.5 py-0.5 font-mono text-[11px] font-medium text-fg backdrop-blur-md">{badge}</span>}
-            {pick && <span className="absolute top-3 right-12 rounded-md bg-fg px-1.5 py-0.5 font-mono text-[11px] font-medium text-black">pick</span>}
+            {pick && <span className="absolute top-3 right-12 rounded-md bg-fg px-1.5 py-0.5 font-mono text-[11px] font-medium text-bg">pick</span>}
           </div>
           <div className="flex items-center gap-3 p-4 pt-1">
             <LibMark lib={lib} size={30} />
@@ -115,7 +115,7 @@ export function LibCard({ lib, badge, pick }: { lib: ShelfLib; badge?: string; p
       <div className="card-acts absolute right-3 bottom-[15px] flex gap-1 bg-[linear-gradient(to_left,var(--color-s1)_75%,transparent)] pl-8">
         <CopyButton value={lib.install} label="Install" className="h-8" />
         {lib.repo && (
-          <a href={lib.repo} target="_blank" rel="noreferrer" aria-label={`${lib.name} on GitHub`} className="press grid size-8 place-items-center rounded-lg bg-s3 text-fg2 hover:bg-fg hover:text-black">
+          <a href={lib.repo} target="_blank" rel="noreferrer" aria-label={`${lib.name} on GitHub`} className="press grid size-8 place-items-center rounded-lg bg-s3 text-fg2 hover:bg-fg hover:text-bg">
             <GithubMark size={14} />
           </a>
         )}

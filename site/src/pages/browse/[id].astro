@@ -9,7 +9,9 @@ import { GithubMark } from "../../components/GithubMark.tsx";
 import { LibMark } from "../../components/LibMark.tsx";
 import Detail from "../../components/Detail.astro";
 import Base from "../../layouts/Base.astro";
+import { altSlug, hasAlternatives } from "../../lib/articles.ts";
 import { libraryListing, relatedTo } from "../../lib/listings.ts";
+import { withUtm } from "../../lib/utm.ts";
 import { libraries } from "../../lib/server.ts";
 import Adoption from "../../components/Adoption.tsx";
 import type { Library } from "../../../../src/registry/schema.ts";
@@ -56,7 +58,7 @@ const item = libraryListing(lib);
         lib.paid && (
           <p class="mt-2.5 flex gap-2.5 rounded-xl bg-s1 p-3 text-[13px] text-fg2 shadow-[inset_0_0_0_1px_var(--color-line)]">
             <CircleDollarSign size={15} class="mt-[2px] shrink-0 text-amber" />
-            <span><b class="font-medium text-fg">Free + paid.</b> <a href={lib.paid.url} target="_blank" rel="noreferrer" class="text-fg hover:underline">{lib.paid.price}</a>: {lib.paid.what}</span>
+            <span><b class="font-medium text-fg">Free + paid.</b> <a href={withUtm(lib.paid.url, "detail-page")} target="_blank" rel="noopener" class="text-fg hover:underline">{lib.paid.price}</a>: {lib.paid.what}</span>
           </p>
         )
       }
@@ -128,6 +130,7 @@ const item = libraryListing(lib);
           ) : null,
         )
       }
+      {hasAlternatives(lib) && <a href={`/alternatives/${altSlug(lib)}`} class="mt-3 inline-block text-[13px] text-fg2 underline underline-offset-4 hover:text-fg">Compare {lib.name} with its alternatives</a>}
       <div class="mt-6 overflow-hidden rounded-xl shadow-[inset_0_0_0_1px_var(--color-line)]">
         <CodeTabs client:visible usage={lib.usage} prompt={prompt} install={lib.install} />
       </div>

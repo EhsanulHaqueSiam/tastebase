@@ -1,5 +1,5 @@
 // A detail page's actions, twice over (after Design Index): outlined Visit and Share under the title, and a floating
-// pill at the bottom with the sidebar toggle, search, a solid Visit and Share. The pill's sidebar toggle hides the
+// pill at the bottom with the sidebar toggle, search, a solid Visit, Share and the theme toggle. The pill's sidebar toggle hides the
 // desktop rail so the live site gets the room, and opens the More sheet on phones; search opens the ⌘K palette.
 import { Check, Share2 } from "lucide-react";
 import { useState } from "react";
@@ -9,6 +9,7 @@ import { sharePage, withUtm } from "../lib/utm.ts";
 import { ArrowUpRightIcon } from "./icons/arrow-up-right.tsx";
 import { PanelLeftOpenIcon } from "./icons/panel-left-open.tsx";
 import { SearchIcon } from "./icons/search.tsx";
+import ThemeToggle from "./ThemeToggle.tsx";
 
 type Props = { name: string; url: string; sponsored?: boolean };
 
@@ -69,6 +70,7 @@ export function DetailPill({ name, url, sponsored }: Props) {
         {copied ? <Check size={18} aria-hidden /> : <Share2 size={18} aria-hidden />}
         <span aria-live="polite">{copied ? "Copied" : "Share"}</span>
       </button>
+      <ThemeToggle size={21} className="size-11 shrink-0 rounded-[16px] text-fg transition-colors hover:bg-s3" />
     </div>
   );
 }
