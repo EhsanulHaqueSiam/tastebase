@@ -49,11 +49,6 @@ export const Website = Cloudflare.Website.Astro(
     main: path.join(import.meta.dirname, "site/src/worker.ts"), // Astro's handler + scheduled()
     crons: ["17 * * * *"], // hourly; each run refreshes the 24 stalest libraries (free-plan subrequest limit)
     sessionKVBindingName: false, // no Astro sessions; nothing to provision
-    // Pages go through the Worker first so AI crawlers and Accept: text/markdown get the page's Markdown copy
-    // (site/src/worker.ts); everyone else is handed the same static page. One Worker request per page view, well
-    // inside the free plan's 100,000 a day; the heavy asset folders skip the Worker entirely. Not under `pnpm dev`:
-    // there the same routing would send Vite's own module requests to the Worker, and the build writes no copies.
-    assets: stage.startsWith("dev") ? undefined : { runWorkerFirst: ["/*", "!/_astro/*", "!/shots/*", "!/marks/*", "!/og/*", "!/sponsors/*"] },
     observability: { enabled: true }, // Workers Logs; follow with `pnpm logs`
     // Optional custom domain for prod, e.g. TASTEBASE_DOMAIN=tastebase.dev (the zone must be on this account).
     domain: stage === "prod" ? process.env.TASTEBASE_DOMAIN || undefined : undefined,

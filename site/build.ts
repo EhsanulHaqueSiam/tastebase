@@ -1,6 +1,6 @@
 // Build-time Astro integration: after every page is prerendered, writes each page's share card (/og/<path>.jpg,
 // 1200x630, from its og:title, og:description and screenshot) and its Markdown copy (/<path>.md, for AI crawlers and
-// Accept: text/markdown, served by src/worker.ts). Runs in Node on the build machine, so no request ever pays for it.
+// agents, a static file each page links as rel=alternate). Runs in Node on the build machine, so no request ever pays for it.
 // Only pages whose own og:image points at their own card get one (Base.astro decides: prerendered, not noindex).
 import type { AstroIntegration } from "astro";
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";

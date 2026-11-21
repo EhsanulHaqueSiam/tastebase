@@ -1,5 +1,5 @@
-// Build-time: a built page as Markdown, for AI crawlers and agents that send Accept: text/markdown (site/build.ts writes
-// one next to every prerendered page; worker.ts serves it). Regex over our own HTML, which is regular enough: the
+// Build-time: a built page as Markdown, for AI crawlers and agents (site/build.ts writes one next to
+// every prerendered page, served as a static file and linked from the page as rel=alternate). Regex over our own HTML, which is regular enough: the
 // page's <main>, without the footer, scripts, buttons and icons. Not a general HTML parser.
 
 const ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', "#39": "'", nbsp: " ", rsquo: "’", lsquo: "‘", rdquo: "”", ldquo: "“", hellip: "…", middot: "·" };
