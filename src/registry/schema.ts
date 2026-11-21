@@ -82,6 +82,9 @@ export type Library = {
   /** Named parts it ships, as its docs name them: components for kits, styles for icons, chart types for charts. */
   parts?: { free: string[]; paid?: string[] };
   url: string;
+  /** Where its parts can be tried, when that is not the homepage (a kit's component gallery, a live playground). The
+   *  site's live preview opens it; Visit still goes to `url`. */
+  demo?: string;
   repo?: string;
   npm?: string;
   author: string;
