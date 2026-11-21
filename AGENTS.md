@@ -80,7 +80,9 @@ Keep things simple: the smallest model that makes the correct behavior unsurpris
 - `skills/tastebase/` - the skill we ship to users, also as a Claude Code plugin (`.claude-plugin/`) and through
   `npx skills add`. After editing it, set the hash `src/skill.test.ts` prints, so stale copies get told to update
   ([how users get updates](docs/operations/deploy.md#how-users-get-updates)). `.agents/skills/` - skills for
-  working on this repo (`.claude/skills` links to it).
+  working on this repo (`.claude/skills` links to it). `modern-web-guidance` there is Google Chrome's web
+  best-practice guides, pinned in `skills-lock.json` (`npx skills experimental_install` restores it); always run its
+  CLI as `DISABLE_TELEMETRY=1 npx -y modern-web-guidance@latest ...`.
 - `.repos/` - read-only reference sources, gitignored. Never edit or import from them.
 
 Architecture in one page: [docs/internals/overview.md](docs/internals/overview.md).
