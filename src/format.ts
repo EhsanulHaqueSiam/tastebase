@@ -45,13 +45,23 @@ const designMd = resources.filter((r) => r.id === "refero-styles" || r.id === "d
 const refs = (L: Aesthetic) =>
   `refs: name a real one first: the user's, else search ${mcps.slice(0, -1).join(", ")} or ${mcps.at(-1)} if connected, else ${L.references.slice(0, 2).map((r) => `${r.name} ${host(r.url)}`).join(", ")} or a DESIGN.md from ${designMd}, and say how to connect one (get references)`;
 
+export const SITE = "https://tastebase.ehsanulsiam.workers.dev";
+// An agent needs a few good options, not the whole shelf: the first ones (registry order, best first) and where the rest are.
+const RESOURCES_SHOWN = 10;
+
 /** One resource category, for `get <category>`, in registry order (best first; paid ones say so). */
-export const formatResources = (kind: ResourceKind) =>
-  `${resourceKinds[kind]} (linked, not installed):\n` +
-  resources
-    .filter((r) => r.kind === kind)
-    .map((r) => `${r.name} ${r.url} | ${r.goodFor} | ${r.cost}${r.mcp ? ` | ${r.mcp.name}${r.mcp.needsPaidPlan ? " (paid plan)" : ""}: ${r.mcp.url}` : ""}`)
-    .join("\n");
+export const formatResources = (kind: ResourceKind) => {
+  const all = resources.filter((r) => r.kind === kind);
+  const more = all.length - RESOURCES_SHOWN;
+  return (
+    `${resourceKinds[kind]} (linked, not installed):\n` +
+    all
+      .slice(0, RESOURCES_SHOWN)
+      .map((r) => `${r.name} ${r.url} | ${r.goodFor} | ${r.cost}${r.mcp ? ` | ${r.mcp.name}${r.mcp.needsPaidPlan ? " (paid plan)" : ""}: ${r.mcp.url}` : ""}`)
+      .join("\n") +
+    (more > 0 ? `\n+${more} more: ${SITE}/atlas#resources/${kind}` : "")
+  );
+};
 
 const integrationLine = (i: Integration) => `${i.name} (${i.official ? "official" : "community"}): ${mcpSetup(i, "Claude Code")}`;
 
