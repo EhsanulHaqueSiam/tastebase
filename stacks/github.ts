@@ -26,7 +26,7 @@ export default Alchemy.Stack(
   Effect.gen(function* () {
     const { accountId } = yield* yield* Cloudflare.CloudflareEnvironment;
 
-    // Only what alchemy.run.ts needs: Workers with assets, cron, KV and logs, plus the remote state store
+    // Only what alchemy.run.ts needs: Workers with assets, cron, KV, D1 and logs, plus the remote state store
     // (its auth token sits in the Secrets Store; binding it into the preview worker that reads it needs Write).
     const ci = yield* Cloudflare.ApiToken.AccountApiToken("CIToken", {
       accountId,
@@ -34,7 +34,7 @@ export default Alchemy.Stack(
         {
           effect: "allow",
           // Turnstile and Email Routing Addresses: the forms' captcha widget and the verified inbox (alchemy.run.ts).
-          permissionGroups: ["Workers Scripts Write", "Workers KV Storage Write", "Account Settings Write", "Workers Tail Read", "Secrets Store Write", "Turnstile Sites Write", "Email Routing Addresses Write"],
+          permissionGroups: ["Workers Scripts Write", "Workers KV Storage Write", "D1 Write", "Account Settings Write", "Workers Tail Read", "Secrets Store Write", "Turnstile Sites Write", "Email Routing Addresses Write"],
           resources: { [`com.cloudflare.api.account.${accountId}`]: "*" },
         },
       ],
@@ -54,6 +54,10 @@ export default Alchemy.Stack(
       yield* GitHub.Secret("forms-to", { ...repo, name: "FORMS_TO", value: yield* Config.Redacted("FORMS_TO") });
       yield* GitHub.Secret("forms-from", { ...repo, name: "FORMS_FROM", value: yield* Config.Redacted("FORMS_FROM") });
     }
+    // GitHub sign-in on the site (alchemy.run.ts authEnv): the OAuth app's keys and better-auth's signing secret.
+    yield* GitHub.Secret("auth-github-id", { ...repo, name: "AUTH_GITHUB_ID", value: yield* Config.Redacted("AUTH_GITHUB_ID") });
+    yield* GitHub.Secret("auth-github-secret", { ...repo, name: "AUTH_GITHUB_SECRET", value: yield* Config.Redacted("AUTH_GITHUB_SECRET") });
+    yield* GitHub.Secret("better-auth-secret", { ...repo, name: "BETTER_AUTH_SECRET", value: yield* Config.Redacted("BETTER_AUTH_SECRET") });
     yield* GitHub.Variable("cf-account-id", { ...repo, name: "CLOUDFLARE_ACCOUNT_ID", value: accountId });
     yield* GitHub.Variable("deploy-enabled", { ...repo, name: "DEPLOY_ENABLED", value: "true" });
 

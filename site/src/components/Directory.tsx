@@ -9,6 +9,7 @@ import { useStats } from "../lib/stats.ts";
 import { CopyButton } from "./fx.tsx";
 import { FW, KindIcon, LibCard, SaveButton, SORTS, sortBy, statBadge, type Sort } from "./LibCard.tsx";
 import { LibMark } from "./LibMark.tsx";
+import { Seg } from "./Seg.tsx";
 
 type Job = Kind | "all" | "saved";
 const PRICES = [["any", "Any"], ["free", "Free"], ["paid", "Paid"]] as const;
@@ -63,9 +64,9 @@ export default function Directory({ libs }: { libs: ShelfLib[] }) {
         <h2 className="hidden px-2 pt-4 pb-1.5 font-mono text-[11.5px] text-fg3 lg:block">Price</h2>
         {/* A wrapper, because .seg's own display would beat Tailwind's `hidden`. */}
         <div className="mx-1 hidden lg:block">
-          <div className="seg" role="group" aria-label="Price">
+          <Seg label="Price">
             {PRICES.map(([id, label]) => <button key={id} type="button" aria-pressed={price === id} onClick={() => setPrice(id)}>{label}</button>)}
-          </div>
+          </Seg>
         </div>
       </aside>
 
@@ -90,13 +91,13 @@ export default function Directory({ libs }: { libs: ShelfLib[] }) {
             </label>
             <Select label="Framework" value={fw ?? ""} shown={fw ? FW[fw] : "Any"} onChange={(v) => setFw(frameworks.find((f) => f === v))} options={[["", "Any"], ...frameworks.map((f) => [f, FW[f]] as const)]} />
             <Select label="Price" className="lg:hidden" value={price} shown={PRICES.find(([id]) => id === price)![1]} onChange={(v) => setPrice(PRICES.find(([id]) => id === v)?.[0] ?? "any")} options={PRICES} />
-            <div className="seg" role="group" aria-label="Sort">
+            <Seg label="Sort">
               {SORTS.map(([id, label]) => <button key={id} type="button" aria-pressed={sort === id} onClick={() => setSort(id)}>{label}</button>)}
-            </div>
-            <div className="seg" role="group" aria-label="View">
+            </Seg>
+            <Seg label="View">
               <button type="button" aria-pressed={view === "grid"} aria-label="Grid" onClick={() => setView("grid")}><LayoutGrid size={14} /></button>
               <button type="button" aria-pressed={view === "list"} aria-label="List" onClick={() => setView("list")}><List size={14} /></button>
-            </div>
+            </Seg>
           </div>
         </div>
 

@@ -16,6 +16,8 @@ import * as Effect from "effect/Effect";
 import path from "node:path";
 
 export const Stats = Cloudflare.KV.Namespace("Stats");
+// Accounts (better-auth), hearts and folders. Absolute path: `pnpm dev` runs from site/, CI from the root.
+export const Db = Cloudflare.D1.Database("Db", { migrations: path.join(import.meta.dirname, "migrations") });
 
 // Forms (/submit, /feedback, /sponsor) email the admin. Cloudflare's free plan only sends from a domain with Email Routing
 // to a verified address, so both come from .env (CI: repo variables): FORMS_FROM, e.g. tastebase@<a routing zone>, and
@@ -66,10 +68,23 @@ export const Website = Cloudflare.Website.Astro(
       MAIL: FormsMail,
       FORMS_FROM: formsFrom ?? "",
       FORMS_TO: formsTo ?? "", // empty: the forms answer "not set up"
+      DB: Db,
+      // GitHub sign-in (site/src/lib/auth.ts). One OAuth app serves every stage: its redirect URIs are prod,
+      // any *.ehsanulsiam.workers.dev (previews), localhost:1337 and 127.0.0.1 on any port. Optional: without the keys (CI checks) the site
+      // runs signed out and /api/auth/* answers 404.
+      ...authEnv(),
     },
   };
   }),
 );
+
+// All three or none: a half-configured provider would fail at sign-in, not at deploy. Another provider (X, Google)
+// adds its two keys here and in site/src/lib/auth.ts.
+function authEnv() {
+  const { AUTH_GITHUB_ID, AUTH_GITHUB_SECRET, BETTER_AUTH_SECRET } = process.env;
+  if (!AUTH_GITHUB_ID || !AUTH_GITHUB_SECRET || !BETTER_AUTH_SECRET) return undefined;
+  return { AUTH_GITHUB_ID, AUTH_GITHUB_SECRET: Config.Redacted("AUTH_GITHUB_SECRET"), BETTER_AUTH_SECRET: Config.Redacted("BETTER_AUTH_SECRET") };
+}
 
 export type WebsiteEnv = Cloudflare.InferEnv<typeof Website>;
 
@@ -82,8 +97,9 @@ export default Alchemy.Stack(
   Effect.gen(function* () {
     const site = yield* Website;
     const stats = yield* Stats;
+    const db = yield* Db;
     // Registering the inbox makes Cloudflare email it a verification link once; the binding can send only after that.
     if (forms && (yield* Alchemy.Stage) === "prod") yield* FormsInbox;
-    return { url: site.url, workerName: site.workerName, statsNamespaceId: stats.namespaceId };
+    return { url: site.url, workerName: site.workerName, statsNamespaceId: stats.namespaceId, databaseId: db.databaseId };
   }),
 );
