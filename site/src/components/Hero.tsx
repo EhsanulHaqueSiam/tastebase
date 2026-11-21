@@ -4,6 +4,7 @@ import { AnimatePresence, motion, useScroll, useTransform } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { TextMorph } from "torph/react";
 import type { Lite } from "../lib/server.ts";
+import { useTheme } from "../lib/theme.ts";
 import { ShaderBg } from "./fx.tsx";
 import { LibMark } from "./LibMark.tsx";
 
@@ -36,6 +37,7 @@ export default function Hero({ counts }: { counts: { libs: number; looks: number
     return () => clearTimeout(t);
   }, [counts]);
 
+  const light = useTheme() === "light";
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const y = useTransform(scrollYProgress, [0, 1], [0, -120]);
@@ -44,14 +46,14 @@ export default function Hero({ counts }: { counts: { libs: number; looks: number
 
   return (
     <section ref={ref} className="relative isolate flex min-h-[92svh] flex-col items-center px-4 pt-[22svh] pb-24">
-      <ShaderBg className="absolute inset-0 -z-10 opacity-80" colors={["#000000", "#0b1250", "#2a1a6e", "#05060d", "#123a8a"]} />
-      <div className="absolute inset-x-0 bottom-0 -z-10 h-1/2 bg-gradient-to-b from-transparent to-black" />
+      <ShaderBg className="absolute inset-0 -z-10 opacity-80" colors={light ? ["#ffffff", "#c9d3ff", "#e3d9ff", "#f6f7fb", "#b9ccff"] : ["#000000", "#0b1250", "#2a1a6e", "#05060d", "#123a8a"]} />
+      <div className="absolute inset-x-0 bottom-0 -z-10 h-1/2 bg-gradient-to-b from-transparent to-bg" />
       <motion.div style={{ y, opacity: fade, filter: blur }} className="flex w-full flex-col items-center">
         <motion.h1
           initial={{ opacity: 0, y: 16, filter: "blur(8px)" }}
           animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
           transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
-          className="text-center text-[clamp(38px,6.4vw,76px)] leading-[1.02] font-semibold tracking-[-0.045em] [text-shadow:0_2px_30px_rgb(255_255_255/0.18)]"
+          className="text-center text-[clamp(38px,6.4vw,76px)] leading-[1.02] font-semibold tracking-[-0.045em] [text-shadow:0_2px_30px_color-mix(in_srgb,var(--color-fg)_18%,transparent)]"
         >
           find any{" "}
           <button type="button" onClick={next} onPointerEnter={(e) => e.pointerType === "mouse" && next()} className="cursor-pointer rounded-lg outline-offset-4">
@@ -67,16 +69,16 @@ export default function Hero({ counts }: { counts: { libs: number; looks: number
           transition={{ delay: 0.35, type: "spring", duration: 0.7, bounce: 0.2 }}
           className="mt-8 w-full max-w-[580px]"
         >
-          <label className="flex items-center gap-3 rounded-2xl bg-black/55 px-4 py-3.5 shadow-[0_0_0_1px_var(--color-line2),0_30px_80px_-30px_rgb(0_0_0/0.9)] backdrop-blur-xl transition-shadow duration-300 focus-within:shadow-[0_0_0_1px_rgb(91_124_255/0.7),0_0_0_5px_rgb(91_124_255/0.15)]">
+          <label className="flex items-center gap-3 rounded-2xl bg-bg/55 px-4 py-3.5 shadow-[0_0_0_1px_var(--color-line2),0_30px_80px_-30px_rgb(0_0_0/0.9)] backdrop-blur-xl transition-shadow duration-300 focus-within:shadow-[0_0_0_1px_rgb(91_124_255/0.7),0_0_0_5px_rgb(91_124_255/0.15)]">
             <Search size={16} className="text-fg3" />
             <input id="ask" value={q} onChange={(e) => setQ(e.target.value)} placeholder="ask anything, like “animated price” or “bottom sheet”" className="min-w-0 flex-1 bg-transparent text-[15px] outline-none placeholder:text-fg3" autoComplete="off" aria-label="Search libraries" />
             <span className="kbd">/</span>
           </label>
-          <motion.ul layout className="mt-2 overflow-hidden rounded-2xl bg-black/70 backdrop-blur-xl" style={{ boxShadow: hits.length ? "0 0 0 1px var(--color-line2)" : "none" }}>
+          <motion.ul layout className="mt-2 overflow-hidden rounded-2xl bg-bg/70 backdrop-blur-xl" style={{ boxShadow: hits.length ? "0 0 0 1px var(--color-line2)" : "none" }}>
             <AnimatePresence initial={false}>
               {hits.map((h, i) => (
                 <motion.li key={h.lib.id} layout initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0, transition: { delay: i * 0.035 } }} exit={{ opacity: 0, transition: { duration: 0.12 } }}>
-                  <a href={`/browse/${h.lib.id}`} className="group flex items-center gap-3 px-3 py-2.5 transition-colors hover:bg-white/5">
+                  <a href={`/browse/${h.lib.id}`} className="group flex items-center gap-3 px-3 py-2.5 transition-colors hover:bg-s2">
                     <LibMark lib={h.lib} size={32} />
                     <span className="min-w-0 flex-1">
                       <span className="block font-medium">{h.lib.name}</span>

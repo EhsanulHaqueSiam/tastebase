@@ -5,7 +5,7 @@ import type { Listing } from "../lib/categories.ts";
 export function ListingCard({ item, eager = false, compact = false }: { item: Listing; eager?: boolean; compact?: boolean }) {
   const external = /^https?:/.test(item.href);
   return (
-    <a href={item.href} {...(external && { target: "_blank", rel: "noopener" })} className="group relative flex flex-col overflow-hidden rounded-xl bg-s1 shadow-[0_0_0_1px_var(--color-line),0_4px_14px_rgb(0_0_0/0.5)] transition-[translate,box-shadow] duration-200 ease-[var(--ease-out)] hover:-translate-y-1 hover:shadow-[0_0_0_1px_var(--color-line2),0_18px_40px_-12px_rgb(0_0_0/0.8)]">
+    <a href={item.href} {...(external && { target: "_blank", rel: "noopener" })} className="group relative flex flex-col overflow-hidden rounded-xl bg-s1 shadow-[0_0_0_1px_var(--color-line),0_4px_14px_var(--drop)] transition-[translate,box-shadow] duration-200 ease-[var(--ease-out)] hover:-translate-y-1 hover:shadow-[0_0_0_1px_var(--color-line2),0_18px_40px_-12px_var(--drop-lift)]">
       <div className="aspect-video overflow-hidden bg-s2">
         <img
           src={item.image}

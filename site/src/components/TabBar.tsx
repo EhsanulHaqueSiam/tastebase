@@ -27,7 +27,7 @@ export default function TabBar() {
 
   return (
     <MotionConfig reducedMotion="user">
-      <nav aria-label="Sections" className="fixed inset-x-0 bottom-0 z-40 flex border-t border-line bg-black/85 px-2 pt-1 pb-[max(4px,env(safe-area-inset-bottom))] backdrop-blur-xl lg:hidden">
+      <nav aria-label="Sections" className="fixed inset-x-0 bottom-0 z-40 flex border-t border-line bg-bg/85 px-2 pt-1 pb-[max(4px,env(safe-area-inset-bottom))] backdrop-blur-xl lg:hidden">
         {tabs.map((s) => (
           <Tab key={s.href} href={s.href} icon={s.icon} on={isCurrent(s, path)}>{s.label}</Tab>
         ))}
@@ -82,7 +82,7 @@ function SheetRow({ href, icon: Icon, on, onPick, children }: { href: string; ic
   const { ref, on: hover } = useIconHover();
   return (
     <li>
-      <a href={href} {...hover} onClick={() => (haptic("selection"), onPick())} aria-current={on ? "page" : undefined} className={`flex h-12 items-center gap-[15px] rounded-2xl px-4 text-[17px] font-semibold transition-transform active:scale-95 ${on ? "bg-fg text-black" : "bg-s3 text-fg"}`}>
+      <a href={href} {...hover} onClick={() => (haptic("selection"), onPick())} aria-current={on ? "page" : undefined} className={`flex h-12 items-center gap-[15px] rounded-2xl px-4 text-[17px] font-semibold transition-transform active:scale-95 ${on ? "bg-fg text-bg" : "bg-s3 text-fg"}`}>
         <Icon ref={ref} size={20} className="grid place-items-center" />
         {children}
       </a>

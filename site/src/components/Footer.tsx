@@ -1,21 +1,23 @@
 import { GrainGradient } from "@paper-design/shaders-react";
 import { motion, useReducedMotion } from "motion/react";
+import { useTheme } from "../lib/theme.ts";
 
 /** Closing band: the wordmark wipes up out of a grain-gradient shader. */
 export default function Footer() {
   const reduce = useReducedMotion();
+  const light = useTheme() === "light";
   return (
     <footer className="relative isolate mt-24 overflow-hidden pt-24 pb-36">
       <div className="absolute inset-0 -z-10 opacity-70" aria-hidden>
-        <GrainGradient colorBack="#000000" colors={["#5b7cff", "#b197fc", "#f78fc4", "#3bd4e8"]} softness={0.7} intensity={0.4} noise={0.35} shape="wave" speed={reduce ? 0 : 0.3} style={{ width: "100%", height: "100%" }} />
+        <GrainGradient colorBack={light ? "#ffffff" : "#000000"} colors={["#5b7cff", "#b197fc", "#f78fc4", "#3bd4e8"]} softness={0.7} intensity={0.4} noise={0.35} shape="wave" speed={reduce ? 0 : 0.3} style={{ width: "100%", height: "100%" }} />
       </div>
-      <div className="absolute inset-x-0 top-0 -z-10 h-1/2 bg-gradient-to-b from-black to-transparent" />
+      <div className="absolute inset-x-0 top-0 -z-10 h-1/2 bg-gradient-to-b from-bg to-transparent" />
       <motion.div
         initial={{ clipPath: "inset(0 0 100% 0)", y: 40 }}
         whileInView={{ clipPath: "inset(0 0 0% 0)", y: 0 }}
         viewport={{ once: true, margin: "-80px" }}
         transition={{ duration: 1.1, ease: [0.77, 0, 0.175, 1] }}
-        className="px-4 text-center text-[clamp(64px,17vw,260px)] leading-[0.85] font-semibold tracking-[-0.06em] mix-blend-plus-lighter"
+        className="px-4 text-center text-[clamp(64px,17vw,260px)] leading-[0.85] font-semibold tracking-[-0.06em] mix-blend-plus-lighter [[data-theme=light]_&]:mix-blend-normal"
       >
         tastebase
       </motion.div>

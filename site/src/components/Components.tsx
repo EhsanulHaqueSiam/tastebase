@@ -2,6 +2,7 @@
 import { ArrowUpRight, Search } from "lucide-react";
 import { useState } from "react";
 import type { Kind } from "../../../src/registry/schema.ts";
+import { withUtm } from "../lib/utm.ts";
 import { LibMark } from "./LibMark.tsx";
 
 /** One component name and every library that documents it. `terms` is what search matches. */
@@ -41,7 +42,7 @@ export default function Components({ groups, libCount }: { groups: Group[]; libC
             <span className="w-48 shrink-0 font-medium">{g.name}</span>
             <span className="flex min-w-0 flex-1 flex-wrap gap-1.5">
               {g.libs.map((l) => (
-                <a key={l.id} href={l.url} target="_blank" rel="noreferrer" className="press group inline-flex items-center gap-2 rounded-lg bg-s2 py-1 pr-2 pl-1 text-[13px] text-fg2 hover:bg-s3 hover:text-fg">
+                <a key={l.id} href={withUtm(l.url, "components")} target="_blank" rel="noopener" className="press group inline-flex items-center gap-2 rounded-lg bg-s2 py-1 pr-2 pl-1 text-[13px] text-fg2 hover:bg-s3 hover:text-fg">
                   <LibMark lib={l} size={20} />
                   {l.name}
                   <ArrowUpRight size={12} className="text-fg3 group-hover:text-fg" />
