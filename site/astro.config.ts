@@ -5,6 +5,9 @@ import { shareCopies } from "./build.ts";
 
 // No adapter here: Alchemy injects its Cloudflare adapter at build time (see ../alchemy.run.ts).
 export default defineConfig({
+  // Scoped styles mark elements with a short class instead of a data-astro-cid-* attribute (same specificity): on
+  // /atlas the attributes alone were ~750 KB of the HTML.
+  scopedStyleStrategy: "class",
   // Server output for /mcp and /api/*; every page opts into `prerender` and ships as a static asset.
   output: "server",
   // Prerendered pages as /browse/vaul.html, served at /browse/vaul with no trailing-slash redirect.

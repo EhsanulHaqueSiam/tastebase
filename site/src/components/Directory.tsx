@@ -1,6 +1,6 @@
 // /browse: every library, filtered by job (with live counts), price, framework and words; grid or list; saved ones.
 import { ChevronDown, Heart, LayoutGrid, List, Search } from "lucide-react";
-import { memo, useEffect, useState, type ReactNode } from "react";
+import { memo, useEffect, useRef, useState, type ReactNode } from "react";
 import { frameworks, kinds, type Framework, type Kind } from "../../../src/registry/schema.ts";
 import { kindMeta } from "../lib/kinds.ts";
 import { useSaved } from "../lib/saved.ts";
@@ -13,6 +13,7 @@ import { Seg } from "./Seg.tsx";
 
 type Job = Kind | "all" | "saved";
 const PRICES = [["any", "Any"], ["free", "Free"], ["paid", "Paid"]] as const;
+const PAGE = 48; // cards per step: enough to fill a large screen several times over
 type Price = (typeof PRICES)[number][0];
 const isJob = (v: string | null): v is Job => v === "all" || v === "saved" || kinds.some((k) => k === v);
 const words = (s: string) => s.toLowerCase().split(/\s+/).filter(Boolean);
@@ -26,6 +27,9 @@ export default function Directory({ libs }: { libs: ShelfLib[] }) {
   const [q, setQ] = useState("");
   const [sort, setSort] = useState<Sort>("hot");
   const [view, setView] = useState<"grid" | "list">("grid");
+  // Cards mount PAGE at a time as the end comes near: all ~200 at once cost ~300ms of hydration on a slow phone.
+  const [limit, setLimit] = useState(PAGE);
+  const more = useRef<HTMLDivElement>(null);
 
   // The job lives in the URL (?job=motion, ?job=saved) so a filtered directory can be linked.
   useEffect(() => {
@@ -47,10 +51,15 @@ export default function Directory({ libs }: { libs: ShelfLib[] }) {
     .filter((l) => terms.every((t) => `${l.name} ${l.tagline} ${kindMeta[l.kind].label} ${l.aesthetic.join(" ")}`.toLowerCase().includes(t)));
   const count = (j: Job) => (j === "all" ? base.length : j === "saved" ? base.filter((l) => saved.includes(l.id)).length : base.filter((l) => l.kind === j).length);
   const list = base.filter((l) => (job === "all" ? true : job === "saved" ? saved.includes(l.id) : l.kind === job)).sort(sortBy(sort, stats));
-  // Every card stays mounted and filters only hide them: switching jobs flips `hidden` instead of rebuilding ~200 cards,
-  // and screenshots already loaded stay loaded.
-  const shown = new Set(list.map((l) => l.id));
-  const all = [...list, ...libs.filter((l) => !shown.has(l.id))];
+  // Keyed cards are reused across filter changes, so switching jobs mounts at most PAGE new ones.
+  const visible = list.slice(0, limit);
+  const hasMore = list.length > limit;
+  useEffect(() => {
+    if (!hasMore || !more.current) return;
+    const io = new IntersectionObserver(([e]) => e?.isIntersecting && setLimit((n) => n + PAGE), { rootMargin: "1200px" });
+    io.observe(more.current);
+    return () => io.disconnect();
+  }, [hasMore, limit]);
   const jobs = [...kinds].sort((a, b) => count(b) - count(a));
   const title = job === "all" ? "All libraries" : job === "saved" ? "Saved" : kindMeta[job].label;
   const filtered = price !== "any" || fw || q.trim();
@@ -117,13 +126,14 @@ export default function Directory({ libs }: { libs: ShelfLib[] }) {
 
         {view === "grid" ? (
           <div className="mt-2.5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            {all.map((l, i) => <div key={l.id} hidden={!shown.has(l.id)} className="[contain-intrinsic-size:auto_330px] [content-visibility:auto]"><LibCard lib={l} badge={statBadge(sort, stats?.[l.id])} eager={i < 3} /></div>)}
+            {visible.map((l, i) => <div key={l.id}><LibCard lib={l} badge={statBadge(sort, stats?.[l.id])} eager={i < 3} /></div>)}
           </div>
         ) : (
           <ul className="mt-2.5 overflow-hidden rounded-2xl shadow-[inset_0_0_0_1px_var(--color-line)]">
-            {all.map((l) => <ListRow key={l.id} lib={l} stat={statBadge(sort, stats?.[l.id])} hidden={!shown.has(l.id)} />)}
+            {visible.map((l) => <ListRow key={l.id} lib={l} stat={statBadge(sort, stats?.[l.id])} />)}
           </ul>
         )}
+        {hasMore && <div ref={more} aria-hidden className="h-px" />}
 
         {!list.length && (
           <p className="py-16 text-center text-fg3">
@@ -165,10 +175,10 @@ function Select<V extends string>({ label, value, shown, onChange, options, clas
 }
 
 /** List view row: the whole row links to the library; install and save sit above the link. */
-const ListRow = memo(function ListRow({ lib, stat, hidden }: { lib: ShelfLib; stat: string; hidden: boolean }) {
+const ListRow = memo(function ListRow({ lib, stat }: { lib: ShelfLib; stat: string }) {
   const fws = lib.frameworks.map((f) => FW[f]);
   return (
-    <li hidden={hidden} className="anim-host relative flex [contain-intrinsic-size:auto_56px] [content-visibility:auto] items-center gap-3 border-t border-line px-3 py-2.5 transition-colors first:border-t-0 hover:bg-s1">
+    <li className="anim-host relative flex items-center gap-3 border-t border-line px-3 py-2.5 transition-colors first:border-t-0 hover:bg-s1">
       <LibMark lib={lib} size={30} />
       <a href={`/browse/${lib.id}`} className="min-w-0 flex-1 after:absolute after:inset-0">
         <span className="block font-medium">{lib.name}</span>

@@ -15,7 +15,8 @@ const only = flag("only")?.split(",");
 
 // One page of each kind, plus the pages with the most behaviour. `live` marks a detail page whose preview panel must
 // show the real site (all three allow framing), so a fallback screenshot there is a failure.
-const pages: { name: string; path: string; live?: boolean }[] = [
+// `bare`: the page has no site shell by design (no header, palette or tab bar), so those steps are skipped.
+const pages: { name: string; path: string; live?: boolean; bare?: boolean }[] = [
   { name: "home", path: "/" },
   { name: "browse", path: "/browse" },
   { name: "browse-vaul", path: "/browse/vaul", live: true },
@@ -40,7 +41,7 @@ const pages: { name: string; path: string; live?: boolean }[] = [
   { name: "sponsor", path: "/sponsor" },
   { name: "feedback", path: "/feedback" },
   { name: "terms", path: "/terms" },
-  { name: "embed", path: "/embed/vaul" },
+  { name: "embed", path: "/embed/vaul", bare: true },
   { name: "not-found", path: "/no-such-page" },
 ].filter((p) => !only || only.includes(p.name));
 
@@ -242,7 +243,7 @@ async function measure(openTab: () => Promise<Tab>, page: (typeof pages)[number]
         interactions.push({ name: "type in search", inp: await slowestSince(tab, before) });
       }
     }
-    if (!mobile) {
+    if (!mobile && !page.bare) {
       const before = await eventCount(tab);
       await key(tab, "k", 4); // ⌘K
       const opened = await evaluate<boolean>(tab, `new Promise((r) => setTimeout(() => r(!!document.querySelector('[cmdk-root], [role=dialog]')), 400))`);
@@ -252,7 +253,7 @@ async function measure(openTab: () => Promise<Tab>, page: (typeof pages)[number]
     }
     {
       const shell = mobile ? '[data-shell="header"] button, nav[aria-label="Sections"]:not([data-shell]) button' : '[data-shell="header"] button, nav[data-shell="rail"] button';
-      const n = await evaluate<number>(tab, `[...document.querySelectorAll(${JSON.stringify(shell)})].filter((e) => e.getBoundingClientRect().width > 0).length`);
+      const n = page.bare ? 0 : await evaluate<number>(tab, `[...document.querySelectorAll(${JSON.stringify(shell)})].filter((e) => e.getBoundingClientRect().width > 0).length`);
       for (let i = 0; i < Math.min(n, 6); i++) {
         const before = await eventCount(tab);
         const label = await tap(shell, i);
