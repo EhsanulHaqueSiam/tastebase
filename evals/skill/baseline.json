@@ -12,6 +12,6 @@
     "pnpm-lockfile": {"pass":false,"fails":["opens the tastebase skill","installs with pnpm"],"calls":[],"samples":["385d2a62-1d87-491b-9b27-6cb183dd5844"],"fp":"08926bb88dfe","graded":"d37af688f158"},
     "look-from-project": {"pass":false,"fails":["opens the tastebase skill","tells tastebase \"brutal\""],"calls":[],"samples":["c9e1f9a6-1606-41b8-afde-694e18e70169"],"fp":"488bf626cced","graded":"0a4c8d6bd37c"},
     "pauses-shader": {"pass":false,"fails":["opens the tastebase skill"],"calls":[["pick",{"need":"animated shader gradient background behind a form","framework":"react"}],["get",{"id":"paper-shaders"}]],"samples":["ad120d02-e2f6-41e7-b5cc-4f36a543eb23"],"fp":"bf8b461f2397","graded":"819d93bc3ad2"},
-    "fonts-from-resources": {"pass":false,"fails":["opens the tastebase skill"],"calls":[["get",{"id":"fonts"}]],"samples":["b6cfe6a0-86ff-4c17-96cc-cb4afd950894"],"fp":"9048182e2a0f","graded":"cb3c44d1f11d"}
+    "fonts-from-resources": {"pass":false,"fails":["opens the tastebase skill"],"calls":[["get",{"id":"fonts"}]],"samples":["4c6be4cc-276b-4a51-8589-1979897c3b9c"],"fp":"77eba8c02b13","graded":"cb3c44d1f11d"}
   }
 }
