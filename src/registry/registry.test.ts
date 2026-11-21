@@ -33,13 +33,14 @@ test("integration setup is written in each client's syntax and never holds a key
   assert.deepEqual(JSON.parse(mcpSetup(local, "VS Code").split("\n").slice(1).join("\n")).servers[local.id], { type: "stdio", command: "npx", args: ["shadcn@latest", "mcp"] });
 });
 
-test("components belong to listed libraries, link over https and are named once per library", () => {
+test("components and demo pages belong to listed libraries, link over https and are named once per library", () => {
   const bad = Object.entries(components).flatMap(([id, cs]) => [
     ...(ids.has(id) ? [] : [`unknown library ${id}`]),
     ...cs.filter(([, url]) => !url.startsWith("https://")).map(([name]) => `${id}/${name}: not https`),
     ...cs.filter(([name], i) => cs.findIndex(([n]) => n === name) !== i).map(([name]) => `${id}/${name}: twice`),
   ]);
   assert.deepEqual(bad, []);
+  assert.deepEqual(libraries.filter((l) => l.demo && (!l.demo.startsWith("https://") || l.demo === l.url)).map((l) => l.id), [], "demo is an https page other than url");
 });
 
 test("every kind has at least one library", () => {
