@@ -3,7 +3,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { detectLooks, jobFramework, kitParts, pick, plan, words } from "./engine.ts";
-import { formatIntegrations, formatLibrary, formatLook, formatLooks, formatPick, formatPlan, formatResources, formatSite, formatTrending } from "./format.ts";
+import { formatIntegrations, formatLibrary, formatLook, formatLooks, formatPick, formatPlan, formatResources, formatSite, formatTrending, SITE } from "./format.ts";
 import { siteTypes } from "./registry/index.ts";
 import { agentResourceKinds, isResourceKind } from "./registry/resources.ts";
 import { frameworks, kinds, type Aesthetic, type Library } from "./registry/schema.ts";
@@ -24,7 +24,6 @@ const text = (t: string) => ({ content: [{ type: "text" as const, text: t }] });
 // MCP Apps: hosts that render them show a library's live demo in the chat when an agent calls `get <id>`; others
 // ignore it and read the text. The view takes the id from the answer's first line and frames /embed/<id>. Hand-written
 // bridge (initialize, initialized, tool-result, size-changed) instead of the 540 KB ext-apps bundle.
-const SITE = "https://tastebase.ehsanulsiam.workers.dev";
 const VIEW_URI = "ui://tastebase/lib";
 const VIEW = `<!doctype html><meta charset="utf-8"><style>html,body{margin:0;background:#000}iframe{display:block;width:100%;height:480px;border:0;border-radius:12px}</style>
 <iframe id="f" title="Live preview" hidden></iframe>
