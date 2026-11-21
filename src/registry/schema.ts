@@ -98,6 +98,8 @@ export type Library = {
   themed?: true;
   /** A kit of parts for one domain (audio, documents) that sits on another kit: offered for its job, never an app's base. */
   addOn?: true;
+  /** Day the entry joined the registry, "2026-11-21". The site's "Recently added" sorts by it. */
+  addedAt?: string;
   /** Filled by the Worker's cron (src/trending.ts); leave out in data files. */
   /** `agentUses` counts MCP `get` calls and picks offered in the last 7 days (src/trending.ts `fetchUsage`). */
   stats?: { stars?: number; starsWeek?: number; downloadsWeek?: number; agentUses?: number; updatedAt?: string };

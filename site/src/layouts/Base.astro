@@ -17,7 +17,7 @@ interface Props {
 }
 const { title = "tastebase", description = "Hand-picked UI libraries, with notes your coding agent uses to pick the right one." } = Astro.props;
 const path = Astro.url.pathname;
-const current = sections.find((s) => isCurrent(s.href, path));
+const current = sections.find((s) => isCurrent(s, path));
 ---
 
 <!doctype html>

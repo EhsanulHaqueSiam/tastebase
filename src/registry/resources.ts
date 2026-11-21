@@ -31,6 +31,8 @@ export type Resource = {
   /** Usable for real without paying. */
   free: boolean;
   mcp?: { name: string; url: string; needsPaidPlan: boolean };
+  /** Day the entry joined the registry, "2026-11-21". The site's "Recently added" sorts by it. */
+  addedAt?: string;
 };
 
 export const resources: Resource[] = [

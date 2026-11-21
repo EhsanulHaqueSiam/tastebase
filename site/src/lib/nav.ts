@@ -5,23 +5,27 @@ import { BlocksIcon } from "../components/icons/blocks.tsx";
 import { CompassIcon } from "../components/icons/compass.tsx";
 import { GitPullRequestIcon } from "../components/icons/git-pull-request.tsx";
 import { HomeIcon } from "../components/icons/home.tsx";
+import { LayersIcon } from "../components/icons/layers.tsx";
 import { LayoutGridIcon } from "../components/icons/layout-grid.tsx";
 import { PaletteIcon } from "../components/icons/palette.tsx";
 import { PlugZapIcon } from "../components/icons/plug-zap.tsx";
 import { ScanTextIcon } from "../components/icons/scan-text.tsx";
 import { SparklesIcon } from "../components/icons/sparkles.tsx";
 import { TerminalIcon } from "../components/icons/terminal.tsx";
+import { categories } from "./categories.ts";
 
 /** A lucide-animated icon: it plays on its own hover, or when a parent holding its ref calls start/stop. */
 export type IconHandle = { startAnimation: () => void; stopAnimation: () => void };
 export type AnimatedIcon = ForwardRefExoticComponent<{ size?: number; className?: string } & RefAttributes<IconHandle>>;
 
-export type Section = { href: string; label: string; icon: AnimatedIcon; tab?: boolean };
+/** `also`: other paths that belong to the section (every category page belongs to Resources). */
+export type Section = { href: string; label: string; icon: AnimatedIcon; tab?: boolean; also?: readonly string[] };
 
 export const sections: Section[] = [
   { href: "/", label: "Home", icon: HomeIcon, tab: true },
   { href: "/browse", label: "Browse", icon: LayoutGridIcon, tab: true },
   { href: "/components", label: "Components", icon: BlocksIcon, tab: true },
+  { href: "/tools", label: "Resources", icon: LayersIcon, also: categories.map((c) => `/${c.slug}`) },
   { href: "/match", label: "Match a screenshot", icon: ScanTextIcon },
   { href: "/looks", label: "Looks", icon: PaletteIcon },
   { href: "/atlas", label: "Atlas", icon: CompassIcon },
@@ -31,8 +35,9 @@ export const sections: Section[] = [
   { href: "/contribute", label: "Contribute", icon: GitPullRequestIcon },
 ];
 
-/** The section a path belongs to: Home only on "/", hash links never (they are places on Home, not pages). */
-export const isCurrent = (href: string, path: string) => (href === "/" ? path === "/" : !href.includes("#") && path.startsWith(href));
+/** Whether a path is in a section: Home only on "/", hash links never (they are places on Home, not pages). */
+export const isCurrent = ({ href, also = [] }: Pick<Section, "href" | "also">, path: string) =>
+  href === "/" ? path === "/" : !href.includes("#") && [href, ...also].some((p) => path === p || path.startsWith(`${p}/`));
 
 /** The current path for navigation that persists across client navigations (Rail, TabBar). */
 export function usePath(initial = "") {

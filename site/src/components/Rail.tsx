@@ -18,7 +18,7 @@ export default function Rail({ path: initial }: { path: string }) {
   // The header's "tastebase / Section" crumb persists too, so the rail keeps it in step.
   useEffect(() => {
     const crumb = document.querySelector("[data-crumb]");
-    if (crumb) crumb.textContent = sections.find((s) => isCurrent(s.href, path))?.label ?? "";
+    if (crumb) crumb.textContent = sections.find((s) => isCurrent(s, path))?.label ?? "";
   }, [path]);
 
   // From the recipe: snap the bubble under a new target while hidden so only the appear plays; tween while showing.
@@ -53,7 +53,7 @@ export default function Rail({ path: initial }: { path: string }) {
         </a>
         <AnimatedBackground enableHover className="rounded-[10px] bg-s2" transition={{ type: "spring", bounce: 0, duration: 0.25 }}>
           {items.map((it) => {
-            const on = !it.external && isCurrent(it.href, path);
+            const on = !it.external && isCurrent(it, path);
             return (
               <a
                 key={it.href}
