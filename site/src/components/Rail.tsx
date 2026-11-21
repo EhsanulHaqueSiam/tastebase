@@ -1,9 +1,11 @@
 // Desktop navigation, a 56px icon rail. Hovering an item slides one highlight to it (Motion Primitives'
 // AnimatedBackground) and plays its icon (lucide-animated); a single tooltip travels between items (transitions.dev's
 // tooltip recipe, turned to run vertically). Hidden below lg, where TabBar takes over. Persists across navigations.
+// ⌘B (Ctrl+B) hides and shows it, as Design Index's sidebar does.
 import { MotionConfig } from "motion/react";
 import { useEffect, useRef } from "react";
 import { isCurrent, sections, usePath, type AnimatedIcon, type IconHandle } from "../lib/nav.ts";
+import { toggleNav } from "../lib/rail.ts";
 import { GithubIcon } from "./icons/github.tsx";
 import { AnimatedBackground } from "./ui/animated-background.tsx";
 
@@ -20,6 +22,12 @@ export default function Rail({ path: initial }: { path: string }) {
     const crumb = document.querySelector("[data-crumb]");
     if (crumb) crumb.textContent = sections.find((s) => isCurrent(s, path))?.label ?? "";
   }, [path]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => (e.metaKey || e.ctrlKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase() === "b" && (e.preventDefault(), toggleNav());
+    addEventListener("keydown", onKey);
+    return () => removeEventListener("keydown", onKey);
+  }, []);
 
   // From the recipe: snap the bubble under a new target while hidden so only the appear plays; tween while showing.
   const show = (label: string, target: HTMLElement) => {
@@ -61,7 +69,7 @@ export default function Rail({ path: initial }: { path: string }) {
                 href={it.href}
                 aria-label={it.label}
                 aria-current={on ? "page" : undefined}
-                {...(it.external && { target: "_blank", rel: "noreferrer" })}
+                {...(it.external ? { target: "_blank", rel: "noreferrer" } : { "data-cuelume-navigate": "" })}
                 onPointerEnter={(e) => (icons.current.get(it.href)?.startAnimation(), show(it.label, e.currentTarget))}
                 onPointerLeave={() => icons.current.get(it.href)?.stopAnimation()}
                 onFocus={(e) => show(it.label, e.currentTarget)}

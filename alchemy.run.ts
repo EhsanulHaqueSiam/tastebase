@@ -37,8 +37,10 @@ const TEST_CAPTCHA = { TURNSTILE_SITEKEY: "1x00000000000000000000AA", TURNSTILE_
 export const Website = Cloudflare.Website.Astro(
   "Website",
   Stack.useSync(({ stage }) => {
-    // Agent uses per library (src/trending.ts fetchUsage). Previews and laptops share one dataset so prod stays clean.
+    // Agent uses per library (src/trending.ts fetchUsage) and site page views (/api/hit, fetchViews). Previews and
+    // laptops share one dataset each so prod stays clean.
     const usageDataset = stage === "prod" ? "tastebase_usage" : "tastebase_usage_dev";
+    const viewsDataset = stage === "prod" ? "tastebase_views" : "tastebase_views_dev";
     return {
     // prod: tastebase.<account>.workers.dev; every other stage gets its own suffixed Worker.
     name: stage === "prod" ? "tastebase" : `tastebase-${stage.replace(/[^a-z0-9-]/g, "-")}`,
@@ -59,6 +61,8 @@ export const Website = Cloudflare.Website.Astro(
       // Workers AI for /api/match: a vision model describes a dropped screenshot (free daily allocation).
       AI: Cloudflare.Workers.AI(),
       USAGE_DATASET: usageDataset,
+      VIEWS: Cloudflare.AnalyticsEngine.Dataset("Views", { dataset: viewsDataset }),
+      VIEWS_DATASET: viewsDataset,
       // Reading the counts back needs an Account Analytics Read token (minted in stacks/github.ts for CI) and the
       // account id. Both are optional: without them the cron skips usage and everything else runs.
       ...(process.env.USAGE_API_TOKEN && { USAGE_API_TOKEN: Config.Redacted("USAGE_API_TOKEN") }),

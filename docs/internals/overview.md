@@ -21,7 +21,10 @@ One Cloudflare Worker (declared in `alchemy.run.ts`) does everything:
 - **`/api/*`** returns JSON for islands (hero search, plan box, ⌘K palette). Same engine as MCP.
 - **Accounts** (`site/src/lib/auth.ts`, `auth-data.ts`): better-auth on D1, GitHub sign-in, a session cookie.
   The browser store (`site/src/lib/saved.ts`) holds hearts and folders for every island.
-- **`scheduled()`** (`site/src/worker.ts`) refreshes the 24 stalest libraries' stats each hour.
+- **`scheduled()`** (`site/src/worker.ts`) refreshes the 24 stalest libraries' stats each hour, and the site's
+  30-day page views (`/api/views`).
+- **Share cards and Markdown copies** (`site/build.ts`) are written after prerendering: `/og/<path>.jpg` for every
+  page's `og:image`, `/<path>.md` for AI crawlers. Each page links its copy as `rel=alternate`.
 
 ## Decisions and their reasons
 
@@ -54,6 +57,14 @@ One Cloudflare Worker (declared in `alchemy.run.ts`) does everything:
   (CI's `pnpm check`) `/api/auth/*` answers 404 and the site runs signed out.
 - **`/f/<id>` renders per request, its cards in the browser** (`client:only`). The server does one D1 read for a
   public folder (for a private one, a session read and a second folder read) and no React render, inside the 10ms CPU budget.
+- **Pages stay static assets; the Markdown copies are static too.** Each page links its `.md` copy as
+  `rel=alternate`. Content negotiation on `Accept` or the user agent would need every page view to run the Worker
+  first (`runWorkerFirst`), which costs a Worker request per view and the static-asset response time, so we do not.
+- **Page views go to Analytics Engine from a beacon, not from the Worker.** Client navigations and prefetches never
+  reach the Worker as a document request, so the page posts `/api/hit` on each `astro:page-load`. No cookie: the
+  browser flags itself as a visitor once per 30 days in localStorage, so "visitors" counts browsers.
+- **Share cards are drawn at build time** with satori and sharp in Node (Inter, the screenshot beside the title). Doing
+  it per request would blow the 10ms CPU budget, and Workers cannot run sharp.
 - **`build.format: "file"`.** Directory output (`motion/index.html`) makes Cloudflare's asset layer redirect
   `/browse/motion` to `/browse/motion/`, an extra hop on every library link.
 
@@ -61,6 +72,7 @@ One Cloudflare Worker (declared in `alchemy.run.ts`) does everything:
 
 - `alchemy dev` resolves relative `rootDir`/`main` against the wrong base, and Astro discovers its config from
   the working directory. Hence the absolute paths in `alchemy.run.ts` and `cd site` in `pnpm dev`.
+- `pnpm dev` never builds, so `/og/*.jpg` and `/*.md` exist only in deploys.
 - In dev, Astro's dev server does not load the custom Worker entry, so `scheduled()` never runs locally. The
   dev-only `/api/dev/cron` route calls the same `runStatsRefresh`.
 - `Astro.locals.runtime.env` is gone in Astro 6+. Read bindings with `import { env } from "cloudflare:workers"`.

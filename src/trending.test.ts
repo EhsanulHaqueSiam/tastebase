@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import type { Library } from "./registry/schema.ts";
-import { fetchUsage, refreshStats, withUsage } from "./trending.ts";
+import { fetchUsage, fetchViews, refreshStats, withUsage } from "./trending.ts";
 
 test("agent uses come from one Analytics Engine query, and a library with none this week drops to zero", async () => {
   let body = "";
@@ -14,6 +14,15 @@ test("agent uses come from one Analytics Engine query, and a library with none t
   assert.match(body, /FROM tastebase_usage WHERE timestamp > NOW\(\) - INTERVAL '7' DAY GROUP BY id/);
   assert.deepEqual(withUsage({ vaul: { stars: 5 }, gsap: { stars: 9, agentUses: 4 } }, uses!), { vaul: { stars: 5, agentUses: 12 }, gsap: { stars: 9, agentUses: 0 } });
   assert.equal(await fetchUsage({ accountId: "a", token: "t", dataset: "d", fetch: async () => new Response("", { status: 403 }) }), undefined);
+});
+
+test("site views sum 30 days of page views, and visitors only the points flagged as a first visit", async () => {
+  let body = "";
+  const views = await fetchViews({ accountId: "a", token: "t", dataset: "tastebase_views", fetch: async (_url, init) => ((body = String(init?.body)), new Response(JSON.stringify({ data: [{ views: "40", visitors: "9" }] }))) });
+  assert.match(body, /SUM\(_sample_interval \* double1\) AS visitors FROM tastebase_views WHERE timestamp > NOW\(\) - INTERVAL '30' DAY/);
+  assert.deepEqual(views, { views: 40, visitors: 9 });
+  // An empty dataset sums to null, which reads as zero.
+  assert.deepEqual(await fetchViews({ accountId: "a", token: "t", dataset: "d", fetch: async () => new Response(JSON.stringify({ data: [{ views: null, visitors: null }] })) }), { views: 0, visitors: 0 });
 });
 
 const lib = { id: "x", repo: "https://github.com/acme/x", npm: "x" } as Library;

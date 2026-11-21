@@ -1,0 +1,58 @@
+---
+// /about: what tastebase is, how it works and who builds it. Article bylines link here (rel=author). Prerendered.
+import { ArrowUpRight } from "lucide-react";
+import Base from "../layouts/Base.astro";
+import { aesthetics, libraries } from "../lib/server.ts";
+import { listedResources } from "../lib/listings.ts";
+import { AUTHOR, REPO } from "../lib/site.ts";
+
+export const prerender = true;
+
+const how = [
+  ["The registry is the product", `${libraries.length} UI libraries and ${listedResources.length} design resources, each with what it is for, when to skip it, what it pairs with and the real install and usage. Every entry is checked against npm and GitHub before it goes in.`],
+  ["It knows looks", `${aesthetics.length} looks, from minimal to neo-brutalism, each with its type, colour and motion rules and the libraries that suit it, so a pick fits the page and not only the job.`],
+  ["Agents and people get the same answer", "Your coding agent asks through the MCP server, the CLI or the skill. The site runs the same engine on the same notes, so what you see here is what your agent gets."],
+  ["No ads in answers", "Sponsors appear on the site, marked as sponsored. Agent answers over MCP and the CLI never carry them."],
+] as const;
+---
+
+<Base title="About · tastebase" description="What tastebase is, how it picks UI libraries for you and your coding agent, and who builds it.">
+  <div class="mx-auto max-w-2xl px-4 pt-24 pb-24">
+    <h1 class="enter text-[clamp(28px,3.6vw,40px)] leading-tight font-semibold tracking-[-0.035em]">About tastebase</h1>
+    <p class="enter mt-3 text-[16px] leading-[1.55] text-fg2">
+      tastebase tells you, and your coding agent, which UI library to use for a job and a look, and what goes with it. It exists so that every screen an agent builds looks designed, first try or tenth.
+    </p>
+    <dl class="mt-10 grid gap-6">
+      {
+        how.map(([t, d]) => (
+          <div>
+            <dt class="font-semibold">{t}</dt>
+            <dd class="mt-1 text-[14.5px] leading-[1.55] text-fg2">{d}</dd>
+          </div>
+        ))
+      }
+    </dl>
+
+    <h2 class="mt-14 text-[18px] font-semibold tracking-[-0.02em]">Who builds it</h2>
+    <p class="mt-2 text-[14.5px] leading-[1.55] text-fg2">
+      tastebase is built by <a href={AUTHOR.url} rel="author me" target="_blank" class="font-medium text-fg underline underline-offset-4">{AUTHOR.name}</a>. It is free and open source, and anyone can suggest a library or fix a note.
+    </p>
+    <ul class="mt-6 overflow-hidden rounded-2xl shadow-[inset_0_0_0_1px_var(--color-line)]">
+      {
+        ([
+          ["Source on GitHub", REPO],
+          ["Contribute", "/contribute"],
+          ["Send feedback", "/feedback"],
+          ["Terms", "/terms"],
+        ] as const).map(([label, href]) => (
+          <li class="border-t border-line first:border-t-0">
+            <a href={href} {...(href.startsWith("http") && { target: "_blank", rel: "noreferrer" })} class="group flex items-center justify-between gap-4 px-4 py-3 transition-colors hover:bg-s1">
+              <span class="font-medium">{label}</span>
+              <ArrowUpRight size={16} class="shrink-0 text-fg3 transition-colors group-hover:text-fg" />
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</Base>
