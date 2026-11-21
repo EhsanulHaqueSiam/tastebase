@@ -25,7 +25,7 @@ export default function Directory({ libs }: { libs: ShelfLib[] }) {
   const [price, setPrice] = useState<Price>("any");
   const [fw, setFw] = useState<Framework>();
   const [q, setQ] = useState("");
-  const [sort, setSort] = useState<Sort>("hot");
+  const [sort, setSort] = useState<Sort>("picks");
   const [view, setView] = useState<"grid" | "list">("grid");
   // Cards mount PAGE at a time as the end comes near: all ~200 at once cost ~300ms of hydration on a slow phone.
   const [limit, setLimit] = useState(PAGE);

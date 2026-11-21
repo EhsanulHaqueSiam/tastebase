@@ -130,13 +130,14 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
                   <h3>What's inside</h3>
                   <div class="mx-wrap">
                     <table class="mx">
+                      <caption class="sr-only">Parts each library ships: free, paid only, or a blank cell when it does not include that part.</caption>
                       <thead><tr><th scope="col"><span class="sr-only">Library</span></th>{v.matrix.columns.map((c) => <th scope="col"><span>{c}</span></th>)}</tr></thead>
                       <tbody>
                         {v.matrix.rows.map((r) => (
                           <tr class:list={[paywalled(r.lib) && "t-paid"]}>
                             <th scope="row"><a href={`/browse/${r.lib.id}`}><img src={`/marks/${r.lib.id}.png`} alt="" width="16" height="16" loading="lazy" />{r.lib.name}</a></th>
                             {/* One element per cell (the dot is CSS): these tables are most of the page's HTML. */}
-                            {r.cells.map((c) => <td class={c ?? "none"}><span class="sr-only">{c ?? "not included"}</span></td>)}
+                            {r.cells.map((c) => <td class={c ?? "none"}>{c && <span class="sr-only">{c}</span>}</td>)}
                           </tr>
                         ))}
                       </tbody>

@@ -18,7 +18,7 @@ export default function Gallery({ libs, looks }: { libs: ShelfLib[]; looks: Look
   const [q, setQ] = useState("");
   const [lookId, setLookId] = useState<string>();
   const [fw, setFw] = useState<Framework>();
-  const [sort, setSort] = useState<Sort>("hot");
+  const [sort, setSort] = useState<Sort>("picks");
   const [showAll, setShowAll] = useState(false);
 
   const look = looks.find((l) => l.id === lookId);

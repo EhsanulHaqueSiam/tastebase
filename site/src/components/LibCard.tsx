@@ -12,7 +12,10 @@ import { CopyButton, SpotCard } from "./fx.tsx";
 import { GithubMark } from "./GithubMark.tsx";
 import { LibMark } from "./LibMark.tsx";
 
+// "picks" is the default: the registry's own best-first order, which the prerendered page already has. A live-stats
+// default re-sorted the grid once stats loaded, moving every card on screen (CLS 0.2).
 export const SORTS = [
+  ["picks", "Picks", "our picks first"],
   ["hot", "Hot this week", "hottest this week first"],
   ["stars", "Stars", "most stars first"],
   ["agents", "Used by agents", "most used by agents this week first"],
@@ -26,6 +29,7 @@ export const compact = new Intl.NumberFormat("en", { notation: "compact" });
 export function sortBy(sort: Sort, stats: Stats | undefined) {
   const n = (id: string, k: "stars" | "starsWeek" | "agentUses") => stats?.[id]?.[k] ?? 0;
   return {
+    picks: () => 0, // stable sort keeps registry order
     hot: (a: ShelfLib, b: ShelfLib) => n(b.id, "starsWeek") - n(a.id, "starsWeek") || n(b.id, "stars") - n(a.id, "stars"),
     stars: (a: ShelfLib, b: ShelfLib) => n(b.id, "stars") - n(a.id, "stars"),
     agents: (a: ShelfLib, b: ShelfLib) => n(b.id, "agentUses") - n(a.id, "agentUses") || n(b.id, "stars") - n(a.id, "stars"),
@@ -33,7 +37,7 @@ export function sortBy(sort: Sort, stats: Stats | undefined) {
   }[sort];
 }
 
-/** The live number a sort is about: weekly gain for hot, total for stars, agent uses, nothing for A to Z. */
+/** The live number a sort is about: weekly gain for hot, total for stars, agent uses, nothing for picks or A to Z. */
 export function statBadge(sort: Sort, s: Stats[string] | undefined) {
   if (sort === "hot") return s?.starsWeek ? `+${compact.format(s.starsWeek)}★ wk` : "";
   if (sort === "agents") return s?.agentUses ? `${compact.format(s.agentUses)} agent uses wk` : "";
