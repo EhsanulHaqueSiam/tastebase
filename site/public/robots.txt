@@ -1,0 +1,9 @@
+# https://www.robotstxt.org/robotstxt.html
+# Content-Signal (https://contentsignals.org): search engines and AI answers may use these pages; training may not.
+# Every page also has a Markdown copy at the same path plus .md (/browse/vaul.md, /index.md).
+User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+Disallow: /api/
+
+Sitemap: https://tastebase.ehsanulsiam.workers.dev/sitemap.xml

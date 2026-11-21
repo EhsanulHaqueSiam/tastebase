@@ -1,15 +1,17 @@
 // Global ⌘K palette and the toast host. Persisted across page transitions (transition:persist in Base.astro).
 // Opens on ⌘K/Ctrl+K, on "/" when the page has no #ask input, on any [data-open-search] click, or on a "tb:search"
 // event whose detail prefills the query (HeaderSearch.tsx). Phones get it as a bottom drawer (vaul) instead.
+// With nothing typed it leads with a Browse group of the category pages, and on desktop its footer shows the keys.
 import { navigate } from "astro:transitions/client";
 import { Command } from "cmdk";
-import { ArrowUpRight, Search } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Search } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { Toaster } from "sonner";
 import { Drawer } from "vaul";
 import { resourceKinds, type ResourceKind } from "../../../src/registry/resources.ts";
 import type { Kind } from "../../../src/registry/schema.ts";
+import { categories } from "../lib/categories.ts";
 import { kindMeta } from "../lib/kinds.ts";
 import { liveSponsors, sponsors } from "../lib/sponsors.ts";
 import { withUtm } from "../lib/utm.ts";
@@ -68,6 +70,16 @@ export default function Palette() {
       <div className="flex items-center gap-3 border-b border-line px-4"><Search size={16} className="text-fg3" /><Command.Input autoFocus value={q} onValueChange={setQ} placeholder="Search libraries, jobs, looks, resources" className="h-12 flex-1 bg-transparent text-[15px] outline-none placeholder:text-fg3" /><span className="kbd">esc</span></div>
       <Command.List className="max-h-[360px] overflow-auto p-2">
         {lists ? <Command.Empty className="p-6 text-center text-fg3">Nothing found.</Command.Empty> : <Command.Loading><div className="p-6 text-center text-fg3">Loading</div></Command.Loading>}
+        {lists && !q.trim() && (
+          <Command.Group heading="Browse" className={heading}>
+            {[{ slug: "browse", label: "Libraries" }, ...categories].map((c) => (
+              <Command.Item key={c.slug} value={`browse ${c.label}`} onSelect={() => (setOpen(false), navigate(`/${c.slug}`))} className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 data-[selected=true]:bg-s3">
+                <span className="grid size-[26px] flex-none place-items-center rounded-md bg-s2 text-fg3"><ArrowRight size={14} /></span>
+                <span className="font-medium">{c.label}</span>
+              </Command.Item>
+            ))}
+          </Command.Group>
+        )}
         {lists && ads.length > 0 && (
           <Command.Group heading="Sponsored" className={heading}>
             {ads.map((s) => (
@@ -102,6 +114,12 @@ export default function Palette() {
           </Command.Group>
         ))}
       </Command.List>
+      {!phone && (
+        <footer className="flex items-center justify-between border-t border-line px-4 py-2.5 text-[12px] text-fg3">
+          <span><span className="kbd">↑</span> <span className="kbd">↓</span> to move</span>
+          <span><span className="kbd">↵</span> to open · <span className="kbd">esc</span> to close</span>
+        </footer>
+      )}
     </Command>
   );
 

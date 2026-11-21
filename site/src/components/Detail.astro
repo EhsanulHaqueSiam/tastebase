@@ -52,7 +52,7 @@ const frameable = !unframeable.includes(item.id);
   </section>
 
   <section class="hidden min-h-0 py-3 pr-3 lg:block">
-    <LiveSite client:media="(min-width: 1024px)" id={item.id} name={item.name} url={item.url} image={item.image} frameable={frameable} />
+    <LiveSite client:media="(min-width: 1024px)" id={item.id} name={item.name} url={item.demo ?? item.url} image={item.image} frameable={frameable} />
   </section>
 </div>
 <DetailPill client:load name={item.name} url={item.url} />

@@ -17,7 +17,7 @@ mkdirSync(marks, { recursive: true });
 const args = process.argv.slice(2);
 const framesOnly = args.includes("--frames");
 const only = new Set(args.filter((a) => a !== "--frames"));
-const sites = [...libraries.map((l) => ({ id: l.id, url: l.url, mark: true })), ...resources.filter((r) => r.kind !== "reviewed").map((r) => ({ id: r.id, url: r.url, mark: false }))];
+const sites = [...libraries.map((l) => ({ id: l.id, url: l.url, frame: l.demo, mark: true })), ...resources.filter((r) => r.kind !== "reviewed").map((r) => ({ id: r.id, url: r.url, frame: undefined, mark: false }))];
 const UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
 const unframeable = new Set<string>(existsSync(framesFile) ? JSON.parse(readFileSync(framesFile, "utf8")) : []);
 
@@ -32,7 +32,8 @@ async function frameable(url: string) {
 
 for (const s of sites) {
   if (only.size && !only.has(s.id)) continue;
-  if (await frameable(s.url)) unframeable.delete(s.id);
+  // The live preview opens the demo page when there is one.
+  if (await frameable(s.frame ?? s.url)) unframeable.delete(s.id);
   else unframeable.add(s.id);
   if (framesOnly) continue;
   const png = join(tmpdir(), `tb-${s.id}.png`);

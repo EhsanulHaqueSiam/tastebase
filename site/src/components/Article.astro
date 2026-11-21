@@ -2,8 +2,9 @@
 // One /best or /alternatives article (after Design Index's): intro, cards, a comparison table, FAQs, related chips and
 // JSON-LD (BreadcrumbList, ItemList, FAQPage). Everything comes from site/src/lib/articles.ts.
 import { ChevronDown, FileText } from "lucide-react";
-import { articleJsonLd, jsonLd, type Article } from "../lib/articles.ts";
+import { articleJsonLd, jsonLd, pillsFor, PUBLISHED, type Article } from "../lib/articles.ts";
 import { libraryListing } from "../lib/listings.ts";
+import { AUTHOR } from "../lib/site.ts";
 import { withUtm } from "../lib/utm.ts";
 import { ListingCard } from "./ListingCard.tsx";
 
@@ -11,7 +12,9 @@ interface Props {
   a: Article;
 }
 const { a } = Astro.props;
-const updated = new Date().toLocaleDateString("en", { day: "numeric", month: "short", year: "numeric" });
+const day = (d: Date) => d.toLocaleDateString("en", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+const published = new Date(PUBLISHED);
+const built = new Date();
 const host = (url: string) => new URL(url).hostname.replace(/^www\./, "");
 ---
 
@@ -22,13 +25,20 @@ const host = (url: string) => new URL(url).hostname.replace(/^www\./, "");
     <span class="font-mono">{a.libs.length} compared</span>
   </nav>
   <h1 class="enter mt-8 text-[clamp(34px,6vw,52px)] leading-[0.98] font-semibold tracking-[-0.04em]">{a.title}</h1>
-  <p class="enter mt-4 text-[13px] text-fg3">Written from the tastebase registry · updated {updated}</p>
+  <div class="enter mt-6 flex items-center justify-between gap-4 text-[13.5px] text-fg2">
+    <span class="flex min-w-0 items-center gap-2.5">
+      <img src={`${AUTHOR.url}.png?size=64`} alt="" width="28" height="28" loading="lazy" class="size-7 shrink-0 rounded-full bg-s3" />
+      <a href="/about" rel="author" class="truncate font-medium text-fg hover:underline underline-offset-4">{AUTHOR.name}</a>
+    </span>
+    <span class="shrink-0 text-right tabular-nums"><time datetime={PUBLISHED}>{day(published)}</time>{day(built) !== day(published) && <span class="text-fg3 max-sm:hidden"> · updated <time datetime={built.toISOString().slice(0, 10)}>{day(built)}</time></span>}</span>
+  </div>
+  <p class="mt-2 text-[12.5px] text-fg3">Written from the tastebase registry, so it changes when an entry does.</p>
   <div class="mt-8 space-y-3 text-[16.5px] leading-[1.55] text-fg2">{a.intro.map((p) => <p>{p}</p>)}</div>
 
   <section class="mt-12" aria-labelledby="picks">
     <h2 id="picks" class="text-[22px] font-semibold tracking-[-0.02em]">{a.kind === "best" ? `${a.libs.length} picks` : `${a.libs.length} ${a.title}`}</h2>
     <ol class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
-      {a.libs.map((l, i) => <li class="flex"><div class="w-full"><ListingCard item={libraryListing(l)} eager={i < 2} /></div></li>)}
+      {a.libs.map((l, i) => <li class="flex"><div class="w-full"><ListingCard item={libraryListing(l)} eager={i < 2} pills={pillsFor(l, a.path)} /></div></li>)}
     </ol>
   </section>
 

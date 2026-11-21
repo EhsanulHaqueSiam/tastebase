@@ -216,8 +216,8 @@ body > header > * { animation: blur-in 900ms var(--ease-quart) backwards; }
 @keyframes t-shimmer { 0% { background-position: 100% 0; } 100% { background-position: 0% 0; } }
 @media (prefers-reduced-motion: reduce) { .t-shimmer::before { animation: none !important; } }
 
-/* The detail pill's sidebar toggle (DetailActions.tsx) hides the desktop rail so the live site gets the room. Reset on
-   every navigation, because Astro's router replaces the <html> attributes. */
+/* ⌘B and the detail pill's sidebar toggle (lib/nav.ts toggleNav) hide the desktop rail so the page gets the room.
+   Remembered in localStorage; Base.astro puts the attribute back after every navigation, which replaces <html>'s. */
 [data-shell] { transition: translate 300ms var(--ease-out), left 300ms var(--ease-out), padding 300ms var(--ease-out); }
 @media (min-width: 1024px) {
   [data-rail-hidden] [data-shell="rail"] { translate: -100% 0; }

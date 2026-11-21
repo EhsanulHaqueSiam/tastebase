@@ -66,8 +66,11 @@ function VaulDemo() {
 }
 
 function CmdkDemo() {
+  // Nothing selected until the user types or arrows: cmdk scrolls its selected item into view on mount, and that
+  // scrolled the whole homepage down to this card when the demo hydrated.
+  const [value, setValue] = useState("");
   return (
-    <Command className="w-72 overflow-hidden rounded-xl bg-s1 shadow-[0_0_0_1px_var(--color-line2)]">
+    <Command value={value} onValueChange={setValue} className="w-72 overflow-hidden rounded-xl bg-s1 shadow-[0_0_0_1px_var(--color-line2)]">
       <Command.Input placeholder="Type a command" className="h-10 w-full border-b border-line bg-transparent px-3 outline-none placeholder:text-fg3" />
       <Command.List className="p-1.5">
         {["Open project", "Toggle theme", "Copy link", "Invite teammate"].map((x) => (
