@@ -1,0 +1,103 @@
+---
+// One /best or /alternatives article (after Design Index's): intro, cards, a comparison table, FAQs, related chips and
+// JSON-LD (BreadcrumbList, ItemList, FAQPage). Everything comes from site/src/lib/articles.ts.
+import { ChevronDown, FileText } from "lucide-react";
+import { articleJsonLd, jsonLd, type Article } from "../lib/articles.ts";
+import { libraryListing } from "../lib/listings.ts";
+import { withUtm } from "../lib/utm.ts";
+import { ListingCard } from "./ListingCard.tsx";
+
+interface Props {
+  a: Article;
+}
+const { a } = Astro.props;
+const updated = new Date().toLocaleDateString("en", { day: "numeric", month: "short", year: "numeric" });
+const host = (url: string) => new URL(url).hostname.replace(/^www\./, "");
+---
+
+<script type="application/ld+json" set:html={jsonLd(articleJsonLd(a))} />
+<article class="mx-auto w-full max-w-[680px] px-4 pt-20 pb-32">
+  <nav aria-label="Breadcrumb" class="flex items-center justify-between border-b border-line pb-3 text-[12.5px] text-fg3">
+    <span><a href={a.kind === "best" ? "/best" : "/alternatives"} class="hover:text-fg">{a.kind === "best" ? "Best of" : "Alternatives"}</a> <span class="mx-1">/</span> <a href={a.parent.href} class="hover:text-fg">{a.parent.label}</a></span>
+    <span class="font-mono">{a.libs.length} compared</span>
+  </nav>
+  <h1 class="enter mt-8 text-[clamp(34px,6vw,52px)] leading-[0.98] font-semibold tracking-[-0.04em]">{a.title}</h1>
+  <p class="enter mt-4 text-[13px] text-fg3">Written from the tastebase registry · updated {updated}</p>
+  <div class="mt-8 space-y-3 text-[16.5px] leading-[1.55] text-fg2">{a.intro.map((p) => <p>{p}</p>)}</div>
+
+  <section class="mt-12" aria-labelledby="picks">
+    <h2 id="picks" class="text-[22px] font-semibold tracking-[-0.02em]">{a.kind === "best" ? `${a.libs.length} picks` : `${a.libs.length} ${a.title}`}</h2>
+    <ol class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
+      {a.libs.map((l, i) => <li class="flex"><div class="w-full"><ListingCard item={libraryListing(l)} eager={i < 2} /></div></li>)}
+    </ol>
+  </section>
+
+  <section class="mt-14" aria-labelledby="compare">
+    <h2 id="compare" class="text-[22px] font-semibold tracking-[-0.02em]">Compared</h2>
+    <div class="mt-4 overflow-x-auto rounded-xl shadow-[inset_0_0_0_1px_var(--color-line)] [scrollbar-width:none]">
+      <table class="w-full min-w-[820px] text-left text-[13.5px]">
+        <thead class="font-mono text-[10.5px] tracking-[0.1em] text-fg3 uppercase">
+          <tr>{([["Library", ""], ["Pricing", "w-[130px]"], ["Open source", "w-[110px]"], ["Best for", "w-[300px]"], ["Site", ""], ["", ""]] as const).map(([h, w]) => <th scope="col" class={`px-3.5 py-3 font-medium ${w}`}>{h}</th>)}</tr>
+        </thead>
+        <tbody>
+          {
+            a.rows.map((r) => (
+              <tr class="border-t border-line align-top">
+                <th scope="row" class="px-3.5 py-3 font-semibold whitespace-nowrap"><a href={`/browse/${r.lib.id}`} class="hover:underline">{r.lib.name}</a></th>
+                <td class="px-3.5 py-3 text-fg2">{r.pricing}</td>
+                <td class="px-3.5 py-3 text-fg2">{r.open}</td>
+                <td class="px-3.5 py-3 text-fg2">{r.bestFor}</td>
+                <td class="px-3.5 py-3"><a href={withUtm(r.lib.url, "article-table")} target="_blank" rel="noopener" class="whitespace-nowrap text-fg2 underline underline-offset-4 hover:text-fg">{host(r.lib.url)}</a></td>
+                <td class="px-3.5 py-3 whitespace-nowrap">{r.alternatives ? <a href={r.alternatives} class="text-fg2 underline underline-offset-4 hover:text-fg">Alternatives</a> : <span class="text-fg3">–</span>}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="mt-14" aria-labelledby="faq">
+    <h2 id="faq" class="text-[22px] font-semibold tracking-[-0.02em]">Questions</h2>
+    <div class="mt-3">
+      {
+        a.faqs.map((f, i) => (
+          <details class="faq group border-b border-line" open={i === 0}>
+            <summary class="flex cursor-pointer list-none items-center justify-between gap-4 py-4 text-[15px] font-medium [&::-webkit-details-marker]:hidden">
+              {f.q}
+              <ChevronDown size={16} class="shrink-0 text-fg3 transition-transform duration-200 group-open:rotate-180" />
+            </summary>
+            <p class="pb-4 text-[14.5px] leading-[1.55] text-fg2">{f.a}</p>
+          </details>
+        ))
+      }
+    </div>
+  </section>
+
+  {
+    a.related.length > 0 && (
+      <section class="mt-14" aria-labelledby="related">
+        <h2 id="related" class="text-[22px] font-semibold tracking-[-0.02em]">Related</h2>
+        <ul class="mt-4 flex flex-wrap gap-2">
+          {a.related.map((r) => (
+            <li>
+              <a href={r.href} class="press inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[13.5px] font-medium shadow-[inset_0_0_0_1px_var(--color-line2)] hover:bg-s2">
+                <FileText size={14} class="text-fg3" />
+                {r.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+</article>
+
+<style>
+  /* FAQ disclosure: the answer's height animates where the browser can (interpolate-size), and simply opens elsewhere. */
+  @supports (interpolate-size: allow-keywords) {
+    .faq { interpolate-size: allow-keywords; }
+    .faq::details-content { height: 0; overflow: clip; transition: height 220ms var(--ease-out), content-visibility 220ms allow-discrete; }
+    .faq[open]::details-content { height: auto; }
+  }
+</style>
