@@ -70,33 +70,20 @@ const current = sections.find((s) => isCurrent(s.href, path));
     </main>
 
     <script>
-      // transitions.dev "Tabs sliding" for every segmented control (.seg), whether Astro or a React island renders it:
-      // one pill per control, moved to the aria-pressed button. Snaps on first paint and resize, tweens on a change.
-      const move = (seg: HTMLElement, animate: boolean) => {
-        const pill = seg.querySelector<HTMLElement>(":scope > .t-tabs-pill");
-        const on = seg.querySelector<HTMLElement>(':scope > button[aria-pressed="true"]');
-        if (!pill) return;
-        pill.style.opacity = on ? "1" : "0";
-        if (!on) return;
-        if (!animate) pill.style.transition = "none";
-        Object.assign(pill.style, { transform: `translateX(${on.offsetLeft}px)`, width: `${on.offsetWidth}px` });
-        if (!animate) void pill.offsetWidth, (pill.style.transition = "");
-      };
-      const enhance = () =>
+      // Sliding pills for segmented controls (lib/seg.ts) that Astro renders. Controls inside islands render their own
+      // (Seg.tsx): adding one here before React hydrates would make the DOM differ from what React rendered.
+      import { trackSeg } from "../lib/seg.ts";
+      const untrack: (() => void)[] = [];
+      document.addEventListener("astro:before-swap", () => untrack.splice(0).forEach((stop) => stop()));
+      document.addEventListener("astro:page-load", () =>
         document.querySelectorAll<HTMLElement>(".seg:not([data-pill])").forEach((seg) => {
-          seg.dataset.pill = "";
+          if (seg.closest("astro-island")) return;
           const pill = Object.assign(document.createElement("span"), { className: "t-tabs-pill" });
           pill.setAttribute("aria-hidden", "true");
           seg.prepend(pill);
-          requestAnimationFrame(() => move(seg, false));
-          new MutationObserver(() => move(seg, true)).observe(seg, { subtree: true, attributeFilter: ["aria-pressed"] });
-        });
-      // Islands hydrate after page-load and can render new controls later, so watch the page for them too.
-      document.addEventListener("astro:page-load", () => {
-        enhance();
-        new MutationObserver(() => requestAnimationFrame(enhance)).observe(document.body, { childList: true, subtree: true });
-      });
-      addEventListener("resize", () => document.querySelectorAll<HTMLElement>(".seg[data-pill]").forEach((s) => move(s, false)));
+          untrack.push(trackSeg(seg, pill));
+        }),
+      );
     </script>
     <Palette client:idle transition:persist="palette" />
     <TabBar client:load transition:persist="tabbar" />
