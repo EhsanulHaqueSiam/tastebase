@@ -5,6 +5,7 @@ import { pick, plan } from "../engine.ts";
 import { aesthetics, libraries, siteTypes } from "./index.ts";
 import { components } from "./components.ts";
 import { integrations, mcpSetup } from "./integrations.ts";
+import { resources } from "./resources.ts";
 import { kinds, type Framework } from "./schema.ts";
 
 const ids = new Set(libraries.map((l) => l.id));
@@ -85,6 +86,12 @@ test("usage is written against the package the entry names", () => {
 test("every library has a screenshot and an icon for the site", () => {
   const missing = libraries.flatMap((l) => [`shots/${l.id}.webp`, `marks/${l.id}.png`].filter((f) => !existsSync(new URL(`../../site/public/${f}`, import.meta.url))));
   assert.deepEqual(missing, [], "run pnpm capture <id>");
+});
+
+test("every recommended resource has a screenshot, and no resource shares an id with a library (they share /shots)", () => {
+  const listed = resources.filter((r) => r.kind !== "reviewed");
+  assert.deepEqual(listed.filter((r) => !existsSync(new URL(`../../site/public/shots/${r.id}.webp`, import.meta.url))).map((r) => r.id), [], "run pnpm capture <id>");
+  assert.deepEqual(resources.filter((r) => ids.has(r.id)).map((r) => r.id), []);
 });
 
 test("per-framework installs only name frameworks the library supports", () => {

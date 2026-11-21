@@ -33,8 +33,9 @@ const EVERY_LOOK = [
 const BUDGET = {
   instructions: 325, // sent with every session that connects, whether or not it calls a tool; 25 of it tells agents their skill is stale
   // every tool definition together, loaded when an agent first reaches for tastebase. Raised from 700: get's
-  // _meta.ui (about 12) points hosts that render MCP Apps at the live library preview.
-  schemas: 715,
+  // _meta.ui (about 12) points hosts that render MCP Apps at the live library preview. Raised from 715: the get id
+  // list names illustrations, a resource category for spot art, and agent tools by its own name (3).
+  schemas: 720,
   // raised from 800: a site type's build line (3D, motion-led, media-led) adds up to 115; the rules every look shares
   // (brief first, never broken) add 60; the line that says to install the picks first adds 15. Raised from 1010: each
   // specialist pick carries its usage, about 100 tokens each and 630 for this worst case of six, since builders that

@@ -113,10 +113,11 @@ test("one coherent stack: a named kit is the base and the rest fits it", () => {
   assert.equal(m.feedback, "mantine"); // its notifications, not sonner, which pairs with shadcn/ui
   assert.equal(picks("playful app using Mantine with confetti on completion").feedback, "canvas-confetti"); // notifications are not confetti
   // A kit we do not curate is kept, not swapped for one we do, and nothing that installs into another kit is added.
-  const chakra = plan(libraries, aesthetics, "we use chakra, admin dashboard with animations");
-  assert.deepEqual([chakra.uncurated, chakra.items[0]!.pick], ["chakra-ui", undefined]);
-  assert.match(formatPlan(chakra), /chakra-ui is not curated; keep the project's kit/);
-  assert.ok(chakra.items.every((i) => !i.pick?.lib.install.includes("shadcn@")));
+  const bootstrap = plan(libraries, aesthetics, "we use bootstrap, admin dashboard with animations");
+  assert.deepEqual([bootstrap.uncurated, bootstrap.items[0]!.pick], ["bootstrap", undefined]);
+  assert.match(formatPlan(bootstrap), /bootstrap is not curated; keep the project's kit/);
+  assert.ok(bootstrap.items.every((i) => !i.pick?.lib.install.includes("shadcn@")));
+  assert.equal(picks("we use chakra, admin dashboard")["component-kit"], "chakra-ui"); // curated now, so it is the base
   assert.equal(picks("brutalist portfolio on shadcn")["component-kit"], "shadcn-ui");
   const [base, ...rest] = plan(libraries, aesthetics, "AI chat app like Claude with tool calls").items.map((i) => i.pick!.lib);
   assert.deepEqual(rest.filter((l) => offKit(l, base!)).map((l) => l.id), []);
@@ -156,7 +157,7 @@ test("installs match the plan's framework and base kit", () => {
 
 // Single jobs as an agent passes them to pick, several phrasings each. Each row: the job, what a senior design engineer
 // would install ("a|b": either; null: nothing curated fits), ids that must not show at all, and for a null row the kit
-// part that covers it (null: no kit part either; a gantt chart is not a kit's Chart).
+// part that covers it (null: no kit part either).
 type Job = [need: string, top: string | null, never?: string[], part?: string | null];
 const JOBS: Job[] = [
   ["typewriter headline", "gsap-splittext|use-scramble", ["rough-notation", "torph"]],
@@ -196,8 +197,8 @@ const JOBS: Job[] = [
   ["React map with draggable markers", null, ["vaul", "use-gesture", "rare-ui"], null],
   ["map with draggable pins", null, ["vaul", "use-gesture"]],
   ["drag and drop file upload", null, ["dnd-kit", "vaul"]], // dnd-kit says: a dropzone
-  ["gantt chart", null, ["lightweight-charts", "recharts", "echarts"], null],
-  ["project timeline gantt", null, ["lightweight-charts"]],
+  ["gantt chart", "kibo-ui", ["lightweight-charts", "recharts", "echarts"]],
+  ["project timeline gantt", "kibo-ui", ["lightweight-charts"]],
   ["org chart", "echarts", ["lightweight-charts", "recharts"]], // its tree series
   ["company org chart", "echarts", ["lightweight-charts"]],
   ["candlestick chart for a trading app", "lightweight-charts"],
@@ -301,9 +302,9 @@ const GOLDEN: Golden[] = [
   ["playful fintech app with animated balances", "playful", "heroui", "component-kit motion text-effects icons", { "text-effects": "number-flow" }],
   ["minimal dashboard with no animation and charts", "minimal", "shadcn-ui", "component-kit charts icons", { charts: "recharts" }],
   ["landing page without animations or gradients", "?", "shadcn-ui", "component-kit icons"],
-  ["kanban board for a team", "?", "shadcn-ui", "component-kit motion interaction icons", { interaction: "dnd-kit" }, ["blocknote"]],
+  ["kanban board for a team", "?", "shadcn-ui", "component-kit component-kit motion interaction icons", { interaction: "dnd-kit" }, ["blocknote"]], // Kibo UI's board on shadcn
   ["animated number counter", "?", "shadcn-ui", "component-kit motion text-effects icons", { "text-effects": "number-flow" }, ["rough-notation"]],
-  ["drag and drop file upload", "?", "shadcn-ui", "component-kit motion interaction icons", { interaction: null }, ["blocknote", "vaul"]],
+  ["drag and drop file upload", "?", "shadcn-ui", "component-kit component-kit motion interaction icons", { interaction: null }, ["blocknote", "vaul"]],
   ["Python code editor", "?", "shadcn-ui", "component-kit motion editor icons", { editor: null }, ["tiptap", "blocknote"]],
   ["editor app", "?", "shadcn-ui", "component-kit motion editor icons", { editor: "tiptap" }],
   ["notes app", "document", "shadcn-ui", "component-kit motion editor icons", { editor: "blocknote" }],
@@ -324,7 +325,7 @@ const GOLDEN: Golden[] = [
   ["svelte app with toasts", "?", "shadcn-svelte", "component-kit motion feedback icons", { feedback: "sonner" }],
   ["playful app using Mantine with confetti on completion", "playful", "mantine", "component-kit motion feedback icons", { feedback: "canvas-confetti" }],
   ["landing page with animations", "?", "shadcn-ui", "component-kit motion icons", { motion: "motion" }, ["kobra", "paper-shaders"]],
-  ["we use chakra, admin dashboard", "corporate", "-", "component-kit charts icons", {}, ["mantine", "shadcn-ui"]],
+  ["we use bootstrap, admin dashboard", "corporate", "-", "component-kit charts icons", {}, ["mantine", "shadcn-ui"]],
   ["Mac OS 9 Platinum desktop", "mac-classic", "base-ui", "primitives motion icons", {}, ["system-css"]],
   ["US government benefits application form", "civic", "uswds", "component-kit icons", {}, ["govuk-frontend"]],
   ["landing page with a 3d hero", "?", "shadcn-ui", "component-kit motion 3d icons", { "3d": "r3f", motion: "gsap" }, ["paper-shaders"]], // a 3D site: its scroll and camera moves run on GSAP
@@ -339,7 +340,7 @@ const GOLDEN: Golden[] = [
   ["file upload page with a progress bar", "?", "shadcn-ui", "component-kit motion icons", {}, ["sonner", "ding", "amicro"]],
   ["React map with draggable markers", "?", "shadcn-ui", "component-kit motion interaction icons", { interaction: null }, ["vaul", "use-gesture", "rare-ui"]],
   ["React app with a text editor for Python code", "?", "shadcn-ui", "component-kit motion editor icons", { editor: null }, ["tiptap", "blocknote"]],
-  ["project management app with a gantt chart", "?", "shadcn-ui", "component-kit motion charts icons", { charts: null }, ["recharts", "lightweight-charts"]],
+  ["project management app with a gantt chart", "?", "shadcn-ui", "component-kit component-kit motion charts icons", { charts: "kibo-ui" }, ["recharts", "lightweight-charts"]],
   ["svelte admin with a data table", "corporate", "shadcn-svelte", "component-kit tables icons", { tables: "tanstack-table" }, ["skullet", "govuk-frontend"]],
   ["svelte landing page with smooth scroll", "?", "shadcn-svelte", "component-kit motion scroll icons", { scroll: "lenis" }],
   ["Expo habit tracker with animated stats and a bottom sheet", "?", "*", "component-kit motion text-effects interaction icons", {}, ["glisse", "vaul"]],
@@ -419,7 +420,7 @@ test("a whole page gets a library for every part, and the kit parts for its sect
     ["Trip planner for a travel app on phones: a swipeable carousel of destinations, a bottom sheet with trip details, a map-free itinerary list you can reorder by drag, and confetti when a trip is booked.", "component-kit:shadcn-ui motion:motion interaction:embla-carousel interaction:vaul interaction:dnd-kit feedback:canvas-confetti icons:lucide", "Button"],
     ["Onboarding flow for a meditation app on phones: three swipeable intro slides, a progress indicator, a sign-up form, and a toast when the account is created.", "component-kit:shadcn-ui motion:motion interaction:embla-carousel feedback:sonner icons:lucide", "Button, Input, Label, Progress"],
     ["Docs site for an open-source CLI: a sidebar, a search with cmd+k, code examples with copy buttons, and a dark mode toggle.", "component-kit:shadcn-ui motion:tw-animate-css text-effects:torph command:cmdk code:shiki icons:lucide", "Button, Input, Sidebar, Toggle"],
-    ["Kanban board for a design team: drag cards between columns, a card detail drawer, avatars of assignees, and a toast when a card moves.", "component-kit:shadcn-ui motion:motion interaction:dnd-kit interaction:vaul feedback:sonner icons:lucide", "Button, Avatar, Card"],
+    ["Kanban board for a design team: drag cards between columns, a card detail drawer, avatars of assignees, and a toast when a card moves.", "component-kit:shadcn-ui component-kit:kibo-ui motion:motion interaction:dnd-kit interaction:vaul feedback:sonner icons:lucide", "Button, Avatar, Card"],
     ["Restaurant landing page, warm and organic: a hero with a slow gradient background, a menu with tabs, a photo gallery carousel, and a reservation form.", "component-kit:shadcn-ui motion:motion interaction:embla-carousel background:paper-shaders icons:lucide", "Button, Input, Label, Tabs"],
     ["Crypto wallet home screen: a balance that rolls when it changes, a price chart, a recent transactions table, and a send sheet.", "component-kit:shadcn-ui text-effects:number-flow interaction:vaul charts:recharts tables:tanstack-table icons:lucide", "Button, Table, Card"],
     ["Portfolio for a motion designer: a kinetic headline, scroll-driven project reveals with smooth scroll, and a 3D hero object.", "component-kit:shadcn-ui motion:gsap text-effects:gsap-splittext 3d:r3f scroll:lenis icons:lucide", "Button"],

@@ -19,6 +19,21 @@ export const Stats = Cloudflare.KV.Namespace("Stats");
 // Accounts (better-auth), hearts and folders. Absolute path: `pnpm dev` runs from site/, CI from the root.
 export const Db = Cloudflare.D1.Database("Db", { migrations: path.join(import.meta.dirname, "migrations") });
 
+// Forms (/submit, /feedback, /sponsor) email the admin. Cloudflare's free plan only sends from a domain with Email Routing
+// to a verified address, so both come from .env (CI: repo variables): FORMS_FROM, e.g. tastebase@<a routing zone>, and
+// FORMS_TO, the admin inbox. Without them the forms answer "not set up" and nothing else changes.
+const formsFrom = process.env.FORMS_FROM, formsTo = process.env.FORMS_TO;
+const forms = !!(formsFrom && formsTo);
+export const FormsInbox = Cloudflare.Email.Address("FormsInbox", { email: formsTo ?? "" });
+export const FormsMail = Cloudflare.Email.SendEmail("FormsMail", { destinationAddress: formsTo, allowedSenderAddresses: formsFrom ? [formsFrom] : [] });
+// Turnstile on the forms. Subdomains are covered, so one widget serves prod and every pr-<n> preview of a stage.
+export const FormsCaptcha = Cloudflare.Turnstile.Widget("FormsCaptcha", {
+  domains: ["ehsanulsiam.workers.dev", ...(process.env.TASTEBASE_DOMAIN ? [process.env.TASTEBASE_DOMAIN] : [])],
+  mode: "managed",
+});
+// Cloudflare's always-pass test keys, for laptops (a real widget would need localhost on its domain list).
+const TEST_CAPTCHA = { TURNSTILE_SITEKEY: "1x00000000000000000000AA", TURNSTILE_SECRET: "1x0000000000000000000000000000000AA" };
+
 export const Website = Cloudflare.Website.Astro(
   "Website",
   Stack.useSync(({ stage }) => {
@@ -48,6 +63,11 @@ export const Website = Cloudflare.Website.Astro(
       // account id. Both are optional: without them the cron skips usage and everything else runs.
       ...(process.env.USAGE_API_TOKEN && { USAGE_API_TOKEN: Config.Redacted("USAGE_API_TOKEN") }),
       ...(process.env.CLOUDFLARE_ACCOUNT_ID && { CF_ACCOUNT_ID: process.env.CLOUDFLARE_ACCOUNT_ID }),
+      ...(stage.startsWith("dev") ? TEST_CAPTCHA : { TURNSTILE_SITEKEY: Effect.map(FormsCaptcha, (w) => w.sitekey), TURNSTILE_SECRET: Effect.map(FormsCaptcha, (w) => w.secret) }),
+      // Under `alchemy dev` the mail binding writes .eml files to .alchemy/local/email instead of sending.
+      MAIL: FormsMail,
+      FORMS_FROM: formsFrom ?? "",
+      FORMS_TO: formsTo ?? "", // empty: the forms answer "not set up"
       DB: Db,
       // GitHub sign-in (site/src/lib/auth.ts). One OAuth app serves every stage: its redirect URIs are prod,
       // any *.ehsanulsiam.workers.dev (previews), localhost:1337 and 127.0.0.1 on any port. Optional: without the keys (CI checks) the site
@@ -78,6 +98,8 @@ export default Alchemy.Stack(
     const site = yield* Website;
     const stats = yield* Stats;
     const db = yield* Db;
+    // Registering the inbox makes Cloudflare email it a verification link once; the binding can send only after that.
+    if (forms && (yield* Alchemy.Stage) === "prod") yield* FormsInbox;
     return { url: site.url, workerName: site.workerName, statsNamespaceId: stats.namespaceId, databaseId: db.databaseId };
   }),
 );
