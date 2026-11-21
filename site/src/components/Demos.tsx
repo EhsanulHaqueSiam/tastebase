@@ -43,7 +43,7 @@ function SonnerDemo() {
   const msgs = [["Deploy finished", "main · 42s"], ["3 new comments", "on Pricing"], ["Payment received", "$48.00 from Ana"]] as const;
   const [n, setN] = useState(0);
   return (
-    <button className={`${btn} sweep bg-fg text-black`} onClick={() => { const m = msgs[n % msgs.length]!; toast(m[0], { description: m[1] }); setN(n + 1); }}>
+    <button className={`${btn} sweep bg-fg text-bg`} onClick={() => { const m = msgs[n % msgs.length]!; toast(m[0], { description: m[1] }); setN(n + 1); }}>
       <Bell size={15} /> Show toast
     </button>
   );
@@ -52,7 +52,7 @@ function SonnerDemo() {
 function VaulDemo() {
   return (
     <Drawer.Root>
-      <Drawer.Trigger className={`${btn} bg-fg text-black`}>Open drawer</Drawer.Trigger>
+      <Drawer.Trigger className={`${btn} bg-fg text-bg`}>Open drawer</Drawer.Trigger>
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 z-50 bg-black/60" />
         <Drawer.Content className="fixed inset-x-0 bottom-0 z-50 mx-auto max-w-lg rounded-t-3xl bg-s2 p-6 pb-10 shadow-[0_0_0_1px_var(--color-line2)] outline-none">

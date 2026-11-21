@@ -1,0 +1,12 @@
+---
+// /best: every roundup. Prerendered.
+import ArticleIndex from "../../components/ArticleIndex.astro";
+import Base from "../../layouts/Base.astro";
+import { roundups } from "../../lib/articles.ts";
+
+export const prerender = true;
+---
+
+<Base title="Best UI libraries · tastebase" description="The best UI libraries for each job, free and paid, with what each is best at.">
+  <ArticleIndex title="Best of" lede="The libraries we'd reach for, job by job, in order, each with its price, licence and what it's best at." label="Roundups" articles={roundups} />
+</Base>

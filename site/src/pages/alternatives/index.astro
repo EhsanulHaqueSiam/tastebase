@@ -1,0 +1,12 @@
+---
+// /alternatives: every "X alternatives" comparison. Prerendered.
+import ArticleIndex from "../../components/ArticleIndex.astro";
+import Base from "../../layouts/Base.astro";
+import { comparisons } from "../../lib/articles.ts";
+
+export const prerender = true;
+---
+
+<Base title="Alternatives · tastebase" description="Alternatives to popular UI libraries, compared on price, licence and what each is best at.">
+  <ArticleIndex title="Alternatives" lede="Using one library and wondering what else does the job? Each page compares the alternatives we list." label="Comparisons" articles={comparisons} />
+</Base>

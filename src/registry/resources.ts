@@ -30,6 +30,8 @@ export type Resource = {
   cost: string;
   /** Usable for real without paying. */
   free: boolean;
+  /** ISO date it joined tastebase, so the site can show what is new. Entries from before 2026-11-21 have none. */
+  addedAt?: string;
   mcp?: { name: string; url: string; needsPaidPlan: boolean };
 };
 

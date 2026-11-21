@@ -1,0 +1,12 @@
+---
+// /alternatives/<library>-alternatives: what else does a library's job. Prerendered from site/src/lib/articles.ts.
+import Article from "../../components/Article.astro";
+import Base from "../../layouts/Base.astro";
+import { comparisons } from "../../lib/articles.ts";
+
+export const prerender = true;
+export const getStaticPaths = () => comparisons.map((a) => ({ params: { slug: a.slug }, props: { a } }));
+const { a } = Astro.props;
+---
+
+<Base title={`${a.title} · tastebase`} description={a.description}><Article a={a} /></Base>

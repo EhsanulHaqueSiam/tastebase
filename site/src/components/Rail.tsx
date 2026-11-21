@@ -18,7 +18,7 @@ export default function Rail({ path: initial }: { path: string }) {
   // The header's "tastebase / Section" crumb persists too, so the rail keeps it in step.
   useEffect(() => {
     const crumb = document.querySelector("[data-crumb]");
-    if (crumb) crumb.textContent = sections.find((s) => isCurrent(s.href, path))?.label ?? "";
+    if (crumb) crumb.textContent = sections.find((s) => isCurrent(s, path))?.label ?? "";
   }, [path]);
 
   // From the recipe: snap the bubble under a new target while hidden so only the appear plays; tween while showing.
@@ -44,7 +44,7 @@ export default function Rail({ path: initial }: { path: string }) {
 
   return (
     <MotionConfig reducedMotion="user">
-      <nav aria-label="Sections" className="fixed inset-y-0 left-0 z-40 hidden w-14 flex-col items-center gap-1 py-3 lg:flex" onPointerLeave={hide}>
+      <nav aria-label="Sections" data-shell="rail" className="fixed inset-y-0 left-0 z-40 hidden w-14 flex-col items-center gap-1 py-3 lg:flex" onPointerLeave={hide}>
         <a href="/" aria-label="tastebase home" className="group mb-3 grid size-9 place-items-center">
           <svg viewBox="0 0 100 100" className="size-5" aria-hidden="true">
             <g fill="none" stroke="currentColor" strokeWidth="13" strokeLinecap="round"><path d="M44 18V64Q44 80 60 80H68" /><path d="M28 40H64" /></g>
@@ -53,7 +53,7 @@ export default function Rail({ path: initial }: { path: string }) {
         </a>
         <AnimatedBackground enableHover className="rounded-[10px] bg-s2" transition={{ type: "spring", bounce: 0, duration: 0.25 }}>
           {items.map((it) => {
-            const on = !it.external && isCurrent(it.href, path);
+            const on = !it.external && isCurrent(it, path);
             return (
               <a
                 key={it.href}
