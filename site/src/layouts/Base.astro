@@ -108,7 +108,9 @@ const graph = [
   <body class="max-lg:pb-[calc(60px+env(safe-area-inset-bottom))]">
     <!-- Desktop: a 56px icon rail (Rail.tsx), a top bar with the section name and search, and the page inside a rounded
          inset frame. Phones: the top bar and a bottom tab bar (TabBar.tsx). All three persist across navigations. -->
-    <Rail client:load path={path} transition:persist="rail" />
+    {/* persist-props: navigations do not re-render persisted islands, so one clicked before it hydrated is not updated
+        early (React #424). Rail follows the path itself (usePath); its prop is only the first value. */}
+    <Rail client:load path={path} transition:persist="rail" transition:persist-props />
 
     <header data-shell="header" class="fixed inset-x-0 top-0 z-40 flex h-14 items-center gap-4 px-5 lg:left-14 lg:pl-2.5" transition:persist="header">
       <!-- Phones: content scrolls under the header, so it fades out through a progressive blur (Motion Primitives). -->
@@ -190,9 +192,9 @@ const graph = [
         },
       });
     </script>
-    <Palette client:idle transition:persist="palette" />
-    <TabBar client:load transition:persist="tabbar" />
+    <Palette client:idle transition:persist="palette" transition:persist-props />
+    <TabBar client:load transition:persist="tabbar" transition:persist-props />
     <BackToTop client:idle />
-    <SessionToasts client:idle transition:persist="toasts" />
+    <SessionToasts client:idle transition:persist="toasts" transition:persist-props />
   </body>
 </html>

@@ -104,9 +104,12 @@ export default function Directory({ libs }: { libs: ShelfLib[] }) {
             </label>
             <Select label="Framework" value={fw ?? ""} shown={fw ? FW[fw] : "Any"} onChange={(v) => setFw(frameworks.find((f) => f === v))} options={[["", "Any"], ...frameworks.map((f) => [f, FW[f]] as const)]} />
             <Select label="Price" className="lg:hidden" value={price} shown={PRICES.find(([id]) => id === price)![1]} onChange={(v) => setPrice(PRICES.find(([id]) => id === v)?.[0] ?? "any")} options={PRICES} />
-            <Seg label="Sort">
-              {SORTS.map(([id, label]) => <button key={id} type="button" aria-pressed={sort === id} onClick={() => setSort(id)}>{label}</button>)}
-            </Seg>
+            {/* Scrolls inside its row on narrow screens: five sorts are wider than a 390px phone. */}
+            <div className="max-w-full min-w-0 overflow-x-auto [scrollbar-width:none]">
+              <Seg label="Sort">
+                {SORTS.map(([id, label]) => <button key={id} type="button" aria-pressed={sort === id} onClick={() => setSort(id)}>{label}</button>)}
+              </Seg>
+            </div>
             <Seg label="View">
               <button type="button" aria-pressed={view === "grid"} aria-label="Grid" onClick={() => setView("grid")}><LayoutGrid size={14} /></button>
               <button type="button" aria-pressed={view === "list"} aria-label="List" onClick={() => setView("list")}><List size={14} /></button>
