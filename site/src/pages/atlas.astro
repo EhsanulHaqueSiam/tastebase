@@ -159,7 +159,7 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
     }
 
     <section class="panel" id="resources" data-panel="resources" hidden>
-      <p class="max-w-[720px] text-[13.5px] text-fg2">Not installed, but they help you design. tastebase only links to them. If your agent already has one connected under your own account, its plan answer says what to search for. Agents can list one category with <code>get fonts</code>, <code>get tools</code> and so on.</p>
+      <p class="max-w-[720px] text-[13.5px] text-fg2">Not installed, but they help you design. tastebase only links to them. If your agent already has one connected under your own account, its plan answer says what to search for. Agents can list one category with <code>get fonts</code>, <code>get agent-tools</code> and so on.</p>
       <div class="rfilter" role="group" aria-label="Resource category">
         <button type="button" data-rkind="all" aria-pressed="true">All<small>{resources.length}</small></button>
         {resKinds.map((k) => <button type="button" data-rkind={k} aria-pressed="false">{resourceKinds[k]}<small>{resources.filter((r) => r.kind === k).length}</small></button>)}

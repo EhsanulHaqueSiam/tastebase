@@ -5,7 +5,7 @@ description: Use before writing any UI (pages, components, animations, icons, ba
 
 # tastebase
 
-Skill version 10f7990.
+Skill version c8bf88a.
 
 Do not build a UI part from scratch when a proven library already has it. tastebase (MCP server `tastebase`)
 knows which library fits which job and which look.
@@ -83,7 +83,7 @@ with the project's kit named. A vague ask ("more premium", "more playful") moves
 `colour` and `motion` lines (more space, quieter colour, finer details), or to a neighbouring look named in its
 `vs` line if the user wants a different direction; say which. Then run the check step again.
 
-For design help that is not installed, `get` a category: `references`, `fonts`, `colour`, `assets`, `tools`
+For design help that is not installed, `get` a category: `references`, `fonts`, `colour`, `assets`, `agent-tools`
 or `directories`. Ask `trending` when the user wants what is new.
 
 ## Rules

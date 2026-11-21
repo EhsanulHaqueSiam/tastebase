@@ -18,11 +18,12 @@ const args = process.argv.slice(2);
 const framesOnly = args.includes("--frames");
 const only = new Set(args.filter((a) => a !== "--frames"));
 const sites = [...libraries.map((l) => ({ id: l.id, url: l.url, mark: true })), ...resources.filter((r) => r.kind !== "reviewed").map((r) => ({ id: r.id, url: r.url, mark: false }))];
+const UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
 const unframeable = new Set<string>(existsSync(framesFile) ? JSON.parse(readFileSync(framesFile, "utf8")) : []);
 
 /** False when the site's headers forbid framing it on another origin (X-Frame-Options, CSP frame-ancestors). */
 async function frameable(url: string) {
-  const res = await fetch(url, { redirect: "follow", signal: AbortSignal.timeout(15_000), headers: { "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131 Safari/537.36" } }).catch(() => undefined);
+  const res = await fetch(url, { redirect: "follow", signal: AbortSignal.timeout(15_000), headers: { "user-agent": UA } }).catch(() => undefined);
   if (!res?.ok) return false;
   const xfo = res.headers.get("x-frame-options")?.toLowerCase() ?? "";
   const ancestors = res.headers.get("content-security-policy")?.match(/frame-ancestors([^;]*)/i)?.[1]?.trim() ?? "*";
@@ -35,8 +36,11 @@ for (const s of sites) {
   else unframeable.add(s.id);
   if (framesOnly) continue;
   const png = join(tmpdir(), `tb-${s.id}.png`);
+  // A desktop user agent: bot checks (Vercel, Cloudflare) block "HeadlessChrome". GPU on, or WebGL pages shoot blank.
+  const shoot = (wait: string) => execFileSync(chromium, ["--headless=new", `--user-agent=${UA}`, "--hide-scrollbars", "--force-dark-mode", wait, "--window-size=1440,900", `--screenshot=${png}`, s.url], { stdio: "ignore", timeout: 60_000 });
   try {
-    execFileSync(chromium, ["--headless=new", "--disable-gpu", "--hide-scrollbars", "--force-dark-mode", "--virtual-time-budget=6000", "--window-size=1440,900", `--screenshot=${png}`, s.url], { stdio: "ignore", timeout: 60_000 });
+    // Pages with endless timers never use up a virtual-time budget; for those, shoot at load (may catch a fade-in).
+    try { shoot("--virtual-time-budget=6000"); } catch { shoot("--timeout=15000"); }
     execFileSync("magick", [png, "-resize", "1200x", "-quality", "78", join(shots, `${s.id}.webp`)]);
   } catch (e) {
     console.warn(`shot failed: ${s.id} ${s.url}`, (e as Error).message);
