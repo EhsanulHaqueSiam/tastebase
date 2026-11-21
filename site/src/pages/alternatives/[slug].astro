@@ -9,4 +9,4 @@ export const getStaticPaths = () => comparisons.map((a) => ({ params: { slug: a.
 const { a } = Astro.props;
 ---
 
-<Base title={`${a.title} · tastebase`} description={a.description}><Article a={a} /></Base>
+<Base title={`${a.title} · tastebase`} description={a.description} ogType="article" shot={`/shots/${a.libs[0]!.id}.webp`}><Article a={a} /></Base>

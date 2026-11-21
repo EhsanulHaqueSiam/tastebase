@@ -37,8 +37,10 @@ const TEST_CAPTCHA = { TURNSTILE_SITEKEY: "1x00000000000000000000AA", TURNSTILE_
 export const Website = Cloudflare.Website.Astro(
   "Website",
   Stack.useSync(({ stage }) => {
-    // Agent uses per library (src/trending.ts fetchUsage). Previews and laptops share one dataset so prod stays clean.
+    // Agent uses per library (src/trending.ts fetchUsage) and site page views (/api/hit, fetchViews). Previews and
+    // laptops share one dataset each so prod stays clean.
     const usageDataset = stage === "prod" ? "tastebase_usage" : "tastebase_usage_dev";
+    const viewsDataset = stage === "prod" ? "tastebase_views" : "tastebase_views_dev";
     return {
     // prod: tastebase.<account>.workers.dev; every other stage gets its own suffixed Worker.
     name: stage === "prod" ? "tastebase" : `tastebase-${stage.replace(/[^a-z0-9-]/g, "-")}`,
@@ -47,6 +49,11 @@ export const Website = Cloudflare.Website.Astro(
     main: path.join(import.meta.dirname, "site/src/worker.ts"), // Astro's handler + scheduled()
     crons: ["17 * * * *"], // hourly; each run refreshes the 24 stalest libraries (free-plan subrequest limit)
     sessionKVBindingName: false, // no Astro sessions; nothing to provision
+    // Pages go through the Worker first so AI crawlers and Accept: text/markdown get the page's Markdown copy
+    // (site/src/worker.ts); everyone else is handed the same static page. One Worker request per page view, well
+    // inside the free plan's 100,000 a day; the heavy asset folders skip the Worker entirely. Not under `pnpm dev`:
+    // there the same routing would send Vite's own module requests to the Worker, and the build writes no copies.
+    assets: stage.startsWith("dev") ? undefined : { runWorkerFirst: ["/*", "!/_astro/*", "!/shots/*", "!/marks/*", "!/og/*", "!/sponsors/*"] },
     observability: { enabled: true }, // Workers Logs; follow with `pnpm logs`
     // Optional custom domain for prod, e.g. TASTEBASE_DOMAIN=tastebase.dev (the zone must be on this account).
     domain: stage === "prod" ? process.env.TASTEBASE_DOMAIN || undefined : undefined,
@@ -59,6 +66,8 @@ export const Website = Cloudflare.Website.Astro(
       // Workers AI for /api/match: a vision model describes a dropped screenshot (free daily allocation).
       AI: Cloudflare.Workers.AI(),
       USAGE_DATASET: usageDataset,
+      VIEWS: Cloudflare.AnalyticsEngine.Dataset("Views", { dataset: viewsDataset }),
+      VIEWS_DATASET: viewsDataset,
       // Reading the counts back needs an Account Analytics Read token (minted in stacks/github.ts for CI) and the
       // account id. Both are optional: without them the cron skips usage and everything else runs.
       ...(process.env.USAGE_API_TOKEN && { USAGE_API_TOKEN: Config.Redacted("USAGE_API_TOKEN") }),

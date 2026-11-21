@@ -1,5 +1,5 @@
 ---
-// Page shell: head, header, view transitions, and the islands that persist across pages (palette + toasts).
+// Page shell: head (SEO, Open Graph, JSON-LD), header, view transitions, and the islands that persist across pages.
 import { ClientRouter } from "astro:transitions";
 import AccountButton from "../components/AccountButton.tsx";
 import BackToTop from "../components/BackToTop.tsx";
@@ -9,19 +9,50 @@ import Palette from "../components/Palette.tsx";
 import Rail from "../components/Rail.tsx";
 import TabBar from "../components/TabBar.tsx";
 import ThemeToggle from "../components/ThemeToggle.tsx";
+import SoundToggle from "../components/SoundToggle.tsx";
 import SessionToasts from "../components/SessionToasts.tsx";
 import SiteFooter from "../components/SiteFooter.astro";
 import { ProgressiveBlur } from "../components/ui/progressive-blur.tsx";
+import { jsonLd } from "../lib/articles.ts";
 import { isCurrent, sections } from "../lib/nav.ts";
+import { canonicalPath, markdownPath, ogImagePath, ORIGIN, REPO } from "../lib/site.ts";
 import "../styles.css";
 
 interface Props {
   title?: string;
   description?: string;
+  ogType?: "website" | "article";
+  noindex?: boolean;
+  /** A screenshot (/shots/<id>.webp) for this page's OG card; site/build.ts draws it beside the title. */
+  shot?: string;
+  /** Breadcrumb trail after Home, as [name, path] pairs: becomes BreadcrumbList JSON-LD. */
+  crumbs?: [string, string][];
 }
-const { title = "tastebase", description = "Hand-picked UI libraries, with notes your coding agent uses to pick the right one." } = Astro.props;
+const { title = "tastebase", description = "Hand-picked UI libraries, with notes your coding agent uses to pick the right one.", ogType = "website", noindex = false, shot, crumbs } = Astro.props;
 const path = Astro.url.pathname;
 const current = sections.find((s) => isCurrent(s, path));
+const canonical = `${ORIGIN}${canonicalPath(path)}`;
+// Only prerendered pages get their own card and Markdown copy (site/build.ts writes them from the built HTML).
+const own = Astro.isPrerendered && !noindex;
+const ogImage = `${ORIGIN}${ogImagePath(own ? canonicalPath(path) : "/")}`;
+const graph = [
+  {
+    "@type": "WebSite",
+    "@id": `${ORIGIN}/#website`,
+    url: `${ORIGIN}/`,
+    name: "tastebase",
+    description: "Hand-picked UI libraries, with notes your coding agent uses to pick the right one.",
+    potentialAction: { "@type": "SearchAction", target: { "@type": "EntryPoint", urlTemplate: `${ORIGIN}/?q={search_term_string}` }, "query-input": "required name=search_term_string" },
+  },
+  { "@type": "Organization", "@id": `${ORIGIN}/#organization`, name: "tastebase", url: `${ORIGIN}/`, logo: `${ORIGIN}/apple-touch-icon.png`, sameAs: [REPO] },
+  {
+    "@type": "ItemList",
+    "@id": `${ORIGIN}/#sitenavigation`,
+    name: "Site navigation",
+    itemListElement: [...sections.filter((s) => !s.href.includes("#")), { href: "/about", label: "About" }].map((s, i) => ({ "@type": "SiteNavigationElement", position: i + 1, name: s.label, url: `${ORIGIN}${s.href}` })),
+  },
+  ...(crumbs ? [{ "@type": "BreadcrumbList", itemListElement: [["tastebase", "/"], ...crumbs].map(([name, p], i) => ({ "@type": "ListItem", position: i + 1, name, item: `${ORIGIN}${p}` })) }] : []),
+];
 ---
 
 <!doctype html>
@@ -30,23 +61,43 @@ const current = sections.find((s) => isCurrent(s, path));
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#000000" />
-    <!-- Theme before first paint, and again after each client navigation (the router replaces <html>'s attributes). -->
+    <!-- Theme and the hidden rail (⌘B) before first paint, and again after each client navigation (the router replaces
+         <html>'s attributes). Also marks listing screenshots that fail to load, so their fallback shows (ListingCard.tsx);
+         the listener sits in the head so it catches errors from before any island hydrates. -->
     <script is:inline>
       (() => {
         const apply = () => {
-          let t = "dark";
-          try { t = localStorage.getItem("tb-theme") === "light" ? "light" : "dark"; } catch {}
+          let t = "dark", rail = false;
+          try { t = localStorage.getItem("tb-theme") === "light" ? "light" : "dark"; rail = localStorage.getItem("tb-rail") === "hidden"; } catch {}
           document.documentElement.dataset.theme = t;
+          document.documentElement.toggleAttribute("data-rail-hidden", rail);
           document.querySelector('meta[name="theme-color"]')?.setAttribute("content", t === "light" ? "#ffffff" : "#000000");
         };
         apply();
         document.addEventListener("astro:after-swap", apply);
+        addEventListener("error", (e) => { const t = e.target; if (t instanceof HTMLImageElement && "fallback" in t.dataset) t.dataset.failed = ""; }, true);
       })();
     </script>
     <title>{title}</title>
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    {own && <link rel="alternate" type="text/markdown" href={markdownPath(canonicalPath(path))} />}
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content="tastebase" />
+    <meta property="og:url" content={canonical} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} data-shot={own ? shot : undefined} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={title} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <link rel="sitemap" href="/sitemap.xml" />
+    <script type="application/ld+json" set:html={jsonLd({ "@context": "https://schema.org", "@graph": graph })} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="preconnect" href="https://api.fontshare.com" />
@@ -64,6 +115,9 @@ const current = sections.find((s) => isCurrent(s, path));
     <header data-shell="header" class="fixed inset-x-0 top-0 z-40 flex h-14 items-center gap-4 px-5 lg:left-14 lg:pl-2.5" transition:persist="header">
       <!-- Phones: content scrolls under the header, so it fades out through a progressive blur (Motion Primitives). -->
       <div aria-hidden="true" class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-20 bg-gradient-to-b from-bg/80 to-transparent lg:hidden"><ProgressiveBlur direction="top" blurLayers={6} blurIntensity={0.6} className="h-full" /></div>
+      <button type="button" data-toggle-nav aria-label="Show sidebar" title="Show sidebar (⌘B)" class="press hidden size-9 place-items-center rounded-[10px] text-fg2 hover:text-fg lg:[[data-rail-hidden]_&]:grid">
+        <svg viewBox="0 0 24 24" class="size-[18px]" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2" /><path d="M9 3v18M14 9l3 3-3 3" /></svg>
+      </button>
       <a href="/" class="group flex items-center gap-2 font-semibold tracking-[-0.02em] lg:hidden">
         <svg viewBox="0 0 100 100" class="size-[18px]" aria-hidden="true">
           <g fill="none" stroke="currentColor" stroke-width="13" stroke-linecap="round"><path d="M44 18V64Q44 80 60 80H68" /><path d="M28 40H64" /></g>
@@ -74,6 +128,7 @@ const current = sections.find((s) => isCurrent(s, path));
       <span class="hidden text-[13.5px] text-fg2 lg:inline">tastebase <span class="mx-1.5 text-fg3">/</span> <b class="font-medium text-fg" data-crumb>{current?.label ?? ""}</b></span>
       <span class="flex-1"></span>
       <HeaderSearch client:idle />
+      <SoundToggle client:idle className="size-9 rounded-[10px]" />
       <ThemeToggle client:idle className="size-9 rounded-[10px]" />
       <AccountButton client:idle />
       <a href="https://github.com/EhsanulHaqueSiam/tastebase" aria-label="GitHub" class="press text-fg2 hover:text-fg lg:hidden"><GithubMark size={18} /></a>
@@ -88,6 +143,16 @@ const current = sections.find((s) => isCurrent(s, path));
       <SiteFooter />
     </main>
 
+    <script>
+      // One page view per page shown, client navigations included (lib/views.ts), and the sound cues if switched on.
+      import { countView } from "../lib/views.ts";
+      import { startSound } from "../lib/sound.ts";
+      import { toggleNav } from "../lib/rail.ts";
+      document.addEventListener("astro:page-load", countView);
+      startSound();
+      // The header's "Show sidebar" button, there only while the rail is hidden. The header persists, so one listener.
+      document.addEventListener("click", (e) => (e.target as Element).closest?.("[data-toggle-nav]") && toggleNav());
+    </script>
     <script>
       // Sliding pills for segmented controls (lib/seg.ts) that Astro renders. Controls inside islands render their own
       // (Seg.tsx): adding one here before React hydrates would make the DOM differ from what React rendered.

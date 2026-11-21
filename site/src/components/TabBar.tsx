@@ -1,6 +1,7 @@
 // Phone navigation: a bottom tab bar (the `tab` sections, Search, More). More opens a floating sheet, styled after
 // Rare UI's family drawer, with every other section, so nothing the desktop rail reaches is out of reach on a phone.
-// Icons play on tap and each tap gives a light haptic. Hidden from lg up, where the rail takes over.
+// Icons play on tap and each tap gives a light haptic. A swipe in from the left edge also opens More, as Design Index's
+// phone sidebar does. Hidden from lg up, where the rail takes over.
 import { MotionConfig } from "motion/react";
 import { useEffect, useState, type ComponentProps, type ReactNode } from "react";
 import { Drawer } from "vaul";
@@ -12,6 +13,8 @@ import { SearchIcon } from "./icons/search.tsx";
 
 const tabs = sections.filter((s) => s.tab);
 const more = sections.filter((s) => !s.tab);
+const EDGE = 32; // px from the left edge a swipe must start within
+const SWIPE = 56; // px it must travel right
 
 export default function TabBar() {
   const path = usePath();
@@ -22,6 +25,27 @@ export default function TabBar() {
     const open = () => setOpen(true);
     window.addEventListener("tb:more", open);
     return () => window.removeEventListener("tb:more", open);
+  }, []);
+  useEffect(() => {
+    let from: { x: number; y: number } | undefined;
+    const down = (e: TouchEvent) => {
+      const t = e.touches[0];
+      from = e.touches.length === 1 && t && t.clientX < EDGE && !matchMedia("(min-width: 1024px)").matches ? { x: t.clientX, y: t.clientY } : undefined;
+    };
+    const move = (e: TouchEvent) => {
+      const t = e.touches[0];
+      if (!from || !t) return;
+      const dx = t.clientX - from.x;
+      if (Math.abs(t.clientY - from.y) > dx) from = undefined; // a scroll, not a swipe
+      else if (dx > SWIPE) {
+        from = undefined;
+        setOpen(true);
+        haptic("light");
+      }
+    };
+    addEventListener("touchstart", down, { passive: true });
+    addEventListener("touchmove", move, { passive: true });
+    return () => (removeEventListener("touchstart", down), removeEventListener("touchmove", move));
   }, []);
   const search = () => window.dispatchEvent(new CustomEvent("tb:search", { detail: "" }));
 
@@ -72,7 +96,7 @@ function Tab({ href, icon: Icon, on, onTap, children, ...rest }: { href?: string
     </>
   );
   return href ? (
-    <a href={href} aria-current={on ? "page" : undefined} onClick={tap} className={cls}>{body}</a>
+    <a href={href} aria-current={on ? "page" : undefined} data-cuelume-navigate onClick={tap} className={cls}>{body}</a>
   ) : (
     <button type="button" {...rest} onClick={(e) => (rest.onClick?.(e), tap())} className={cls}>{body}</button>
   );
@@ -82,7 +106,7 @@ function SheetRow({ href, icon: Icon, on, onPick, children }: { href: string; ic
   const { ref, on: hover } = useIconHover();
   return (
     <li>
-      <a href={href} {...hover} onClick={() => (haptic("selection"), onPick())} aria-current={on ? "page" : undefined} className={`flex h-12 items-center gap-[15px] rounded-2xl px-4 text-[17px] font-semibold transition-transform active:scale-95 ${on ? "bg-fg text-bg" : "bg-s3 text-fg"}`}>
+      <a href={href} {...hover} data-cuelume-navigate onClick={() => (haptic("selection"), onPick())} aria-current={on ? "page" : undefined} className={`flex h-12 items-center gap-[15px] rounded-2xl px-4 text-[17px] font-semibold transition-transform active:scale-95 ${on ? "bg-fg text-bg" : "bg-s3 text-fg"}`}>
         <Icon ref={ref} size={20} className="grid place-items-center" />
         {children}
       </a>

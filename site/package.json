@@ -12,6 +12,7 @@
     "astro": "7.4.7",
     "better-auth": "1.7.26",
     "cmdk": "^1.1.1",
+    "cuelume": "0.2.8",
     "glisse": "^0.5.0",
     "lucide-react": "^1.70.0",
     "motion": "^14.10.1",
@@ -26,9 +27,12 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
     "@cloudflare/workers-types": "^5.20261106.1",
+    "@fontsource/inter": "5.3.0",
     "@tailwindcss/vite": "^4.3.5",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "satori": "0.63.2",
+    "sharp": "0.35.5",
     "tailwindcss": "^4.3.5",
     "typescript": "^6.0.3"
   }
