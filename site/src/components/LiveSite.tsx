@@ -1,13 +1,14 @@
-// A detail page's right panel: the real site in a browser window, laid out at 1280px and scaled to fit, so it reads as
-// the desktop site and stays fully usable (scroll, click, browse). Sites that refuse framing (checked by
-// `pnpm capture`, site/src/lib/unframeable.json) or that never finish loading show their screenshot and a way out.
+// A detail page's right panel: the real site in a browser window, laid out at the panel's width but never under 1024px
+// (then scaled down to fit), so it reads as the desktop site at a legible size and stays fully usable (scroll, click,
+// browse). Sites that refuse framing (checked by `pnpm capture`, site/src/lib/unframeable.json) or that never finish
+// loading show their screenshot and a way out.
 // A library with a hand-made demo (Demos.tsx) gets a second tab for it.
 import { ArrowUpRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { withUtm } from "../lib/utm.ts";
 import { demos } from "./Demos.tsx";
 
-const DESKTOP = 1280;
+const DESKTOP = 1024; // narrowest layout most sites still treat as desktop; wider panels lay out at their own width
 const BLEED = 24; // extra width pushes the framed page's scrollbar past the clipped edge
 const GIVE_UP_MS = 12_000;
 
@@ -63,7 +64,7 @@ function Frame({ url, name, image }: { url: string; name: string; image: string 
   }, []);
 
   if (state === "failed") return <Fallback url={url} name={name} image={image} reason="The site took too long to load here." />;
-  const scale = box.w / DESKTOP || 1;
+  const scale = box.w / Math.max(DESKTOP, box.w) || 1;
   return (
     <div ref={stage} className="absolute inset-0 overflow-hidden bg-bg">
       {box.w > 0 && (
@@ -73,7 +74,7 @@ function Frame({ url, name, image }: { url: string; name: string; image: string 
           onLoad={() => setState("ready")}
           sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
           className="origin-top-left border-0 bg-white"
-          style={{ width: DESKTOP + BLEED, height: box.h / scale, transform: `scale(${scale})` }}
+          style={{ width: box.w / scale + BLEED, height: box.h / scale, transform: `scale(${scale})` }}
         />
       )}
       <div aria-hidden={state === "ready"} className={`absolute inset-0 grid place-items-center bg-s1 transition-opacity duration-300 ${state === "ready" ? "pointer-events-none opacity-0" : ""}`}>
