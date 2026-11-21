@@ -7,5 +7,11 @@ export const prerender = true;
 ---
 
 <Base title="Folders · tastebase" description="Your folders of UI libraries, on every device you sign in on.">
-  <FolderList client:only="react" />
+  <FolderList client:only="react">
+    <!-- Same heading and space as the island's signed-out view, so nothing moves when it mounts. -->
+    <section slot="fallback" class="mx-auto max-w-[1440px] px-4 pt-[76px] pb-24 lg:px-6">
+      <h1 class="text-[18px] font-semibold tracking-[-0.02em]">Folders</h1>
+      <div class="mt-16 h-[112px]"></div>
+    </section>
+  </FolderList>
 </Base>

@@ -66,13 +66,12 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
                   </header>
                   <ul>
                     {i.libs.map((l) => (
-                      <li class:list={["chip", paywalled(l) && "t-paid"]}>
+                      <li class:list={["chip", paywalled(l) && "t-paid"]} data-shot={shot(l.id)}>
                         <a href={`/browse/${l.id}`}>
                           <img src={`/marks/${l.id}.png`} alt="" width="16" height="16" loading="lazy" />
                           <span>{l.name}</span>
                           {paywalled(l) && <sup>paid</sup>}
                         </a>
-                        <img class="tip" src={shot(l.id)} alt="" width="1200" height="750" loading="lazy" decoding="async" />
                       </li>
                     ))}
                   </ul>
@@ -158,6 +157,8 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
       ))
     }
 
+    <img class="tip" alt="" width="240" height="150" decoding="async" hidden />
+
     <section class="panel" id="resources" data-panel="resources" hidden>
       <p class="max-w-[720px] text-[13.5px] text-fg2">Not installed, but they help you design. tastebase only links to them. If your agent already has one connected under your own account, its plan answer says what to search for. Agents can list one category with <code>get fonts</code>, <code>get agent-tools</code> and so on.</p>
       <div class="rfilter" role="group" aria-label="Resource category">
@@ -210,6 +211,23 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
       free(store("atlas:free") === "1" ? "1" : "0");
       tab();
       window.onhashchange = tab; // one handler even after client-side navigations back here
+      // One shared screenshot preview for every chip, placed above the hovered one (below it near the top edge).
+      const tip = root.querySelector<HTMLImageElement>("img.tip")!;
+      if (matchMedia("(hover: hover) and (pointer: fine)").matches) {
+        root.addEventListener("pointerover", (e) => {
+          const chip = (e.target as Element).closest<HTMLElement>(".chip[data-shot]");
+          if (!chip) return void (tip.hidden = true);
+          const r = chip.getBoundingClientRect();
+          tip.src = chip.dataset.shot!;
+          tip.style.left = `${Math.min(r.left, innerWidth - 252)}px`;
+          tip.style.top = `${r.top > 170 ? r.top - 156 : r.bottom + 6}px`;
+          tip.hidden = false;
+        });
+        root.addEventListener("pointerleave", () => (tip.hidden = true));
+        const off = new AbortController();
+        addEventListener("scroll", () => (tip.hidden = true), { passive: true, signal: off.signal });
+        document.addEventListener("astro:before-swap", () => off.abort(), { once: true });
+      }
     }
     document.addEventListener("astro:page-load", setup);
   </script>
@@ -233,19 +251,20 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
 
   .isles-scroll { overflow-x: auto; border-radius: 12px; }
   .isles { position: relative; border-radius: 12px; background-color: var(--color-s1); box-shadow: inset 0 0 0 1px var(--color-line); }
-  .isle { position: absolute; border-radius: 10px; background: color-mix(in srgb, var(--color-bg) 75%, transparent); box-shadow: inset 0 0 0 1px var(--color-line2); padding: var(--pady) var(--padx); }
+  .isle { content-visibility: auto; position: absolute; border-radius: 10px; background: color-mix(in srgb, var(--color-bg) 75%, transparent); box-shadow: inset 0 0 0 1px var(--color-line2); padding: var(--pady) var(--padx); }
   .isle .ghead { height: calc(var(--head) - 4px); }
   .isle ul { display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); column-gap: 8px; }
   .chip { position: relative; height: var(--row); }
   .chip a { display: flex; height: 100%; align-items: center; gap: 7px; font-size: 13px; color: var(--color-fg); }
   .chip a span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .chip a:hover span { text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--color-line2); }
-  .chip img:not(.tip), .tile span img, .bar a img, .mx th img { width: 16px; height: 16px; flex: none; border-radius: 4px; object-fit: contain; }
-  .tip { display: none; position: absolute; bottom: calc(100% + 6px); left: 0; z-index: 5; width: 240px; aspect-ratio: 16 / 10; object-fit: cover; object-position: top; border-radius: 8px; box-shadow: 0 0 0 1px var(--color-line2), 0 16px 40px rgb(0 0 0 / 0.6); pointer-events: none; }
-  @media (hover: hover) and (pointer: fine) { .chip:hover .tip { display: block; } }
+  .chip img, .tile span img, .bar a img, .mx th img { width: 16px; height: 16px; flex: none; border-radius: 4px; object-fit: contain; }
+  .tip { position: fixed; z-index: 50; width: 240px; aspect-ratio: 16 / 10; object-fit: cover; object-position: top; border-radius: 8px; box-shadow: 0 0 0 1px var(--color-line2), 0 16px 40px rgb(0 0 0 / 0.6); pointer-events: none; }
+  .tip[hidden] { display: none; }
   sup { margin-left: 3px; font: 500 9.5px var(--font-mono); color: var(--color-blue); }
 
   .mood { display: grid; gap: 22px; }
+  .mood > section, .bars, .mx-wrap, .plist, .rtbl tbody { content-visibility: auto; contain-intrinsic-size: auto 600px; }
   .mood ul { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
   .tile a { display: grid; gap: 7px; font-size: 13px; }
   .tile span { display: flex; align-items: center; gap: 7px; white-space: nowrap; overflow: hidden; }

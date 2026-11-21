@@ -117,7 +117,7 @@ export default function Directory({ libs }: { libs: ShelfLib[] }) {
 
         {view === "grid" ? (
           <div className="mt-2.5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            {all.map((l) => <div key={l.id} hidden={!shown.has(l.id)}><LibCard lib={l} badge={statBadge(sort, stats?.[l.id])} /></div>)}
+            {all.map((l) => <div key={l.id} hidden={!shown.has(l.id)} className="[contain-intrinsic-size:auto_330px] [content-visibility:auto]"><LibCard lib={l} badge={statBadge(sort, stats?.[l.id])} /></div>)}
           </div>
         ) : (
           <ul className="mt-2.5 overflow-hidden rounded-2xl shadow-[inset_0_0_0_1px_var(--color-line)]">
@@ -168,7 +168,7 @@ function Select<V extends string>({ label, value, shown, onChange, options, clas
 const ListRow = memo(function ListRow({ lib, stat, hidden }: { lib: ShelfLib; stat: string; hidden: boolean }) {
   const fws = lib.frameworks.map((f) => FW[f]);
   return (
-    <li hidden={hidden} className="anim-host relative flex items-center gap-3 border-t border-line px-3 py-2.5 transition-colors first:border-t-0 hover:bg-s1">
+    <li hidden={hidden} className="anim-host relative flex [contain-intrinsic-size:auto_56px] [content-visibility:auto] items-center gap-3 border-t border-line px-3 py-2.5 transition-colors first:border-t-0 hover:bg-s1">
       <LibMark lib={lib} size={30} />
       <a href={`/browse/${lib.id}`} className="min-w-0 flex-1 after:absolute after:inset-0">
         <span className="block font-medium">{lib.name}</span>

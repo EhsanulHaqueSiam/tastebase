@@ -1,6 +1,17 @@
 @import "tailwindcss";
 @import "glisse/styles.css";
 
+/* Self-hosted fonts (public/_fonts): no third-party origins to connect to before text renders. General Sans is from
+   Fontshare (ITF Free Font License); the rest are Google Fonts' Latin subsets (OFL). */
+@font-face { font-family: "General Sans"; font-weight: 400; font-style: normal; font-display: swap; src: url("/_fonts/general-sans-400.woff2") format("woff2"); }
+@font-face { font-family: "General Sans"; font-weight: 500; font-style: normal; font-display: swap; src: url("/_fonts/general-sans-500.woff2") format("woff2"); }
+@font-face { font-family: "General Sans"; font-weight: 600; font-style: normal; font-display: swap; src: url("/_fonts/general-sans-600.woff2") format("woff2"); }
+@font-face { font-family: "JetBrains Mono"; font-weight: 400 500; font-style: normal; font-display: swap; src: url("/_fonts/jetbrains-mono-latin.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Instrument Serif"; font-weight: 400; font-style: italic; font-display: swap; src: url("/_fonts/instrument-serif-italic-latin.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+/* /looks only: the words its sketches use. */
+@font-face { font-family: "Caveat"; font-weight: 600; font-style: normal; font-display: swap; src: url("/_fonts/caveat-600-subset.woff2") format("woff2"); unicode-range: U+21, U+2d, U+30-34, U+41-49, U+4b, U+4d-50, U+52-56, U+59, U+61-65, U+67-69, U+6b-70, U+72-77, U+79, U+25b6; }
+@font-face { font-family: "Silkscreen"; font-weight: 400; font-style: normal; font-display: swap; src: url("/_fonts/silkscreen-subset.woff2") format("woff2"); unicode-range: U+21, U+2d, U+30-34, U+41-49, U+4b, U+4d-50, U+52-56, U+59, U+61-65, U+67-69, U+6b-70, U+72-77, U+79, U+25b6; }
+
 @theme {
   --color-bg: #000;
   --color-s1: #0b0b0c;

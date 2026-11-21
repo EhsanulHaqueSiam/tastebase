@@ -10,7 +10,7 @@ export function LibMark({ lib, size = 32 }: { lib: { id: string; name: string; k
       className="grid shrink-0 place-items-center overflow-hidden rounded-[28%] bg-s3 font-semibold shadow-[inset_0_0_0_1px_var(--color-line)]"
       style={{ width: size, height: size, fontSize: size * 0.42, color: kindMeta[lib.kind].color }}
     >
-      {broken ? lib.name[0] : <img src={`/marks/${lib.id}.png`} alt="" className="size-[62%] object-contain" onError={() => setBroken(true)} />}
+      {broken ? lib.name[0] : <img src={`/marks/${lib.id}.png`} alt="" width={Math.round(size * 0.62)} height={Math.round(size * 0.62)} loading="lazy" decoding="async" className="size-[62%] object-contain" onError={() => setBroken(true)} />}
     </span>
   );
 }
