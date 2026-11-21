@@ -173,7 +173,7 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
       </div>
       <table class="rtbl">
         <thead><tr><th scope="col">Name</th><th scope="col">Good for</th><th scope="col">Cost</th><th scope="col">With your agent</th></tr></thead>
-        <!-- Rows load from /atlas-rows.html when the tab first opens (atlas-rows.html.ts). -->
+        <!-- Rows load from /atlas-rows (atlas-rows.html, served without the .html) when the tab first opens (atlas-rows.html.ts). -->
         <tbody data-rows></tbody>
       </table>
       </template>
@@ -212,7 +212,7 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
           if (body && !body.dataset.loaded) {
             body.dataset.loaded = "1";
             body.innerHTML = '<tr><td colspan="4" class="text-fg3">Loading resources</td></tr>';
-            fetch("/atlas-rows.html").then((r) => r.text()).then((html) => ((body.innerHTML = html), rkind(k))).catch(() => (body.innerHTML = '<tr><td colspan="4" class="text-fg3">Could not load the resources; reload to try again.</td></tr>'));
+            fetch("/atlas-rows").then((r) => (r.ok ? r.text() : Promise.reject(new Error(String(r.status))))).then((html) => ((body.innerHTML = html), rkind(k))).catch(() => (body.innerHTML = '<tr><td colspan="4" class="text-fg3">Could not load the resources; reload to try again.</td></tr>'));
           }
           rkind(k);
         }
