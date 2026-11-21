@@ -1,0 +1,59 @@
+---
+// /integrations: MCP servers for UI libraries and design tools, with setup for each client. Prerendered.
+import { ArrowUpRight } from "lucide-react";
+import { LibMark } from "../components/LibMark.tsx";
+import McpSetup from "../components/McpSetup.tsx";
+import Base from "../layouts/Base.astro";
+import { integrations } from "../../../src/registry/integrations.ts";
+import { resources } from "../../../src/registry/resources.ts";
+import { libraries } from "../lib/server.ts";
+
+export const prerender = true;
+
+const byId = new Map(libraries.map((l) => [l.id, l]));
+// Official servers first; the ones for libraries we list lead, since a pick can name them.
+const list = [...integrations].sort((a, b) => Number(b.official) - Number(a.official) || Number(!!b.lib) - Number(!!a.lib));
+const designMcps = resources.filter((r) => r.mcp);
+---
+
+<Base title="Integrations · tastebase" description={`${integrations.length} MCP servers for UI libraries and design tools, set up for each coding agent.`}>
+  <div class="mx-auto max-w-4xl px-4 pt-24 pb-24">
+    <h1 class="text-[clamp(28px,3.6vw,40px)] leading-tight font-semibold tracking-[-0.035em]">Integrations <span class="font-mono text-[15px] font-medium text-fg3 tabular-nums">{integrations.length}</span></h1>
+    <p class="mt-2 max-w-xl text-fg2">MCP servers that let your agent read a library's docs or install its parts. Pick your client and copy the line. Keys stay in your environment; nothing here holds one.</p>
+
+    <ul class="mt-8 grid gap-3">
+      {
+        list.map((i) => {
+          const lib = i.lib ? byId.get(i.lib) : undefined;
+          return (
+            <li id={i.id} class="min-w-0 scroll-mt-20 rounded-2xl p-4 shadow-[inset_0_0_0_1px_var(--color-line)]">
+              <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                {lib && <LibMark lib={lib} size={28} />}
+                <h2 class="font-medium">{i.name}</h2>
+                <span class={`rounded-md px-1.5 py-0.5 text-[11.5px] ${i.official ? "bg-green/10 text-green" : "bg-s2 text-fg2"}`}>{i.official ? "Official" : "Community"}</span>
+                {lib && <a href={`/browse/${lib.id}`} class="text-[13px] text-fg2 hover:text-fg">for {lib.name}</a>}
+                <span class="flex-1" />
+                <a href={i.docs} target="_blank" rel="noreferrer" class="inline-flex items-center gap-1 text-[13px] text-fg2 hover:text-fg">Docs <ArrowUpRight size={13} /></a>
+              </div>
+              <p class="mt-2 text-[13.5px] text-fg2">{i.goodFor}{i.note && <span class="text-fg3"> {i.note}</span>}</p>
+              <div class="mt-3"><McpSetup client:visible integration={i} /></div>
+            </li>
+          );
+        })
+      }
+    </ul>
+
+    <h2 class="mt-14 text-lg font-semibold tracking-[-0.02em]">Design resources with an MCP</h2>
+    <p class="mt-1 text-[13.5px] text-fg2">References and tools from the <a href="/atlas" class="text-fg hover:underline">Atlas</a> that your agent can search once you connect them under your own account.</p>
+    <ul class="mt-4 grid gap-x-6 sm:grid-cols-2">
+      {
+        designMcps.map((r) => (
+          <li class="flex items-center gap-3 border-b border-line py-2.5 text-[13.5px]">
+            <a href={r.mcp!.url} target="_blank" rel="noreferrer" class="min-w-0 flex-1 truncate hover:text-fg">{r.mcp!.name}</a>
+            {r.mcp!.needsPaidPlan ? <span class="text-[11.5px] text-amber">Paid plan</span> : <span class="text-[11.5px] text-fg3">Free</span>}
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</Base>

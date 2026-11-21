@@ -1,0 +1,29 @@
+---
+// /components: the component index grouped by name, built at prerender so the island only filters.
+import Components, { type Group } from "../components/Components.tsx";
+import Base from "../layouts/Base.astro";
+import { components } from "../../../src/registry/components.ts";
+import { libraries } from "../lib/server.ts";
+
+export const prerender = true;
+
+const byId = new Map(libraries.map((l) => [l.id, l]));
+// "Date Picker", "DatePicker" and "date-picker" are one group.
+const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+const groups = new Map<string, Group>();
+for (const [id, list] of Object.entries(components)) {
+  const lib = byId.get(id)!;
+  for (const [name, url, aliases = []] of list) {
+    const g = groups.get(norm(name)) ?? { name, terms: "", libs: [] };
+    g.libs.push({ id, name: lib.name, kind: lib.kind, url });
+    g.terms += ` ${name} ${aliases.join(" ")} ${lib.name}`.toLowerCase();
+    groups.set(norm(name), g);
+  }
+}
+// Parts most libraries ship first: they are the ones worth comparing.
+const sorted = [...groups.values()].sort((a, b) => b.libs.length - a.libs.length || a.name.localeCompare(b.name));
+---
+
+<Base title="Components · tastebase" description={`${sorted.length} UI components across ${Object.keys(components).length} libraries, each linked to its docs.`}>
+  <Components client:load groups={sorted} libCount={Object.keys(components).length} />
+</Base>

@@ -1,0 +1,11 @@
+---
+// /match: screenshot in, closest look and libraries out. Prerendered shell; the island calls /api/match.
+import Match from "../components/Match.tsx";
+import Base from "../layouts/Base.astro";
+
+export const prerender = true;
+---
+
+<Base title="Match a screenshot · tastebase" description="Drop a screenshot of a UI you like and get the libraries that build its look.">
+  <Match client:load />
+</Base>

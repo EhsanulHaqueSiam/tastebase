@@ -1,0 +1,16 @@
+name: Wrong pick
+description: plan or pick recommended the wrong library for a job or brief.
+labels: [picks]
+body:
+  - type: input
+    id: input
+    attributes: { label: Exact input, description: 'The brief or job you sent, e.g. pick "bottom sheet" framework=vue' }
+    validations: { required: true }
+  - type: textarea
+    id: got
+    attributes: { label: What it recommended }
+    validations: { required: true }
+  - type: textarea
+    id: expected
+    attributes: { label: What it should recommend, and why }
+    validations: { required: true }

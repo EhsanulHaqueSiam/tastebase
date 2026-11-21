@@ -49,6 +49,27 @@ export async function refreshStats(libs: Library[], prev: Stats, opts: { githubT
   return { ...prev, ...Object.fromEntries(entries) };
 }
 
+/**
+ * How often agents used each library in the last 7 days: MCP `get` calls plus picks offered, as the Worker wrote them
+ * to Analytics Engine (one data point per use: blob1 = library id). One SQL API call; undefined when it fails, so the
+ * caller keeps the last counts. Nothing about the caller or their query is ever written.
+ */
+export async function fetchUsage(o: { accountId: string; token: string; dataset: string; fetch?: Fetch }): Promise<Record<string, number> | undefined> {
+  const sql = `SELECT blob1 AS id, SUM(_sample_interval) AS n FROM ${o.dataset} WHERE timestamp > NOW() - INTERVAL '7' DAY GROUP BY id FORMAT JSON`;
+  const r = await (o.fetch ?? fetch)(`https://api.cloudflare.com/client/v4/accounts/${o.accountId}/analytics_engine/sql`, {
+    method: "POST",
+    headers: { authorization: `Bearer ${o.token}` },
+    body: sql,
+  }).catch(() => undefined);
+  if (!r?.ok) return undefined;
+  const { data } = (await r.json()) as { data: { id: string; n: number | string }[] };
+  return Object.fromEntries(data.map((d) => [d.id, Number(d.n)]));
+}
+
+/** Writes this week's agent uses into stats; a library with none drops to zero rather than keeping an old count. */
+export const withUsage = (stats: Stats, uses: Record<string, number>): Stats =>
+  Object.fromEntries([...new Set([...Object.keys(stats), ...Object.keys(uses)])].map((id) => [id, { ...stats[id], agentUses: uses[id] ?? 0 }]));
+
 /** Attach stats to libraries for ranking and display. */
 export const withStats = (libs: Library[], stats: Stats): Library[] => libs.map((l) => ({ ...l, stats: stats[l.id] ?? l.stats }));
 

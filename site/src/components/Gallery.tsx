@@ -2,22 +2,13 @@ import { ChevronDown, Search, X } from "lucide-react";
 import { AnimatePresence, MotionConfig, motion } from "motion/react";
 import { useState, type ComponentProps } from "react";
 import { frameworks, type Framework } from "../../../src/registry/schema.ts";
-import { kindMeta, shot } from "../lib/kinds.ts";
+import { kindMeta } from "../lib/kinds.ts";
 import type { LookChip, ShelfLib } from "../lib/server.ts";
 import { useStats } from "../lib/stats.ts";
-import { ArrowLink, CopyButton, Rise, SpotCard } from "./fx.tsx";
-import { GithubMark } from "./GithubMark.tsx";
-import { LibMark } from "./LibMark.tsx";
+import { ArrowLink, Rise } from "./fx.tsx";
+import { FW, LibCard, SORTS, sortBy, statBadge, type Sort } from "./LibCard.tsx";
 
-const SORTS = [
-  ["hot", "Hot this week", "hottest this week first"],
-  ["stars", "Stars", "most stars first"],
-  ["name", "A to Z", "A to Z"],
-] as const;
-type Sort = (typeof SORTS)[number][0];
-const FW: Record<Framework, string> = { react: "React", vue: "Vue", svelte: "Svelte", solid: "Solid", angular: "Angular", vanilla: "Vanilla JS", "react-native": "React Native" };
 const SHOWN = 12;
-const compact = new Intl.NumberFormat("en", { notation: "compact" });
 const words = (s: string) => s.toLowerCase().split(/\s+/).filter(Boolean);
 
 /** The shelf: screenshot cards with search, framework, sort and look filters. A look's picks lead, marked "pick". */
@@ -35,12 +26,7 @@ export default function Gallery({ libs, looks }: { libs: ShelfLib[]; looks: Look
   const terms = words(q);
   // Typing a style's name offers it as a look chip. Families are always in the row.
   const offers = q.trim().length > 1 ? looks.filter((l) => l.family && l.id !== lookId && terms.every((t) => [l.name, l.id, ...l.signals].join(" ").toLowerCase().includes(t))).slice(0, 3) : [];
-  const n = (id: string, k: "stars" | "starsWeek") => stats?.[id]?.[k] ?? 0;
-  const order = {
-    hot: (a: ShelfLib, b: ShelfLib) => n(b.id, "starsWeek") - n(a.id, "starsWeek") || n(b.id, "stars") - n(a.id, "stars"),
-    stars: (a: ShelfLib, b: ShelfLib) => n(b.id, "stars") - n(a.id, "stars"),
-    name: (a: ShelfLib, b: ShelfLib) => a.name.localeCompare(b.name),
-  }[sort];
+  const order = sortBy(sort, stats);
   const list = libs
     .filter((l) => !fw || l.frameworks.includes(fw))
     .filter((l) => !family || l.aesthetic.some((a) => a === family) || picks.has(l.id))
@@ -109,41 +95,11 @@ export default function Gallery({ libs, looks }: { libs: ShelfLib[]; looks: Look
       <MotionConfig reducedMotion="user">
         <motion.div layout className="mt-2.5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <AnimatePresence mode="popLayout">
-            {shown.map((l, i) => {
-              const s = stats?.[l.id];
-              const badge = sort === "hot" ? (s?.starsWeek ? `+${compact.format(s.starsWeek)}★ wk` : "") : sort === "stars" && s?.stars ? `${compact.format(s.stars)}★` : "";
-              return (
-                <motion.div key={l.id} layout className="group relative" initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1, transition: { delay: (i % SHOWN) * 0.02 } }} exit={{ opacity: 0, scale: 0.96 }}>
-                  <a href={`/browse/${l.id}`} className="block">
-                    <SpotCard className="overflow-hidden rounded-2xl bg-s1 shadow-[inset_0_0_0_1px_var(--color-line)] transition-shadow duration-300 group-hover:shadow-[inset_0_0_0_1px_var(--color-line2)]">
-                      <div className="relative aspect-[16/10] overflow-hidden bg-s2">
-                        <img src={shot(l.id)} alt={`${l.name} website`} loading="lazy" className="size-full object-cover object-top transition-transform duration-700 ease-[var(--ease-out)] group-hover:scale-[1.04]" />
-                        <span className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-s1 to-transparent" />
-                        {badge && <span className="absolute top-2.5 left-2.5 rounded-md bg-black/60 px-1.5 py-0.5 font-mono text-[11px] font-medium text-fg backdrop-blur-md">{badge}</span>}
-                        {picks.has(l.id) && <span className="absolute top-2.5 right-2.5 rounded-md bg-fg px-1.5 py-0.5 font-mono text-[11px] font-medium text-black">pick</span>}
-                      </div>
-                      <div className="flex items-center gap-3 p-4 pt-1">
-                        <LibMark lib={l} size={30} />
-                        <span className="min-w-0 flex-1">
-                          <span className="block font-medium">{l.name}</span>
-                          <span className="block truncate text-[13px] text-fg2">{l.tagline}</span>
-                        </span>
-                        <span className="card-kind shrink-0 font-mono text-[11.5px] text-fg3">{kindMeta[l.kind].short}</span>
-                      </div>
-                    </SpotCard>
-                  </a>
-                  {/* Outside the link so the buttons are not nested in it; they sit over the kind label. */}
-                  <div className="card-acts absolute right-3 bottom-[15px] flex gap-1 bg-[linear-gradient(to_left,var(--color-s1)_75%,transparent)] pl-8">
-                    <CopyButton value={l.install} label="Install" className="h-8" />
-                    {l.repo && (
-                      <a href={l.repo} target="_blank" rel="noreferrer" aria-label={`${l.name} on GitHub`} className="press grid size-8 place-items-center rounded-lg bg-s3 text-fg2 hover:bg-fg hover:text-black">
-                        <GithubMark size={14} />
-                      </a>
-                    )}
-                  </div>
+            {shown.map((l, i) => (
+                <motion.div key={l.id} layout initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1, transition: { delay: (i % SHOWN) * 0.02 } }} exit={{ opacity: 0, scale: 0.96 }}>
+                  <LibCard lib={l} badge={statBadge(sort, stats?.[l.id])} pick={picks.has(l.id)} />
                 </motion.div>
-              );
-            })}
+            ))}
           </AnimatePresence>
         </motion.div>
       </MotionConfig>

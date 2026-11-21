@@ -3,6 +3,8 @@ import { existsSync } from "node:fs";
 import { test } from "node:test";
 import { pick, plan } from "../engine.ts";
 import { aesthetics, libraries, siteTypes } from "./index.ts";
+import { components } from "./components.ts";
+import { integrations, mcpSetup } from "./integrations.ts";
 import { kinds, type Framework } from "./schema.ts";
 
 const ids = new Set(libraries.map((l) => l.id));
@@ -14,6 +16,29 @@ test("every cross-reference points at a real library", () => {
   for (const l of libraries) for (const r of [...(l.pairsWith ?? []), ...(l.alternatives ?? [])]) if (!ids.has(r)) dangling.push(`${l.id} -> ${r}`);
   for (const a of [...aesthetics, ...siteTypes]) for (const r of Object.values(a.picks).flat()) if (!ids.has(r!)) dangling.push(`look ${a.id} -> ${r}`);
   assert.deepEqual(dangling, []);
+});
+
+test("integration ids are unique and serve libraries tastebase lists", () => {
+  assert.equal(new Set(integrations.map((i) => i.id)).size, integrations.length);
+  assert.deepEqual(integrations.filter((i) => i.lib && !ids.has(i.lib)).map((i) => i.id), []);
+});
+
+test("integration setup is written in each client's syntax and never holds a key", () => {
+  const remote = integrations.find((i) => "url" in i.server && typeof i.server.auth === "object")!;
+  const local = integrations.find((i) => "cmd" in i.server)!;
+  assert.match(mcpSetup(remote, "Codex"), /env_http_headers = \{ "x-api-key" = "API_KEY_21ST" \}/);
+  assert.match(mcpSetup(remote, "Cursor"), /"x-api-key": "\$\{env:API_KEY_21ST\}"/);
+  assert.match(mcpSetup(remote, "VS Code"), /"\$\{input:api-key-21st\}"[\s\S]*|"id": "api-key-21st"/);
+  assert.deepEqual(JSON.parse(mcpSetup(local, "VS Code").split("\n").slice(1).join("\n")).servers[local.id], { type: "stdio", command: "npx", args: ["shadcn@latest", "mcp"] });
+});
+
+test("components belong to listed libraries, link over https and are named once per library", () => {
+  const bad = Object.entries(components).flatMap(([id, cs]) => [
+    ...(ids.has(id) ? [] : [`unknown library ${id}`]),
+    ...cs.filter(([, url]) => !url.startsWith("https://")).map(([name]) => `${id}/${name}: not https`),
+    ...cs.filter(([name], i) => cs.findIndex(([n]) => n === name) !== i).map(([name]) => `${id}/${name}: twice`),
+  ]);
+  assert.deepEqual(bad, []);
 });
 
 test("every kind has at least one library", () => {

@@ -1,7 +1,9 @@
 ---
 // Library page, three panes: kinds sidebar, live stage + code tabs, and the notes an agent reads.
-import { ArrowUpRight, Check, Package, X } from "lucide-react";
+import { ArrowUpRight, Check, CircleDollarSign, Package, X } from "lucide-react";
 import CodeTabs from "../../components/CodeTabs.tsx";
+import McpSetup from "../../components/McpSetup.tsx";
+import { integrations } from "../../../../src/registry/integrations.ts";
 import { CopyButton } from "../../components/fx.tsx";
 import { GithubMark } from "../../components/GithubMark.tsx";
 import { LibMark } from "../../components/LibMark.tsx";
@@ -24,6 +26,7 @@ for (const l of libs) groups.set(l.kind, [...(groups.get(l.kind) ?? []), l]);
 const byId = new Map(libs.map((l) => [l.id, l]));
 const related = (ids?: string[]) => (ids ?? []).map((i) => byId.get(i)).filter((x): x is Library => !!x);
 
+const mcps = integrations.filter((i) => i.lib === lib.id).sort((a, b) => Number(b.official) - Number(a.official));
 const prompt = `# ${lib.name}\n${lib.note}\n\nUse for:\n${lib.useFor.map((u) => `- ${u}`).join("\n")}\n\nAvoid when:\n${lib.avoidWhen.map((u) => `- ${u}`).join("\n")}\n\nInstall: ${lib.install}`;
 const facts: [string, string][] = [
   ["Frameworks", lib.frameworks.join(", ")],
@@ -37,7 +40,7 @@ const facts: [string, string][] = [
 ---
 
 <Base title={`${lib.name} · tastebase`} description={lib.tagline}>
-  <div class="grid min-h-svh grid-cols-1 pt-14 lg:h-svh lg:grid-cols-[248px_1fr_360px]">
+  <div class="grid min-h-svh grid-cols-1 pt-14 lg:h-[calc(100svh-8px)] lg:grid-cols-[248px_1fr_360px]">
     <aside class="hidden overflow-y-auto border-r border-line px-2.5 py-4 lg:block" transition:persist="sidebar">
       {
         [...groups].map(([k, list]) => {
@@ -85,6 +88,32 @@ const facts: [string, string][] = [
         <code class="min-w-0 flex-1 truncate font-mono text-[12px] text-fg/90">{lib.install}</code>
         <CopyButton client:visible value={lib.install} />
       </div>
+      {
+        lib.paid && (
+          <p class="mt-2.5 flex gap-2.5 rounded-xl bg-s1 p-3 text-[13px] text-fg2 shadow-[inset_0_0_0_1px_var(--color-line)]">
+            <CircleDollarSign size={15} class="mt-[2px] shrink-0 text-amber" />
+            <span><b class="font-medium text-fg">Free + paid.</b> <a href={lib.paid.url} target="_blank" rel="noreferrer" class="text-fg hover:underline">{lib.paid.price}</a>: {lib.paid.what}</span>
+          </p>
+        )
+      }
+      {
+        mcps.length > 0 && (
+          <>
+            <h5 class="mt-6 mb-2 flex items-baseline justify-between text-[13px] font-semibold">
+              MCP server
+              <a href="/integrations" class="font-normal text-fg3 hover:text-fg">All integrations</a>
+            </h5>
+            <div class="grid gap-2">
+              {mcps.map((i) => (
+                <div class="min-w-0">
+                  <p class="mb-1.5 text-[12.5px] text-fg2">{i.name} · {i.official ? "official" : "community"}</p>
+                  <McpSetup client:visible integration={i} />
+                </div>
+              ))}
+            </div>
+          </>
+        )
+      }
 
       <h5 class="mt-6 mb-2 text-[13px] font-semibold">Use it for</h5>
       <ul class="rise grid gap-1.5">{lib.useFor.map((u) => <li class="flex gap-2 text-[13px] text-fg2"><Check size={14} class="mt-[3px] shrink-0 text-green" />{u}</li>)}</ul>
@@ -105,7 +134,6 @@ const facts: [string, string][] = [
           </>
         )
       }
-      {lib.paid && <p class="mt-3 text-[13px] text-fg2"><a href={lib.paid.url} target="_blank" rel="noreferrer" class="text-fg hover:underline">{lib.paid.price}</a>: {lib.paid.what}</p>}
 
       <Adoption client:idle id={lib.id} />
 

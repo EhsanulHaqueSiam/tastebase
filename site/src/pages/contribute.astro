@@ -1,0 +1,37 @@
+---
+// /contribute: the ways to improve the registry, each a GitHub issue form or the PR guide. Prerendered.
+import { ArrowUpRight } from "lucide-react";
+import Base from "../layouts/Base.astro";
+
+export const prerender = true;
+
+const REPO = "https://github.com/EhsanulHaqueSiam/tastebase";
+const ways = [
+  ["Suggest a library", "A library we are missing, or a better note on when to use one we have.", `${REPO}/issues/new?template=suggest-library.yml`],
+  ["Report a wrong pick", "A job or brief where plan or pick recommends the wrong library. Send the exact input.", `${REPO}/issues/new?template=wrong-pick.yml`],
+  ["Report a bug", "Something broken on the site, the API or the MCP server, with steps to reproduce.", `${REPO}/issues/new?template=bug.yml`],
+  ["Open a pull request", "Add an entry yourself. Facts come from npm, GitHub and the project's docs, and pnpm check must pass.", `${REPO}/blob/main/CONTRIBUTING.md`],
+] as const;
+---
+
+<Base title="Contribute · tastebase" description="Suggest a library, report a wrong pick or open a pull request.">
+  <div class="mx-auto max-w-2xl px-4 pt-24 pb-24">
+    <h1 class="text-[clamp(28px,3.6vw,40px)] leading-tight font-semibold tracking-[-0.035em]">Contribute</h1>
+    <p class="mt-2 text-fg2">Picks are only as good as the notes behind them. Each of these opens on GitHub.</p>
+    <ul class="mt-8 overflow-hidden rounded-2xl shadow-[inset_0_0_0_1px_var(--color-line)]">
+      {
+        ways.map(([title, body, href]) => (
+          <li class="border-t border-line first:border-t-0">
+            <a href={href} target="_blank" rel="noreferrer" class="group flex items-start gap-4 p-4 transition-colors hover:bg-s1">
+              <span class="min-w-0 flex-1">
+                <span class="block font-medium">{title}</span>
+                <span class="block text-[13.5px] text-fg2">{body}</span>
+              </span>
+              <ArrowUpRight size={16} class="mt-1 shrink-0 text-fg3 transition-colors group-hover:text-fg" />
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</Base>

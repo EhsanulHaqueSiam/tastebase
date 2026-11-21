@@ -3,7 +3,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { detectLooks, jobFramework, kitParts, pick, plan, words } from "./engine.ts";
-import { formatLibrary, formatLook, formatLooks, formatPick, formatPlan, formatResources, formatSite, formatTrending } from "./format.ts";
+import { formatIntegrations, formatLibrary, formatLook, formatLooks, formatPick, formatPlan, formatResources, formatSite, formatTrending } from "./format.ts";
 import { siteTypes } from "./registry/index.ts";
 import { agentResourceKinds, isResourceKind } from "./registry/resources.ts";
 import { frameworks, kinds, type Aesthetic, type Library } from "./registry/schema.ts";
@@ -21,7 +21,31 @@ Skill version ${SKILL_VERSION}; if yours differs, update it per tastebase.ehsanu
 
 const text = (t: string) => ({ content: [{ type: "text" as const, text: t }] });
 
-export function createServer(libs: Library[], looks: Aesthetic[], version: string): McpServer {
+// MCP Apps: hosts that render them show a library's live demo in the chat when an agent calls `get <id>`; others
+// ignore it and read the text. The view takes the id from the answer's first line and frames /embed/<id>. Hand-written
+// bridge (initialize, initialized, tool-result, size-changed) instead of the 540 KB ext-apps bundle.
+const SITE = "https://tastebase.ehsanulsiam.workers.dev";
+const VIEW_URI = "ui://tastebase/lib";
+const VIEW = `<!doctype html><meta charset="utf-8"><style>html,body{margin:0;background:#000}iframe{display:block;width:100%;height:480px;border:0;border-radius:12px}</style>
+<iframe id="f" title="Live preview" hidden></iframe>
+<script>
+const post = (m) => parent.postMessage({ jsonrpc: "2.0", ...m }, "*");
+addEventListener("message", (e) => {
+  const m = e.data;
+  if (!m || m.jsonrpc !== "2.0") return;
+  if (m.id === 1 && m.result) post({ method: "ui/notifications/initialized", params: {} });
+  if (m.method !== "ui/notifications/tool-result") return;
+  const t = (m.params?.content ?? []).map((c) => c.text ?? "").join("\\n");
+  const id = t.match(/^[^\\n]* \\(([a-z0-9.-]+)\\) https?:/)?.[1];
+  const f = document.getElementById("f");
+  if (id) (f.src = "${SITE}/embed/" + id), (f.hidden = false);
+  post({ method: "ui/notifications/size-changed", params: { height: id ? 480 : 0 } });
+});
+post({ id: 1, method: "ui/initialize", params: { protocolVersion: "2026-01-26", appInfo: { name: "tastebase", version: "1" }, appCapabilities: {} } });
+</script>`;
+
+/** `onUse` hears each library an agent reads (`get`) or is offered (`plan`, `pick`); the hosted server counts them. */
+export function createServer(libs: Library[], looks: Aesthetic[], version: string, onUse?: (id: string) => void): McpServer {
   const server = new McpServer({ name: "tastebase", version }, { instructions: INSTRUCTIONS });
   const byId = new Map(libs.map((l) => [l.id, l]));
   const lookById = new Map(looks.map((a) => [a.id, a]));
@@ -45,7 +69,12 @@ export function createServer(libs: Library[], looks: Aesthetic[], version: strin
       },
       annotations: { readOnlyHint: true },
     },
-    async ({ brief, framework, look }) => (look && !lookById.has(look) ? unknownLook(look) : text(formatPlan(plan(libs, looks, brief, { framework, look })))),
+    async ({ brief, framework, look }) => {
+      if (look && !lookById.has(look)) return unknownLook(look);
+      const p = plan(libs, looks, brief, { framework, look });
+      p.items.forEach((i) => i.pick && onUse?.(i.pick.lib.id));
+      return text(formatPlan(p));
+    },
   );
 
   server.registerTool(
@@ -61,6 +90,7 @@ export function createServer(libs: Library[], looks: Aesthetic[], version: strin
       // The job's own framework when none is passed ("a React date picker" never gets Vue-only answers).
       const fw = framework ?? jobFramework(need);
       const fits = pick(libs, need, { framework: fw, look });
+      fits.forEach((s) => onUse?.(s.lib.id));
       const parts = kitParts(libs, need, { framework: fw, look });
       // The project wins: a kit the job names that ships the part ("date picker, we use shadcn") answers first.
       const said = words(need);
@@ -74,15 +104,17 @@ export function createServer(libs: Library[], looks: Aesthetic[], version: strin
     "get",
     {
       description: "Full entry for one library id (usage, agent note, alternatives), a look id for its design rules, looks for every look id, a site type (3d-site, motion-site, media-site) for its build rules, or a resource category for linked design resources.",
-      inputSchema: { id: z.string().describe(`Library id like 'vaul', look id like 'apple', looks, or one of ${agentResourceKinds.join(", ")}`) },
+      inputSchema: { id: z.string().describe(`Library id ('vaul'), look id ('apple'), looks, or one of ${[...agentResourceKinds, "integrations"].join(", ")}`) },
       annotations: { readOnlyHint: true },
+      _meta: { ui: { resourceUri: VIEW_URI } },
     },
     async ({ id }) => {
       const l = byId.get(id);
-      if (l) return text(formatLibrary(l));
+      if (l) return onUse?.(l.id), text(formatLibrary(l));
       const site = siteTypes.find((t) => t.id === id);
       if (site) return text(`${formatSite(site)}\npicks: ${JSON.stringify(site.picks)}`);
       if (isResourceKind(id)) return text(formatResources(id));
+      if (id === "integrations") return text(formatIntegrations());
       if (id === "looks") return text(formatLooks(looks));
       const a = lookById.get(id);
       if (a) return text(formatLook(a));
@@ -90,6 +122,10 @@ export function createServer(libs: Library[], looks: Aesthetic[], version: strin
       return text(`Unknown id "${id}".${close.length ? ` Did you mean: ${close.join(", ")}?` : ""}`);
     },
   );
+
+  server.registerResource("Library preview", VIEW_URI, { mimeType: "text/html;profile=mcp-app" }, async () => ({
+    contents: [{ uri: VIEW_URI, mimeType: "text/html;profile=mcp-app", text: VIEW, _meta: { ui: { csp: { frameDomains: [SITE] } } } }],
+  }));
 
   server.registerTool(
     "trending",

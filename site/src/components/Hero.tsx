@@ -88,6 +88,7 @@ export default function Hero({ counts }: { counts: { libs: number; looks: number
               ))}
             </AnimatePresence>
           </motion.ul>
+          <a href="/match" className="mt-3 block text-center text-[13px] text-fg2 transition-colors hover:text-fg">or match a screenshot of a UI you like →</a>
         </motion.div>
         <div className="mt-6 flex flex-wrap justify-center gap-5 text-[13px] text-fg2 tabular-nums">
           <span><NumberFlow value={shown.libs} /> libraries</span>

@@ -1,6 +1,7 @@
 // Text formatting for tool answers. Kept free of server deps so the site can show exactly what agents get.
 import { paywalled } from "./atlas.ts";
 import type { Plan, Scored, kitParts } from "./engine.ts";
+import { integrations, mcpSetup, type Integration } from "./registry/integrations.ts";
 import { resourceKinds, resources, type Resource, type ResourceKind } from "./registry/resources.ts";
 import type { Aesthetic, Framework, Kind, Library, SiteType } from "./registry/schema.ts";
 
@@ -51,6 +52,13 @@ export const formatResources = (kind: ResourceKind) =>
     .filter((r) => r.kind === kind)
     .map((r) => `${r.name} ${r.url} | ${r.goodFor} | ${r.cost}${r.mcp ? ` | ${r.mcp.name}${r.mcp.needsPaidPlan ? " (paid plan)" : ""}: ${r.mcp.url}` : ""}`)
     .join("\n");
+
+const integrationLine = (i: Integration) => `${i.name} (${i.official ? "official" : "community"}): ${mcpSetup(i, "Claude Code")}`;
+
+/** `get integrations`: MCP servers for UI libraries and design tools, each with its one-line setup. */
+export const formatIntegrations = () =>
+  "MCP servers for UI libraries and design tools (the user connects them):\n" +
+  integrations.map((i) => `${integrationLine(i)} | ${i.goodFor}${i.note ? ` | ${i.note}` : ""}`).join("\n");
 
 /** What carries the page (3D, scroll motion, photo and video) and how to build it: a plan line, or `get <id>`. */
 export const formatSite = (s: SiteType) => `site: ${s.name} (its rules beat the look's motion rule) | ${s.build} | avoid: ${s.avoid.join("; ")}`;
@@ -189,6 +197,7 @@ export function formatLibrary(l: Library): string {
     `avoid when: ${l.avoidWhen.join("; ")}`,
     l.pairsWith?.length ? `pairs with: ${l.pairsWith.join(", ")}` : "",
     l.alternatives?.length ? `alternatives: ${l.alternatives.join(", ")}` : "",
+    ...integrations.filter((i) => i.lib === l.id && i.official).map((i) => `mcp: ${mcpSetup(i, "Claude Code")}`),
   ]
     .filter(Boolean)
     .join("\n");

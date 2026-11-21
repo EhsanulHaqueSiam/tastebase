@@ -1,7 +1,20 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import type { Library } from "./registry/schema.ts";
-import { refreshStats } from "./trending.ts";
+import { fetchUsage, refreshStats, withUsage } from "./trending.ts";
+
+test("agent uses come from one Analytics Engine query, and a library with none this week drops to zero", async () => {
+  let body = "";
+  const uses = await fetchUsage({
+    accountId: "acc",
+    token: "t",
+    dataset: "tastebase_usage",
+    fetch: async (_url, init) => ((body = String(init?.body)), new Response(JSON.stringify({ data: [{ id: "vaul", n: "12" }] }))),
+  });
+  assert.match(body, /FROM tastebase_usage WHERE timestamp > NOW\(\) - INTERVAL '7' DAY GROUP BY id/);
+  assert.deepEqual(withUsage({ vaul: { stars: 5 }, gsap: { stars: 9, agentUses: 4 } }, uses!), { vaul: { stars: 5, agentUses: 12 }, gsap: { stars: 9, agentUses: 0 } });
+  assert.equal(await fetchUsage({ accountId: "a", token: "t", dataset: "d", fetch: async () => new Response("", { status: 403 }) }), undefined);
+});
 
 const lib = { id: "x", repo: "https://github.com/acme/x", npm: "x" } as Library;
 // GitHub returns stars; npm bulk (a,b) returns a map, a single package returns { downloads }.

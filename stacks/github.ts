@@ -39,13 +39,21 @@ export default Alchemy.Stack(
       ],
     });
 
+    // Read-only, for the Worker's cron to query agent-use counts from Analytics Engine (src/trending.ts fetchUsage).
+    const usage = yield* Cloudflare.ApiToken.AccountApiToken("UsageReadToken", {
+      accountId,
+      policies: [{ effect: "allow", permissionGroups: ["Account Analytics Read"], resources: { [`com.cloudflare.api.account.${accountId}`]: "*" } }],
+    });
+
     yield* GitHub.Secret("cf-api-token", { ...repo, name: "CLOUDFLARE_API_TOKEN", value: ci.value });
+    yield* GitHub.Secret("usage-api-token", { ...repo, name: "USAGE_API_TOKEN", value: usage.value });
     yield* GitHub.Secret("stats-github-token", { ...repo, name: "STATS_GITHUB_TOKEN", value: yield* Config.Redacted("STATS_GITHUB_TOKEN") });
     yield* GitHub.Variable("cf-account-id", { ...repo, name: "CLOUDFLARE_ACCOUNT_ID", value: accountId });
     yield* GitHub.Variable("deploy-enabled", { ...repo, name: "DEPLOY_ENABLED", value: "true" });
 
     yield* GitHub.Label("preview-label", { ...repo, name: "preview", color: "5b7cff", description: "Deploy this PR to its own pr-<n> stage" });
     yield* GitHub.Label("library-label", { ...repo, name: "library", color: "3ecf8e", description: "Adds or changes a registry entry" });
+    yield* GitHub.Label("picks-label", { ...repo, name: "picks", color: "f5b041", description: "plan or pick recommends the wrong library" });
 
     return { ciTokenName: ci.name };
   }),

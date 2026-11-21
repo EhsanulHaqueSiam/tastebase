@@ -24,6 +24,10 @@ One Cloudflare Worker (declared in `alchemy.run.ts`) does everything:
   `careful` lines. See [picking.md](picking.md).
 - **Stats live in KV, not in git.** They change hourly; committing them would churn the repo and trigger
   deploys. Pages and MCP merge them in at request time; missing stats are fine.
+- **Agent uses go to Analytics Engine, not KV.** The hosted MCP server writes one data point per library it hands
+  an agent (`get`, and each pick a `plan` or `pick` offers): the id only, never the caller or the query. Writes are
+  free and are not subrequests; KV's 1,000 writes a day would not survive one busy hour. The cron reads the 7-day
+  totals back with one SQL API call (an Account Analytics Read token minted in `stacks/github.ts`) into the stats blob.
 - **Batch of 24 per cron run.** Free-plan Workers allow 50 subrequests per invocation. A batch costs up to
   24 GitHub calls, the batch's scoped npm packages, and one bulk npm call for the unscoped ones.
 - **`partOf` entries get no stats.** React's `<ViewTransition>` or GSAP's SplitText point at their parent's

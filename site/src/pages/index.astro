@@ -24,7 +24,7 @@ const libs = libraries;
 const commands = ["Set up tastebase from https://tastebase.ehsanulsiam.workers.dev/llms.txt"];
 ---
 
-<Base home>
+<Base>
   <Hero client:load counts={{ libs: libs.length, looks: aesthetics.length, kinds: kinds.length }} />
   <PlanDemo client:visible initial={planJson(libs, BRIEFS[0]!)} briefs={BRIEFS} />
   <TouchIt client:visible />

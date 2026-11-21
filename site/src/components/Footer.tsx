@@ -21,7 +21,11 @@ export default function Footer() {
       </motion.div>
       <div className="mx-auto mt-10 flex max-w-6xl flex-wrap justify-between gap-4 px-4 text-[13px] text-fg2">
         <span>Every library here belongs to its authors. We only write the notes.</span>
-        <span className="flex gap-4"><a href="/browse" className="hover:text-fg">Browse</a><a href="/#mcp" className="hover:text-fg">MCP</a><a href="https://github.com/EhsanulHaqueSiam/tastebase" className="hover:text-fg">GitHub</a></span>
+        {/* Rare UI's licence asks for this visible link; the rest are credited because the site's motion is theirs. */}
+        <span className="basis-full text-fg3">
+          Motion by <a href="https://lucide-animated.com" className="hover:text-fg">lucide-animated</a>, <a href="https://motion-primitives.com" className="hover:text-fg">Motion Primitives</a>, <a href="https://bencho.dev" className="hover:text-fg">Bencho</a>, <a href="https://rareui.com" className="hover:text-fg">Rare UI</a>, <a href="https://transitions.dev" className="hover:text-fg">transitions.dev</a>, <a href="https://skullet.lochie.me" className="hover:text-fg">Skullet</a> and <a href="https://haptics.lochie.me" className="hover:text-fg">WebHaptics</a>.
+        </span>
+        <span className="flex gap-4"><a href="/browse" className="hover:text-fg">Browse</a><a href="/components" className="hover:text-fg">Components</a><a href="/integrations" className="hover:text-fg">Integrations</a><a href="/#mcp" className="hover:text-fg">MCP</a><a href="/contribute" className="hover:text-fg">Contribute</a><a href="https://github.com/EhsanulHaqueSiam/tastebase" className="hover:text-fg">GitHub</a></span>
       </div>
     </footer>
   );
