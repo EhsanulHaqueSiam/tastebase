@@ -33,7 +33,8 @@ export default Alchemy.Stack(
       policies: [
         {
           effect: "allow",
-          permissionGroups: ["Workers Scripts Write", "Workers KV Storage Write", "Account Settings Write", "Workers Tail Read", "Secrets Store Write"],
+          // Turnstile and Email Routing Addresses: the forms' captcha widget and the verified inbox (alchemy.run.ts).
+          permissionGroups: ["Workers Scripts Write", "Workers KV Storage Write", "Account Settings Write", "Workers Tail Read", "Secrets Store Write", "Turnstile Sites Write", "Email Routing Addresses Write"],
           resources: { [`com.cloudflare.api.account.${accountId}`]: "*" },
         },
       ],
@@ -48,6 +49,11 @@ export default Alchemy.Stack(
     yield* GitHub.Secret("cf-api-token", { ...repo, name: "CLOUDFLARE_API_TOKEN", value: ci.value });
     yield* GitHub.Secret("usage-api-token", { ...repo, name: "USAGE_API_TOKEN", value: usage.value });
     yield* GitHub.Secret("stats-github-token", { ...repo, name: "STATS_GITHUB_TOKEN", value: yield* Config.Redacted("STATS_GITHUB_TOKEN") });
+    // The forms' inbox and sender (alchemy.run.ts). Secrets, not variables, so the inbox address stays private.
+    if (process.env.FORMS_TO && process.env.FORMS_FROM) {
+      yield* GitHub.Secret("forms-to", { ...repo, name: "FORMS_TO", value: yield* Config.Redacted("FORMS_TO") });
+      yield* GitHub.Secret("forms-from", { ...repo, name: "FORMS_FROM", value: yield* Config.Redacted("FORMS_FROM") });
+    }
     yield* GitHub.Variable("cf-account-id", { ...repo, name: "CLOUDFLARE_ACCOUNT_ID", value: accountId });
     yield* GitHub.Variable("deploy-enabled", { ...repo, name: "DEPLOY_ENABLED", value: "true" });
 

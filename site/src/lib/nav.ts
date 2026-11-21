@@ -32,7 +32,7 @@ export const sections: Section[] = [
   { href: "/integrations", label: "Integrations", icon: PlugZapIcon },
   { href: "/#plan", label: "Plan", icon: SparklesIcon },
   { href: "/#mcp", label: "Set up MCP", icon: TerminalIcon },
-  { href: "/contribute", label: "Contribute", icon: GitPullRequestIcon },
+  { href: "/contribute", label: "Contribute", icon: GitPullRequestIcon, also: ["/submit", "/feedback", "/sponsor"] },
 ];
 
 /** Whether a path is in a section: Home only on "/", hash links never (they are places on Home, not pages). */

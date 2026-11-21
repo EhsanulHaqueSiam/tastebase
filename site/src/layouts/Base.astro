@@ -8,6 +8,7 @@ import Palette from "../components/Palette.tsx";
 import Rail from "../components/Rail.tsx";
 import TabBar from "../components/TabBar.tsx";
 import ThemeToggle from "../components/ThemeToggle.tsx";
+import SessionToasts from "../components/SessionToasts.tsx";
 import { ProgressiveBlur } from "../components/ui/progressive-blur.tsx";
 import { isCurrent, sections } from "../lib/nav.ts";
 import "../styles.css";
@@ -133,5 +134,6 @@ const current = sections.find((s) => isCurrent(s, path));
     <Palette client:idle transition:persist="palette" />
     <TabBar client:load transition:persist="tabbar" />
     <BackToTop client:idle />
+    <SessionToasts client:idle transition:persist="toasts" />
   </body>
 </html>
