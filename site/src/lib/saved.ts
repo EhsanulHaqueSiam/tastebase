@@ -3,9 +3,10 @@
 // device; the first sign-in on a device moves its local hearts into the account.
 import { useSyncExternalStore } from "react";
 import { toast } from "sonner";
+import type { Provider } from "./auth.ts";
 import type { AccountData, Folder } from "./auth-data.ts";
 
-export type { Folder };
+export type { Folder, Provider };
 export type User = { name: string; image: string | null };
 /** `loading`: this browser signed in before and /api/me has not answered yet. */
 type State = { user: User | null; loading: boolean; saved: string[]; folders: Folder[] };
@@ -90,11 +91,15 @@ export function toggleSaved(id: string) {
   api("POST", "/api/saved", { lib: id, on }).catch((e) => (fail(e), set({ saved })));
 }
 
-/** Sends the browser to GitHub and back to this page, signed in. */
-export async function signIn() {
+let offered: Promise<Provider[]> | undefined;
+/** The providers this stage signs in with, asked once when the sign-in sheet first opens. Empty: sign-in is not set up. */
+export const signInProviders = () => (offered ??= api<{ providers?: Provider[] }>("GET", "/api/me").then((m) => m.providers ?? [], () => ((offered = undefined), [])));
+
+/** Sends the browser to the provider and back to this page, signed in. */
+export async function signIn(provider: Provider) {
   store.set(SIGNED_IN, "1");
   try {
-    const { url } = await api<{ url: string }>("POST", "/api/auth/sign-in/social", { provider: "github", callbackURL: location.pathname + location.search });
+    const { url } = await api<{ url: string }>("POST", "/api/auth/sign-in/social", { provider, callbackURL: location.pathname + location.search });
     location.assign(url);
   } catch (e) {
     store.set(SIGNED_IN, null);

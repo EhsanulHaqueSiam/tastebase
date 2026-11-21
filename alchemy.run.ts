@@ -73,21 +73,24 @@ export const Website = Cloudflare.Website.Astro(
       FORMS_FROM: formsFrom ?? "",
       FORMS_TO: formsTo ?? "", // empty: the forms answer "not set up"
       DB: Db,
-      // GitHub sign-in (site/src/lib/auth.ts). One OAuth app serves every stage: its redirect URIs are prod,
-      // any *.ehsanulsiam.workers.dev (previews), localhost:1337 and 127.0.0.1 on any port. Optional: without the keys (CI checks) the site
-      // runs signed out and /api/auth/* answers 404.
+      // Sign-in with GitHub, Google and X (site/src/lib/auth.ts). Each provider is one OAuth app serving every stage;
+      // their redirect URIs are in docs/operations/deploy.md. Optional: without any keys (CI checks) the site runs
+      // signed out and /api/auth/* answers 404.
       ...authEnv(),
     },
   };
   }),
 );
 
-// All three or none: a half-configured provider would fail at sign-in, not at deploy. Another provider (X, Google)
-// adds its two keys here and in site/src/lib/auth.ts.
+// The session signing secret plus each provider whose id and secret are both set; a provider with half its keys is
+// left out (it would fail at sign-in, not at deploy). No provider at all: no auth, the site runs signed out.
 function authEnv() {
-  const { AUTH_GITHUB_ID, AUTH_GITHUB_SECRET, BETTER_AUTH_SECRET } = process.env;
-  if (!AUTH_GITHUB_ID || !AUTH_GITHUB_SECRET || !BETTER_AUTH_SECRET) return undefined;
-  return { AUTH_GITHUB_ID, AUTH_GITHUB_SECRET: Config.Redacted("AUTH_GITHUB_SECRET"), BETTER_AUTH_SECRET: Config.Redacted("BETTER_AUTH_SECRET") };
+  const { BETTER_AUTH_SECRET, AUTH_GITHUB_ID, AUTH_GITHUB_SECRET, AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET, AUTH_X_ID, AUTH_X_SECRET } = process.env;
+  const github = AUTH_GITHUB_ID && AUTH_GITHUB_SECRET ? { AUTH_GITHUB_ID, AUTH_GITHUB_SECRET: Config.Redacted("AUTH_GITHUB_SECRET") } : undefined;
+  const google = AUTH_GOOGLE_ID && AUTH_GOOGLE_SECRET ? { AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET: Config.Redacted("AUTH_GOOGLE_SECRET") } : undefined;
+  const x = AUTH_X_ID && AUTH_X_SECRET ? { AUTH_X_ID, AUTH_X_SECRET: Config.Redacted("AUTH_X_SECRET") } : undefined;
+  if (!BETTER_AUTH_SECRET || !(github || google || x)) return undefined;
+  return { BETTER_AUTH_SECRET: Config.Redacted("BETTER_AUTH_SECRET"), ...github, ...google, ...x };
 }
 
 export type WebsiteEnv = Cloudflare.InferEnv<typeof Website>;

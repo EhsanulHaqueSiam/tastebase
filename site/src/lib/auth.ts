@@ -1,9 +1,21 @@
-// Server-only: better-auth on D1, GitHub sign-in, a session cookie. /api/auth/* hands requests to it; the account
+// Server-only: better-auth on D1, sign-in with GitHub, Google or X (whichever this stage has keys for), a session cookie. /api/auth/* hands requests to it; the account
 // routes (/api/me, /api/saved, /api/folders) only read the session. Built once per isolate, on first use.
 import type { APIContext, APIRoute } from "astro";
 import { betterAuth } from "better-auth";
 import { env } from "cloudflare:workers";
 import { libraries } from "../../../src/registry/index.ts";
+
+/** The providers this stage has keys for (alchemy.run.ts authEnv), in the order the sign-in sheet lists them. */
+const socialProviders = () => ({
+  ...(env.AUTH_GITHUB_ID && env.AUTH_GITHUB_SECRET ? { github: { clientId: env.AUTH_GITHUB_ID, clientSecret: env.AUTH_GITHUB_SECRET } } : {}),
+  ...(env.AUTH_GOOGLE_ID && env.AUTH_GOOGLE_SECRET ? { google: { clientId: env.AUTH_GOOGLE_ID, clientSecret: env.AUTH_GOOGLE_SECRET } } : {}),
+  // better-auth calls X "twitter": its callback is /api/auth/callback/twitter. X may share no email; better-auth then
+  // stores a placeholder, which nothing here reads.
+  ...(env.AUTH_X_ID && env.AUTH_X_SECRET ? { twitter: { clientId: env.AUTH_X_ID, clientSecret: env.AUTH_X_SECRET } } : {}),
+});
+export type Provider = keyof ReturnType<typeof socialProviders>;
+/** What /api/me tells the sign-in sheet to offer. */
+export const providers = () => Object.keys(socialProviders()) as Provider[];
 
 const make = () =>
   betterAuth({
@@ -12,14 +24,13 @@ const make = () =>
     // The OAuth app accepts http://127.0.0.1 on any port, so local sign-in works whatever port `pnpm dev` lands on.
     baseURL: { allowedHosts: ["*.workers.dev", "localhost:*", "127.0.0.1:*"] },
     secret: env.BETTER_AUTH_SECRET,
-    // More providers (X, Google) go here, with their keys in alchemy.run.ts authEnv.
-    socialProviders: { github: { clientId: env.AUTH_GITHUB_ID!, clientSecret: env.AUTH_GITHUB_SECRET! } },
+    socialProviders: socialProviders(),
     telemetry: { enabled: false },
   });
 
 let instance: ReturnType<typeof make> | undefined;
-/** Undefined when this stage has no auth keys (CI, previews): everything account-shaped answers signed out. */
-export const auth = () => (env.AUTH_GITHUB_ID ? (instance ??= make()) : undefined);
+/** Undefined when this stage has no auth keys (CI checks): everything account-shaped answers signed out. */
+export const auth = () => (env.BETTER_AUTH_SECRET && providers().length ? (instance ??= make()) : undefined);
 
 export async function sessionUser(request: Request) {
   return (await auth()?.api.getSession({ headers: request.headers }))?.user;

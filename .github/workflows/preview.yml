@@ -50,6 +50,10 @@ jobs:
           AUTH_GITHUB_ID: ${{ secrets.AUTH_GITHUB_ID }}
           AUTH_GITHUB_SECRET: ${{ secrets.AUTH_GITHUB_SECRET }}
           BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+          AUTH_GOOGLE_ID: ${{ secrets.AUTH_GOOGLE_ID }}
+          AUTH_GOOGLE_SECRET: ${{ secrets.AUTH_GOOGLE_SECRET }}
+          AUTH_X_ID: ${{ secrets.AUTH_X_ID }}
+          AUTH_X_SECRET: ${{ secrets.AUTH_X_SECRET }}
       - run: pnpm probe "${{ steps.deploy.outputs.url }}" --quiet
       - name: Comment the URL
         env:
