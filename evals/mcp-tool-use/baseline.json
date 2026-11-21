@@ -1,13 +1,13 @@
 {
   "model": "claude-haiku-5-5",
   "cases": {
-    "page-plans-first": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Landing page for Acme Mail, an email API for developers. Dev-tool look like Resend, with a shader background behind the hero. Single src/App.tsx. React + Vite + Tailwind.","framework":"react"}]],"samples":["cbcda751-c3e0-4402-a44c-f25d913f43e2"],"fp":"6c48d6dee70c","graded":"6d61280fe494"},
-    "one-job-picks": {"pass":true,"fails":[],"calls":[["pick",{"need":"toast notification after form save","framework":"react"}]],"samples":["5ff30edb-15a2-4c45-adb4-3207c4e40e19"],"fp":"04a517190b59","graded":"4bc55737a5f7"},
-    "vue-project": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Command palette opened with cmd+k in a Nuxt 4 + Vue 3 app (no UI kit installed yet), minimal plain styling","framework":"vue"}]],"samples":["7341c330-aea5-4481-86f9-59dd4f88517c"],"fp":"a3b791f85665","graded":"b95306b99adf"},
-    "keeps-project-kit": {"pass":true,"fails":[],"calls":[],"samples":["5fa15680-ee82-45e3-8337-af566ae51240"],"fp":"f1aa482e8a42","graded":"173b7be545e1"},
-    "nothing-fits": {"pass":true,"fails":[],"calls":[],"samples":["7ab267d5-8af0-43a8-8652-aeedbb6c4998"],"fp":"8f3f7e15b962","graded":"657e92b531f1"},
-    "trending-when-asked": {"pass":true,"fails":[],"calls":[["trending",{}]],"samples":["1ff95ef3-72a8-427a-8fea-1f3968d79462"],"fp":"62262c1f2d71","graded":"526559fda107"},
-    "control-typo": {"pass":true,"fails":[],"calls":[],"samples":["6b4d96c2-8f99-436e-8cbf-ee65530325e0"],"fp":"77fb4c4c4928","graded":"4ffc7c3fc66b"},
-    "control-backend": {"pass":true,"fails":[],"calls":[],"samples":["82b71d02-d0bc-4076-8770-48d5ea6a998f"],"fp":"972f9a3db6e7","graded":"ae490577dac5"}
+    "page-plans-first": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Landing page for Acme Mail, an email API for developers. Dev-tool look like Resend, with a shader background behind the hero. Single file src/App.tsx. React + Vite + Tailwind."}]],"samples":["8c26fa24-b2a9-4f14-b88f-1c1211a64b5d"],"fp":"4bd336f2b781","graded":"7ec4abecb0ef"},
+    "one-job-picks": {"pass":true,"fails":[],"calls":[["pick",{"need":"toast notification after form save","framework":"react"}]],"samples":["5ff30edb-15a2-4c45-adb4-3207c4e40e19"],"fp":"04a517190b59","graded":"3b05071f8270"},
+    "vue-project": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Command palette opened with cmd+k in a Nuxt 4 + Vue 3 app (no UI kit installed yet), minimal plain styling","framework":"vue"}]],"samples":["7341c330-aea5-4481-86f9-59dd4f88517c"],"fp":"a3b791f85665","graded":"729562177246"},
+    "keeps-project-kit": {"pass":true,"fails":[],"calls":[],"samples":["5fa15680-ee82-45e3-8337-af566ae51240"],"fp":"f1aa482e8a42","graded":"83e601a70228"},
+    "nothing-fits": {"pass":true,"fails":[],"calls":[],"samples":["7ab267d5-8af0-43a8-8652-aeedbb6c4998"],"fp":"8f3f7e15b962","graded":"de2a10d2dd21"},
+    "trending-when-asked": {"pass":true,"fails":[],"calls":[["trending",{}]],"samples":["1ff95ef3-72a8-427a-8fea-1f3968d79462"],"fp":"62262c1f2d71","graded":"5a8605aa68ee"},
+    "control-typo": {"pass":true,"fails":[],"calls":[],"samples":["6b4d96c2-8f99-436e-8cbf-ee65530325e0"],"fp":"77fb4c4c4928","graded":"1040961ed62b"},
+    "control-backend": {"pass":true,"fails":[],"calls":[],"samples":["82b71d02-d0bc-4076-8770-48d5ea6a998f"],"fp":"972f9a3db6e7","graded":"95d53757c51b"}
   }
 }
