@@ -199,7 +199,10 @@ export type Scored = { lib: Library; score: number; why: string; caution?: strin
 // Libraries named by an everyday word: "a motion designer's portfolio" names no library. They count as named only
 // when the brief says them as a library.
 // Matched on the brief as `words` (lowercase, punctuation gone): "motion.dev" is "motion dev".
-const EVERYDAY: Record<string, RegExp> = { motion: / (?:framer motion|motion dev|motion react|motion (?:library|package)|(?:use|using|with) motion) (?!design|graphic)/ };
+const EVERYDAY: Record<string, RegExp> = {
+  motion: / (?:framer motion|motion dev|motion react|motion (?:library|package)|(?:use|using|with) motion) (?!design|graphic)/,
+  shaders: / shader (?:com|library|package) /, // "a shader hero" asks for a shader, not for shaders.com
+};
 /** Whether `text` (as `words`) names the library: its id or name, said as a library when that is an everyday word. */
 const namesLib = (text: string, l: Library) =>
   (text.includes(idsOf(l).name) || text.includes(idsOf(l).id)) && (!EVERYDAY[l.id] || EVERYDAY[l.id]!.test(text));
@@ -547,7 +550,8 @@ export const detectFramework = (brief: string) => FRAMEWORK_WORDS.find(([, re]) 
 /** The framework a single job runs on: the one it names, else React, as plans assume ("a Vue bottom sheet" is Vue). */
 export const jobFramework = (need: string): Framework => detectFramework(negations(need).want) ?? "react";
 
-// Popular kits the registry does not curate. Naming one keeps the project's kit instead of quietly swapping in another.
+// Popular kits by the names people call them ("antd", "chakra"). A curated one is the base; naming one the registry does
+// not curate keeps the project's kit instead of quietly swapping in another.
 const ELSEWHERE: [string, RegExp][] = [
   ["chakra-ui", /\bchakra\b/], ["ant-design", /\bant ?design\b|\bantd\b/], ["bootstrap", /\bbootstrap\b(?! (?:a|an|the|my|our|this|new)\b)/],
   ["bulma", /\bbulma\b/], ["primereact", /\bprime ?react\b/], ["blueprintjs", /\bblueprint ?js\b/],
@@ -645,13 +649,14 @@ export function plan(libs: Library[], looks: Aesthetic[], brief: string, opts: {
 
   // A kit the brief names ("we use mantine", "on shadcn") is the base, whatever the look prefers.
   const said = words(want);
+  const alias = ELSEWHERE.find(([, re]) => re.test(want))?.[0];
   const kit = libs.find((l) => (l.kind === "component-kit" || l.kind === "primitives") && l.frameworks.includes(framework) &&
-    (said.includes(words(l.id)) || said.includes(words(l.name)) || (l.id.startsWith("shadcn-") && said.includes(" shadcn "))));
+    (said.includes(words(l.id)) || said.includes(words(l.name)) || l.id === alias || (l.id.startsWith("shadcn-") && said.includes(" shadcn "))));
   // Next, a style's own kit (pixel-art's 8bitcn, neo-brutalism's restyled shadcn/ui) beats its family's base layer.
   // Picks a style leaves out are its family's (merged in the registry index), so "own" means different from the family's.
   const fam = looks.find((a) => a.id === look.family);
   const ownKind = fam && (["component-kit", "primitives"] as const).find((k) => look.picks[k]?.length && look.picks[k]!.join() !== fam.picks[k]?.join());
-  const uncurated = kit ? undefined : ELSEWHERE.find(([, re]) => re.test(want))?.[0];
+  const uncurated = kit ? undefined : alias;
   // Only a foundation kit can be the base: magazine's device-mockup set (opensource-ui) is an extra, not an app's kit.
   // One whose own avoidWhen fits the brief better than its use cases is out ("Mac OS 9 Platinum": not 1-bit system.css),
   // and one whose avoidWhen fits it as well goes behind the rest ("federal benefits form": govuk-frontend says uswds).
