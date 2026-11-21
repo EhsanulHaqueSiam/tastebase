@@ -27,15 +27,22 @@ export const paywalled = (l: Library) => (l.parts?.paid?.length ?? 0) > (l.parts
 
 export type Group = { key: string; looks: AestheticId[]; libs: Library[]; bestFree?: Library };
 
-/** Group by main look. A crowded look (more than `max`) splits by second look so every group stays visually tight. */
+/**
+ * A library sits in a group for every look it is tagged with. A crowded look (more than `max`) splits by the library's
+ * next look so every group stays visually tight; a pair is one group from either side, the more common look first.
+ */
 export function groupByLook(libs: Library[], looks: Aesthetic[], max = 6): Group[] {
-  const byKey = new Map<string, Library[]>();
-  const add = (k: string, l: Library) => byKey.set(k, [...(byKey.get(k) ?? []), l]);
-  const first = new Map<AestheticId, Library[]>();
-  for (const l of libs) first.set(l.aesthetic[0]!, [...(first.get(l.aesthetic[0]!) ?? []), l]);
-  for (const [look, members] of first)
-    for (const l of members) add(members.length > max && l.aesthetic[1] ? `${look}/${l.aesthetic[1]}` : look, l);
-  return [...byKey].map(([key, members]) => {
+  const size = new Map<AestheticId, number>();
+  for (const l of libs) for (const a of l.aesthetic) size.set(a, (size.get(a) ?? 0) + 1);
+  const byKey = new Map<string, Set<Library>>();
+  for (const l of libs)
+    for (const a of l.aesthetic) {
+      const b = size.get(a)! > max ? l.aesthetic.find((x) => x !== a) : undefined;
+      const k = (b ? [a, b].sort((x, y) => size.get(y)! - size.get(x)! || x.localeCompare(y)) : [a]).join("/");
+      byKey.set(k, (byKey.get(k) ?? new Set()).add(l));
+    }
+  return [...byKey].map(([key, set]) => {
+    const members = [...set];
     const keyLooks = key.split("/") as AestheticId[];
     // The look's own curated picks win; otherwise registry order, which is best first.
     const picked = new Set(Object.values(looks.find((a) => a.id === keyLooks[0])?.picks ?? {}).flat());

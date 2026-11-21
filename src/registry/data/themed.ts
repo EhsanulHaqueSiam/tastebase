@@ -362,6 +362,13 @@ export default [
     weight: "small",
     a11y: "ok",
     maturity: "experimental",
+    parts: {
+      free: [
+        "Button", "Checkbox", "Radio", "Toggle", "Input", "Textarea", "Select", "Divider", "Card", "Badge", "List",
+        "Underline", "Highlight", "Circle", "Arrow", "Chip", "Tabs", "Tooltip", "Alert", "Steps", "Kbd", "Quote",
+        "Pager",
+      ],
+    },
     url: "https://www.drawably.dev",
     repo: "https://github.com/danielwh2/drawably",
     npm: "drawably",
