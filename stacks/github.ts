@@ -58,6 +58,12 @@ export default Alchemy.Stack(
     yield* GitHub.Secret("auth-github-id", { ...repo, name: "AUTH_GITHUB_ID", value: yield* Config.Redacted("AUTH_GITHUB_ID") });
     yield* GitHub.Secret("auth-github-secret", { ...repo, name: "AUTH_GITHUB_SECRET", value: yield* Config.Redacted("AUTH_GITHUB_SECRET") });
     yield* GitHub.Secret("better-auth-secret", { ...repo, name: "BETTER_AUTH_SECRET", value: yield* Config.Redacted("BETTER_AUTH_SECRET") });
+    // Google and X sign-in, each only once its OAuth app exists and both its keys are in .env (docs/operations/deploy.md).
+    for (const [id, p] of [["google", "GOOGLE"], ["x", "X"]] as const) {
+      if (!process.env[`AUTH_${p}_ID`] || !process.env[`AUTH_${p}_SECRET`]) continue;
+      yield* GitHub.Secret(`auth-${id}-id`, { ...repo, name: `AUTH_${p}_ID`, value: yield* Config.Redacted(`AUTH_${p}_ID`) });
+      yield* GitHub.Secret(`auth-${id}-secret`, { ...repo, name: `AUTH_${p}_SECRET`, value: yield* Config.Redacted(`AUTH_${p}_SECRET`) });
+    }
     yield* GitHub.Variable("cf-account-id", { ...repo, name: "CLOUDFLARE_ACCOUNT_ID", value: accountId });
     yield* GitHub.Variable("deploy-enabled", { ...repo, name: "DEPLOY_ENABLED", value: "true" });
 

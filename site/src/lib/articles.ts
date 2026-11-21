@@ -3,6 +3,7 @@
 // which is curated best-first within a kind. Every page is prerendered.
 import { libraries } from "../../../src/registry/index.ts";
 import type { Kind, Library } from "../../../src/registry/schema.ts";
+import { AUTHOR, ORIGIN } from "./site.ts";
 
 export type Faq = { q: string; a: string };
 export type Row = { lib: Library; pricing: string; open: string; bestFor: string; alternatives?: string };
@@ -148,14 +149,34 @@ for (const a of comparisons) {
   a.related = [...a.libs.filter(hasAlternatives).slice(0, 4).map((l) => ({ label: `${l.name} alternatives`, href: `/alternatives/${altSlug(l)}` })), ...(kindRoundup ? [{ label: kindRoundup.title, href: kindRoundup.path }] : [])];
 }
 
-export const ORIGIN = "https://tastebase.ehsanulsiam.workers.dev";
 
-/** BreadcrumbList, ItemList and FAQPage for one article, as one JSON-LD graph. */
+/** The byline every article carries: the first day these pages went up, not the build date. */
+export const PUBLISHED = "2026-11-21";
+
+/** A link under a card to another article the library is in (ListingCard.tsx). */
+export type Pill = { href: string; label: string; icon: "alternatives" | "free" | "best" };
+const MAX_PILLS = 3;
+
+/** The other articles `lib` appears in, for the pills under its card on `current` (after Design Index): its own
+ *  alternatives page first, then roundups and comparisons it is in. The broad "best free" roundups show only when
+ *  nothing more specific does. */
+export function pillsFor(lib: Library, current: string): Pill[] {
+  const own: Pill[] = hasAlternatives(lib) ? [{ href: `/alternatives/${altSlug(lib)}`, label: `${lib.name} alternatives`, icon: "alternatives" }] : [];
+  const inIt = (a: Article) => a.libs.includes(lib);
+  const best: Pill[] = roundups.filter((a) => inIt(a) && !a.slug.startsWith("best-free-")).map((a) => ({ href: a.path, label: a.title, icon: "best" }));
+  const vs: Pill[] = comparisons.filter(inIt).map((a) => ({ href: a.path, label: a.title, icon: "alternatives" }));
+  const free: Pill[] = roundups.filter((a) => inIt(a) && a.slug.startsWith("best-free-")).map((a) => ({ href: a.path, label: a.title, icon: "free" }));
+  const specific = [...own, ...best, ...vs].filter((p) => p.href !== current);
+  return (specific.length ? specific : free.filter((p) => p.href !== current)).slice(0, MAX_PILLS);
+}
+
+/** Article, BreadcrumbList, ItemList and FAQPage for one article, as one JSON-LD graph. */
 export function articleJsonLd(a: Article) {
   const section = a.kind === "best" ? { name: "Best of", path: "/best" } : { name: "Alternatives", path: "/alternatives" };
   return {
     "@context": "https://schema.org",
     "@graph": [
+      { "@type": "Article", headline: a.title, description: a.description, url: `${ORIGIN}${a.path}`, datePublished: PUBLISHED, author: { "@type": "Person", name: AUTHOR.name, url: `${ORIGIN}/about` }, publisher: { "@id": `${ORIGIN}/#organization` } },
       { "@type": "BreadcrumbList", itemListElement: [["tastebase", "/"], [section.name, section.path], [a.title, a.path]].map(([name, path], i) => ({ "@type": "ListItem", position: i + 1, name, item: `${ORIGIN}${path}` })) },
       { "@type": "ItemList", name: a.title, numberOfItems: a.libs.length, itemListElement: a.libs.map((l, i) => ({ "@type": "ListItem", position: i + 1, name: l.name, url: `${ORIGIN}/browse/${l.id}` })) },
       { "@type": "FAQPage", mainEntity: a.faqs.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) },

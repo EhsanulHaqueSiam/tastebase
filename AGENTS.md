@@ -69,7 +69,8 @@ Keep things simple: the smallest model that makes the correct behavior unsurpris
 - `src/engine.ts` - `pick()` and `plan()`, deterministic scoring. Why it scores the way it does:
   [docs/internals/picking.md](docs/internals/picking.md).
 - `src/format.ts` - the compact text agents read. `src/mcp.ts` - tool definitions. `src/cli.ts` - `npx tastebase` (stdio).
-- `src/trending.ts` - stats refresh (GitHub + npm), shared by the cron and tests.
+- `src/trending.ts` - stats refresh (GitHub + npm) and agent uses and page views (Analytics Engine), shared by the cron and tests.
+- `site/build.ts` - after prerendering, writes every page's share card (`/og/*.jpg`) and Markdown copy (`/*.md`).
 - `site/` - Astro 7 with React islands. `src/pages` are prerendered (static); `src/pages/api` and `mcp.ts` run
   on the Worker; `src/components` are islands; `src/lib/server.ts` is server-only (registry, engine, KV).
   Islands get props, call `/api/*`, or read live stats with `useStats()` (`src/lib/stats.ts`).

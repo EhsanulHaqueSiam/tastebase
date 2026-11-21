@@ -37,8 +37,10 @@ const TEST_CAPTCHA = { TURNSTILE_SITEKEY: "1x00000000000000000000AA", TURNSTILE_
 export const Website = Cloudflare.Website.Astro(
   "Website",
   Stack.useSync(({ stage }) => {
-    // Agent uses per library (src/trending.ts fetchUsage). Previews and laptops share one dataset so prod stays clean.
+    // Agent uses per library (src/trending.ts fetchUsage) and site page views (/api/hit, fetchViews). Previews and
+    // laptops share one dataset each so prod stays clean.
     const usageDataset = stage === "prod" ? "tastebase_usage" : "tastebase_usage_dev";
+    const viewsDataset = stage === "prod" ? "tastebase_views" : "tastebase_views_dev";
     return {
     // prod: tastebase.<account>.workers.dev; every other stage gets its own suffixed Worker.
     name: stage === "prod" ? "tastebase" : `tastebase-${stage.replace(/[^a-z0-9-]/g, "-")}`,
@@ -59,6 +61,8 @@ export const Website = Cloudflare.Website.Astro(
       // Workers AI for /api/match: a vision model describes a dropped screenshot (free daily allocation).
       AI: Cloudflare.Workers.AI(),
       USAGE_DATASET: usageDataset,
+      VIEWS: Cloudflare.AnalyticsEngine.Dataset("Views", { dataset: viewsDataset }),
+      VIEWS_DATASET: viewsDataset,
       // Reading the counts back needs an Account Analytics Read token (minted in stacks/github.ts for CI) and the
       // account id. Both are optional: without them the cron skips usage and everything else runs.
       ...(process.env.USAGE_API_TOKEN && { USAGE_API_TOKEN: Config.Redacted("USAGE_API_TOKEN") }),
@@ -69,21 +73,24 @@ export const Website = Cloudflare.Website.Astro(
       FORMS_FROM: formsFrom ?? "",
       FORMS_TO: formsTo ?? "", // empty: the forms answer "not set up"
       DB: Db,
-      // GitHub sign-in (site/src/lib/auth.ts). One OAuth app serves every stage: its redirect URIs are prod,
-      // any *.ehsanulsiam.workers.dev (previews), localhost:1337 and 127.0.0.1 on any port. Optional: without the keys (CI checks) the site
-      // runs signed out and /api/auth/* answers 404.
+      // Sign-in with GitHub, Google and X (site/src/lib/auth.ts). Each provider is one OAuth app serving every stage;
+      // their redirect URIs are in docs/operations/deploy.md. Optional: without any keys (CI checks) the site runs
+      // signed out and /api/auth/* answers 404.
       ...authEnv(),
     },
   };
   }),
 );
 
-// All three or none: a half-configured provider would fail at sign-in, not at deploy. Another provider (X, Google)
-// adds its two keys here and in site/src/lib/auth.ts.
+// The session signing secret plus each provider whose id and secret are both set; a provider with half its keys is
+// left out (it would fail at sign-in, not at deploy). No provider at all: no auth, the site runs signed out.
 function authEnv() {
-  const { AUTH_GITHUB_ID, AUTH_GITHUB_SECRET, BETTER_AUTH_SECRET } = process.env;
-  if (!AUTH_GITHUB_ID || !AUTH_GITHUB_SECRET || !BETTER_AUTH_SECRET) return undefined;
-  return { AUTH_GITHUB_ID, AUTH_GITHUB_SECRET: Config.Redacted("AUTH_GITHUB_SECRET"), BETTER_AUTH_SECRET: Config.Redacted("BETTER_AUTH_SECRET") };
+  const { BETTER_AUTH_SECRET, AUTH_GITHUB_ID, AUTH_GITHUB_SECRET, AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET, AUTH_X_ID, AUTH_X_SECRET } = process.env;
+  const github = AUTH_GITHUB_ID && AUTH_GITHUB_SECRET ? { AUTH_GITHUB_ID, AUTH_GITHUB_SECRET: Config.Redacted("AUTH_GITHUB_SECRET") } : undefined;
+  const google = AUTH_GOOGLE_ID && AUTH_GOOGLE_SECRET ? { AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET: Config.Redacted("AUTH_GOOGLE_SECRET") } : undefined;
+  const x = AUTH_X_ID && AUTH_X_SECRET ? { AUTH_X_ID, AUTH_X_SECRET: Config.Redacted("AUTH_X_SECRET") } : undefined;
+  if (!BETTER_AUTH_SECRET || !(github || google || x)) return undefined;
+  return { BETTER_AUTH_SECRET: Config.Redacted("BETTER_AUTH_SECRET"), ...github, ...google, ...x };
 }
 
 export type WebsiteEnv = Cloudflare.InferEnv<typeof Website>;

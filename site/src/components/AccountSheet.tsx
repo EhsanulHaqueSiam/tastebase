@@ -26,7 +26,7 @@ export function Sheet({ open, onOpenChange, title, children }: { open: boolean; 
   );
 }
 
-/** The user's GitHub avatar, or their initial while it loads or when they have none. */
+/** The user's avatar from their sign-in provider, or their initial while it loads or when they have none. */
 export function Avatar({ user, size }: { user: User; size: number }) {
   return (
     <span className="relative grid shrink-0 place-items-center overflow-hidden rounded-full bg-s3 text-[11px] font-semibold text-fg2 shadow-[inset_0_0_0_1px_var(--color-line2)]" style={{ width: size, height: size }}>

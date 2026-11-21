@@ -7,7 +7,7 @@ src/registry (data) ──> src/engine.ts (pick, plan) ──> src/format.ts (co
         │                                                      └──> /mcp (hosted)   src/cli.ts (stdio)
         └── src/trending.ts <── cron (hourly) ──> KV `stats:v1` ──> merged in at request time
 
-browser ──> /api/auth/* (better-auth, GitHub) ──┐
+browser ──> /api/auth/* (better-auth: GitHub, Google, X) ──┐
         ──> /api/me, /api/saved, /api/folders ──┴──> D1 (migrations/): user, session, saved, folder
         ──> /f/<id> (SSR, a shared folder)
 ```
@@ -19,9 +19,12 @@ One Cloudflare Worker (declared in `alchemy.run.ts`) does everything:
 - **`/mcp`** is the same `createServer` as the npx CLI, behind the SDK's web-standard Streamable HTTP
   transport. Stateless: a fresh server per request, JSON responses, nothing to store.
 - **`/api/*`** returns JSON for islands (hero search, plan box, ⌘K palette). Same engine as MCP.
-- **Accounts** (`site/src/lib/auth.ts`, `auth-data.ts`): better-auth on D1, GitHub sign-in, a session cookie.
+- **Accounts** (`site/src/lib/auth.ts`, `auth-data.ts`): better-auth on D1, sign-in with GitHub, Google or X, a session cookie.
   The browser store (`site/src/lib/saved.ts`) holds hearts and folders for every island.
-- **`scheduled()`** (`site/src/worker.ts`) refreshes the 24 stalest libraries' stats each hour.
+- **`scheduled()`** (`site/src/worker.ts`) refreshes the 24 stalest libraries' stats each hour, and the site's
+  30-day page views (`/api/views`).
+- **Share cards and Markdown copies** (`site/build.ts`) are written after prerendering: `/og/<path>.jpg` for every
+  page's `og:image`, `/<path>.md` for AI crawlers. Each page links its copy as `rel=alternate`.
 
 ## Decisions and their reasons
 
@@ -48,12 +51,22 @@ One Cloudflare Worker (declared in `alchemy.run.ts`) does everything:
 - **Hearts and folders hold registry ids only.** The API drops any id the registry does not know, which also bounds
   what one account can store; folders are capped at 100 per user. Every write is scoped `where userId = ?`, and a
   folder that is not yours answers 404, never 403, so private ids do not leak.
-- **One GitHub OAuth app for every stage.** Its redirect URIs are prod, `*.ehsanulsiam.workers.dev` (wildcard, so
-  `pr-<n>` previews sign in too), `localhost:1337` and `127.0.0.1` on any port (GitHub's loopback rule). better-auth
-  builds the callback from the request host, limited to those hosts (`baseURL.allowedHosts`). Without the keys
-  (CI's `pnpm check`) `/api/auth/*` answers 404 and the site runs signed out.
+- **One OAuth app per provider for every stage.** GitHub's redirect URIs are prod, `*.ehsanulsiam.workers.dev`
+  (wildcard, so `pr-<n>` previews sign in too), `localhost:1337` and `127.0.0.1` on any port (GitHub's loopback rule).
+  Google and X match URIs exactly, so a preview signs in with them only once its URI is registered
+  ([deploy.md](../operations/deploy.md#sign-in-providers)). better-auth builds the callback from the request host,
+  limited to those hosts (`baseURL.allowedHosts`). Each provider is optional on its own keys and the sign-in sheet
+  asks `/api/me` which ones to show; without any (CI's `pnpm check`) `/api/auth/*` answers 404 and the site runs signed out.
 - **`/f/<id>` renders per request, its cards in the browser** (`client:only`). The server does one D1 read for a
   public folder (for a private one, a session read and a second folder read) and no React render, inside the 10ms CPU budget.
+- **Pages stay static assets; the Markdown copies are static too.** Each page links its `.md` copy as
+  `rel=alternate`. Content negotiation on `Accept` or the user agent would need every page view to run the Worker
+  first (`runWorkerFirst`), which costs a Worker request per view and the static-asset response time, so we do not.
+- **Page views go to Analytics Engine from a beacon, not from the Worker.** Client navigations and prefetches never
+  reach the Worker as a document request, so the page posts `/api/hit` on each `astro:page-load`. No cookie: the
+  browser flags itself as a visitor once per 30 days in localStorage, so "visitors" counts browsers.
+- **Share cards are drawn at build time** with satori and sharp in Node (Inter, the screenshot beside the title). Doing
+  it per request would blow the 10ms CPU budget, and Workers cannot run sharp.
 - **`build.format: "file"`.** Directory output (`motion/index.html`) makes Cloudflare's asset layer redirect
   `/browse/motion` to `/browse/motion/`, an extra hop on every library link.
 
@@ -61,6 +74,7 @@ One Cloudflare Worker (declared in `alchemy.run.ts`) does everything:
 
 - `alchemy dev` resolves relative `rootDir`/`main` against the wrong base, and Astro discovers its config from
   the working directory. Hence the absolute paths in `alchemy.run.ts` and `cd site` in `pnpm dev`.
+- `pnpm dev` never builds, so `/og/*.jpg` and `/*.md` exist only in deploys.
 - In dev, Astro's dev server does not load the custom Worker entry, so `scheduled()` never runs locally. The
   dev-only `/api/dev/cron` route calls the same `runStatsRefresh`.
 - `Astro.locals.runtime.env` is gone in Astro 6+. Read bindings with `import { env } from "cloudflare:workers"`.

@@ -49,21 +49,36 @@ export async function refreshStats(libs: Library[], prev: Stats, opts: { githubT
   return { ...prev, ...Object.fromEntries(entries) };
 }
 
-/**
- * How often agents used each library in the last 7 days: MCP `get` calls plus picks offered, as the Worker wrote them
- * to Analytics Engine (one data point per use: blob1 = library id). One SQL API call; undefined when it fails, so the
- * caller keeps the last counts. Nothing about the caller or their query is ever written.
- */
-export async function fetchUsage(o: { accountId: string; token: string; dataset: string; fetch?: Fetch }): Promise<Record<string, number> | undefined> {
-  const sql = `SELECT blob1 AS id, SUM(_sample_interval) AS n FROM ${o.dataset} WHERE timestamp > NOW() - INTERVAL '7' DAY GROUP BY id FORMAT JSON`;
+type Sql = { accountId: string; token: string; dataset: string; fetch?: Fetch };
+
+/** One Analytics Engine SQL API call (one subrequest); undefined when it fails, so callers keep their last numbers. */
+async function query<T>(o: Sql, sql: string): Promise<T[] | undefined> {
   const r = await (o.fetch ?? fetch)(`https://api.cloudflare.com/client/v4/accounts/${o.accountId}/analytics_engine/sql`, {
     method: "POST",
     headers: { authorization: `Bearer ${o.token}` },
     body: sql,
   }).catch(() => undefined);
   if (!r?.ok) return undefined;
-  const { data } = (await r.json()) as { data: { id: string; n: number | string }[] };
-  return Object.fromEntries(data.map((d) => [d.id, Number(d.n)]));
+  return ((await r.json()) as { data: T[] }).data;
+}
+
+/**
+ * How often agents used each library in the last 7 days: MCP `get` calls plus picks offered, as the Worker wrote them
+ * to Analytics Engine (one data point per use: blob1 = library id). Nothing about the caller or their query is ever written.
+ */
+export async function fetchUsage(o: Sql): Promise<Record<string, number> | undefined> {
+  const data = await query<{ id: string; n: number | string }>(o, `SELECT blob1 AS id, SUM(_sample_interval) AS n FROM ${o.dataset} WHERE timestamp > NOW() - INTERVAL '7' DAY GROUP BY id FORMAT JSON`);
+  return data && Object.fromEntries(data.map((d) => [d.id, Number(d.n)]));
+}
+
+/** Site page views and visitors over the last 30 days, shown on the home page and /sponsor. */
+export type Views = { views: number; visitors: number };
+export const VIEWS_KEY = "views:v1";
+
+/** Totals of /api/hit's data points: one per page shown, double1 = 1 when the browser had not been counted for 30 days. */
+export async function fetchViews(o: Sql): Promise<Views | undefined> {
+  const data = await query<{ views: number | string | null; visitors: number | string | null }>(o, `SELECT SUM(_sample_interval) AS views, SUM(_sample_interval * double1) AS visitors FROM ${o.dataset} WHERE timestamp > NOW() - INTERVAL '30' DAY FORMAT JSON`);
+  return data && { views: Number(data[0]?.views ?? 0), visitors: Number(data[0]?.visitors ?? 0) };
 }
 
 /** Writes this week's agent uses into stats; a library with none drops to zero rather than keeping an old count. */

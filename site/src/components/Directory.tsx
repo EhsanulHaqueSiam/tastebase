@@ -143,7 +143,7 @@ function Row({ on, onClick, n, icon, children }: { on: boolean; onClick: () => v
       type="button"
       aria-pressed={on}
       onClick={onClick}
-      className={`anim-host press flex h-8 flex-none items-center gap-2.5 rounded-lg px-2.5 text-[13.5px] whitespace-nowrap [transition-duration:160ms,60ms,60ms,250ms] max-lg:shadow-[inset_0_0_0_1px_var(--color-line)] ${on ? "bg-s2 text-fg max-lg:shadow-[inset_0_0_0_1px_var(--color-fg)]" : "text-fg2 hover:bg-s1 hover:text-fg"}`}
+      className={`anim-host press flex h-8 flex-none items-center gap-2.5 rounded-lg px-2.5 text-[13.5px] whitespace-nowrap [transition-duration:160ms,60ms,60ms,250ms]! max-lg:shadow-[inset_0_0_0_1px_var(--color-line)] ${on ? "bg-s2 text-fg max-lg:shadow-[inset_0_0_0_1px_var(--color-fg)]" : "text-fg2 hover:bg-s1 hover:text-fg"}`}
     >
       {icon}
       <span className="flex-1 text-left">{children}</span>
@@ -168,7 +168,7 @@ function Select<V extends string>({ label, value, shown, onChange, options, clas
 const ListRow = memo(function ListRow({ lib, stat, hidden }: { lib: ShelfLib; stat: string; hidden: boolean }) {
   const fws = lib.frameworks.map((f) => FW[f]);
   return (
-    <li hidden={hidden} className="anim-host relative flex items-center gap-3 border-t border-line px-3 py-2.5 transition-colors first:border-t-0 hover:bg-s1 [&[hidden]]:hidden">
+    <li hidden={hidden} className="anim-host relative flex items-center gap-3 border-t border-line px-3 py-2.5 transition-colors first:border-t-0 hover:bg-s1">
       <LibMark lib={lib} size={30} />
       <a href={`/browse/${lib.id}`} className="min-w-0 flex-1 after:absolute after:inset-0">
         <span className="block font-medium">{lib.name}</span>
