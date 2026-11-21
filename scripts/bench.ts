@@ -104,15 +104,24 @@ async function click(tab: Tab, selector: string, index = 0) {
   const box = await evaluate<{ x: number; y: number; label: string } | null>(tab, `(() => {
     const els = [...document.querySelectorAll(${JSON.stringify(selector)})].filter((e) => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(e).visibility !== "hidden"; });
     const el = els[${index}]; if (!el) return null;
-    el.scrollIntoView({ block: "center", inline: "center" });
-    const r = el.getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2, label: (el.getAttribute('aria-label') || el.textContent || el.tagName).trim().replace(/\\s+/g, ' ').slice(0, 32) };
+    document.querySelectorAll("[data-bench-target]").forEach((e) => e.removeAttribute("data-bench-target"));
+    el.setAttribute("data-bench-target", "");
+    el.scrollIntoView({ block: "center", inline: "center", behavior: "instant" });
+    return { x: 0, y: 0, label: (el.getAttribute('aria-label') || el.textContent || el.tagName).trim().replace(/\\s+/g, ' ').slice(0, 32) };
   })()`);
   if (!box) return null;
   // A visitor sees a control before clicking it: a second after it scrolls in, not the instant it appears.
   await sleep(1000);
+  // Measured now, after any scrolling settled; what sits under that point is what the click really hits.
+  const at = await evaluate<{ x: number; y: number; hit: boolean } | null>(tab, `(() => {
+    const el = document.querySelector("[data-bench-target]"); if (!el) return null;
+    const r = el.getBoundingClientRect(), x = r.x + r.width / 2, y = r.y + r.height / 2, top = document.elementFromPoint(x, y);
+    return { x, y, hit: !!top && (el === top || el.contains(top)) };
+  })()`);
+  if (!at) return null;
   for (const type of ["mouseMoved", "mousePressed", "mouseReleased"] as const)
-    await tab.send("Input.dispatchMouseEvent", { type, x: box.x, y: box.y, button: "left", clickCount: type === "mouseMoved" ? 0 : 1 });
-  return box.label;
+    await tab.send("Input.dispatchMouseEvent", { type, x: at.x, y: at.y, button: "left", clickCount: type === "mouseMoved" ? 0 : 1 });
+  return at.hit ? box.label : `${box.label} (covered by another element)`;
 }
 
 async function key(tab: Tab, k: string, modifiers = 0) {
@@ -211,10 +220,11 @@ async function measure(openTab: () => Promise<Tab>, page: (typeof pages)[number]
       const navs = await evaluate<number>(tab, "window.__bench.navs.length");
       const before = await eventCount(tab);
       const t0 = Date.now();
-      if (await click(tab, `main a[href^="/browse/"], main a[href^="/best/"], main a[href="/atlas"]`)) {
+      const target = await click(tab, `main a[href^="/browse/"], main a[href^="/best/"], main a[href="/atlas"]`);
+      if (target) {
         let ms: number | undefined;
         for (; Date.now() - t0 < 10_000; await sleep(50)) if ((await evaluate<number>(tab, "window.__bench?.navs.length ?? 0")) > navs || (await evaluate<number>(tab, "performance.getEntriesByType('navigation').length")) === 1 && (await evaluate<string>(tab, "location.pathname")) !== page.path) { ms = Date.now() - t0; break; }
-        interactions.push({ name: "click through to a page", inp: await slowestSince(tab, before).catch(() => 0), ms, note: ms ? undefined : "navigation did not finish" });
+        interactions.push({ name: "click through to a page", inp: await slowestSince(tab, before).catch(() => 0), ms, note: ms ? undefined : `navigation did not finish (clicked "${target}", now at ${await evaluate<string>(tab, "location.pathname")})` });
       }
     }
     const worst = Math.max(0, ...interactions.map((i) => i.inp));

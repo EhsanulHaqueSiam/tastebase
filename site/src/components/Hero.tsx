@@ -81,28 +81,20 @@ export default function Hero({ counts }: { counts: { libs: number; resources: nu
       <motion.div style={active ? undefined : { y, opacity: fade, filter: blur }} className="flex w-full flex-col items-center">
         {!active && (
           <>
-            <motion.h1
-              initial={{ opacity: 0, y: 16, filter: "blur(8px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
-              className="text-center text-[clamp(38px,6.4vw,76px)] leading-[1.02] font-semibold tracking-[-0.045em] [text-shadow:0_2px_30px_color-mix(in_srgb,var(--color-fg)_18%,transparent)]"
-            >
+            {/* CSS entrance, not motion's: it starts at first paint, before this island hydrates (the page's LCP). */}
+            <h1 className="enter text-center text-[clamp(38px,6.4vw,76px)] leading-[1.02] font-semibold tracking-[-0.045em] [text-shadow:0_2px_30px_color-mix(in_srgb,var(--color-fg)_18%,transparent)]">
               find any{" "}
               <button type="button" onClick={next} onPointerEnter={(e) => e.pointerType === "mouse" && next()} className="cursor-pointer rounded-lg outline-offset-4">
                 <TextMorph as="span" className="font-serif font-normal italic tracking-[-0.02em]">{WORDS[w] ?? ""}</TextMorph>
               </button>
-            </motion.h1>
-            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25, duration: 0.6 }} className="mt-4 max-w-[52ch] text-center text-[15px] text-fg2">
+            </h1>
+            <p style={{ animation: "blur-in 600ms var(--ease-quart) 250ms backwards" }} className="mt-4 max-w-[52ch] text-center text-[15px] text-fg2">
               Hand-picked UI libraries, each with a note on when to use it. Your coding agent reads the same notes through MCP.
-            </motion.p>
+            </p>
           </>
         )}
-        <motion.div
-          initial={{ opacity: 0, y: 12, scale: 0.98 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ delay: active ? 0 : 0.35, type: "spring", duration: 0.7, bounce: 0.2 }}
-          className={`w-full max-w-[580px] ${active ? "" : "mt-8"}`}
-        >
+        {/* Rises in with CSS from first paint, so the search box shows before the island hydrates on a slow phone. */}
+        <div style={{ animation: "enter-late 700ms var(--spring) 350ms backwards" }} className={`w-full max-w-[580px] ${active ? "" : "mt-8"}`}>
           <label className="flex items-center gap-3 rounded-2xl bg-bg/55 px-4 py-3.5 shadow-[0_0_0_1px_var(--color-line2),0_30px_80px_-30px_rgb(0_0_0/0.9)] backdrop-blur-xl transition-shadow duration-300 focus-within:shadow-[0_0_0_1px_rgb(91_124_255/0.7),0_0_0_5px_rgb(91_124_255/0.15)]">
             <Search size={16} className="text-fg3" />
             <input
@@ -126,7 +118,7 @@ export default function Hero({ counts }: { counts: { libs: number; resources: nu
             )}
           </label>
           {!active && <a href="/match" className="mt-3 block text-center text-[13px] text-fg2 transition-colors hover:text-fg">or match a screenshot of a UI you like →</a>}
-        </motion.div>
+        </div>
         {!active && (
           <>
             <div className="mt-6 flex flex-wrap justify-center gap-x-5 gap-y-1 text-[13px] text-fg2 tabular-nums">

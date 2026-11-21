@@ -33,7 +33,7 @@ function TorphDemo() {
 function NumberFlowDemo() {
   const [v, setV] = useState(4.2);
   return (
-    <button onClick={() => setV((x) => (x === 4.2 ? 128.5 : x === 128.5 ? 96 : 4.2))} className="press text-6xl font-semibold tracking-[-0.04em]">
+    <button onClick={() => setV((x) => (x === 4.2 ? 128.5 : x === 128.5 ? 96 : 4.2))} aria-label={`${v.toLocaleString("en-US", { style: "currency", currency: "USD" })}, change the number`} className="press text-6xl font-semibold tracking-[-0.04em]">
       <NumberFlow value={v} format={{ style: "currency", currency: "USD" }} />
     </button>
   );
@@ -108,7 +108,7 @@ function LucideDemo() {
   const [on, setOn] = useState(false);
   const pairs: [ReactNode, ReactNode][] = [[<Play size={20} />, <Pause size={20} />], [<Sun size={20} />, <Moon size={20} />], [<Heart size={20} />, <Heart size={20} className="fill-pink text-pink" />], [<Copy size={20} />, <Check size={20} />]];
   return (
-    <button onClick={() => setOn(!on)} className="press flex gap-3 rounded-2xl bg-s1 p-3 shadow-[inset_0_0_0_1px_var(--color-line)]">
+    <button onClick={() => setOn(!on)} aria-pressed={on} aria-label="Swap the icons" className="press flex gap-3 rounded-2xl bg-s1 p-3 shadow-[inset_0_0_0_1px_var(--color-line)]">
       {pairs.map((p, i) => (
         <span key={i} className="grid size-12 place-items-center rounded-xl bg-s3 [&>span]:size-5">
           <IconMorph k={on ? "b" : "a"}>{on ? p[1] : p[0]}</IconMorph>
