@@ -98,8 +98,11 @@ export type Library = {
   themed?: true;
   /** A kit of parts for one domain (audio, documents) that sits on another kit: offered for its job, never an app's base. */
   addOn?: true;
+  /** ISO date it joined tastebase, so the site can show what is new. Entries from before 2026-11-21 have none. */
+  addedAt?: string;
   /** Filled by the Worker's cron (src/trending.ts); leave out in data files. */
-  stats?: { stars?: number; starsWeek?: number; downloadsWeek?: number; updatedAt?: string };
+  /** `agentUses` counts MCP `get` calls and picks offered in the last 7 days (src/trending.ts `fetchUsage`). */
+  stats?: { stars?: number; starsWeek?: number; downloadsWeek?: number; agentUses?: number; updatedAt?: string };
 };
 
 /** How a look's specimen card renders on the site. Approximate on purpose: enough to taste the difference. */

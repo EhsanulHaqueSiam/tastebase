@@ -1,0 +1,33 @@
+---
+// /embed/<id>: one library's live demo (or its site screenshot) and install line, nothing else. The MCP preview view
+// (src/mcp.ts) frames it inside an agent's chat, so it carries no header, palette or dock. Prerendered.
+import { CopyButton } from "../../components/fx.tsx";
+import { LibMark } from "../../components/LibMark.tsx";
+import Stage from "../../components/Stage.tsx";
+import { libraries } from "../../lib/server.ts";
+import "../../styles.css";
+
+export const prerender = true;
+export const getStaticPaths = () => libraries.map((l) => ({ params: { id: l.id } }));
+const lib = libraries.find((l) => l.id === Astro.params.id)!;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>{lib.name} · tastebase</title>
+    <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600&display=swap" />
+  </head>
+  <body class="flex h-svh flex-col overflow-hidden">
+    <Stage client:load id={lib.id} name={lib.name} url={lib.url} />
+    <footer class="flex items-center gap-3 border-t border-line px-3 py-2">
+      <LibMark lib={lib} size={26} />
+      <a href={`/browse/${lib.id}`} target="_blank" rel="noreferrer" class="font-medium hover:underline">{lib.name}</a>
+      <code class="min-w-0 flex-1 truncate font-mono text-[12px] text-fg2">{lib.install}</code>
+      <CopyButton client:load value={lib.install} label="Install" quiet />
+    </footer>
+  </body>
+</html>

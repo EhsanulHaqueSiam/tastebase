@@ -4,14 +4,20 @@ import { AnimatePresence, motion, useScroll, useTransform } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { TextMorph } from "torph/react";
 import type { Lite } from "../lib/server.ts";
+import { liveSponsors, sponsors, type Sponsor } from "../lib/sponsors.ts";
+import { useTheme } from "../lib/theme.ts";
+import { withUtm } from "../lib/utm.ts";
 import { ShaderBg } from "./fx.tsx";
 import { LibMark } from "./LibMark.tsx";
 
 const WORDS = ["ui library", "toast", "drawer", "shader", "icon set", "text morph", "glass", "chart"];
 type Hit = { lib: Lite; why: string };
 
-/** Hero: morphing headline, live search against /api/pick, rolling counts. Lifts and blurs away on scroll. */
-export default function Hero({ counts }: { counts: { libs: number; looks: number; kinds: number } }) {
+/** Hero: morphing headline, live search against /api/pick (a running sponsor first), rolling counts and the sponsor
+ *  strip (four slots after Design Index's; empty ones invite a sponsor). Lifts and blurs away on scroll. */
+export default function Hero({ counts }: { counts: { libs: number; resources: number; looks: number; kinds: number } }) {
+  const [ads, setAds] = useState<Sponsor[]>([]);
+  useEffect(() => setAds(liveSponsors(sponsors, Date.now(), "home")), []); // at view time: an ended sponsor drops out
   // The word changes only when the user points at or presses it: the site has no motion on a loop.
   const [w, setW] = useState(0);
   const next = () => setW((i) => (i + 1) % WORDS.length);
@@ -30,12 +36,13 @@ export default function Hero({ counts }: { counts: { libs: number; looks: number
     return () => (clearTimeout(t), ctl.abort());
   }, [q]);
 
-  const [shown, setShown] = useState({ libs: 0, looks: 0, kinds: 0 });
+  const [shown, setShown] = useState({ libs: 0, resources: 0, looks: 0, kinds: 0 });
   useEffect(() => {
     const t = setTimeout(() => setShown(counts), 300);
     return () => clearTimeout(t);
   }, [counts]);
 
+  const light = useTheme() === "light";
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const y = useTransform(scrollYProgress, [0, 1], [0, -120]);
@@ -44,14 +51,14 @@ export default function Hero({ counts }: { counts: { libs: number; looks: number
 
   return (
     <section ref={ref} className="relative isolate flex min-h-[92svh] flex-col items-center px-4 pt-[22svh] pb-24">
-      <ShaderBg className="absolute inset-0 -z-10 opacity-80" colors={["#000000", "#0b1250", "#2a1a6e", "#05060d", "#123a8a"]} />
-      <div className="absolute inset-x-0 bottom-0 -z-10 h-1/2 bg-gradient-to-b from-transparent to-black" />
+      <ShaderBg className="absolute inset-0 -z-10 opacity-80" colors={light ? ["#ffffff", "#c9d3ff", "#e3d9ff", "#f6f7fb", "#b9ccff"] : ["#000000", "#0b1250", "#2a1a6e", "#05060d", "#123a8a"]} />
+      <div className="absolute inset-x-0 bottom-0 -z-10 h-1/2 bg-gradient-to-b from-transparent to-bg" />
       <motion.div style={{ y, opacity: fade, filter: blur }} className="flex w-full flex-col items-center">
         <motion.h1
           initial={{ opacity: 0, y: 16, filter: "blur(8px)" }}
           animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
           transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
-          className="text-center text-[clamp(38px,6.4vw,76px)] leading-[1.02] font-semibold tracking-[-0.045em] [text-shadow:0_2px_30px_rgb(255_255_255/0.18)]"
+          className="text-center text-[clamp(38px,6.4vw,76px)] leading-[1.02] font-semibold tracking-[-0.045em] [text-shadow:0_2px_30px_color-mix(in_srgb,var(--color-fg)_18%,transparent)]"
         >
           find any{" "}
           <button type="button" onClick={next} onPointerEnter={(e) => e.pointerType === "mouse" && next()} className="cursor-pointer rounded-lg outline-offset-4">
@@ -67,16 +74,27 @@ export default function Hero({ counts }: { counts: { libs: number; looks: number
           transition={{ delay: 0.35, type: "spring", duration: 0.7, bounce: 0.2 }}
           className="mt-8 w-full max-w-[580px]"
         >
-          <label className="flex items-center gap-3 rounded-2xl bg-black/55 px-4 py-3.5 shadow-[0_0_0_1px_var(--color-line2),0_30px_80px_-30px_rgb(0_0_0/0.9)] backdrop-blur-xl transition-shadow duration-300 focus-within:shadow-[0_0_0_1px_rgb(91_124_255/0.7),0_0_0_5px_rgb(91_124_255/0.15)]">
+          <label className="flex items-center gap-3 rounded-2xl bg-bg/55 px-4 py-3.5 shadow-[0_0_0_1px_var(--color-line2),0_30px_80px_-30px_rgb(0_0_0/0.9)] backdrop-blur-xl transition-shadow duration-300 focus-within:shadow-[0_0_0_1px_rgb(91_124_255/0.7),0_0_0_5px_rgb(91_124_255/0.15)]">
             <Search size={16} className="text-fg3" />
             <input id="ask" value={q} onChange={(e) => setQ(e.target.value)} placeholder="ask anything, like “animated price” or “bottom sheet”" className="min-w-0 flex-1 bg-transparent text-[15px] outline-none placeholder:text-fg3" autoComplete="off" aria-label="Search libraries" />
             <span className="kbd">/</span>
           </label>
-          <motion.ul layout className="mt-2 overflow-hidden rounded-2xl bg-black/70 backdrop-blur-xl" style={{ boxShadow: hits.length ? "0 0 0 1px var(--color-line2)" : "none" }}>
+          <motion.ul layout className="mt-2 overflow-hidden rounded-2xl bg-bg/70 backdrop-blur-xl" style={{ boxShadow: hits.length ? "0 0 0 1px var(--color-line2)" : "none" }}>
             <AnimatePresence initial={false}>
+              {hits.length > 0 && ads.filter((ad) => !ad.homepageOnly).slice(0, 1).map((ad) => (
+                <motion.li key={`ad-${ad.id}`} layout initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, transition: { duration: 0.12 } }}>
+                  <a href={withUtm(ad.url, "hero-search")} target="_blank" rel="sponsored noopener" className="group flex items-center gap-3 px-3 py-2.5 transition-colors hover:bg-s2">
+                    <img src={ad.image} alt="" className="h-8 w-14 shrink-0 rounded-md object-cover" />
+                    <span className="min-w-0 flex-1">
+                      <span className="block font-medium">{ad.name} <span className="ml-1 font-mono text-[10px] tracking-[0.1em] text-fg3 uppercase">Sponsored</span></span>
+                      <span className="block truncate text-[13px] text-fg2">{ad.description}</span>
+                    </span>
+                  </a>
+                </motion.li>
+              ))}
               {hits.map((h, i) => (
                 <motion.li key={h.lib.id} layout initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0, transition: { delay: i * 0.035 } }} exit={{ opacity: 0, transition: { duration: 0.12 } }}>
-                  <a href={`/browse/${h.lib.id}`} className="group flex items-center gap-3 px-3 py-2.5 transition-colors hover:bg-white/5">
+                  <a href={`/browse/${h.lib.id}`} className="group flex items-center gap-3 px-3 py-2.5 transition-colors hover:bg-s2">
                     <LibMark lib={h.lib} size={32} />
                     <span className="min-w-0 flex-1">
                       <span className="block font-medium">{h.lib.name}</span>
@@ -88,12 +106,25 @@ export default function Hero({ counts }: { counts: { libs: number; looks: number
               ))}
             </AnimatePresence>
           </motion.ul>
+          <a href="/match" className="mt-3 block text-center text-[13px] text-fg2 transition-colors hover:text-fg">or match a screenshot of a UI you like →</a>
         </motion.div>
         <div className="mt-6 flex flex-wrap justify-center gap-5 text-[13px] text-fg2 tabular-nums">
           <span><NumberFlow value={shown.libs} /> libraries</span>
+          <span><NumberFlow value={shown.resources} /> resources</span>
           <span><NumberFlow value={shown.looks} /> looks</span>
           <span><NumberFlow value={shown.kinds} /> kinds of job</span>
         </div>
+        <ul className="mt-8 grid w-full max-w-[600px] grid-cols-2 border-y border-dashed border-line2 sm:grid-cols-4" aria-label="Sponsors">
+          {Array.from({ length: 4 }, (_, i) => ads[i]).map((ad, i) => (
+            <li key={ad?.id ?? i} className={`flex h-14 border-dashed border-line2 ${i % 2 ? "border-l" : ""} ${i === 2 ? "max-sm:border-t sm:border-l" : ""} ${i === 3 ? "max-sm:border-t" : ""}`}>
+              {ad ? (
+                <a href={withUtm(ad.url, "home-strip")} target="_blank" rel="sponsored noopener" className="grid flex-1 place-items-center truncate px-3 text-[15px] font-semibold tracking-[-0.01em] text-fg2 transition-colors hover:text-fg">{ad.name}</a>
+              ) : (
+                <a href="/sponsor" className="grid flex-1 place-items-center text-[13px] text-fg3 transition-colors hover:text-fg">+ sponsor</a>
+              )}
+            </li>
+          ))}
+        </ul>
       </motion.div>
     </section>
   );

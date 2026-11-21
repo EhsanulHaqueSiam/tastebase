@@ -6,6 +6,7 @@ import type { Kind, Library } from "../../../src/registry/schema.ts";
 import Base from "../layouts/Base.astro";
 import { kindMeta, shot } from "../lib/kinds.ts";
 import { aesthetics, libraries } from "../lib/server.ts";
+import { withUtm } from "../lib/utm.ts";
 
 export const prerender = true;
 
@@ -158,7 +159,7 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
     }
 
     <section class="panel" id="resources" data-panel="resources" hidden>
-      <p class="max-w-[720px] text-[13.5px] text-fg2">Not installed, but they help you design. tastebase only links to them. If your agent already has one connected under your own account, its plan answer says what to search for. Agents can list one category with <code>get fonts</code>, <code>get tools</code> and so on.</p>
+      <p class="max-w-[720px] text-[13.5px] text-fg2">Not installed, but they help you design. tastebase only links to them. If your agent already has one connected under your own account, its plan answer says what to search for. Agents can list one category with <code>get fonts</code>, <code>get agent-tools</code> and so on.</p>
       <div class="rfilter" role="group" aria-label="Resource category">
         <button type="button" data-rkind="all" aria-pressed="true">All<small>{resources.length}</small></button>
         {resKinds.map((k) => <button type="button" data-rkind={k} aria-pressed="false">{resourceKinds[k]}<small>{resources.filter((r) => r.kind === k).length}</small></button>)}
@@ -168,7 +169,7 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
         <tbody>
           {resSorted.map((r) => (
             <tr data-kind={r.kind}>
-              <td><a href={r.url} target="_blank" rel="noreferrer">{r.name}</a></td>
+              <td><a href={withUtm(r.url, "atlas")} target="_blank" rel="noopener">{r.name}</a></td>
               <td>{r.goodFor}</td>
               <td class:list={[!r.free && "text-fg3"]}>{r.cost}</td>
               <td>{r.mcp ? <a href={r.mcp.url} target="_blank" rel="noreferrer">{r.mcp.name}{r.mcp.needsPaidPlan && " (paid plan)"}</a> : <span class="text-fg3">link only</span>}</td>
@@ -215,7 +216,7 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
 </Base>
 
 <style define:vars={{ chip: `${ISLAND.chip}px`, row: `${ISLAND.row}px`, head: `${ISLAND.head}px`, padx: `${ISLAND.padX}px`, pady: `${ISLAND.padY}px` }}>
-  .tabs { position: sticky; top: 56px; z-index: 10; margin: 18px -16px 16px; display: flex; gap: 18px; overflow-x: auto; border-bottom: 1px solid var(--color-line); background: #000; padding: 0 16px; scrollbar-width: none; }
+  .tabs { position: sticky; top: 56px; z-index: 10; margin: 18px -16px 16px; display: flex; gap: 18px; overflow-x: auto; border-bottom: 1px solid var(--color-line); background: var(--color-bg); padding: 0 16px; scrollbar-width: none; }
   .tabs a { white-space: nowrap; border-bottom: 1.5px solid transparent; padding: 10px 0; font-size: 13px; color: var(--color-fg2); transition: color 200ms; }
   .tabs a:hover, .tabs a[aria-current] { color: var(--color-fg); }
   .tabs a[aria-current] { border-color: var(--color-fg); }
@@ -232,7 +233,7 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
 
   .isles-scroll { overflow-x: auto; border-radius: 12px; }
   .isles { position: relative; border-radius: 12px; background-color: var(--color-s1); box-shadow: inset 0 0 0 1px var(--color-line); }
-  .isle { position: absolute; border-radius: 10px; background: rgb(0 0 0 / 0.75); box-shadow: inset 0 0 0 1px var(--color-line2); padding: var(--pady) var(--padx); }
+  .isle { position: absolute; border-radius: 10px; background: color-mix(in srgb, var(--color-bg) 75%, transparent); box-shadow: inset 0 0 0 1px var(--color-line2); padding: var(--pady) var(--padx); }
   .isle .ghead { height: calc(var(--head) - 4px); }
   .isle ul { display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); column-gap: 8px; }
   .chip { position: relative; height: var(--row); }
@@ -273,7 +274,7 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
   .mx { border-collapse: collapse; font-size: 12.5px; }
   .mx thead th { height: 96px; vertical-align: bottom; padding: 0 0 8px; font-weight: 500; color: var(--color-fg3); }
   .mx thead th span { display: inline-block; writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; }
-  .mx tbody th { position: sticky; left: 0; background: #000; padding: 5px 14px 5px 0; text-align: left; font-weight: 400; white-space: nowrap; }
+  .mx tbody th { position: sticky; left: 0; background: var(--color-bg); padding: 5px 14px 5px 0; text-align: left; font-weight: 400; white-space: nowrap; }
   .mx tbody th a { display: flex; align-items: center; gap: 7px; }
   .mx td { border-bottom: 1px solid var(--color-line); padding: 5px 6px; text-align: center; }
   .mx td i, .legend i.dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; }

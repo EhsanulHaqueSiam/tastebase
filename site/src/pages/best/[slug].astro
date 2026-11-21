@@ -1,0 +1,12 @@
+---
+// /best/<slug>: a roundup of one kind of library. Prerendered from site/src/lib/articles.ts.
+import Article from "../../components/Article.astro";
+import Base from "../../layouts/Base.astro";
+import { roundups } from "../../lib/articles.ts";
+
+export const prerender = true;
+export const getStaticPaths = () => roundups.map((a) => ({ params: { slug: a.slug }, props: { a } }));
+const { a } = Astro.props;
+---
+
+<Base title={`${a.title} · tastebase`} description={a.description}><Article a={a} /></Base>

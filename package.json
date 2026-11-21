@@ -18,7 +18,7 @@
   "scripts": {
     "dev": "sh scripts/with-env.sh sh -c 'cd site && alchemy dev -c ../alchemy.run.ts'",
     "check": "pnpm typecheck && pnpm typecheck:site && pnpm test && pnpm eval mcp-tool-use skill usage --check && pnpm eval design --warn && pnpm build",
-    "test": "node --test --experimental-strip-types --no-warnings \"src/**/*.test.ts\" \"evals/**/*.test.ts\"",
+    "test": "node --test --experimental-strip-types --no-warnings \"src/**/*.test.ts\" \"site/src/**/*.test.ts\" \"evals/**/*.test.ts\"",
     "test:update": "node --test --test-update-snapshots --experimental-strip-types --no-warnings src/engine.test.ts",
     "typecheck": "tsc --noEmit",
     "typecheck:site": "pnpm --filter site run typecheck",

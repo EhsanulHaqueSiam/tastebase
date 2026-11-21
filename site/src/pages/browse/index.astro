@@ -1,4 +1,12 @@
 ---
-// /browse opens the first library.
-return Astro.redirect("/browse/shadcn-ui");
+// /browse: the library directory. Prerendered; the island filters on the client and loads live stats itself.
+import Directory from "../../components/Directory.tsx";
+import Base from "../../layouts/Base.astro";
+import { libraries, shelfLib } from "../../lib/server.ts";
+
+export const prerender = true;
 ---
+
+<Base title="Libraries · tastebase" description={`${libraries.length} hand-picked UI libraries, by job, framework and price.`}>
+  <Directory client:load libs={libraries.map(shelfLib)} />
+</Base>

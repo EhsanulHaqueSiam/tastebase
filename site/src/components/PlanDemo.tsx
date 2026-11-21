@@ -1,6 +1,7 @@
 import { Wand2 } from "lucide-react";
 import { AnimatePresence, LayoutGroup, motion } from "motion/react";
 import { useEffect, useState } from "react";
+import { Skeleton } from "skullet/react";
 import { TextMorph } from "torph/react";
 import { kindMeta } from "../lib/kinds.ts";
 import type { PlanJson } from "../lib/server.ts";
@@ -10,16 +11,22 @@ import { CopyButton, Rise, SpotCard } from "./fx.tsx";
 export default function PlanDemo({ initial, briefs }: { initial: PlanJson; briefs: string[] }) {
   const [brief, setBrief] = useState(briefs[0] ?? "");
   const [p, setP] = useState(initial);
+  // The last answer stays up while the next loads; only a slow answer (past 200ms) turns it into a Skullet skeleton
+  // measured from these rows, so typing on a fast connection never flashes.
+  const [slow, setSlow] = useState(false);
   useEffect(() => {
     if (brief === briefs[0]) return setP(initial);
     const ctl = new AbortController();
+    let wait: ReturnType<typeof setTimeout> | undefined;
     const t = setTimeout(() => {
+      wait = setTimeout(() => setSlow(true), 200);
       fetch(`/api/plan?brief=${encodeURIComponent(brief)}`, { signal: ctl.signal })
         .then((r) => r.json() as Promise<PlanJson>)
         .then(setP)
-        .catch(() => {});
+        .catch(() => {})
+        .finally(() => (clearTimeout(wait), setSlow(false)));
     }, 220);
-    return () => (clearTimeout(t), ctl.abort());
+    return () => (clearTimeout(t), clearTimeout(wait), ctl.abort());
   }, [brief]);
 
   return (
@@ -34,7 +41,7 @@ export default function PlanDemo({ initial, briefs }: { initial: PlanJson; brief
             <textarea value={brief} onChange={(e) => setBrief(e.target.value)} rows={3} className="w-full resize-none rounded-xl bg-transparent p-3 text-[15px] outline-none" aria-label="App brief" />
             <div className="flex flex-wrap gap-1.5 p-1.5">
               {briefs.map((b) => (
-                <button key={b} onClick={() => setBrief(b)} className={`press rounded-full px-3 py-1.5 text-[12.5px] ${b === brief ? "bg-fg text-black" : "bg-s3 text-fg2 hover:text-fg"}`}>
+                <button key={b} onClick={() => setBrief(b)} className={`press rounded-full px-3 py-1.5 text-[12.5px] ${b === brief ? "bg-fg text-bg" : "bg-s3 text-fg2 hover:text-fg"}`}>
                   {b.split(" with")[0]}
                 </button>
               ))}
@@ -66,6 +73,8 @@ export default function PlanDemo({ initial, briefs }: { initial: PlanJson; brief
           </SpotCard>
         </Rise>
         <Rise delay={0.1}>
+          <Skeleton id="plan-picks" data={p} loading={slow} label="Picking libraries">
+          {(p) => (
           <LayoutGroup>
             <ul className="grid grid-cols-1 gap-2">
               <AnimatePresence mode="popLayout" initial={false}>
@@ -103,6 +112,8 @@ export default function PlanDemo({ initial, briefs }: { initial: PlanJson; brief
               </AnimatePresence>
             </ul>
           </LayoutGroup>
+          )}
+          </Skeleton>
         </Rise>
       </div>
     </section>

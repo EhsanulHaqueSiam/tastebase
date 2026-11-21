@@ -1,0 +1,34 @@
+---
+// /f/<id>: a shared folder. Rendered per request: a public folder for anyone, a private one only for its owner.
+// The cards render in the browser (client:only), which keeps this route's server CPU to two small D1 reads.
+import { env } from "cloudflare:workers";
+import FolderView from "../../components/FolderView.tsx";
+import Base from "../../layouts/Base.astro";
+import { readFolder } from "../../lib/auth-data.ts";
+import { sessionUser } from "../../lib/auth.ts";
+import { libraries, shelfLib } from "../../lib/server.ts";
+
+export const prerender = false;
+
+const id = Astro.params.id!;
+// Most visits are share links to public folders, which need no session lookup.
+const folder = (await readFolder(env.DB, id, undefined)) ?? (await readFolder(env.DB, id, (await sessionUser(Astro.request))?.id));
+const byId = new Map(libraries.map((l) => [l.id, l]));
+const libs = folder?.libs.flatMap((l) => (byId.has(l) ? [shelfLib(byId.get(l)!)] : [])) ?? [];
+Astro.response.headers.set("cache-control", "private, no-store");
+if (!folder) Astro.response.status = 404;
+---
+
+<Base title={folder ? `${folder.name} · tastebase` : "Folder not found · tastebase"} description={folder ? `${libs.length} UI libraries, collected by ${folder.owner.name}.` : undefined}>
+  {
+    folder ? (
+      <FolderView client:only="react" id={folder.id} name={folder.name} public={folder.public} owner={folder.owner} libs={libs} />
+    ) : (
+      <section class="grid justify-items-center px-4 pt-40 text-center">
+        <h1 class="text-[18px] font-semibold tracking-[-0.02em]">This folder is private or gone</h1>
+        <p class="mt-2 max-w-[340px] text-fg2">If it is yours, sign in to see it. Otherwise ask its owner to share it again.</p>
+        <a href="/folders" class="press mt-5 inline-flex h-10 items-center rounded-xl bg-fg px-4 text-[14px] font-semibold text-black">Your folders</a>
+      </section>
+    )
+  }
+</Base>

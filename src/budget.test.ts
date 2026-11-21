@@ -32,7 +32,10 @@ const EVERY_LOOK = [
 
 const BUDGET = {
   instructions: 325, // sent with every session that connects, whether or not it calls a tool; 25 of it tells agents their skill is stale
-  schemas: 700, // every tool definition together, loaded when an agent first reaches for tastebase
+  // every tool definition together, loaded when an agent first reaches for tastebase. Raised from 700: get's
+  // _meta.ui (about 12) points hosts that render MCP Apps at the live library preview. Raised from 715: the get id
+  // list names illustrations, a resource category for spot art, and agent tools by its own name (3).
+  schemas: 720,
   // raised from 800: a site type's build line (3D, motion-led, media-led) adds up to 115; the rules every look shares
   // (brief first, never broken) add 60; the line that says to install the picks first adds 15. Raised from 1010: each
   // specialist pick carries its usage, about 100 tokens each and 630 for this worst case of six, since builders that
@@ -42,7 +45,9 @@ const BUDGET = {
   // Raised from 1820: the icon pick shows how to set size and stroke once (35), since builders sized each icon apart.
   plan: 1860,
   pick: 250,
-  get: 650, // raised from 550 for the cost line and parts list (capped); saves a docs fetch per library
+  // raised from 550 for the cost line and parts list (capped); saves a docs fetch per library. Raised from 650 for the
+  // library's official MCP server, one setup line (about 20), which saves a docs lookup to connect it.
+  get: 670,
 };
 
 async function connect() {
@@ -57,8 +62,8 @@ async function connect() {
 
 test("tool schemas and typical answers stay within the token budget", async () => {
   const { client, text } = await connect();
-  // Every id an agent is told it can `get`: each library, look and resource category, plus the look list.
-  const ids = [...libraries.map((l) => l.id), ...aesthetics.map((a) => a.id), ...agentResourceKinds, "looks"];
+  // Every id an agent is told it can `get`: each library, look and resource category, plus the look and MCP server lists.
+  const ids = [...libraries.map((l) => l.id), ...aesthetics.map((a) => a.id), ...agentResourceKinds, "looks", "integrations"];
   const gets = await Promise.all(ids.map(async (id) => [id, tokens(await text("get", { id }))] as const));
   const [getId, most] = worst(gets);
   const plans = await Promise.all([

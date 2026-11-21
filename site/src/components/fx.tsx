@@ -5,6 +5,7 @@ import { ArrowRight, Check, Copy } from "lucide-react";
 import { useRef, useState, type ComponentProps, type PointerEvent, type ReactNode } from "react";
 import { TextMorph } from "torph/react";
 import { toast } from "sonner";
+import { haptic } from "../lib/haptics.ts";
 
 /** Mesh gradient. Paper Shaders already pauses offscreen; we also stop it under reduced motion, which it ignores. */
 export function ShaderBg({ colors, className, speed = 0.25 }: { colors: string[]; className?: string; speed?: number }) {
@@ -43,6 +44,7 @@ export function CopyButton({ value, label = "Copy", className = "", quiet }: { v
   const onClick = async () => {
     await navigator.clipboard?.writeText(value).catch(() => {});
     setDone(true);
+    haptic("success");
     if (!quiet) toast("Copied", { description: value });
     clearTimeout(t.current);
     t.current = window.setTimeout(() => setDone(false), 1600);
@@ -50,7 +52,7 @@ export function CopyButton({ value, label = "Copy", className = "", quiet }: { v
   return (
     <button
       onClick={onClick}
-      className={`press inline-flex h-8 items-center gap-1.5 rounded-lg bg-s3 px-2.5 text-[12.5px] font-medium text-fg2 hover:bg-fg hover:text-black ${className}`}
+      className={`press inline-flex h-8 items-center gap-1.5 rounded-lg bg-s3 px-2.5 text-[12.5px] font-medium text-fg2 hover:bg-fg hover:text-bg ${className}`}
     >
       <IconMorph k={done ? "y" : "n"}>{done ? <Check size={14} /> : <Copy size={14} />}</IconMorph>
       <TextMorph>{done ? "Copied" : label}</TextMorph>
@@ -107,7 +109,7 @@ export function Rise({ children, delay = 0, className }: { children: ReactNode; 
 
 /** Pill link whose arrow swaps on hover (.cta in styles.css). `solid` is white on black; otherwise a dark fill. */
 export function ArrowLink({ solid, className = "", children, ...rest }: { solid?: boolean } & ComponentProps<"a">) {
-  const fill = solid ? "text-black [--cta-bg:var(--color-fg)] [--cta-hover:#d9d9de]" : "text-fg [--cta-bg:var(--color-s3)] [--cta-hover:#26262c]";
+  const fill = solid ? "text-bg [--cta-bg:var(--color-fg)] [--cta-hover:color-mix(in_srgb,var(--color-fg)_85%,var(--color-bg))]" : "text-fg [--cta-bg:var(--color-s3)] [--cta-hover:color-mix(in_srgb,var(--color-s3)_85%,var(--color-fg))]";
   return (
     <a className={`cta ${fill} ${className}`} {...rest}>
       <i aria-hidden />

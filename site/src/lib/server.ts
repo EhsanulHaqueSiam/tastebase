@@ -24,8 +24,8 @@ export async function getLibraries(): Promise<Library[]> {
 export type Lite = Pick<Library, "id" | "name" | "tagline" | "kind" | "install">;
 export const lite = ({ id, name, tagline, kind, install }: Library): Lite => ({ id, name, tagline, kind, install });
 
-/** A home shelf card: what it shows and what its filters read. */
-export const shelfLib = ({ id, name, tagline, kind, frameworks, aesthetic, install, repo }: Library) => ({ id, name, tagline, kind, frameworks, aesthetic, install, repo });
+/** A shelf or directory card: what it shows and what its filters read. */
+export const shelfLib = ({ id, name, tagline, kind, frameworks, aesthetic, install, repo, paid }: Library) => ({ id, name, tagline, kind, frameworks, aesthetic, install, repo, paid: !!paid });
 export type ShelfLib = ReturnType<typeof shelfLib>;
 
 /** A look as a shelf chip: its swatch, the words that find it, and every library it picks. */
@@ -73,8 +73,9 @@ export type PlanJson = {
   items: { kind: Kind; pick?: { lib: Lite; why: string; caution?: string }; empty?: string }[];
 };
 
-export function planJson(libs: Library[], brief: string): PlanJson {
-  const p = plan(libs, aesthetics, brief);
+/** `look` forces a look id instead of detecting one from the brief (the screenshot matcher already knows it). */
+export function planJson(libs: Library[], brief: string, look?: string): PlanJson {
+  const p = plan(libs, aesthetics, brief, { look });
   const { name, summary, type, colour, motion, avoid } = p.look;
   const base = p.items[0]?.pick?.lib;
   return {

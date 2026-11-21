@@ -39,8 +39,8 @@ skipping this, so it holds inside plan slots too. On top of it:
 
 - **Its own `avoidWhen` wins**: only the situation before the colon counts. Sharing 2+ words with the job and more
   than its best use case: the library is out, and so is anything that fits the job less. When the library does the
-  job's own kind, anything that fits only as well goes too ("gantt chart": recharts says no, and no chart library
-  names gantt, so nothing), except what the line sends the job to ("revenue chart": lightweight-charts says recharts).
+  job's own kind, anything that fits only as well goes too ("gantt chart": recharts says no, and only Kibo UI
+  names gantt, so Kibo UI alone), except what the line sends the job to ("revenue chart": lightweight-charts says recharts).
   As close as its best use case: −3 and `careful`. In a plan slot, where the brief is a whole page, an avoid line is
   matched on the brief's own words (no synonyms), and only a library of the slot's kind rules out the rest: a kit's
   "forms, tables, menus" line, or bencho's "form controls (slider)" via carousel → slider, is about another part of a
@@ -78,9 +78,9 @@ it matched itself, and wins ties.
 
 ## Plan
 
-1. **Base kit first.** A kit or primitives library the brief names ("we use mantine", "on shadcn") wins. A popular kit
-   the registry does not curate (`ELSEWHERE`: Chakra, Ant Design, Bootstrap...) is kept: the plan says so, has no
-   base pick, and adds no shadcn registry items. Else a style's own `component-kit` or `primitives` pick (one that
+1. **Base kit first.** A kit or primitives library the brief names ("we use mantine", "on shadcn", "antd" through
+   `ELSEWHERE`'s short names) wins. A popular kit the registry does not curate (`ELSEWHERE`: Bootstrap, Bulma,
+   Quasar...) is kept: the plan says so, has no base pick, and adds no shadcn registry items. Else a style's own `component-kit` or `primitives` pick (one that
    differs from its family's, since the registry index merges family picks into styles), minus any whose own
    `avoidWhen` fits the brief better than its use cases ("Mac OS 9 Platinum" is not 1-bit system.css), with any whose
    avoid line fits as well put behind the rest ("federal benefits form": govuk-frontend says uswds). Of several, the
