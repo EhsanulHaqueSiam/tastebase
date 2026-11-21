@@ -17,6 +17,12 @@ export default function TabBar() {
   const path = usePath();
   const [open, setOpen] = useState(false);
   useEffect(() => setOpen(false), [path]);
+  // The detail pill's sidebar button (DetailActions.tsx) opens this sheet on phones.
+  useEffect(() => {
+    const open = () => setOpen(true);
+    window.addEventListener("tb:more", open);
+    return () => window.removeEventListener("tb:more", open);
+  }, []);
   const search = () => window.dispatchEvent(new CustomEvent("tb:search", { detail: "" }));
 
   return (

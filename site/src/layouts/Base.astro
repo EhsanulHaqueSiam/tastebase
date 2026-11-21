@@ -43,7 +43,7 @@ const current = sections.find((s) => isCurrent(s, path));
          inset frame. Phones: the top bar and a bottom tab bar (TabBar.tsx). All three persist across navigations. -->
     <Rail client:load path={path} transition:persist="rail" />
 
-    <header class="fixed inset-x-0 top-0 z-40 flex h-14 items-center gap-4 px-5 lg:left-14 lg:pl-2.5" transition:persist="header">
+    <header data-shell="header" class="fixed inset-x-0 top-0 z-40 flex h-14 items-center gap-4 px-5 lg:left-14 lg:pl-2.5" transition:persist="header">
       <!-- Phones: content scrolls under the header, so it fades out through a progressive blur (Motion Primitives). -->
       <div aria-hidden="true" class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-20 bg-gradient-to-b from-black/80 to-transparent lg:hidden"><ProgressiveBlur direction="top" blurLayers={6} blurIntensity={0.6} className="h-full" /></div>
       <a href="/" class="group flex items-center gap-2 font-semibold tracking-[-0.02em] lg:hidden">
@@ -61,9 +61,9 @@ const current = sections.find((s) => isCurrent(s, path));
 
     <!-- The inset frame: one fixed ring whose huge spread paints the gutters black, so pages keep scrolling the window
          and need no layout of their own. Painted once; scrolling never repaints it. -->
-    <div aria-hidden="true" class="pointer-events-none fixed top-14 right-2 bottom-2 left-16 z-30 hidden rounded-2xl shadow-[0_0_0_100vmax_#000,inset_0_0_0_1px_var(--color-line2)] lg:block"></div>
+    <div aria-hidden="true" data-shell="frame" class="pointer-events-none fixed top-14 right-2 bottom-2 left-16 z-30 hidden rounded-2xl shadow-[0_0_0_100vmax_#000,inset_0_0_0_1px_var(--color-line2)] lg:block"></div>
 
-    <main transition:animate="fade" class="lg:pr-2 lg:pl-16">
+    <main transition:animate="fade" data-shell="main" class="lg:pr-2 lg:pl-16">
       <slot />
     </main>
 

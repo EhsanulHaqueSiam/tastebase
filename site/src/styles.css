@@ -67,14 +67,6 @@ body { font-family: var(--font-sans); font-size: 14px; line-height: 1.5; -webkit
   *, *::before, *::after { transition-duration: 1ms !important; animation-duration: 1ms !important; }
 }
 
-/* Library sidebar: it persists across pages, so the active row is marked in JS and its pill fades and settles in. */
-[data-lib]::before {
-  content: ""; position: absolute; inset: 0; border-radius: 8px; background: var(--color-s2);
-  opacity: 0; transform: scale(0.96); transition: opacity 200ms, transform 300ms var(--ease-out);
-}
-[data-lib][data-active]::before { opacity: 1; transform: scale(1); }
-[data-lib][data-active] { color: var(--color-fg); }
-
 /* Notes rise in, row by row, on each library page. */
 .rise > * { animation: rise 420ms var(--ease-out) both; }
 .rise > *:nth-child(2) { animation-delay: 40ms; } .rise > *:nth-child(3) { animation-delay: 80ms; }
@@ -199,3 +191,13 @@ body > header > * { animation: blur-in 900ms var(--ease-quart) backwards; }
 }
 @keyframes t-shimmer { 0% { background-position: 100% 0; } 100% { background-position: 0% 0; } }
 @media (prefers-reduced-motion: reduce) { .t-shimmer::before { animation: none !important; } }
+
+/* The detail pill's sidebar toggle (DetailActions.tsx) hides the desktop rail so the live site gets the room. Reset on
+   every navigation, because Astro's router replaces the <html> attributes. */
+[data-shell] { transition: translate 300ms var(--ease-out), left 300ms var(--ease-out), padding 300ms var(--ease-out); }
+@media (min-width: 1024px) {
+  [data-rail-hidden] [data-shell="rail"] { translate: -100% 0; }
+  [data-rail-hidden] [data-shell="header"] { left: 0; }
+  [data-rail-hidden] [data-shell="frame"] { left: 8px; }
+  [data-rail-hidden] [data-shell="main"] { padding-left: 8px; }
+}

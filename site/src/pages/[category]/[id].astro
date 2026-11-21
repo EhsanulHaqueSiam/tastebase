@@ -1,0 +1,18 @@
+---
+// A resource's page (/fonts/fontshare): the shared detail layout with its cost line and, when it has one, its MCP.
+import Detail from "../../components/Detail.astro";
+import Base from "../../layouts/Base.astro";
+import { listedResources, relatedTo, resourceListing } from "../../lib/listings.ts";
+
+export const prerender = true;
+export const getStaticPaths = () => listedResources.map(({ r, category }) => ({ params: { category, id: r.id }, props: { r, category } }));
+
+const { r, category } = Astro.props;
+const item = { ...resourceListing(r, category), description: r.goodFor };
+---
+
+<Base title={`${r.name} · tastebase`} description={r.goodFor}>
+  <Detail item={item} related={relatedTo(item)}>
+    <p slot="meta" class="mt-2 text-[13.5px] text-fg3">{r.cost}{r.mcp && <> · <a href={r.mcp.url} target="_blank" rel="noopener" class="text-fg2 underline-offset-4 hover:text-fg hover:underline">{r.mcp.name}</a>{r.mcp.needsPaidPlan ? " (paid plan)" : " (free)"}</>}</p>
+  </Detail>
+</Base>
