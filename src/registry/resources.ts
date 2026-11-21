@@ -30,9 +30,9 @@ export type Resource = {
   cost: string;
   /** Usable for real without paying. */
   free: boolean;
-  mcp?: { name: string; url: string; needsPaidPlan: boolean };
-  /** Day the entry joined the registry, "2026-11-21". The site's "Recently added" sorts by it. */
+  /** ISO date it joined tastebase, so the site can show what is new. Entries from before 2026-11-21 have none. */
   addedAt?: string;
+  mcp?: { name: string; url: string; needsPaidPlan: boolean };
 };
 
 export const resources: Resource[] = [

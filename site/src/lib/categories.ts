@@ -6,7 +6,7 @@ import type { Kind } from "../../../src/registry/schema.ts";
 export type Category = { slug: string; label: string; blurb: string; kinds?: readonly Kind[]; resources: readonly string[] };
 
 export const categories = [
-  { slug: "tools", label: "Tools", blurb: "Skills, generators and utilities that help you or your coding agent design: DESIGN.md makers, wireframes, shader editors and review tools.", resources: ["tools"] },
+  { slug: "tools", label: "Tools", blurb: "Skills, generators and utilities that help you or your coding agent design: DESIGN.md makers, wireframes, shader editors and review tools.", resources: ["agent-tools", "tools"] },
   { slug: "mockups", label: "Mockups", blurb: "Device frames, product renders and scenes to show a finished design in context.", resources: ["mockups"] },
   { slug: "icons", label: "Icons", blurb: "Static and animated icon sets you install, plus 3D icon renders for hero art.", kinds: ["icons"], resources: ["icons"] },
   { slug: "fonts", label: "Fonts", blurb: "Typefaces that are free to use, including for commercial work, for a less default look.", resources: ["fonts"] },
