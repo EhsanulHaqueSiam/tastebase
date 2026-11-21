@@ -2,6 +2,7 @@
 // (TabBar.tsx) shows the `tab` ones and puts the rest in its More sheet, so every section is reachable everywhere.
 import { useEffect, useRef, useState, type ForwardRefExoticComponent, type RefAttributes } from "react";
 import { BlocksIcon } from "../components/icons/blocks.tsx";
+import { BookTextIcon } from "../components/icons/book-text.tsx";
 import { CompassIcon } from "../components/icons/compass.tsx";
 import { GitPullRequestIcon } from "../components/icons/git-pull-request.tsx";
 import { HomeIcon } from "../components/icons/home.tsx";
@@ -26,6 +27,7 @@ export const sections: Section[] = [
   { href: "/browse", label: "Browse", icon: LayoutGridIcon, tab: true },
   { href: "/components", label: "Components", icon: BlocksIcon, tab: true },
   { href: "/tools", label: "Resources", icon: LayersIcon, also: categories.map((c) => `/${c.slug}`) },
+  { href: "/best", label: "Articles", icon: BookTextIcon, also: ["/alternatives"] },
   { href: "/match", label: "Match a screenshot", icon: ScanTextIcon },
   { href: "/looks", label: "Looks", icon: PaletteIcon },
   { href: "/atlas", label: "Atlas", icon: CompassIcon },
