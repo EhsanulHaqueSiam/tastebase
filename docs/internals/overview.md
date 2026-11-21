@@ -7,7 +7,7 @@ src/registry (data) ──> src/engine.ts (pick, plan) ──> src/format.ts (co
         │                                                      └──> /mcp (hosted)   src/cli.ts (stdio)
         └── src/trending.ts <── cron (hourly) ──> KV `stats:v1` ──> merged in at request time
 
-browser ──> /api/auth/* (better-auth, GitHub) ──┐
+browser ──> /api/auth/* (better-auth: GitHub, Google, X) ──┐
         ──> /api/me, /api/saved, /api/folders ──┴──> D1 (migrations/): user, session, saved, folder
         ──> /f/<id> (SSR, a shared folder)
 ```
@@ -19,7 +19,7 @@ One Cloudflare Worker (declared in `alchemy.run.ts`) does everything:
 - **`/mcp`** is the same `createServer` as the npx CLI, behind the SDK's web-standard Streamable HTTP
   transport. Stateless: a fresh server per request, JSON responses, nothing to store.
 - **`/api/*`** returns JSON for islands (hero search, plan box, ⌘K palette). Same engine as MCP.
-- **Accounts** (`site/src/lib/auth.ts`, `auth-data.ts`): better-auth on D1, GitHub sign-in, a session cookie.
+- **Accounts** (`site/src/lib/auth.ts`, `auth-data.ts`): better-auth on D1, sign-in with GitHub, Google or X, a session cookie.
   The browser store (`site/src/lib/saved.ts`) holds hearts and folders for every island.
 - **`scheduled()`** (`site/src/worker.ts`) refreshes the 24 stalest libraries' stats each hour.
 
@@ -48,10 +48,12 @@ One Cloudflare Worker (declared in `alchemy.run.ts`) does everything:
 - **Hearts and folders hold registry ids only.** The API drops any id the registry does not know, which also bounds
   what one account can store; folders are capped at 100 per user. Every write is scoped `where userId = ?`, and a
   folder that is not yours answers 404, never 403, so private ids do not leak.
-- **One GitHub OAuth app for every stage.** Its redirect URIs are prod, `*.ehsanulsiam.workers.dev` (wildcard, so
-  `pr-<n>` previews sign in too), `localhost:1337` and `127.0.0.1` on any port (GitHub's loopback rule). better-auth
-  builds the callback from the request host, limited to those hosts (`baseURL.allowedHosts`). Without the keys
-  (CI's `pnpm check`) `/api/auth/*` answers 404 and the site runs signed out.
+- **One OAuth app per provider for every stage.** GitHub's redirect URIs are prod, `*.ehsanulsiam.workers.dev`
+  (wildcard, so `pr-<n>` previews sign in too), `localhost:1337` and `127.0.0.1` on any port (GitHub's loopback rule).
+  Google and X match URIs exactly, so a preview signs in with them only once its URI is registered
+  ([deploy.md](../operations/deploy.md#sign-in-providers)). better-auth builds the callback from the request host,
+  limited to those hosts (`baseURL.allowedHosts`). Each provider is optional on its own keys and the sign-in sheet
+  asks `/api/me` which ones to show; without any (CI's `pnpm check`) `/api/auth/*` answers 404 and the site runs signed out.
 - **`/f/<id>` renders per request, its cards in the browser** (`client:only`). The server does one D1 read for a
   public folder (for a private one, a session read and a second folder read) and no React render, inside the 10ms CPU budget.
 - **`build.format: "file"`.** Directory output (`motion/index.html`) makes Cloudflare's asset layer redirect
