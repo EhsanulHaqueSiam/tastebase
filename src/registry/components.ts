@@ -1416,7 +1416,7 @@ export const components: Record<string, Component[]> = {
     ["Youtube Video Player","https://www.cult-ui.com/docs/components/youtube-video-player"],
   ],
   "cmdk": [
-    ["Command","https://github.com/pacocoursey/cmdk",["command menu","command palette","⌘k"]],
+    ["Command","https://github.com/dip/cmdk",["command menu","command palette","⌘k"]],
   ],
   "beui": [
     ["Button","https://beui.dev/components/motion/button"],
