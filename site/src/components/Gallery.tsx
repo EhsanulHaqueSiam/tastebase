@@ -7,6 +7,7 @@ import type { LookChip, ShelfLib } from "../lib/server.ts";
 import { useStats } from "../lib/stats.ts";
 import { ArrowLink, Rise } from "./fx.tsx";
 import { FW, LibCard, SORTS, sortBy, statBadge, type Sort } from "./LibCard.tsx";
+import { Seg } from "./Seg.tsx";
 
 const SHOWN = 12;
 const words = (s: string) => s.toLowerCase().split(/\s+/).filter(Boolean);
@@ -70,9 +71,9 @@ export default function Gallery({ libs, looks }: { libs: ShelfLib[]; looks: Look
             {frameworks.map((f) => <option key={f} value={f}>{FW[f]}</option>)}
           </select>
         </label>
-        <div className="seg" role="group" aria-label="Sort">
+        <Seg label="Sort">
           {SORTS.map(([id, label]) => <button key={id} type="button" aria-pressed={sort === id} onClick={() => setSort(id)}>{label}</button>)}
-        </div>
+        </Seg>
       </div>
 
       <div role="group" aria-label="Look" className="mt-2.5 flex gap-1.5 overflow-x-auto p-0.5 [scrollbar-width:none]">

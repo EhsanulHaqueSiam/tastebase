@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type ForwardRefExoticComponent, type RefAttributes } from "react";
 import { BlocksIcon } from "../components/icons/blocks.tsx";
 import { CompassIcon } from "../components/icons/compass.tsx";
+import { FoldersIcon } from "../components/icons/folders.tsx";
 import { GitPullRequestIcon } from "../components/icons/git-pull-request.tsx";
 import { HomeIcon } from "../components/icons/home.tsx";
 import { LayoutGridIcon } from "../components/icons/layout-grid.tsx";
@@ -22,6 +23,7 @@ export const sections: Section[] = [
   { href: "/", label: "Home", icon: HomeIcon, tab: true },
   { href: "/browse", label: "Browse", icon: LayoutGridIcon, tab: true },
   { href: "/components", label: "Components", icon: BlocksIcon, tab: true },
+  { href: "/folders", label: "Folders", icon: FoldersIcon },
   { href: "/match", label: "Match a screenshot", icon: ScanTextIcon },
   { href: "/looks", label: "Looks", icon: PaletteIcon },
   { href: "/atlas", label: "Atlas", icon: CompassIcon },

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { mcpClients, mcpSetup, type Integration, type McpClient } from "../../../src/registry/integrations.ts";
 import { CopyButton } from "./fx.tsx";
+import { Seg } from "./Seg.tsx";
 
 export default function McpSetup({ integration }: { integration: Integration }) {
   const [client, setClient] = useState<McpClient>("Claude Code");
@@ -11,9 +12,9 @@ export default function McpSetup({ integration }: { integration: Integration }) 
       <div className="flex items-center gap-1 border-b border-line p-1.5">
         {/* Scrolls in narrow panes (the library page's 360px column) so Copy stays in view. */}
         <div className="min-w-0 flex-1 overflow-x-auto [scrollbar-width:none]">
-          <div className="seg" role="group" aria-label="Client">
+          <Seg label="Client">
             {mcpClients.map((c) => <button key={c} type="button" aria-pressed={client === c} onClick={() => setClient(c)}>{c}</button>)}
-          </div>
+          </Seg>
         </div>
         <CopyButton value={code} quiet />
       </div>
