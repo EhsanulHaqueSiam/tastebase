@@ -13,7 +13,14 @@ export type Tab = { send: Send; on: (method: string, fn: (params: Record<string,
 /** Starts Chrome, hands `use` a function that opens fresh tabs, and always shuts Chrome down after. */
 export async function withChrome<T>(use: (openTab: () => Promise<Tab>) => Promise<T>): Promise<T> {
   const profile = mkdtempSync(join(tmpdir(), "tb-bench-"));
-  const proc = spawn(chromium, ["--headless=new", "--no-first-run", "--no-default-browser-check", "--remote-debugging-port=0", `--user-data-dir=${profile}`, "about:blank"], { stdio: "ignore" });
+  // GPU on, as visitors have it: without it headless Chrome composites in software, and a live, animating preview
+  // iframe alone turns 40ms clicks into seconds. TB_CHROME_FLAGS adds flags for other machines.
+  const gpu = process.platform === "darwin" ? ["--enable-gpu", "--use-angle=metal"] : ["--enable-gpu"];
+  const extra = process.env.TB_CHROME_FLAGS?.split(" ").filter(Boolean) ?? [];
+  // TB_HEADED=1 opens real windows: frames are produced as on a visitor's screen, which headless does not match when
+  // a page holds a busy cross-origin iframe (the live preview).
+  const mode = process.env.TB_HEADED ? ["--window-size=1440,1000"] : ["--headless=new"];
+  const proc = spawn(chromium, [...mode, ...gpu, ...extra, "--no-first-run", "--no-default-browser-check", "--remote-debugging-port=0", `--user-data-dir=${profile}`, "about:blank"], { stdio: "ignore" });
   try {
     const portFile = join(profile, "DevToolsActivePort");
     for (let i = 0; !existsSync(portFile) || readFileSync(portFile, "utf8").split("\n").length < 2; i++) {

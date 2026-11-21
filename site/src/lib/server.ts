@@ -1,7 +1,7 @@
 // Server-only: the registry, the engine and live stats. Islands import only its types; they get props or call /api.
 import { env } from "cloudflare:workers";
 import { jobFramework, pick, plan } from "../../../src/engine.ts";
-import { emptySlot, firstStep, formatSite, install, MOBILE } from "../../../src/format.ts";
+import { emptySlot, firstStep, formatPlan, formatSite, install, MOBILE } from "../../../src/format.ts";
 import { aesthetics, libraries } from "../../../src/registry/index.ts";
 import { kinds, type Aesthetic, type Framework, type Kind, type Library } from "../../../src/registry/schema.ts";
 import { STATS_KEY, withStats, type Stats } from "../../../src/trending.ts";
@@ -11,7 +11,7 @@ export { aesthetics, libraries };
 
 // Fill the engine's parse caches while the Worker starts (startup CPU has its own limit), so the first request's
 // plan costs ~1ms instead of ~8ms against the 10ms per-request limit.
-plan(libraries, aesthetics, "warm-up: landing page dashboard with charts");
+formatPlan(plan(libraries, aesthetics, "warm-up: landing page dashboard with charts"));
 pick(libraries, "toast");
 
 // The cron rewrites stats hourly, so an isolate keeps the merged registry for a minute: one KV read per isolate per

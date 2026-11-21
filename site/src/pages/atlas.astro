@@ -234,18 +234,23 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
       // One shared screenshot preview for every chip, placed above the hovered one (below it near the top edge).
       const tip = root.querySelector<HTMLImageElement>("img.tip")!;
       if (matchMedia("(hover: hover) and (pointer: fine)").matches) {
+        let over: string | undefined; // the screenshot of the chip under the pointer, if any
+        tip.onload = () => (tip.hidden = tip.getAttribute("src") !== over);
         root.addEventListener("pointerover", (e) => {
           const chip = (e.target as Element).closest<HTMLElement>(".chip[data-shot]");
+          over = chip?.dataset.shot;
           if (!chip) return void (tip.hidden = true);
           const r = chip.getBoundingClientRect();
-          tip.src = chip.dataset.shot!;
-          tip.style.left = `${Math.min(r.left, innerWidth - 252)}px`;
+          tip.style.left = `${Math.max(8, Math.min(r.left, innerWidth - 252))}px`;
           tip.style.top = `${r.top > 170 ? r.top - 156 : r.bottom + 6}px`;
-          tip.hidden = false;
+          // A new screenshot shows once it has loaded, never the previous chip's in the meantime.
+          if (tip.getAttribute("src") === chip.dataset.shot) tip.hidden = false;
+          else { tip.hidden = true; tip.src = chip.dataset.shot!; }
         });
-        root.addEventListener("pointerleave", () => (tip.hidden = true));
+        root.addEventListener("pointerleave", () => ((over = undefined), (tip.hidden = true)));
         const off = new AbortController();
-        addEventListener("scroll", () => (tip.hidden = true), { passive: true, signal: off.signal });
+        // capture: also hides it when the islands map itself scrolls sideways.
+        addEventListener("scroll", () => (tip.hidden = true), { passive: true, capture: true, signal: off.signal });
         document.addEventListener("astro:before-swap", () => off.abort(), { once: true });
       }
     }
@@ -284,7 +289,7 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
   sup { margin-left: 3px; font: 500 9.5px var(--font-mono); color: var(--color-blue); }
 
   .mood { display: grid; gap: 22px; }
-  .mood > section, .bars, .mx-wrap, .plist, .rtbl tbody { content-visibility: auto; contain-intrinsic-size: auto 600px; }
+  .mood > section, .bars, .mx-wrap, .plist { content-visibility: auto; contain-intrinsic-size: auto 600px; }
   .mood ul { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
   .tile a { display: grid; gap: 7px; font-size: 13px; }
   .tile span { display: flex; align-items: center; gap: 7px; white-space: nowrap; overflow: hidden; }

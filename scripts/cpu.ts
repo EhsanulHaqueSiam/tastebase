@@ -3,6 +3,7 @@
 // Workers run on slower cores than a laptop, so the budget here is half: p95 under 5ms. `pnpm cpu`.
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
+import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import { jobFramework, pick, plan } from "../src/engine.ts";
 import { formatPlan } from "../src/format.ts";
 import { createServer } from "../src/mcp.ts";
@@ -29,7 +30,35 @@ async function time(name: string, run: (i: number) => unknown | Promise<unknown>
   return p95 <= BUDGET;
 }
 
+// A cold isolate's first MCP requests, served the way site/src/pages/mcp.ts serves them (a fresh server per HTTP
+// request on the web-standard transport), after the warm-up the Worker runs at startup (server.ts and mcp.ts).
+// The one request most likely to near the 10ms limit on a quiet free-plan Worker; timed before anything else warms up.
+async function mcpRequest(body: object) {
+  const transport = new WebStandardStreamableHTTPServerTransport({ sessionIdGenerator: undefined, enableJsonResponse: true });
+  await createServer(libs(), aesthetics, "0").connect(transport);
+  const res = await transport.handleRequest(new Request("http://x/mcp", { method: "POST", headers: { "content-type": "application/json", accept: "application/json, text/event-stream" }, body: JSON.stringify(body) }));
+  return res.text();
+}
+formatPlan(plan(libraries, aesthetics, "warm-up: landing page dashboard with charts"));
+pick(libraries, "toast");
+createServer(libraries, aesthetics, "0");
+// Node builds Request/Response in JavaScript (undici) on first use, ~11ms that workerd's built-in ones never cost;
+// load them first so the cold numbers below are the Worker's, not Node's.
+await new Response(JSON.stringify(await new Request("http://x", { method: "POST", body: "{}" }).json())).text();
+const cold: number[] = [];
+for (const body of [
+  { jsonrpc: "2.0", id: 1, method: "initialize", params: { protocolVersion: "2025-06-18", capabilities: {}, clientInfo: { name: "cpu", version: "0" } } },
+  { jsonrpc: "2.0", id: 2, method: "tools/call", params: { name: "plan", arguments: { brief: briefs[0] } } },
+  { jsonrpc: "2.0", id: 3, method: "tools/call", params: { name: "pick", arguments: { need: queries[0] } } },
+]) {
+  const t = performance.now();
+  await mcpRequest(body);
+  cold.push(performance.now() - t);
+}
+console.log(`${"MCP, cold isolate".padEnd(26)} initialize ${cold[0]!.toFixed(2)}ms, first plan ${cold[1]!.toFixed(2)}ms, first pick ${cold[2]!.toFixed(2)}ms${Math.max(...cold) > 2 * BUDGET ? "  <-- over 10ms" : ""}`);
+
 const results = [
+  Math.max(...cold) <= 2 * BUDGET,
   await time("GET /api/search", (i) => { const q = queries[i % queries.length]!; return pick(libs(), q, { limit: 30, framework: jobFramework(q) }); }),
   await time("GET /api/pick", (i) => pick(libs(), queries[i % queries.length]!)),
   await time("GET /api/plan", (i) => plan(libs(), aesthetics, briefs[i % briefs.length]!)),

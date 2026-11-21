@@ -17,7 +17,16 @@ const queries = ["toast", "bottom sheet", "date picker", "pricing table", "comma
 const briefs = ["iOS-feel habit tracker with a bottom sheet", "neo-brutalist landing page with marquee", "analytics dashboard with charts and a data table"];
 const any = <T,>(xs: T[]) => xs[Math.floor(Math.random() * xs.length)]!;
 
-type Step = { name: string; run: () => Promise<Response> };
+// `check` reads the body for failures HTTP status misses: MCP answers tool errors with 200 and `isError`.
+type Step = { name: string; run: () => Promise<Response>; check?: (body: string) => string | undefined };
+const mcpError = (body: string) => {
+  try {
+    const m = JSON.parse(body) as { error?: { message: string }; result?: { isError?: boolean; content?: { text?: string }[] } };
+    return m.error ? m.error.message : m.result?.isError ? `tool error: ${m.result.content?.[0]?.text?.slice(0, 80)}` : undefined;
+  } catch {
+    return "not JSON-RPC";
+  }
+};
 const mcp = (body: object) => fetch(`${base}/mcp`, { method: "POST", headers: { "content-type": "application/json", accept: "application/json, text/event-stream", ...(process.env.TASTEBASE_KEY ? { authorization: `Bearer ${process.env.TASTEBASE_KEY}` } : {}) }, body: JSON.stringify(body) });
 const steps: Step[] = [
   { name: "GET /", run: () => fetch(`${base}/`) },
@@ -31,9 +40,9 @@ const steps: Step[] = [
   { name: "GET /api/views", run: () => fetch(`${base}/api/views`) },
   // Every page view sends this; the Worker only counts same-origin posts. Previews write to the dev dataset, not prod's.
   { name: "POST /api/hit", run: () => fetch(`${base}/api/hit`, { method: "POST", headers: { origin: base } }) },
-  { name: "MCP initialize", run: () => mcp({ jsonrpc: "2.0", id: 1, method: "initialize", params: { protocolVersion: "2025-06-18", capabilities: {}, clientInfo: { name: "tastebase-load", version: "0" } } }) },
-  { name: "MCP pick", run: () => mcp({ jsonrpc: "2.0", id: 2, method: "tools/call", params: { name: "pick", arguments: { need: any(queries) } } }) },
-  { name: "MCP plan", run: () => mcp({ jsonrpc: "2.0", id: 3, method: "tools/call", params: { name: "plan", arguments: { brief: any(briefs) } } }) },
+  { name: "MCP initialize", check: mcpError, run: () => mcp({ jsonrpc: "2.0", id: 1, method: "initialize", params: { protocolVersion: "2025-06-18", capabilities: {}, clientInfo: { name: "tastebase-load", version: "0" } } }) },
+  { name: "MCP pick", check: mcpError, run: () => mcp({ jsonrpc: "2.0", id: 2, method: "tools/call", params: { name: "pick", arguments: { need: any(queries) } } }) },
+  { name: "MCP plan", check: mcpError, run: () => mcp({ jsonrpc: "2.0", id: 3, method: "tools/call", params: { name: "plan", arguments: { brief: any(briefs) } } }) },
 ];
 
 const times = new Map<string, number[]>(), errors = new Map<string, string[]>();
@@ -66,8 +75,8 @@ const visitor = async () => {
     const t0 = performance.now();
     try {
       const r = await step.run();
-      await r.arrayBuffer();
-      record(step.name, performance.now() - t0, r.ok ? undefined : `HTTP ${r.status}`);
+      const body = await r.text();
+      record(step.name, performance.now() - t0, r.ok ? step.check?.(body) : `HTTP ${r.status}`);
     } catch (e) {
       record(step.name, performance.now() - t0, (e as Error).message);
     }

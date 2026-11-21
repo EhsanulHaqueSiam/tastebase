@@ -1,7 +1,8 @@
 // Bombadil explores the site on its own (clicks, typing, scrolling, back, forward, reload) and checks these properties
 // on every state it reaches, on top of its defaults: no HTTP errors, uncaught exceptions, rejected promises or console
 // errors. Run with `pnpm bombadil <url>` (scripts/bombadil.sh): a desktop and a phone-sized pass.
-import { always, eventually, extract, now } from "@antithesishq/bombadil";
+import { always, eventually, now } from "@antithesishq/bombadil";
+import { extract } from "@antithesishq/bombadil/browser";
 export * from "@antithesishq/bombadil/browser/defaults";
 
 const page = extract((s) => {
@@ -26,5 +27,6 @@ export const titledWithOneHeading = always(() => page.current.title.length > 0 &
 export const noBrokenImages = always(() => page.current.brokenImages.length === 0);
 /** Every button and link has a name a screen reader can announce. */
 export const controlsHaveNames = always(() => page.current.unnamedButtons === 0);
-/** A live preview never sits on its loading state for more than 15 seconds. */
-export const previewFinishesLoading = always(now(() => page.current.previewLoading).implies(eventually(() => !page.current.previewLoading).within(15, "seconds")));
+/** A live preview never sits on its loading state: LiveSite.tsx gives up at 12 seconds and shows the screenshot, so
+ *  anything past 13 means that fallback broke. How fast it loads is pnpm bench's job. */
+export const previewFinishesLoading = always(now(() => page.current.previewLoading).implies(eventually(() => !page.current.previewLoading).within(13, "seconds")));

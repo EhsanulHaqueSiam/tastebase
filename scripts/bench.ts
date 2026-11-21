@@ -13,7 +13,8 @@ const runs = Number(flag("runs") ?? 3);
 const min = Number(flag("min") ?? 9.5);
 const only = flag("only")?.split(",");
 
-// One page of each kind, plus the pages with the most behaviour. `live` marks a detail page whose preview panel loads.
+// One page of each kind, plus the pages with the most behaviour. `live` marks a detail page whose preview panel must
+// show the real site (all three allow framing), so a fallback screenshot there is a failure.
 const pages: { name: string; path: string; live?: boolean }[] = [
   { name: "home", path: "/" },
   { name: "browse", path: "/browse" },
@@ -38,15 +39,19 @@ const pages: { name: string; path: string; live?: boolean }[] = [
   { name: "contribute", path: "/contribute" },
   { name: "sponsor", path: "/sponsor" },
   { name: "feedback", path: "/feedback" },
+  { name: "terms", path: "/terms" },
+  { name: "embed", path: "/embed/vaul" },
   { name: "not-found", path: "/no-such-page" },
 ].filter((p) => !only || only.includes(p.name));
 
 // Lighthouse 12 scoring curves: [p10, median] per metric (score 0.9 at p10, 0.5 at the median), and the weights.
 const curves = {
-  desktop: { fcp: [934, 1600], lcp: [1200, 2400], tbt: [150, 350], cls: [0.1, 0.25], ttfb: [800, 1800] },
-  mobile: { fcp: [1800, 3000], lcp: [2500, 4000], tbt: [200, 600], cls: [0.1, 0.25], ttfb: [800, 1800] },
+  desktop: { fcp: [934, 1600], lcp: [1200, 2400], tbt: [150, 350], cls: [0.1, 0.25] },
+  mobile: { fcp: [1800, 3000], lcp: [2500, 4000], tbt: [200, 600], cls: [0.1, 0.25] },
 } as const;
-const weights = { fcp: 0.1, lcp: 0.25, tbt: 0.3, cls: 0.25, ttfb: 0.1 } as const;
+// Lighthouse 12's weights (FCP 10, SI 10, LCP 25, TBT 30, CLS 25) without Speed Index, scaled back to 1. TTFB is
+// reported, not scored: Lighthouse does not weigh it, and on Cloudflare it would only pad slow pages.
+const weights = { fcp: 0.1 / 0.9, lcp: 0.25 / 0.9, tbt: 0.3 / 0.9, cls: 0.25 / 0.9 } as const;
 const inpCurve = [200, 500] as const;
 
 // erf by Abramowitz-Stegun 7.1.26, close enough for scoring.
@@ -67,19 +72,22 @@ const round = (n: number, d = 1) => Math.round(n * 10 ** d) / 10 ** d;
 
 // Runs in the page before any of its scripts: collects paint, layout shift, long task and interaction timings.
 const OBSERVE = `(() => {
-  const m = window.__bench = { fcp: 0, lcp: 0, cls: 0, longTasks: [], events: [], navs: [], errors: [] };
+  const m = window.__bench = { fcp: 0, lcp: 0, cls: 0, longTasks: [], events: [], frames: [], navs: [], errors: [] };
   const po = (type, fn, opts = {}) => { try { new PerformanceObserver((l) => l.getEntries().forEach(fn)).observe({ type, buffered: true, ...opts }); } catch {} };
   po("paint", (e) => { if (e.name === "first-contentful-paint") m.fcp = e.startTime; });
   po("largest-contentful-paint", (e) => { m.lcp = e.startTime; const el = e.element; m.lcpEl = el ? el.tagName.toLowerCase() + (el.id ? "#" + el.id : "") + (el.className && typeof el.className === "string" ? "." + el.className.trim().split(/\\s+/).slice(0, 2).join(".") : "") + (e.url ? " " + e.url.split("/").pop() : "") : ""; });
   po("layout-shift", (e) => { if (!e.hadRecentInput) m.cls += e.value; });
   po("longtask", (e) => m.longTasks.push([e.startTime, e.duration]));
-  po("event", (e) => { if (e.interactionId) m.events.push([e.name, e.duration, e.startTime]); }, { durationThreshold: 16 });
+  po("event", (e) => { if (e.interactionId) m.events.push([e.name, e.duration, e.startTime, e.processingEnd]); }, { durationThreshold: 16 });
+  po("long-animation-frame", (e) => m.frames.push([e.startTime, e.startTime + e.duration]));
   document.addEventListener("astro:page-load", () => m.navs.push(performance.now()));
   addEventListener("error", (e) => m.errors.push(String(e.message || e.target?.src || e.type)), true);
   // The live preview: when, from navigation start, it shows the site (or its screenshot, for sites that refuse framing).
   const t = setInterval(() => {
     const f = document.querySelector('iframe[title$="website"]');
-    const shot = document.querySelector('img[alt$="website"]');
+    // The panel's own fallback, found by its message: detail pages have another "<name> website" image for phones.
+    const note = [...document.querySelectorAll("p")].find((p) => p.textContent.includes("Here is how it looks"));
+    const shot = note?.parentElement?.parentElement?.querySelector('img[alt$="website"]');
     const state = f ? (f.parentElement.querySelector('[aria-hidden="true"]') ? "live" : "") : shot && shot.complete && shot.naturalWidth ? "screenshot" : "";
     if (state) { m.live = state; m.liveAt = performance.now(); clearInterval(t); }
   }, 25);
@@ -146,11 +154,19 @@ async function key(tab: Tab, k: string, modifiers = 0) {
   await tab.send("Input.dispatchKeyEvent", { type: "keyUp", key: k, code, modifiers });
 }
 
-/** The slowest interaction since `from` events were recorded, in ms (the INP of that step). */
+/**
+ * The slowest interaction since `from` events were recorded, in ms (the INP of that step). Each event counts up to the
+ * end of the main thread's work for it: its input delay and handlers, through the end of any long animation frame
+ * they fall in (so style, layout and paint are included). Headless Chrome can hold the next frame back for seconds
+ * when nothing forces one, which a visitor's browser does not (a 24ms click there read 3.7s here); that wait is cut.
+ */
 async function slowestSince(tab: Tab, from: number) {
-  await sleep(700);
-  const events = await evaluate<[string, number][]>(tab, "window.__bench.events");
-  return Math.max(0, ...events.slice(from).map((e) => e[1]));
+  await sleep(1500); // event and frame entries arrive after the frame they describe
+  const { events, frames } = await evaluate<{ events: [string, number, number, number][]; frames: [number, number][] }>(tab, "({ events: window.__bench.events, frames: window.__bench.frames })");
+  return Math.max(0, ...events.slice(from).map(([, duration, start, processed]) => {
+    const frame = frames.find(([s, e]) => s <= processed && processed <= e);
+    return Math.round(Math.min(duration, (frame ? frame[1] : processed + 16) - start));
+  }));
 }
 const eventCount = (tab: Tab) => evaluate<number>(tab, "window.__bench.events.length");
 
@@ -197,7 +213,7 @@ async function measure(openTab: () => Promise<Tab>, page: (typeof pages)[number]
     const domNodes = await evaluate<number>(tab, "document.getElementsByTagName('*').length");
     const overflow = await evaluate<boolean>(tab, "document.documentElement.scrollWidth > innerWidth + 1");
     const c = curves[profile];
-    const parts = { fcp: m.fcp, lcp: m.lcp || m.fcp, tbt, cls: m.cls, ttfb };
+    const parts = { fcp: m.fcp, lcp: m.lcp || m.fcp, tbt, cls: m.cls };
     const loadScore = 10 * Object.entries(weights).reduce((s, [k, w]) => s + w * logNormal(parts[k as keyof typeof parts], c[k as keyof typeof c]), 0);
 
     // Behaviour: the live preview, then every tab-like control, the search box, ⌘K, and a page-to-page navigation.
@@ -211,7 +227,7 @@ async function measure(openTab: () => Promise<Tab>, page: (typeof pages)[number]
       const p = await evaluate<{ live?: string; liveAt?: number }>(tab, "({ live: window.__bench.live, liveAt: window.__bench.liveAt })");
       live = p.live ?? "never loaded";
       liveMs = p.liveAt ? round(p.liveAt, 0) : undefined;
-      interactions.push({ name: `live preview shows the ${live === "screenshot" ? "screenshot" : "site"}`, inp: 0, ms: liveMs, note: live === "never loaded" ? "the live preview never loaded" : undefined });
+      interactions.push({ name: `live preview shows the ${live === "screenshot" ? "screenshot" : "site"}`, inp: 0, ms: liveMs, note: live === "never loaded" ? "the live preview never loaded" : live === "screenshot" ? "showed the fallback screenshot, not the live site" : undefined });
     }
     const controls = await evaluate<number>(tab, `document.querySelectorAll('nav.tabs a, .seg button, .rfilter button, [role=tab], [data-set-view], [data-set-free], main button[aria-pressed]').length`);
     for (let i = 0; i < Math.min(controls, 8); i++) {
@@ -221,9 +237,10 @@ async function measure(openTab: () => Promise<Tab>, page: (typeof pages)[number]
     }
     if (await evaluate<boolean>(tab, `!!document.querySelector('main input[type=search], main input[type=text], main textarea')`)) {
       const before = await eventCount(tab);
-      await tap("main input[type=search], main input[type=text], main textarea");
-      for (const ch of "toast") await key(tab, ch);
-      interactions.push({ name: "type in search", inp: await slowestSince(tab, before) });
+      if (await tap("main input[type=search], main input[type=text], main textarea")) {
+        for (const ch of "toast") await key(tab, ch);
+        interactions.push({ name: "type in search", inp: await slowestSince(tab, before) });
+      }
     }
     if (!mobile) {
       const before = await eventCount(tab);
@@ -247,16 +264,19 @@ async function measure(openTab: () => Promise<Tab>, page: (typeof pages)[number]
     {
       const navs = await evaluate<number>(tab, "window.__bench.navs.length");
       const before = await eventCount(tab);
-      const t0 = Date.now();
       const target = await tap(`main a[href^="/browse/"], main a[href^="/best/"], main a[href="/atlas"]`);
+      const t0 = Date.now(); // from the click itself; tap() waits a second before clicking, which is not navigation time
       if (target) {
         let ms: number | undefined;
         for (; Date.now() - t0 < 10_000; await sleep(50)) if ((await evaluate<number>(tab, "window.__bench?.navs.length ?? 0")) > navs || (await evaluate<number>(tab, "performance.getEntriesByType('navigation').length")) === 1 && (await evaluate<string>(tab, "location.pathname")) !== page.path) { ms = Date.now() - t0; break; }
         interactions.push({ name: "click through to a page", inp: await slowestSince(tab, before).catch(() => 0), ms, note: ms ? undefined : `navigation did not finish (clicked "${target}", now at ${await evaluate<string>(tab, "location.pathname")})` });
       }
     }
+    // Responsiveness by INP, and how long a page-to-page navigation or the live preview takes to show, on the LCP
+    // curve for this profile; the score is the worse of the two, halved when any step failed outright.
     const worst = Math.max(0, ...interactions.map((i) => i.inp));
-    const interactionScore = interactions.length ? 10 * logNormal(worst || 1, inpCurve) * (interactions.some((i) => i.note) ? 0.5 : 1) : 10;
+    const timed = interactions.filter((i) => i.ms !== undefined).map((i) => logNormal(i.ms!, c.lcp));
+    const interactionScore = interactions.length ? 10 * Math.min(logNormal(worst || 1, inpCurve), ...timed) * (interactions.some((i) => i.note) ? 0.5 : 1) : 10;
     return {
       page: page.name, profile, ttfb: round(ttfb, 0), fcp: round(m.fcp, 0), lcp: round(m.lcp || m.fcp, 0), cls: round(m.cls, 3), tbt: round(tbt, 0),
       transferKB: round(loaded.transfer / 1024, 0), jsKB: round(loaded.js / 1024, 0), requests: loaded.requests, domNodes, lcpEl: m.lcpEl ?? "", loadScore: round(loadScore, 2),
@@ -278,6 +298,7 @@ await withChrome(async (openTab) => {
       for (let r = 0; r < runs; r++) tries.push(await measure(openTab, page, profile));
       // Median run by load score; problems found in any run are kept.
       const mid = [...tries].sort((a, b) => a.loadScore - b.loadScore)[Math.floor(tries.length / 2)]!;
+      mid.interactionScore = [...tries].sort((a, b) => a.interactionScore - b.interactionScore)[Math.floor(tries.length / 2)]!.interactionScore;
       mid.consoleErrors = [...new Set(tries.flatMap((t) => t.consoleErrors))];
       mid.failed = [...new Set(tries.flatMap((t) => t.failed))];
       mid.overflow = tries.some((t) => t.overflow);

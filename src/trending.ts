@@ -75,9 +75,9 @@ export async function fetchUsage(o: Sql): Promise<Record<string, number> | undef
 export type Views = { views: number; visitors: number };
 export const VIEWS_KEY = "views:v1";
 
-/** Totals of /api/hit's data points: one per page shown, double1 = 1 when the browser had not been counted for 30 days. */
+/** Totals of /api/hit's data points: one per send, double2 + 1 page views each (older points have double2 = 0), double1 = 1 when the browser had not been counted for 30 days. */
 export async function fetchViews(o: Sql): Promise<Views | undefined> {
-  const data = await query<{ views: number | string | null; visitors: number | string | null }>(o, `SELECT SUM(_sample_interval) AS views, SUM(_sample_interval * double1) AS visitors FROM ${o.dataset} WHERE timestamp > NOW() - INTERVAL '30' DAY FORMAT JSON`);
+  const data = await query<{ views: number | string | null; visitors: number | string | null }>(o, `SELECT SUM(_sample_interval * (1 + double2)) AS views, SUM(_sample_interval * double1) AS visitors FROM ${o.dataset} WHERE timestamp > NOW() - INTERVAL '30' DAY FORMAT JSON`);
   return data && { views: Number(data[0]?.views ?? 0), visitors: Number(data[0]?.visitors ?? 0) };
 }
 
