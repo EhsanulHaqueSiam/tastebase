@@ -26,6 +26,8 @@ export type Listing = {
   description: string;
   /** The site itself. */
   url: string;
+  /** What the live preview opens, when not `url`: a library's demo page. */
+  demo?: string;
   /** Our detail page. */
   href: string;
   image: string;

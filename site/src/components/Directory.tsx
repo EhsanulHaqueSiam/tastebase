@@ -1,6 +1,6 @@
 // /browse: every library, filtered by job (with live counts), price, framework and words; grid or list; saved ones.
 import { ChevronDown, Heart, LayoutGrid, List, Search } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
+import { memo, useEffect, useState, type ReactNode } from "react";
 import { frameworks, kinds, type Framework, type Kind } from "../../../src/registry/schema.ts";
 import { kindMeta } from "../lib/kinds.ts";
 import { useSaved } from "../lib/saved.ts";
@@ -47,6 +47,10 @@ export default function Directory({ libs }: { libs: ShelfLib[] }) {
     .filter((l) => terms.every((t) => `${l.name} ${l.tagline} ${kindMeta[l.kind].label} ${l.aesthetic.join(" ")}`.toLowerCase().includes(t)));
   const count = (j: Job) => (j === "all" ? base.length : j === "saved" ? base.filter((l) => saved.includes(l.id)).length : base.filter((l) => l.kind === j).length);
   const list = base.filter((l) => (job === "all" ? true : job === "saved" ? saved.includes(l.id) : l.kind === job)).sort(sortBy(sort, stats));
+  // Every card stays mounted and filters only hide them: switching jobs flips `hidden` instead of rebuilding ~200 cards,
+  // and screenshots already loaded stay loaded.
+  const shown = new Set(list.map((l) => l.id));
+  const all = [...list, ...libs.filter((l) => !shown.has(l.id))];
   const jobs = [...kinds].sort((a, b) => count(b) - count(a));
   const title = job === "all" ? "All libraries" : job === "saved" ? "Saved" : kindMeta[job].label;
   const filtered = price !== "any" || fw || q.trim();
@@ -113,11 +117,11 @@ export default function Directory({ libs }: { libs: ShelfLib[] }) {
 
         {view === "grid" ? (
           <div className="mt-2.5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            {list.map((l) => <LibCard key={l.id} lib={l} badge={statBadge(sort, stats?.[l.id])} />)}
+            {all.map((l) => <div key={l.id} hidden={!shown.has(l.id)}><LibCard lib={l} badge={statBadge(sort, stats?.[l.id])} /></div>)}
           </div>
         ) : (
           <ul className="mt-2.5 overflow-hidden rounded-2xl shadow-[inset_0_0_0_1px_var(--color-line)]">
-            {list.map((l) => <ListRow key={l.id} lib={l} stat={statBadge(sort, stats?.[l.id])} />)}
+            {all.map((l) => <ListRow key={l.id} lib={l} stat={statBadge(sort, stats?.[l.id])} hidden={!shown.has(l.id)} />)}
           </ul>
         )}
 
@@ -131,14 +135,15 @@ export default function Directory({ libs }: { libs: ShelfLib[] }) {
   );
 }
 
-/** A rail entry: a chip on phones, a full row with its count from lg up. */
+/** A rail entry: a chip on phones, a full row with its count from lg up. Hover fills the row at once: .press's 200ms
+ *  colour fade read as lag on a list you sweep the pointer down (durations follow .press's transition list). */
 function Row({ on, onClick, n, icon, children }: { on: boolean; onClick: () => void; n: number; icon: ReactNode; children: ReactNode }) {
   return (
     <button
       type="button"
       aria-pressed={on}
       onClick={onClick}
-      className={`anim-host press flex h-8 flex-none items-center gap-2.5 rounded-lg px-2.5 text-[13.5px] whitespace-nowrap transition-colors max-lg:shadow-[inset_0_0_0_1px_var(--color-line)] ${on ? "bg-s2 text-fg max-lg:shadow-[inset_0_0_0_1px_var(--color-fg)]" : "text-fg2 hover:text-fg"}`}
+      className={`anim-host press flex h-8 flex-none items-center gap-2.5 rounded-lg px-2.5 text-[13.5px] whitespace-nowrap [transition-duration:160ms,60ms,60ms,250ms] max-lg:shadow-[inset_0_0_0_1px_var(--color-line)] ${on ? "bg-s2 text-fg max-lg:shadow-[inset_0_0_0_1px_var(--color-fg)]" : "text-fg2 hover:bg-s1 hover:text-fg"}`}
     >
       {icon}
       <span className="flex-1 text-left">{children}</span>
@@ -160,10 +165,10 @@ function Select<V extends string>({ label, value, shown, onChange, options, clas
 }
 
 /** List view row: the whole row links to the library; install and save sit above the link. */
-function ListRow({ lib, stat }: { lib: ShelfLib; stat: string }) {
+const ListRow = memo(function ListRow({ lib, stat, hidden }: { lib: ShelfLib; stat: string; hidden: boolean }) {
   const fws = lib.frameworks.map((f) => FW[f]);
   return (
-    <li className="anim-host relative flex items-center gap-3 border-t border-line px-3 py-2.5 transition-colors first:border-t-0 hover:bg-s1">
+    <li hidden={hidden} className="anim-host relative flex items-center gap-3 border-t border-line px-3 py-2.5 transition-colors first:border-t-0 hover:bg-s1 [&[hidden]]:hidden">
       <LibMark lib={lib} size={30} />
       <a href={`/browse/${lib.id}`} className="min-w-0 flex-1 after:absolute after:inset-0">
         <span className="block font-medium">{lib.name}</span>
@@ -177,4 +182,4 @@ function ListRow({ lib, stat }: { lib: ShelfLib; stat: string }) {
       <SaveButton id={lib.id} name={lib.name} className="relative z-10" />
     </li>
   );
-}
+});

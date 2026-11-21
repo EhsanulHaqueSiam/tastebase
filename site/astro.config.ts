@@ -9,6 +9,8 @@ export default defineConfig({
   // Prerendered pages as /browse/vaul.html, served at /browse/vaul with no trailing-slash redirect.
   build: { format: "file" },
   trailingSlash: "never",
+  // Pages are static, so fetching one on hover is cheap and the click then opens it at once (ClientRouter swaps it in).
+  prefetch: { prefetchAll: true, defaultStrategy: "hover" },
   integrations: [react()],
   vite: { plugins: [tailwindcss()] },
 });

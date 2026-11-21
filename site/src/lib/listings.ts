@@ -19,6 +19,7 @@ export const libraryListing = (l: Library): Listing => ({
   name: l.name,
   description: l.tagline,
   url: l.url,
+  demo: l.demo,
   href: `/browse/${l.id}`,
   image: shot(l.id),
   pricing: l.paid ? "freemium" : "free",
