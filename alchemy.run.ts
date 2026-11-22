@@ -47,7 +47,9 @@ export const Website = Cloudflare.Website.Astro(
     // Absolute paths: `alchemy dev` resolves a relative rootDir/main against the wrong base.
     rootDir: path.join(import.meta.dirname, "site"),
     main: path.join(import.meta.dirname, "site/src/worker.ts"), // Astro's handler + scheduled()
-    crons: ["17 * * * *"], // hourly; each run refreshes the 24 stalest libraries (free-plan subrequest limit)
+    // hourly; each run refreshes the 24 stalest libraries (free-plan subrequest limit). Prod only: the free plan allows 5
+    // cron triggers per account, and a pr-<n> preview with its own filled that up and failed to deploy.
+    crons: stage === "prod" ? ["17 * * * *"] : [],
     sessionKVBindingName: false, // no Astro sessions; nothing to provision
     observability: { enabled: true }, // Workers Logs; follow with `pnpm logs`
     // Optional custom domain for prod, e.g. TASTEBASE_DOMAIN=tastebase.dev (the zone must be on this account).
