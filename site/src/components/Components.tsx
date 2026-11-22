@@ -1,7 +1,9 @@
-// /components: every listed component, grouped by name, so "Date Picker" shows each library that ships one.
+// /components: every listed component, grouped by name, so "Date Picker" shows each library that ships one. A running
+// sponsor leads the list and follows every 8th group.
 import { ArrowUpRight, Search } from "lucide-react";
 import { useRef, useState } from "react";
 import type { Kind } from "../../../src/registry/schema.ts";
+import { useSponsors, withSponsors } from "../lib/sponsors.ts";
 import { withUtm } from "../lib/utm.ts";
 import { LibMark } from "./LibMark.tsx";
 
@@ -16,6 +18,7 @@ export const SHOWN = 120;
 export default function Components({ first, groupCount, parts, libCount }: { first: Shown[]; groupCount: number; parts: number; libCount: number }) {
   const [q, setQ] = useState("");
   const [all, setAll] = useState<Group[]>();
+  const live = useSponsors();
   const asked = useRef(false);
   const load = () => {
     if (asked.current) return;
@@ -50,20 +53,33 @@ export default function Components({ first, groupCount, parts, libCount }: { fir
       </label>
 
       <ul className="mt-4">
-        {list.slice(0, SHOWN).map((g) => (
-          <li key={g.name} className="flex flex-col gap-2 border-b border-line py-3 sm:flex-row sm:items-start sm:gap-4">
-            <span className="w-48 shrink-0 font-medium">{g.name}</span>
-            <span className="flex min-w-0 flex-1 flex-wrap gap-1.5">
-              {g.libs.map((l) => (
-                <a key={l.id} href={withUtm(l.url, "components")} target="_blank" rel="noopener" className="press group inline-flex items-center gap-2 rounded-lg bg-s2 py-1 pr-2 pl-1 text-[13px] text-fg2 hover:bg-s3 hover:text-fg">
-                  <LibMark lib={l} size={20} />
-                  {l.name}
+        {withSponsors(list.slice(0, SHOWN).map((g) => ({ ...g, id: g.name })), live).map((slot) =>
+          "sponsor" in slot ? (
+            <li key={slot.key} className="flex flex-col gap-2 border-b border-line py-3 sm:flex-row sm:items-center sm:gap-4">
+              <span className="w-48 shrink-0 font-mono text-[11px] tracking-[0.08em] text-fg3 uppercase">Sponsored</span>
+              <span className="flex min-w-0 flex-1 flex-wrap items-center gap-x-3 gap-y-1">
+                <a href={withUtm(slot.sponsor.url, "components")} target="_blank" rel="sponsored noopener" className="press group inline-flex items-center gap-1 rounded-lg bg-s2 px-2 py-1 text-[13px] font-medium text-fg shadow-[inset_0_0_0_1px_var(--color-line2)] hover:bg-s3">
+                  {slot.sponsor.name}
                   <ArrowUpRight size={12} className="text-fg3 group-hover:text-fg" />
                 </a>
-              ))}
-            </span>
-          </li>
-        ))}
+                <span className="text-[13px] text-fg2">{slot.sponsor.description}</span>
+              </span>
+            </li>
+          ) : (
+            <li key={slot.key} className="flex flex-col gap-2 border-b border-line py-3 sm:flex-row sm:items-start sm:gap-4">
+              <span className="w-48 shrink-0 font-medium">{slot.item.name}</span>
+              <span className="flex min-w-0 flex-1 flex-wrap gap-1.5">
+                {slot.item.libs.map((l) => (
+                  <a key={l.id} href={withUtm(l.url, "components")} target="_blank" rel="noopener" className="press group inline-flex items-center gap-2 rounded-lg bg-s2 py-1 pr-2 pl-1 text-[13px] text-fg2 hover:bg-s3 hover:text-fg">
+                    <LibMark lib={l} size={20} />
+                    {l.name}
+                    <ArrowUpRight size={12} className="text-fg3 group-hover:text-fg" />
+                  </a>
+                ))}
+              </span>
+            </li>
+          ),
+        )}
       </ul>
       {total > SHOWN && <p className="py-6 text-center text-[13px] text-fg3">Showing {SHOWN} of {total}. Search to narrow it.</p>}
       {!list.length && <p className="py-16 text-center text-fg3">No listed component matches. Try the job instead, like “toast”, on <a href="/browse" className="text-fg hover:underline">Browse</a>.</p>}

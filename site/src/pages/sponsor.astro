@@ -1,29 +1,114 @@
 ---
-// /sponsor: what a sponsorship gets, live reach numbers, and the inquiry form (/api/forms). Prerendered.
+// /sponsor: what tastebase is, who sees a sponsor, where the card runs (drawn, after Going's ad page), questions, and
+// the inquiry form (/api/forms). Prerendered.
 import Form from "../components/Form.tsx";
 import FormPage from "../components/FormPage.astro";
 import Reach from "../components/Reach.tsx";
 import Base from "../layouts/Base.astro";
-import { allListings } from "../lib/listings.ts";
+import { mcpClients } from "../../../src/registry/integrations.ts";
+import { listedResources } from "../lib/listings.ts";
+import { aesthetics, libraries } from "../lib/server.ts";
+import { REPO } from "../lib/site.ts";
 
 export const prerender = true;
+
+const clients = new Intl.ListFormat("en").format(mcpClients);
+const what = [
+  ["A registry", `${libraries.length} hand-picked UI libraries, each with when to use it, when not to, and what goes with it.`],
+  ["An MCP server", `${clients} ask it which library to install, and read the same notes.`],
+  ["A place to compare", `${aesthetics.length} looks, from glass to neo-brutalism, with a screenshot of every library.`],
+];
+const faq = [
+  ["How long does it run?", "You pick the dates. Your card drops out on the end date by itself."],
+  ["What do you need from me?", "A name, one line, a link, and a 16:9 image like a library screenshot."],
+  ["How much?", "Tell us what you have in mind below. We reply with dates and a price."],
+];
+const k = "mt-10 font-mono text-[11px] font-medium tracking-[0.12em] text-fg3 uppercase";
+const mini = "flex aspect-[4/3] flex-col gap-1.5 overflow-hidden rounded-lg bg-s1 p-2.5 shadow-[inset_0_0_0_1px_var(--color-line)]";
+const bar = "h-1.5 rounded-full bg-s3";
+const box = "rounded-[3px] bg-s3";
+const hl = "rounded-[3px] bg-blue/20 shadow-[inset_0_0_0_1px_var(--color-blue)]";
 ---
 
 <Base title="Sponsor · tastebase" description="Put your product in front of people while they choose UI libraries.">
-  <FormPage
-    title="Become a sponsor"
-    lede="tastebase is free and open source. Sponsors keep it that way, and get seen by people choosing what to build with."
-    listTitle="What sponsors get"
-    points={[
-      "Your card first in every category grid, and again after every 8th card.",
-      "First in search and the ⌘K palette.",
-      "First in “Try these” on every library and resource page.",
-      "A slot in the homepage strip under the search.",
-      "Links marked rel=sponsored. Agent answers (MCP, CLI) never carry ads.",
-    ]}
-  >
-    <Reach slot="before" client:idle listings={allListings.length} />
-    <h2 class="mt-10 text-[18px] font-semibold tracking-[-0.02em]">Tell us what you have in mind. We reply with dates and a price.</h2>
+  <FormPage title="Become a sponsor" lede="tastebase is free and open source. Sponsors keep it that way, and get seen by people choosing what to build with.">
+    <Fragment slot="before">
+      <h2 class={k}>What tastebase is</h2>
+      <dl class="mt-3 grid border-y border-line sm:grid-cols-3">
+        {
+          what.map(([t, d]) => (
+            <div class="py-3.5 max-sm:not-first:border-t sm:px-4 sm:first:pl-0 sm:not-first:border-l border-line">
+              <dt class="text-[14px] font-semibold">{t}</dt>
+              <dd class="mt-1 text-[13px] text-fg2">{d}</dd>
+            </div>
+          ))
+        }
+      </dl>
+      <Reach client:idle libraries={libraries.length} resources={listedResources.length} looks={aesthetics.length} />
+      <p class="mt-3 text-[13px] text-fg2">
+        Open source under MIT: <a href={REPO} target="_blank" rel="noopener" class="text-fg underline-offset-4 hover:underline">the code on GitHub</a>, and
+        <a href="https://www.npmjs.com/package/tastebase" target="_blank" rel="noopener" class="text-fg underline-offset-4 hover:underline">npx tastebase</a> to run the MCP server locally.
+      </p>
+
+      <h2 class={k}>Who sees your card</h2>
+      <p class="mt-3 text-[14px] text-fg2"><span class="font-medium text-fg">People in the middle of choosing a UI library</span> for a real project: a kit, motion, charts, icons, a look.</p>
+
+      <h2 class={k}>Where it runs</h2>
+      <ul class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <li>
+          <div class={mini} aria-hidden="true">
+            <span class={`${bar} mx-auto mt-2 w-3/5`}></span>
+            <span class={`${bar} mx-auto h-2.5 w-4/5`}></span>
+            <span class="mt-1 grid h-4 grid-cols-[12px_1fr_1fr_1fr] border-y border-line2 [&>*+*]:border-l [&>*+*]:border-line2"><span></span><span class={hl}></span><span></span><span></span></span>
+          </div>
+          <p class="mt-2 text-[13px]">Homepage row</p>
+          <p class="text-[12px] text-fg3">Under the search, up to four names</p>
+        </li>
+        <li>
+          <div class={mini} aria-hidden="true">
+            <span class={`${bar} w-2/5`}></span>
+            <span class="grid grid-cols-4 gap-1 [&>*]:aspect-[4/3]">
+              <span class={hl}></span>{Array.from({ length: 7 }, () => <span class={box}></span>)}<span class={hl}></span>{Array.from({ length: 3 }, () => <span class={box}></span>)}
+            </span>
+          </div>
+          <p class="mt-2 text-[13px]">Every category grid</p>
+          <p class="text-[12px] text-fg3">First card, then after every 8th</p>
+        </li>
+        <li>
+          <div class={`${mini} justify-center`} aria-hidden="true">
+            <span class="mx-auto flex w-4/5 flex-col gap-1 rounded-md bg-s2 p-1.5 shadow-[0_0_0_1px_var(--color-line2)] [&>*]:h-2">
+              <span class={box}></span><span class={hl}></span><span class={box}></span><span class={box}></span>
+            </span>
+          </div>
+          <p class="mt-2 text-[13px]">Search and ⌘K</p>
+          <p class="text-[12px] text-fg3">First result, marked Sponsored</p>
+        </li>
+        <li>
+          <div class={mini} aria-hidden="true">
+            <span class={`${bar} h-2.5 w-3/4`}></span>
+            <span class={`${bar} w-11/12`}></span>
+            <span class={`${bar} w-1/2`}></span>
+            <span class="mt-auto grid grid-cols-2 gap-1 [&>*]:aspect-[16/10]"><span class={hl}></span><span class={box}></span></span>
+          </div>
+          <p class="mt-2 text-[13px]">“Try these”</p>
+          <p class="text-[12px] text-fg3">On every library and resource page</p>
+        </li>
+      </ul>
+      <p class="mt-4 text-[13px] text-fg2"><span class="font-medium text-fg">Never in agent answers.</span> MCP and CLI results stay ad-free, and every sponsored link is marked rel=sponsored.</p>
+
+      <h2 class={k}>Questions</h2>
+      <dl class="mt-3 border-t border-line">
+        {
+          faq.map(([q, a]) => (
+            <div class="grid gap-1 border-b border-line py-3 text-[13.5px] sm:grid-cols-[200px_1fr] sm:gap-4">
+              <dt class="font-medium">{q}</dt>
+              <dd class="text-fg2">{a}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </Fragment>
+    <h2 class={k}>Get in touch</h2>
     <Form client:load form="sponsor" />
   </FormPage>
 </Base>

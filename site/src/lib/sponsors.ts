@@ -1,6 +1,10 @@
-// Client-safe: paid placements. A sponsor shows first in category grids and again after every 8th card, first in the
-// header search and ⌘K palette, first in "Try these", and in the homepage strip; links carry rel="sponsored". Pages are
-// prerendered, so islands filter by date again at view time: an ended sponsor drops out without a deploy.
+// Client-safe: paid placements. A sponsor shows first in every card grid and list (category pages, /browse, the home
+// shelf, /components, search results) and again after every 8th entry, first in the header search and ⌘K palette,
+// first in "Try these", and in the homepage strip; links carry rel="sponsored". With no sponsor running, nothing shows:
+// no empty slots. Pages are prerendered, so islands filter by date again at view time (useSponsors): an ended sponsor
+// drops out without a deploy.
+import { useEffect, useState } from "react";
+
 // Adding one: an entry below with a 16:9 image in site/public/sponsors/. Never in agent answers (MCP, CLI, llms.txt).
 
 export type Sponsor = {
@@ -47,6 +51,13 @@ export const liveSponsors = (list: readonly Sponsor[], now = Date.now(), place: 
   list
     .filter((s) => s.active && (dev || !s.development) && Date.parse(s.starts) <= now && now < Date.parse(s.ends) && (place === "home" || !s.homepageOnly))
     .sort((a, b) => b.priority - a.priority);
+
+/** Live sponsors for an island, read after hydration so the date check runs at view time, not build time. */
+export function useSponsors(place: "grid" | "home" = "grid") {
+  const [live, setLive] = useState<Sponsor[]>([]);
+  useEffect(() => setLive(liveSponsors(sponsors, Date.now(), place)), [place]);
+  return live;
+}
 
 export type Slot<T> = { sponsor: Sponsor; key: string } | { item: T; key: string };
 
