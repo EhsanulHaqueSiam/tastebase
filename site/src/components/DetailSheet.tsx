@@ -20,7 +20,9 @@ export default function DetailSheet({ scope }: { scope: RefObject<HTMLElement | 
   // Back from the sheet's entry, or the × / Esc / backdrop (which step back to it).
   const close = () => ((history.state as State)?.sheet ? history.back() : setPath(null));
   // A press elsewhere (job list, header) must not wait for Back: the click it starts may rewrite the URL (?job=).
-  const closeNow = () => (history.replaceState(origin.current.state, "", origin.current.url), setPath(null));
+  // It leaves the scroll to whatever was pressed (a new job starts at the top), unlike the closes that return to the grid.
+  const closeNow = () => ((keep.current = false), history.replaceState(origin.current.state, "", origin.current.url), setPath(null));
+  const keep = useRef(true);
 
   useEffect(() => {
     const el = scope.current;
@@ -58,14 +60,20 @@ export default function DetailSheet({ scope }: { scope: RefObject<HTMLElement | 
     document.addEventListener("keydown", onKey);
     document.addEventListener("pointerdown", onDown, true);
     const root = document.documentElement;
+    // Folding the job list reflows the grid, and the browser's scroll anchoring would move it: hold the grid where it
+    // was, and put it back there on close, after the list unfolds.
+    const y = scrollY;
+    keep.current = true;
     root.style.overflow = "hidden"; // the grid stays put under the sheet
     root.setAttribute("data-sheet", "");
+    scrollTo({ top: y, behavior: "instant" });
     if (scope.current) setLeft(scope.current.getBoundingClientRect().left);
     return () => {
       document.removeEventListener("keydown", onKey);
       document.removeEventListener("pointerdown", onDown, true);
       root.style.overflow = "";
       root.removeAttribute("data-sheet");
+      if (keep.current) scrollTo({ top: y, behavior: "instant" });
     };
   }, [path]);
 
