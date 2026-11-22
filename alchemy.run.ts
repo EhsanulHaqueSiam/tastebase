@@ -77,6 +77,8 @@ export const Website = Cloudflare.Website.Astro(
       // their redirect URIs are in docs/operations/deploy.md. Optional: without any keys (CI checks) the site runs
       // signed out and /api/auth/* answers 404.
       ...authEnv(),
+      // Comma-separated emails of the accounts that may set editor's picks (/api/picks). Optional: unset, nobody can.
+      ...(process.env.ADMIN_EMAILS && { ADMIN_EMAILS: process.env.ADMIN_EMAILS }),
     },
   };
   }),

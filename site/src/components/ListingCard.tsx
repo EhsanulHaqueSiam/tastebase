@@ -4,7 +4,8 @@
 // straight to its site with rel="sponsored". The title's link is stretched over the card, so `pills` (other articles
 // a library is in) can be links of their own, not nested anchors.
 // A screenshot that fails to load is marked by Base.astro's error listener and shows "no preview" instead. `actions`
-// (islands only: they need hydrating) adds heart, folder and hide over the screenshot (CardActions.tsx).
+// (islands only: they need hydrating) adds heart, folder, hide and the editor's pick badge over the screenshot
+// (CardActions.tsx).
 import { ArrowRightLeft, ArrowUpRight, Gift, ListOrdered } from "lucide-react";
 import { lazy, Suspense } from "react";
 import type { Pill } from "../lib/articles.ts";
@@ -22,7 +23,7 @@ type Props = { eager?: boolean; late?: boolean; compact?: boolean; where?: strin
 export function ListingCard({ item, sponsor, eager = false, late = false, compact = false, where = "card", pills = [], actions = false }: Props) {
   const c = sponsor ? { href: withUtm(sponsor.url, where), name: sponsor.name, description: sponsor.description, image: sponsor.image } : item;
   return (
-    <div className={`group relative flex h-full flex-col overflow-hidden rounded-xl bg-s1 ${sponsor ? "shadow-[0_0_0_1px_var(--color-line2),0_4px_14px_var(--drop)]" : "shadow-[0_0_0_1px_var(--color-line),0_4px_14px_var(--drop)]"} transition-[translate,box-shadow] duration-200 ease-[var(--ease-out)] has-[h3_a:focus-visible]:outline-2 has-[h3_a:focus-visible]:outline-blue hover:-translate-y-1 hover:shadow-[0_0_0_1px_var(--color-line2),0_18px_40px_-12px_var(--drop-lift)]`}>
+    <div className={`group @container relative flex h-full flex-col overflow-hidden rounded-xl bg-s1 ${sponsor ? "shadow-[0_0_0_1px_var(--color-line2),0_4px_14px_var(--drop)]" : "shadow-[0_0_0_1px_var(--color-line),0_4px_14px_var(--drop)]"} transition-[translate,box-shadow] duration-200 ease-[var(--ease-out)] has-[h3_a:focus-visible]:outline-2 has-[h3_a:focus-visible]:outline-blue hover:-translate-y-1 hover:shadow-[0_0_0_1px_var(--color-line2),0_18px_40px_-12px_var(--drop-lift)]`}>
       {item && actions && (
         <Suspense fallback={null}>
           <CardActions id={item.id} name={item.name} href={item.href} />

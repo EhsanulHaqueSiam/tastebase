@@ -1,6 +1,6 @@
 ---
 // The detail page every listing shares, library or resource (after Design Index's tool page). Left, scrolling on its
-// own: name with its price pills, the description, Visit and Share, "Try these", then whatever the page adds (a
+// own: name with its price pills, the description (and the editor's pick reason, when it is one), Visit and Share, "Try these", then whatever the page adds (a
 // library's notes). Right, desktop only: the live site (LiveSite.tsx). Phones get the screenshot instead of a frame.
 // The left column contains its own overscroll: reaching its end must not carry on into the page and slide the footer up.
 import type { Listing } from "../lib/categories.ts";
@@ -8,6 +8,7 @@ import { thumb } from "../lib/kinds.ts";
 import { withUtm } from "../lib/utm.ts";
 import { DetailActions, DetailPill } from "./DetailActions.tsx";
 import TryThese from "./TryThese.tsx";
+import { PickReason } from "./EditorPick.tsx";
 import LiveSite from "./LiveSite.tsx";
 import unframeable from "../lib/unframeable.json";
 
@@ -31,6 +32,7 @@ const frameable = !unframeable.includes(item.id);
       }
     </div>
     <p class="mt-3 max-w-[62ch] text-[16px] leading-[1.45] text-fg2 md:text-[17px]">{item.description}</p>
+    <PickReason client:load id={item.id} />
     <slot name="meta" />
     <DetailActions client:load name={item.name} url={item.url} />
 

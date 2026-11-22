@@ -87,6 +87,18 @@ and better-auth stores a placeholder; sign-in still works.
 Then copy the keys to CI by re-running the GitHub stack (above). Both workflows already pass them to the deploy; the
 next deploy of each stage picks them up.
 
+## Editor's picks
+
+Accounts whose verified email is on `ADMIN_EMAILS` (comma-separated, matched case-insensitively) see "Make editor's
+pick" on every library and resource page; everyone else, and every stage without the variable, sees no toggle and gets
+403 from `POST /api/picks`. Picks live in D1, so a new one shows without a deploy (within two minutes: browsers cache
+`/api/picks`). To set it:
+
+1. Put `ADMIN_EMAILS=you@example.com` in `.env` (use the email your GitHub, Google or X account signs in with). `pnpm dev`
+   reads it at once.
+2. Re-run the GitHub stack (above) to store it as the `ADMIN_EMAILS` secret, then redeploy prod (merge anything, or
+   run the Deploy workflow by hand).
+
 ## How users get updates
 
 - **Hosted MCP**: every prod deploy.

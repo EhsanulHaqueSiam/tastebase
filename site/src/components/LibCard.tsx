@@ -6,6 +6,7 @@ import type { Framework, Kind } from "../../../src/registry/schema.ts";
 import type { Stats } from "../../../src/trending.ts";
 import { haptic } from "../lib/haptics.ts";
 import { kindMeta, shot, thumb } from "../lib/kinds.ts";
+import { useEditorPick } from "../lib/picks.ts";
 import { toggleHidden, toggleSaved, useHidden, useSaved, type Hidden } from "../lib/saved.ts";
 import type { ShelfLib } from "../lib/server.ts";
 import type { Sponsor } from "../lib/sponsors.ts";
@@ -127,6 +128,18 @@ export function HiddenNote({ id, name, href }: Hidden) {
   );
 }
 
+/** Amber "★ Editor's pick" over a card's screenshot, for items the site owner vouches for (lib/picks.ts). Fixed amber:
+ *  it always sits on the dark chip, whatever the theme. `tight`: in a card under 15rem (an `@container`), only the star
+ *  shows, so it clears the card's action buttons. Renders nothing for other items. */
+export function EditorBadge({ id, tight }: { id: string; tight?: boolean }) {
+  if (!useEditorPick(id)) return null;
+  return (
+    <span title="Editor's pick" className="block rounded-md bg-black/65 px-1.5 py-0.5 text-[11px] font-semibold text-[#f5b041] backdrop-blur-md">
+      ★<span className={tight ? "@max-[15rem]:sr-only" : undefined}> Editor's pick</span>
+    </span>
+  );
+}
+
 /** Screenshot card: links to the library page; install, GitHub, folder, hide and save sit outside the link. */
 // Memoized: the directory keeps every card mounted and re-renders on each filter change.
 /** `eager` for the first card on screen: its screenshot is often the page's largest paint. `late` holds the screenshot
@@ -139,7 +152,10 @@ export const LibCard = memo(function LibCard({ lib, badge, pick, eager, late }: 
           <div className="relative aspect-[16/10] overflow-hidden bg-s2">
             {!late && <img src={thumb(shot(lib.id))} alt={`${lib.name} website`} loading={eager ? "eager" : "lazy"} fetchPriority={eager ? "high" : undefined} className="size-full object-cover object-top transition-transform duration-700 ease-[var(--ease-out)] group-hover:scale-[1.04]" />}
             <span className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-s1 to-transparent" />
-            {badge && <span className="absolute top-2.5 left-2.5 rounded-md bg-black/60 px-1.5 py-0.5 font-mono text-[11px] font-medium text-fg backdrop-blur-md">{badge}</span>}
+            <span className="absolute top-2.5 left-2.5 flex flex-col items-start gap-1">
+              <EditorBadge id={lib.id} />
+              {badge && <span className="rounded-md bg-black/60 px-1.5 py-0.5 font-mono text-[11px] font-medium text-fg backdrop-blur-md">{badge}</span>}
+            </span>
             {pick && <span className="absolute top-3 right-[5.25rem] rounded-md bg-fg px-1.5 py-0.5 font-mono text-[11px] font-medium text-bg">pick</span>}
           </div>
           <div className="flex items-center gap-3 p-4 pt-1">

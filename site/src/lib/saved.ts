@@ -11,14 +11,14 @@ export type { Folder, Provider };
 export type User = { name: string; image: string | null };
 /** Something the user hid from their agent, with the name and page the account sheet lists it by. */
 export type Hidden = { id: string; name: string; href: string };
-/** `loading`: this browser signed in before and /api/me has not answered yet. */
-type State = { user: User | null; loading: boolean; saved: string[]; folders: Folder[]; hidden: Hidden[]; key: string | null };
+/** `loading`: this browser signed in before and /api/me has not answered yet. `admin`: may set editor's picks. */
+type State = { user: User | null; loading: boolean; saved: string[]; folders: Folder[]; hidden: Hidden[]; key: string | null; admin: boolean };
 
 const KEY = "tastebase:saved";
 // Set when this browser starts a sign-in, cleared on sign-out. Without it no page asks /api/me, so signed-out visits
 // stay static and cost the Worker nothing.
 const SIGNED_IN = "tastebase:account";
-const EMPTY: State = { user: null, loading: false, saved: [], folders: [], hidden: [], key: null };
+const EMPTY: State = { user: null, loading: false, saved: [], folders: [], hidden: [], key: null, admin: false };
 const subs = new Set<() => void>();
 let state: State | undefined;
 
@@ -57,11 +57,11 @@ function snapshot(): State {
 }
 
 async function load() {
-  const me = (await api<{ user: User | null; hidden?: Hidden[] } & Partial<Omit<AccountData, "hidden">>>("GET", "/api/me").catch(() => null)) ?? { user: null };
+  const me = (await api<{ user: User | null; hidden?: Hidden[]; admin?: boolean } & Partial<Omit<AccountData, "hidden">>>("GET", "/api/me").catch(() => null)) ?? { user: null };
   if (!me.user) return store.set(SIGNED_IN, null), set({ loading: false });
   const local = readLocal();
   const saved = [...new Set([...(me.saved ?? []), ...local])];
-  set({ user: me.user, loading: false, saved, folders: me.folders ?? [], hidden: me.hidden ?? [], key: me.key ?? null });
+  set({ user: me.user, loading: false, saved, folders: me.folders ?? [], hidden: me.hidden ?? [], key: me.key ?? null, admin: !!me.admin });
   if (local.length && (await api("POST", "/api/saved", { merge: local }).catch(fail))) store.set(KEY, null);
 }
 
