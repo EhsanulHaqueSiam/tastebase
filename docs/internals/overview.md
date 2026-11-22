@@ -67,6 +67,13 @@ One Cloudflare Worker (declared in `alchemy.run.ts`) does everything:
   browser flags itself as a visitor once per 30 days in localStorage, so "visitors" counts browsers.
 - **Share cards are drawn at build time** with satori and sharp in Node (Inter, the screenshot beside the title). Doing
   it per request would blow the 10ms CPU budget, and Workers cannot run sharp.
+- **Prefetch is ours (`site/src/lib/prefetch.ts`), not Astro's.** Pages are served `max-age=0` with no validator, so
+  the router's fetch on click could not reuse Astro's `<link rel="prefetch">` copy: every prefetched page was
+  downloaded twice, and on a phone a tap's mouseenter started the second download alongside the navigation's. Ours
+  keeps the HTML in memory and hands it to the router's loader. Mouse hover and focus warm a link; phones warm the
+  tab bar's pages after load.
+- **Cards use 720px screenshots** (`/shots/720/`, written by `site/build.ts`, made on request by the dev server):
+  under half the bytes of the 1200px originals, which stay where a screenshot is shown large.
 - **`build.format: "file"`.** Directory output (`motion/index.html`) makes Cloudflare's asset layer redirect
   `/browse/motion` to `/browse/motion/`, an extra hop on every library link.
 
@@ -74,7 +81,7 @@ One Cloudflare Worker (declared in `alchemy.run.ts`) does everything:
 
 - `alchemy dev` resolves relative `rootDir`/`main` against the wrong base, and Astro discovers its config from
   the working directory. Hence the absolute paths in `alchemy.run.ts` and `cd site` in `pnpm dev`.
-- `pnpm dev` never builds, so `/og/*.jpg` and `/*.md` exist only in deploys.
+- `pnpm dev` never builds, so `/og/*.jpg` and `/*.md` exist only in deploys (`/shots/720/` is made on request).
 - In dev, Astro's dev server does not load the custom Worker entry, so `scheduled()` never runs locally. The
   dev-only `/api/dev/cron` route calls the same `runStatsRefresh`.
 - `Astro.locals.runtime.env` is gone in Astro 6+. Read bindings with `import { env } from "cloudflare:workers"`.

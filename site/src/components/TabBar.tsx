@@ -51,7 +51,7 @@ export default function TabBar() {
 
   return (
     <MotionConfig reducedMotion="user">
-      <nav aria-label="Sections" className="fixed inset-x-0 bottom-0 z-40 flex border-t border-line bg-bg/85 px-2 pt-1 pb-[max(4px,env(safe-area-inset-bottom))] backdrop-blur-xl lg:hidden">
+      <nav aria-label="Sections" data-shell="tabbar" className="fixed inset-x-0 bottom-0 z-40 flex border-t border-line bg-bg/85 px-2 pt-1 pb-[max(4px,env(safe-area-inset-bottom))] backdrop-blur-xl lg:hidden">
         {tabs.map((s) => (
           <Tab key={s.href} href={s.href} icon={s.icon} on={isCurrent(s, path)}>{s.label}</Tab>
         ))}

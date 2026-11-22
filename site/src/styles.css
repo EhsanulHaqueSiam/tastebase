@@ -237,5 +237,15 @@ body > header > * { animation: blur-in 900ms var(--ease-quart) backwards; }
   [data-rail-hidden] [data-shell="main"] { padding-left: 8px; }
 }
 
+/* A navigation's view transition lifts <main> (transition:animate) into its own layer, above the rest of the page: the
+   content scrolled under the header and the phone tab bar was drawn over them while it faded, so they blinked out
+   and back. Their own layers keep them above <main>, shown at their new state at once, never faded. */
+[data-shell="header"] { view-transition-name: shell-header; }
+[data-shell="rail"] { view-transition-name: shell-rail; }
+[data-shell="frame"] { view-transition-name: shell-frame; }
+[data-shell="tabbar"] { view-transition-name: shell-tabbar; }
+::view-transition-old(shell-header), ::view-transition-old(shell-rail), ::view-transition-old(shell-frame), ::view-transition-old(shell-tabbar) { display: none; }
+::view-transition-new(shell-header), ::view-transition-new(shell-rail), ::view-transition-new(shell-frame), ::view-transition-new(shell-tabbar) { animation: none; }
+
 /* The palette's input sits in a field that is already the focus state. */
 [cmdk-input]:focus-visible { outline: none; }

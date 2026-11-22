@@ -167,9 +167,9 @@ const graph = [
       startSound();
       startPrefetch();
       // Phones have no hover to prefetch on: once the first page has loaded, and after each navigation, warm the tab
-      // bar's pages (the rail, the other "Sections" nav, is desktop only) so a tab switch swaps at once.
+      // bar's pages so a tab switch swaps at once.
       const idle = (fn: () => void) => ("requestIdleCallback" in window ? requestIdleCallback(fn) : setTimeout(fn, 200));
-      const tabs = () => matchMedia("(max-width: 1023.98px)").matches && document.querySelectorAll<HTMLAnchorElement>('nav[aria-label="Sections"]:not([data-shell]) a[href^="/"]').forEach((a) => warm(a.href));
+      const tabs = () => matchMedia("(max-width: 1023.98px)").matches && document.querySelectorAll<HTMLAnchorElement>('nav[data-shell="tabbar"] a[href^="/"]').forEach((a) => warm(a.href));
       addEventListener("load", () => (idle(tabs), document.addEventListener("astro:page-load", () => idle(tabs))), { once: true });
       // The header's "Show sidebar" button, there only while the rail is hidden. The header persists, so one listener.
       document.addEventListener("click", (e) => (e.target as Element).closest?.("[data-toggle-nav]") && toggleNav());
