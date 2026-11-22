@@ -37,7 +37,8 @@ const frameable = !unframeable.includes(item.id);
         <i class="size-2 rounded-full bg-[#ff5f57]"></i><i class="size-2 rounded-full bg-[#febc2e]"></i><i class="size-2 rounded-full bg-[#28c840]"></i>
         <span class="ml-1 truncate font-mono text-[10px] text-fg3">{item.url}</span>
       </span>
-      <img src={item.image} alt={`${item.name} website`} width="1200" height="750" class="aspect-[16/10] w-full object-cover object-top" />
+      {/* The phone layout's largest paint: fetched first, ahead of the islands' scripts. */}
+      <img src={item.image} alt={`${item.name} website`} width="1200" height="750" fetchpriority="high" class="aspect-[16/10] w-full object-cover object-top" />
     </a>
 
     {
