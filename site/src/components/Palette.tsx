@@ -12,7 +12,7 @@ import { Drawer } from "vaul";
 import { resourceKinds, type ResourceKind } from "../../../src/registry/resources.ts";
 import type { Kind } from "../../../src/registry/schema.ts";
 import { categories } from "../lib/categories.ts";
-import { kindMeta } from "../lib/kinds.ts";
+import { kindMeta, thumb } from "../lib/kinds.ts";
 import { liveSponsors, sponsors } from "../lib/sponsors.ts";
 import { withUtm } from "../lib/utm.ts";
 import { useTheme } from "../lib/theme.ts";
@@ -87,7 +87,7 @@ export default function Palette() {
           <Command.Group heading="Sponsored" className={heading}>
             {ads.map((s) => (
               <Command.Item key={s.id} value={`${s.name} ${s.description} sponsored`} onSelect={() => (setOpen(false), s.url.startsWith("/") ? navigate(s.url) : window.open(withUtm(s.url, "palette"), "_blank", "noopener"))} className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 data-[selected=true]:bg-s3">
-                <img src={s.image} alt="" className="h-[26px] w-[46px] flex-none rounded-md object-cover" />
+                <img src={thumb(s.image)} alt="" className="h-[26px] w-[46px] flex-none rounded-md object-cover" />
                 <span className="shrink-0 font-medium">{s.name}</span>
                 <span className="truncate text-[13px] text-fg2">{s.description}</span>
               </Command.Item>

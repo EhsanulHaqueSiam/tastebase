@@ -7,6 +7,7 @@ import { ArrowRightLeft, Gift, ListOrdered } from "lucide-react";
 import type { Pill } from "../lib/articles.ts";
 import type { Listing } from "../lib/categories.ts";
 import type { Sponsor } from "../lib/sponsors.ts";
+import { thumb } from "../lib/kinds.ts";
 import { withUtm } from "../lib/utm.ts";
 
 const PILL_ICON: Record<Pill["icon"], typeof Gift> = { alternatives: ArrowRightLeft, free: Gift, best: ListOrdered };
@@ -20,7 +21,7 @@ export function ListingCard({ item, sponsor, eager = false, late = false, compac
       {sponsor && <span className="absolute top-2.5 left-2.5 z-10 rounded-md bg-bg/80 px-2 py-0.5 font-mono text-[10px] font-medium tracking-[0.1em] uppercase backdrop-blur">Sponsored</span>}
       <div className="relative aspect-video overflow-hidden bg-s2">
         {!late && <img
-          src={c.image}
+          src={thumb(c.image)}
           alt=""
           width={1200}
           height={675}

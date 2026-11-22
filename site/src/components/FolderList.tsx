@@ -3,7 +3,7 @@
 import { FolderPlus, Globe } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { haptic } from "../lib/haptics.ts";
-import { shot } from "../lib/kinds.ts";
+import { shot, thumb } from "../lib/kinds.ts";
 import { askSignIn, createFolder, useAccount } from "../lib/saved.ts";
 
 const MOSAIC = ["grid-cols-1", "grid-cols-1", "grid-cols-2", "m3 grid-cols-2 grid-rows-2", "grid-cols-2 grid-rows-2"];
@@ -57,7 +57,7 @@ export default function FolderList() {
                   {f.libs.length ? (
                     f.libs.slice(0, 4).map((lib) => (
                       <span key={lib} className="overflow-hidden bg-s2 [.m3_&:first-child]:row-span-2">
-                        <img src={shot(lib)} alt="" loading="lazy" className="size-full object-cover object-top transition-transform duration-700 ease-[var(--ease-out)] group-hover:scale-[1.04]" />
+                        <img src={thumb(shot(lib))} alt="" loading="lazy" className="size-full object-cover object-top transition-transform duration-700 ease-[var(--ease-out)] group-hover:scale-[1.04]" />
                       </span>
                     ))
                   ) : (

@@ -1,4 +1,4 @@
-// Build-time Astro integration: after every page is prerendered, writes each page's share card (/og/<path>.jpg,
+// Build-time Astro integration: after every page is prerendered, writes card-sized screenshots and each page's share card (/og/<path>.jpg,
 // 1200x630, from its og:title, og:description and screenshot) and its Markdown copy (/<path>.md, for AI crawlers and
 // agents, a static file each page links as rel=alternate). Runs in Node on the build machine, so no request ever pays for it.
 // Only pages whose own og:image points at their own card get one (Base.astro decides: prerendered, not noindex).
@@ -51,12 +51,30 @@ function card(title: string, description: string, shot?: string): ReactNode {
   );
 }
 
+/** Card-sized screenshots (/shots/720/<id>.webp, under half the bytes of the 1200px ones): cards and the phone
+ * detail image show a screenshot at most ~420px wide. Written at build; the dev server makes them on request. */
+const THUMB = 720;
+const thumb = (src: string) => sharp(src).resize(THUMB).webp({ quality: 70 }).toBuffer();
+const publicShots = fileURLToPath(new URL("./public/shots/", import.meta.url));
+
 export function shareCopies(): AstroIntegration {
   return {
     name: "tastebase:share-copies",
     hooks: {
+      "astro:server:setup": ({ server }) => {
+        server.middlewares.use((req, res, next) => {
+          const m = req.url?.match(/^\/shots\/720\/([\w.-]+\.webp)(\?|$)/);
+          if (!m) return next();
+          thumb(join(publicShots, m[1]!)).then((buf) => (res.setHeader("content-type", "image/webp"), res.end(buf)), () => next());
+        });
+      },
       "astro:build:done": async ({ dir, logger }) => {
         const root = fileURLToPath(dir);
+        const shots = join(root, "shots");
+        const files = (await readdir(shots)).filter((f) => f.endsWith(".webp"));
+        await mkdir(join(shots, String(THUMB)), { recursive: true });
+        for (let i = 0; i < files.length; i += 16) await Promise.all(files.slice(i, i + 16).map(async (f) => writeFile(join(shots, String(THUMB), f), await thumb(join(shots, f)))));
+        logger.info(`Wrote ${files.length} card-sized screenshots.`);
         const fonts = [
           { name: "Inter", data: await font(400), weight: 400 as const },
           { name: "Inter", data: await font(600), weight: 600 as const },
