@@ -1,7 +1,8 @@
 // /browse: every library, filtered by job (with live counts), price, framework and words; grid or list; saved ones and
 // editor's picks (searching "editor" or "editor's pick" finds those too).
 // A running sponsor leads the results and follows every 8th (lib/sponsors.ts). On desktop a library opens in a sheet
-// over the results (DetailSheet.tsx), so the job list stays in reach.
+// over the results (DetailSheet.tsx), so the job list stays in reach; while it is open the list folds to its icons
+// (html[data-sheet]), each naming its job and count on hover, like the nav rail.
 import { ArrowUpRight, ChevronDown, Heart, LayoutGrid, List, Search, Star } from "lucide-react";
 import { memo, startTransition, useDeferredValue, useEffect, useRef, useState, type ReactNode } from "react";
 import { frameworks, kinds, type Framework, type Kind } from "../../../src/registry/schema.ts";
@@ -43,21 +44,46 @@ export default function Directory({ libs }: { libs: ShelfLib[] }) {
   const loaded = useLoaded();
   const live = useSponsors();
   // A transition: React renders the extra cards in slices, so a slow phone's main thread stays free during the swap.
-  useEffect(() => startTransition(() => setLimit((n) => Math.max(n, PAGE))), []);
+  // Back to a scrolled directory: the router restores the scroll while only six cards exist, so the page is short, the
+  // restore stops at its bottom and the end-of-list loader then mounts every card under the reader, who lands at the
+  // footer. Mount every card first, then put the scroll back.
+  useEffect(() => {
+    const y = (history.state as { scrollY?: number } | null)?.scrollY ?? 0;
+    if (y < innerHeight) return startTransition(() => setLimit((n) => Math.max(n, PAGE)));
+    setLimit(libs.length + 8); // every card, plus the sponsor slots
+    requestAnimationFrame(() => requestAnimationFrame(() => scrollTo({ top: y, behavior: "instant" })));
+  }, []);
   const more = useRef<HTMLDivElement>(null);
   const results = useRef<HTMLElement>(null);
 
-  // The job lives in the URL (?job=motion, ?job=saved) so a filtered directory can be linked.
+  // Every filter lives in the URL (?job=motion&q=toast&price=free&fw=vue&sort=stars&view=list), so Back from another
+  // page, a reload and a shared link all come back to the same results. Defaults are left out.
   useEffect(() => {
-    const j = new URLSearchParams(location.search).get("job");
+    const p = new URLSearchParams(location.search);
+    const j = p.get("job");
+    const pr = PRICES.find(([id]) => id === p.get("price"))?.[0];
+    const f = frameworks.find((x) => x === p.get("fw"));
+    const so = SORTS.find(([id]) => id === p.get("sort"))?.[0];
     if (isJob(j)) setJob(j);
+    setQ(p.get("q") ?? "");
+    if (pr) setPrice(pr);
+    if (f) setFw(f);
+    if (so) setSort(so);
+    if (p.get("view") === "list") setView("list");
   }, []);
   useEffect(() => {
     const u = new URL(location.href);
-    if (job === "all") u.searchParams.delete("job");
-    else u.searchParams.set("job", job);
-    history.replaceState(history.state, "", u);
-  }, [job]);
+    const put = (k: string, v: string | undefined, def: string) => (v && v !== def ? u.searchParams.set(k, v) : u.searchParams.delete(k));
+    put("job", job, "all");
+    put("q", q.trim(), "");
+    put("price", price, "any");
+    put("fw", fw, "");
+    put("sort", sort, "picks");
+    put("view", view, "grid");
+    if (u.href !== location.href) history.replaceState(history.state, "", u);
+  }, [job, q, price, fw, sort, view]);
+  // A new job starts at the top of its results, not partway down the old list.
+  const pickJob = (j: Job) => (setJob(j), scrollY > 0 && scrollTo({ top: 0, behavior: "instant" }));
 
   // Price, framework and words narrow everything; the job picks within that, so job counts follow the other filters.
   const narrow = (p: Price, f: Framework | undefined, terms: string[]) =>
@@ -87,20 +113,20 @@ export default function Directory({ libs }: { libs: ShelfLib[] }) {
   const reset = () => (setPrice("any"), setFw(undefined), setQ(""));
 
   return (
-    <div className="mx-auto grid max-w-[1440px] grid-cols-1 pt-14 lg:grid-cols-[236px_minmax(0,1fr)]">
-      <aside aria-label="Jobs" className="flex gap-1 overflow-x-auto border-b border-line px-4 py-3 [scrollbar-width:none] lg:sticky lg:top-14 lg:h-[calc(100svh-4rem)] lg:flex-col lg:gap-px lg:overflow-y-auto lg:border-r lg:border-b-0 lg:px-2.5 lg:py-4">
-        <Row on={job === "saved"} onClick={() => setJob("saved")} n={count("saved")} icon={<span data-anim="pop" className="grid place-items-center text-pink"><Heart size={15} aria-hidden /></span>}>Saved</Row>
-        <Row on={job === "all"} onClick={() => setJob("all")} n={count("all")} icon={<span data-anim="pop" className="grid place-items-center"><LayoutGrid size={15} aria-hidden /></span>}>All libraries</Row>
+    <div className="mx-auto grid max-w-[1440px] grid-cols-1 pt-14 lg:grid-cols-[236px_minmax(0,1fr)] lg:[[data-sheet]_&]:grid-cols-[56px_minmax(0,1fr)]">
+      <aside aria-label="Jobs" className="flex gap-1 overflow-x-auto border-b border-line px-4 py-3 [scrollbar-width:none] lg:sticky lg:top-14 lg:h-[calc(100svh-4rem)] lg:flex-col lg:gap-px lg:overflow-y-auto lg:border-r lg:border-b-0 lg:px-2.5 lg:py-4 lg:[[data-sheet]_&]:items-center lg:[[data-sheet]_&]:overflow-visible lg:[[data-sheet]_&]:z-[55] lg:[[data-sheet]_&]:px-1.5">
+        <Row on={job === "saved"} onClick={() => pickJob("saved")} n={count("saved")} icon={<span data-anim="pop" className="grid place-items-center text-pink"><Heart size={15} aria-hidden /></span>}>Saved</Row>
+        <Row on={job === "all"} onClick={() => pickJob("all")} n={count("all")} icon={<span data-anim="pop" className="grid place-items-center"><LayoutGrid size={15} aria-hidden /></span>}>All libraries</Row>
         {(picks.size > 0 || job === "editors") && (
-          <Row on={job === "editors"} onClick={() => setJob("editors")} n={count("editors")} icon={<span data-anim="pop" className="grid place-items-center text-amber"><Star size={15} aria-hidden /></span>}>Editor's picks</Row>
+          <Row on={job === "editors"} onClick={() => pickJob("editors")} n={count("editors")} icon={<span data-anim="pop" className="grid place-items-center text-amber"><Star size={15} aria-hidden /></span>}>Editor's picks</Row>
         )}
-        <h2 className="hidden px-2 pt-4 pb-1.5 font-mono text-[11.5px] text-fg3 lg:block">Job</h2>
+        <h2 className="hidden px-2 pt-4 pb-1.5 font-mono text-[11.5px] text-fg3 lg:block lg:[[data-sheet]_&]:hidden">Job</h2>
         {jobs.map((k) => (
-          <Row key={k} on={job === k} onClick={() => setJob(k)} n={count(k)} icon={<KindIcon kind={k} />}>{kindMeta[k].label}</Row>
+          <Row key={k} on={job === k} onClick={() => pickJob(k)} n={count(k)} icon={<KindIcon kind={k} />}>{kindMeta[k].label}</Row>
         ))}
-        <h2 className="hidden px-2 pt-4 pb-1.5 font-mono text-[11.5px] text-fg3 lg:block">Price</h2>
+        <h2 className="hidden px-2 pt-4 pb-1.5 font-mono text-[11.5px] text-fg3 lg:block lg:[[data-sheet]_&]:hidden">Price</h2>
         {/* A wrapper, because .seg's own display would beat Tailwind's `hidden`. */}
-        <div className="mx-1 hidden lg:block">
+        <div className="mx-1 hidden lg:block lg:[[data-sheet]_&]:hidden">
           <Seg label="Price">
             {PRICES.map(([id, label]) => <button key={id} type="button" aria-pressed={price === id} onClick={() => setPrice(id)}>{label}</button>)}
           </Seg>
@@ -181,11 +207,16 @@ function Row({ on, onClick, n, icon, children }: { on: boolean; onClick: () => v
       type="button"
       aria-pressed={on}
       onClick={onClick}
-      className={`anim-host press flex h-8 flex-none items-center gap-2.5 rounded-lg px-2.5 text-[13.5px] whitespace-nowrap [transition-duration:160ms,60ms,60ms,250ms]! max-lg:shadow-[inset_0_0_0_1px_var(--color-line)] ${on ? "bg-s2 text-fg max-lg:shadow-[inset_0_0_0_1px_var(--color-fg)]" : "text-fg2 hover:bg-s1 hover:text-fg"}`}
+      className={`anim-host press group/job relative flex h-8 flex-none items-center gap-2.5 rounded-lg px-2.5 text-[13.5px] whitespace-nowrap [transition-duration:160ms,60ms,60ms,250ms]! max-lg:shadow-[inset_0_0_0_1px_var(--color-line)] lg:[[data-sheet]_&]:w-9 lg:[[data-sheet]_&]:justify-center lg:[[data-sheet]_&]:px-0 ${on ? "bg-s2 text-fg max-lg:shadow-[inset_0_0_0_1px_var(--color-fg)]" : "text-fg2 hover:bg-s1 hover:text-fg"}`}
     >
       {icon}
-      <span className="flex-1 text-left">{children}</span>
-      <span className="font-mono text-[11.5px] text-fg3 tabular-nums">{n}</span>
+      {/* Folded beside an open sheet: the name and count leave the row for a hover label (and stay for screen readers). */}
+      <span className="flex-1 text-left lg:[[data-sheet]_&]:sr-only">{children}</span>
+      <span className="font-mono text-[11.5px] text-fg3 tabular-nums lg:[[data-sheet]_&]:sr-only">{n}</span>
+      <span aria-hidden className="pointer-events-none absolute left-full ml-2 hidden items-center gap-1.5 rounded-md bg-s3 px-2 py-1 text-[12px] text-fg shadow-[0_0_0_1px_var(--color-line2)] lg:[[data-sheet]_&]:group-hover/job:flex">
+        {children}
+        <span className="font-mono text-[11px] text-fg3 tabular-nums">{n}</span>
+      </span>
     </button>
   );
 }

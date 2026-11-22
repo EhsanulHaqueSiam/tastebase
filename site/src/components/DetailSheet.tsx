@@ -4,7 +4,7 @@
 // page). ×, Esc, the dimmed grid and Back close it onto the same grid and scroll; a press on the job list or header
 // closes it too, then does what it was pressed for. Phones and modified clicks navigate as before.
 import { X } from "lucide-react";
-import { useEffect, useRef, useState, type RefObject } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from "react";
 
 const DESKTOP = "(min-width: 1024px)";
 type State = { sheet?: string } | null;
@@ -20,7 +20,9 @@ export default function DetailSheet({ scope }: { scope: RefObject<HTMLElement | 
   // Back from the sheet's entry, or the × / Esc / backdrop (which step back to it).
   const close = () => ((history.state as State)?.sheet ? history.back() : setPath(null));
   // A press elsewhere (job list, header) must not wait for Back: the click it starts may rewrite the URL (?job=).
-  const closeNow = () => (history.replaceState(origin.current.state, "", origin.current.url), setPath(null));
+  // It leaves the scroll to whatever was pressed (a new job starts at the top), unlike the closes that return to the grid.
+  const closeNow = () => ((keep.current = false), history.replaceState(origin.current.state, "", origin.current.url), setPath(null));
+  const keep = useRef(true);
 
   useEffect(() => {
     const el = scope.current;
@@ -50,20 +52,28 @@ export default function DetailSheet({ scope }: { scope: RefObject<HTMLElement | 
     return () => removeEventListener("tb:sheet", onStep);
   }, [scope]);
 
-  useEffect(() => {
+  // Before paint: data-sheet folds the job list (Directory.tsx), so the sheet's left edge is measured after it.
+  useLayoutEffect(() => {
     if (!path) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
     const onDown = (e: PointerEvent) => !box.current?.contains(e.target as Node) && !(e.target as Element).closest("[data-sheet-backdrop]") && closeNow();
     document.addEventListener("keydown", onKey);
     document.addEventListener("pointerdown", onDown, true);
     const root = document.documentElement;
+    // Folding the job list reflows the grid, and the browser's scroll anchoring would move it: hold the grid where it
+    // was, and put it back there on close, after the list unfolds.
+    const y = scrollY;
+    keep.current = true;
     root.style.overflow = "hidden"; // the grid stays put under the sheet
     root.setAttribute("data-sheet", "");
+    scrollTo({ top: y, behavior: "instant" });
+    if (scope.current) setLeft(scope.current.getBoundingClientRect().left);
     return () => {
       document.removeEventListener("keydown", onKey);
       document.removeEventListener("pointerdown", onDown, true);
       root.style.overflow = "";
       root.removeAttribute("data-sheet");
+      if (keep.current) scrollTo({ top: y, behavior: "instant" });
     };
   }, [path]);
 
