@@ -56,6 +56,9 @@ export default function Palette() {
       window.removeEventListener("keydown", onTab);
       const at = document.activeElement;
       if (!leaving && (at === document.body || at?.closest("[data-palette]")) && opener.current?.isConnected) opener.current.focus({ preventScroll: true });
+      // Nothing to go back to: leave the input as it animates out, so keys typed meanwhile do not land in it (and come
+      // back as the next open's query).
+      if (document.activeElement?.closest("[data-palette]")) (document.activeElement as HTMLElement).blur();
     };
   }, [open]);
 
