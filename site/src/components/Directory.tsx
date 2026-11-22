@@ -1,5 +1,6 @@
 // /browse: every library, filtered by job (with live counts), price, framework and words; grid or list; saved ones.
-// A running sponsor leads the results and follows every 8th (lib/sponsors.ts).
+// A running sponsor leads the results and follows every 8th (lib/sponsors.ts). On desktop a library opens in a sheet
+// over the results (DetailSheet.tsx), so the job list stays in reach.
 import { ArrowUpRight, ChevronDown, Heart, LayoutGrid, List, Search } from "lucide-react";
 import { memo, startTransition, useDeferredValue, useEffect, useRef, useState, type ReactNode } from "react";
 import { frameworks, kinds, type Framework, type Kind } from "../../../src/registry/schema.ts";
@@ -10,6 +11,7 @@ import { useSponsors, withSponsors, type Sponsor } from "../lib/sponsors.ts";
 import { withUtm } from "../lib/utm.ts";
 import type { ShelfLib } from "../lib/server.ts";
 import { useStats } from "../lib/stats.ts";
+import DetailSheet from "./DetailSheet.tsx";
 import { CopyButton } from "./fx.tsx";
 import { FW, KindIcon, LibCard, SaveButton, SponsorLibCard, SORTS, sortBy, statBadge, type Sort } from "./LibCard.tsx";
 import { LibMark } from "./LibMark.tsx";
@@ -40,6 +42,7 @@ export default function Directory({ libs }: { libs: ShelfLib[] }) {
   // A transition: React renders the extra cards in slices, so a slow phone's main thread stays free during the swap.
   useEffect(() => startTransition(() => setLimit((n) => Math.max(n, PAGE))), []);
   const more = useRef<HTMLDivElement>(null);
+  const results = useRef<HTMLElement>(null);
 
   // The job lives in the URL (?job=motion, ?job=saved) so a filtered directory can be linked.
   useEffect(() => {
@@ -97,7 +100,7 @@ export default function Directory({ libs }: { libs: ShelfLib[] }) {
         </div>
       </aside>
 
-      <section aria-labelledby="dir-title" className="min-w-0 px-4 pt-5 pb-24 lg:px-6">
+      <section ref={results} data-sheet-host aria-labelledby="dir-title" className="min-w-0 px-4 pt-5 pb-24 lg:px-6">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
           <h1 id="dir-title" className="text-[18px] font-semibold tracking-[-0.02em]">
             {title} <span className="ml-1 font-mono text-[13px] font-medium text-fg3 tabular-nums">{count(job)}</span>
@@ -158,6 +161,7 @@ export default function Directory({ libs }: { libs: ShelfLib[] }) {
           </p>
         )}
       </section>
+      <DetailSheet scope={results} />
     </div>
   );
 }

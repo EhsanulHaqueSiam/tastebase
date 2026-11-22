@@ -46,7 +46,7 @@ export function ListingCard({ item, sponsor, eager = false, late = false, compac
       </div>
       <div className={`flex flex-1 flex-col gap-1 transition-opacity group-has-[[data-hidden]]:opacity-35 ${compact ? "p-3" : "p-3 sm:gap-1.5 sm:p-4"}`}>
         <h3 className={`${sponsor ? "flex items-baseline gap-2" : ""} leading-snug font-semibold tracking-[-0.01em] ${compact ? "text-[14px] sm:text-[15px]" : "text-[14px] sm:text-[17px]"}`}>
-          <a href={c.href} {...(sponsor ? { target: "_blank", rel: "sponsored noopener" } : { "data-cuelume-navigate": "" })} className="outline-none after:absolute after:inset-0 after:content-['']">
+          <a href={c.href} {...(sponsor ? { target: "_blank", rel: "sponsored noopener" } : { "data-sound": "navigate" })} className="outline-none after:absolute after:inset-0 after:content-['']">
             {c.name}
             {sponsor && <ArrowUpRight size={14} className="ml-0.5 inline align-[-1px] text-fg3" aria-hidden />}
           </a>
@@ -59,7 +59,7 @@ export function ListingCard({ item, sponsor, eager = false, late = false, compac
               const Icon = PILL_ICON[p.icon];
               return (
                 <li key={p.href}>
-                  <a href={p.href} data-cuelume-navigate className="press inline-flex items-center gap-1.5 rounded-full bg-s2 px-2.5 py-1 text-[12px] font-medium text-fg2 shadow-[inset_0_0_0_1px_var(--color-line2)] hover:text-fg">
+                  <a href={p.href} data-sound="navigate" className="press inline-flex items-center gap-1.5 rounded-full bg-s2 px-2.5 py-1 text-[12px] font-medium text-fg2 shadow-[inset_0_0_0_1px_var(--color-line2)] hover:text-fg">
                     <Icon size={13} aria-hidden />
                     {p.label}
                   </a>

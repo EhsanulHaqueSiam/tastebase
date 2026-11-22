@@ -179,6 +179,14 @@ body > header > * { animation: blur-in 900ms var(--ease-quart) backwards; }
 @keyframes blur-in { from { opacity: 0; filter: blur(7px); } }
 @keyframes enter { from { opacity: 0; filter: blur(7px); transform: translateY(20px); } }
 @keyframes enter-late { from { opacity: 0; transform: translateY(32px); } }
+@keyframes fade-in { from { opacity: 0; } }
+@keyframes sheet-in { from { opacity: 0; transform: translateY(12px) scale(0.99); } }
+
+/* A detail page framed by /browse's sheet (DetailSheet.tsx; Base.astro sets data-embed): the page alone, filling the
+   frame, without the site's header, rail, tab bar, footer or floating controls. */
+[data-embed] :is([data-shell="header"], [data-shell="rail"], [data-shell="frame"], [data-shell="tabbar"], [data-footer], [data-chrome]) { display: none !important; }
+[data-embed] [data-shell="main"] { padding: 0; }
+[data-embed] [data-detail] { padding-top: 0; height: 100svh; }
 
 /* Shelf card quick actions: shown on hover or focus where there is hover, always on touch, in place of the kind label. */
 @media (hover: hover) {

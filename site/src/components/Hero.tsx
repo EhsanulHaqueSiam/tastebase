@@ -110,10 +110,10 @@ export default function Hero({ counts }: { counts: { libs: number; resources: nu
               className="min-w-0 flex-1 bg-transparent text-[15px] outline-none placeholder:text-fg3 [&::-webkit-search-cancel-button]:hidden"
               autoComplete="off"
               aria-label="Search libraries"
-              data-cuelume-type
+              data-sound="type"
             />
             {active ? (
-              <button type="button" onClick={clear} data-cuelume-close className="press shrink-0 text-[13px] text-fg3 hover:text-fg">clear</button>
+              <button type="button" onClick={clear} data-sound="close" className="press shrink-0 text-[13px] text-fg3 hover:text-fg">clear</button>
             ) : (
               <span className="kbd">/</span>
             )}
@@ -122,9 +122,9 @@ export default function Hero({ counts }: { counts: { libs: number; resources: nu
             <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5 text-[13px] text-fg2">
               <span className="pr-1 text-fg3 max-sm:hidden">Try</span>
               {TRY.map((t) => (
-                <button key={t} type="button" onClick={() => setQ(t)} data-cuelume-tap className="press h-7 rounded-lg bg-bg/40 px-2.5 shadow-[inset_0_0_0_1px_var(--color-line2)] backdrop-blur-xl transition-colors hover:text-fg">{t}</button>
+                <button key={t} type="button" onClick={() => setQ(t)} data-sound="tap" className="press h-7 rounded-lg bg-bg/40 px-2.5 shadow-[inset_0_0_0_1px_var(--color-line2)] backdrop-blur-xl transition-colors hover:text-fg">{t}</button>
               ))}
-              <a href="/match" data-cuelume-navigate className="press inline-flex h-7 items-center rounded-lg bg-bg/40 px-2.5 shadow-[inset_0_0_0_1px_var(--color-line2)] backdrop-blur-xl transition-colors hover:text-fg">match a screenshot →</a>
+              <a href="/match" data-sound="navigate" className="press inline-flex h-7 items-center rounded-lg bg-bg/40 px-2.5 shadow-[inset_0_0_0_1px_var(--color-line2)] backdrop-blur-xl transition-colors hover:text-fg">match a screenshot →</a>
             </div>
           )}
         </div>
@@ -142,7 +142,7 @@ export default function Hero({ counts }: { counts: { libs: number; resources: nu
               ))}
               {strip.length < SLOTS && (
                 <li className={`flex h-12 border-line2 sm:border-l max-sm:basis-full ${strip.length ? "flex-1" : "flex-[3]"} ${strip.length === 1 ? "max-sm:border-t" : ""}`}>
-                  <a href="/sponsor" data-cuelume-navigate className="group flex flex-1 items-center justify-between gap-3 px-3 text-[13px] text-fg3 transition-colors hover:text-fg">
+                  <a href="/sponsor" data-sound="navigate" className="group flex flex-1 items-center justify-between gap-3 px-3 text-[13px] text-fg3 transition-colors hover:text-fg">
                     {strip.length ? `${SLOTS - strip.length} open` : "Your logo here, seen by people picking UI libraries"}
                     <span className="shrink-0 text-fg">Sponsor <ArrowRight size={13} className="inline transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden /></span>
                   </a>
@@ -160,13 +160,13 @@ export default function Hero({ counts }: { counts: { libs: number; resources: nu
               <div className="mb-5 flex items-center justify-between gap-3">
                 <Seg label="Result type">
                   {(["relevant", "similar"] as const).map((t) => (
-                    <button key={t} type="button" aria-pressed={tab === t} onClick={() => setTab(t)} data-cuelume-select className="flex items-center gap-1.5 capitalize">
+                    <button key={t} type="button" aria-pressed={tab === t} onClick={() => setTab(t)} data-sound="select" className="flex items-center gap-1.5 capitalize">
                       {t}
                       <span className="text-fg3 tabular-nums">{res[t].length}</span>
                     </button>
                   ))}
                 </Seg>
-                <button type="button" onClick={clear} data-cuelume-close className="press inline-flex h-8 items-center gap-1.5 rounded-lg bg-bg/55 px-2.5 text-[13px] font-semibold text-fg shadow-[inset_0_0_0_1px_var(--color-line2)] backdrop-blur-xl hover:bg-s2">
+                <button type="button" onClick={clear} data-sound="close" className="press inline-flex h-8 items-center gap-1.5 rounded-lg bg-bg/55 px-2.5 text-[13px] font-semibold text-fg shadow-[inset_0_0_0_1px_var(--color-line2)] backdrop-blur-xl hover:bg-s2">
                   <X size={14} aria-hidden />
                   Clear
                 </button>
@@ -177,7 +177,7 @@ export default function Hero({ counts }: { counts: { libs: number; resources: nu
                 </div>
               ) : (
                 <Empty title={`No ${tab} results`} body={`Nothing fit closely enough here, but ${res[other].length} ${res[other].length === 1 ? "library was" : "libraries were"} found in the other tab.`}>
-                  <button type="button" onClick={() => setTab(other)} data-cuelume-tap className="press group mt-5 inline-flex h-10 items-center gap-2 rounded-xl bg-fg pr-2.5 pl-4 text-[13.5px] font-semibold text-bg hover:opacity-90">
+                  <button type="button" onClick={() => setTab(other)} data-sound="tap" className="press group mt-5 inline-flex h-10 items-center gap-2 rounded-xl bg-fg pr-2.5 pl-4 text-[13.5px] font-semibold text-bg hover:opacity-90">
                     View {other} results
                     <span className="flex h-6 items-center gap-1 rounded-lg bg-bg/15 pr-1.5 pl-2 text-[12px] tabular-nums">
                       {res[other].length}

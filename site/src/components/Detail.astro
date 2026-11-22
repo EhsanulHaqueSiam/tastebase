@@ -19,7 +19,7 @@ const pills = item.pricing === "freemium" ? (["free", "paid"] as const) : ([item
 const frameable = !unframeable.includes(item.id);
 ---
 
-<div class="grid grid-cols-1 pt-14 lg:h-[calc(100svh-8px)] lg:grid-cols-2">
+<div data-detail class="grid grid-cols-1 pt-14 lg:h-[calc(100svh-8px)] lg:grid-cols-2">
   <section class="enter min-w-0 px-4 pt-5 pb-44 [scrollbar-width:none] lg:overflow-y-auto lg:px-6 lg:pb-32">
     <div class="flex flex-wrap items-center gap-3">
       <h1 class="text-[26px] leading-tight font-semibold tracking-[-0.03em] md:text-[30px]" transition:name={`name-${item.id}`}>{item.name}</h1>
