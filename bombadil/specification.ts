@@ -8,7 +8,8 @@ export * from "@antithesishq/bombadil/browser/defaults";
 const page = extract((s) => {
   const d = s.document;
   // Our own pages only: exploration can follow a link out (GitHub, a library's site) and their markup is not ours.
-  const ours = /tastebase|localhost/.test(s.window.location.host);
+  // HTML only: /llms.txt and the .md copies are plain text for agents, with no title or heading by design.
+  const ours = /tastebase|localhost/.test(s.window.location.host) && d.contentType === "text/html";
   const named = (e: Element) => !!(e.textContent?.trim() || e.getAttribute("aria-label") || e.getAttribute("aria-labelledby") || e.getAttribute("title"));
   return {
     ours,
