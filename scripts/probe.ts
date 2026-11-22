@@ -19,6 +19,12 @@ for (const [path, type] of [["/", "text/html"], ["/browse/vaul", "text/html"], [
   check(!(r instanceof Error) && r.ok && (r.headers.get("content-type") ?? "").startsWith(type), `GET ${path}`, r instanceof Error ? r.message : String(r.status));
 }
 
+// Email sign-up exists only under `pnpm dev` (site/src/lib/auth.ts); a deployed copy must refuse it.
+if (!/^http:\/\/(localhost|127\.0\.0\.1)[:/]/.test(base)) {
+  const r = await fetch(new URL("/api/auth/sign-up/email", base), { method: "POST", headers: { "content-type": "application/json", origin: new URL(base).origin }, body: JSON.stringify({ email: "probe@example.test", password: "probe-password-1", name: "probe" }) }).catch((e: Error) => e);
+  check(!(r instanceof Error) && !r.ok, "email sign-up refused", r instanceof Error ? r.message : String(r.status));
+}
+
 const client = new Client({ name: "tastebase-probe", version: "0" });
 try {
   await client.connect(new StreamableHTTPClientTransport(new URL("/mcp", base)));

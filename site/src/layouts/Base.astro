@@ -193,10 +193,11 @@ const graph = [
         if (e.reason instanceof DOMException && e.reason.name === "InvalidStateError" && /transition was aborted/i.test(e.reason.message)) e.preventDefault();
       });
       // A deploy deletes the previous build's scripts, so an island or lazy part of a page opened before it fails to load
-      // (Chrome, Safari and Firefox each word it differently). Reload into the new build, once per build, so a flaky
-      // network cannot loop.
+      // (Chrome, Safari and Firefox each word it differently; Safari names no URL, so any failed import counts). Reload
+      // into the new build, once per build, so a flaky network cannot loop. Not in /browse's sheet frame: it shares the
+      // tab's sessionStorage, and the next sheet it opens loads afresh anyway.
       const reloadStale = (err: unknown) => {
-        if (!(err instanceof Error) || !navigator.onLine || !/dynamically imported module|Importing a module script failed/i.test(err.message)) return false;
+        if (window !== top || !(err instanceof Error) || !navigator.onLine || !/dynamically imported module|Importing a module script failed/i.test(err.message)) return false;
         try {
           if (sessionStorage.getItem("tb-reload") === __BUILD__) return false;
           sessionStorage.setItem("tb-reload", __BUILD__);

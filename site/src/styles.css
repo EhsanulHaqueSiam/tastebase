@@ -184,7 +184,7 @@ body > header > * { animation: blur-in 900ms var(--ease-quart) backwards; }
 
 /* A detail page framed by /browse's sheet (DetailSheet.tsx; Base.astro sets data-embed): the page alone, filling the
    frame, without the site's header, rail, tab bar, footer or floating controls. */
-[data-embed] :is([data-shell="header"], [data-shell="rail"], [data-shell="frame"], [data-shell="tabbar"], [data-footer], [data-chrome]) { display: none !important; }
+[data-embed] :is([data-shell="header"], [data-shell="rail"], [data-shell="frame"], [data-shell="tabbar"], [data-footer], [data-chrome], [data-skip]) { display: none !important; }
 [data-embed] [data-shell="main"] { padding: 0; }
 [data-embed] [data-detail] { padding-top: 0; height: 100svh; }
 

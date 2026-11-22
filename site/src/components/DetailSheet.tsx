@@ -48,6 +48,7 @@ export default function DetailSheet({ scope }: { scope: RefObject<HTMLElement | 
     const onStep = (e: Event) => {
       const sheet = (e as CustomEvent<string | null>).detail;
       if (sheet && scope.current) setLeft(scope.current.getBoundingClientRect().left);
+      if (sheet) opener.current = null; // entered by Forward: no card opened it
       setPath(sheet && matchMedia(DESKTOP).matches ? sheet : null);
     };
     addEventListener("tb:sheet", onStep);
@@ -58,9 +59,11 @@ export default function DetailSheet({ scope }: { scope: RefObject<HTMLElement | 
   useLayoutEffect(() => {
     if (!path) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
-    const onDown = (e: PointerEvent) => !box.current?.contains(e.target as Node) && !(e.target as Element).closest("[data-sheet-backdrop]") && closeNow();
+    const onDown = (e: Event) => !box.current?.contains(e.target as Node) && !(e.target as Element).closest("[data-sheet-backdrop]") && closeNow();
+    const onKeyClick = (e: MouseEvent) => e.detail === 0 && onDown(e); // Enter or Space on a job: no pointerdown before it
     document.addEventListener("keydown", onKey);
     document.addEventListener("pointerdown", onDown, true);
+    document.addEventListener("click", onKeyClick, true);
     const root = document.documentElement;
     // What the sheet covers goes inert, so Tab moves between the sheet, the job list and the header, never onto a card
     // or footer link hidden behind it. The job list and header stay live: a press there closes the sheet (onDown).
@@ -77,6 +80,7 @@ export default function DetailSheet({ scope }: { scope: RefObject<HTMLElement | 
     return () => {
       document.removeEventListener("keydown", onKey);
       document.removeEventListener("pointerdown", onDown, true);
+      document.removeEventListener("click", onKeyClick, true);
       root.style.overflow = "";
       root.removeAttribute("data-sheet");
       covered.forEach((e) => e?.removeAttribute("inert"));

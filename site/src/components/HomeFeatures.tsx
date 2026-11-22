@@ -11,13 +11,17 @@ const QUERIES = ["toast that stacks and swipes away", "iOS-like bottom sheet", "
 
 type Props = { categories: number; libraries: number; articles: number; sample: { name: string; tagline: string } };
 
+const LINE_1 = "No feeds to chase and no trends to keep up with,";
+const LINE_2 = "just a calm place to pick the right library.";
+
 export default function HomeFeatures({ categories, libraries, articles, sample }: Props) {
   return (
     <MotionConfig reducedMotion="user">
       <section className="mx-auto w-full max-w-[1250px] px-4 pt-20 pb-16 md:px-8 md:pt-28">
-        <h2 className="text-[24px] leading-[1.08] font-medium tracking-[-0.03em] sm:text-[30px] md:text-[36px]">
-          <Words text="No feeds to chase and no trends to keep up with," />
-          <Words text="just a calm place to pick the right library." className="text-fg3" delay={0.35} />
+        {/* The words are aria-hidden for the reveal, so the heading carries the text (a hidden copy would double /index.md). */}
+        <h2 aria-label={`${LINE_1} ${LINE_2}`} className="text-[24px] leading-[1.08] font-medium tracking-[-0.03em] sm:text-[30px] md:text-[36px]">
+          <Words text={LINE_1} />
+          <Words text={LINE_2} className="text-fg3" delay={0.35} />
         </h2>
         <Bento>
           <Card cls="flex h-[180px] items-center justify-center md:h-[296px]">
@@ -82,7 +86,6 @@ export default function HomeFeatures({ categories, libraries, articles, sample }
 function Words({ text, className = "", delay = 0 }: { text: string; className?: string; delay?: number }) {
   return (
     <motion.span className={`block ${className}`} initial="hidden" whileInView="shown" viewport={{ once: true, amount: 0.6 }} transition={{ delayChildren: delay, staggerChildren: 0.05 }}>
-      <span className="sr-only">{text}</span>
       {text.split(" ").map((w, i) => (
         <span key={i} className="inline-block overflow-hidden align-bottom" aria-hidden>
           <motion.span className="inline-block" variants={{ hidden: { opacity: 0, y: 20, filter: "blur(6px)" }, shown: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.72, ease: [0.22, 1, 0.36, 1] } } }}>

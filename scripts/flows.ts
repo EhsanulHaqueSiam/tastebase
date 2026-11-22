@@ -2,7 +2,8 @@
 // DevTools protocol) at phone and desktop sizes, and fails on the first broken step of each: the /browse sheet (open,
 // close by ×, Esc, backdrop and Back, Forward, "Try these", a job while open, and its layout beside the nav rail on wide
 // screens), filters and scroll surviving Back, detail panels that must not scroll the page, the taste survey, the
-// card buttons signed out, and keyboard focus (skip link, sheets that take focus and give it back). Against `pnpm dev`
+// card buttons signed out, keyboard focus (skip link, sheets that take focus and give it back), and a tab left open
+// across a deploy. Against `pnpm dev`
 // it also signs up a throwaway user and checks the account (hearts, folders, hiding, the agent key). Each flow runs in a
 // fresh profile. Point it at `pnpm dev` or a preview stage, never prod.
 import { withChrome, type Tab } from "./cdp.ts";
@@ -228,6 +229,27 @@ const flows: Record<string, [Size, string, (p: P) => Promise<void>][]> = {
     await p.until(`location.pathname === "/browse"`, "the tab bar to reach /browse");
     await noSideScroll(p);
   }]],
+  // A tab left open across a deploy: a navigation into another build's page loads it whole (lib/prefetch.ts), so the
+  // old page's scripts never meet the new page. The build is faked by rewriting this page's id.
+  // Back lands on a #hash URL, which a plain same-URL assignment would only scroll to.
+  "new-build": [[DESKTOP, "/about#main", async (p) => {
+    const go = (href: string) => p.js(`(() => { window.flowMark = 1; const a = document.createElement("a"); a.href = "${href}"; document.querySelector("main").append(a); a.click(); })()`);
+    const old = () => p.js(`document.querySelector('meta[name="tb-build"]').content = "old"`);
+    await go("/terms");
+    await p.until(`location.pathname === "/terms"`, "a client navigation");
+    expect(await p.js("window.flowMark === 1"), "a navigation within one build loaded the page whole");
+    await old(); // Back, within this document: the router's traverse
+    await p.js("window.flowMark = 1");
+    await p.back();
+    await p.until(`location.pathname === "/about" && document.readyState === "complete"`, "Back from an old build");
+    await sleep(500);
+    expect(await p.js("window.flowMark === undefined"), "Back from an old build swapped the page instead of loading it");
+    await old();
+    await go("/terms");
+    await p.until(`location.pathname === "/terms" && document.readyState === "complete"`, "the navigation from an old build");
+    await sleep(500);
+    expect(await p.js("window.flowMark === undefined"), "a navigation from an old build swapped the page instead of loading it");
+  }]],
   // Keyboard only: the skip link comes first, and the library and sign-in sheets take focus and give it back.
   keyboard: [[DESKTOP, "/browse", async (p) => {
     const focused = () => p.js<string>(`(document.activeElement?.getAttribute("aria-label") ?? document.activeElement?.textContent ?? "").trim()`);
@@ -240,6 +262,13 @@ const flows: Record<string, [Size, string, (p: P) => Promise<void>][]> = {
     await p.key("Escape");
     await closed(p, "Esc to close the sheet");
     expect(await p.js(`document.activeElement?.pathname === "${href}"`), `closing the sheet left focus on "${await focused()}", not the card`);
+    // Enter on a job while the sheet is open closes it and filters, like a press does.
+    await p.js(`document.querySelector("${ON_SCREEN}").focus()`);
+    await p.key("Enter");
+    await sheetReady(p);
+    await p.js(`document.querySelector("aside[aria-label=Jobs] button:nth-of-type(5)").focus()`);
+    await p.key("Enter");
+    await p.until(`!document.querySelector('${SHEET}') && location.pathname === "/browse" && new URL(location.href).searchParams.has("job")`, "Enter on a job to close the sheet and filter");
     await p.js(`document.querySelector('button[aria-label="Sign in"]').focus()`);
     await p.key("Enter");
     await p.until(`!!document.activeElement?.closest("[role=dialog]")`, "the sign-in sheet to take focus");
@@ -251,6 +280,7 @@ const flows: Record<string, [Size, string, (p: P) => Promise<void>][]> = {
     "signed-in": [[DESKTOP, "/browse/ark-ui", async (p) => {
       const me = <T>(field: string) => p.js<T>(`fetch("/api/me").then((r) => r.json()).then((m) => m.${field})`);
       const up = await p.js<number>(`fetch("/api/auth/sign-up/email", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email: "flows-" + Date.now() + "@example.test", password: "flows-password-1", name: "Flows" }) }).then((r) => r.status)`);
+      if (up === 404) return console.log("      signed-in: skipped, this .env has no sign-in provider"); // auth() is off without one
       expect(up === 200, `sign-up answered ${up}`);
       await p.js(`localStorage.setItem("tastebase:account", "1")`); // what signIn() sets before the provider's page
       await p.go("/browse/ark-ui"); // "Try these" cards carry heart, folder and hide

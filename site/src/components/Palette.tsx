@@ -37,33 +37,35 @@ export default function Palette() {
   const [q, setQ] = useState("");
   useEffect(() => void (open || setQ("")), [open]);
 
-  // What had focus before the palette (its input takes focus as it mounts): closing without a navigation returns there.
+  // What had focus when the palette opened (its input takes focus as it mounts) gets it back on close, unless a pick
+  // started a navigation: the router fires astro:before-preparation inside navigate(), before this cleanup runs.
   const opener = useRef<HTMLElement>(null);
   useEffect(() => {
-    const onFocus = (e: FocusEvent) => !(e.target as Element).closest?.("[cmdk-root]") && (opener.current = e.target as HTMLElement);
-    document.addEventListener("focusin", onFocus);
-    return () => document.removeEventListener("focusin", onFocus);
-  }, []);
-  useEffect(() => {
     if (!open) return;
+    let leaving = false;
+    const onLeave = () => (leaving = true);
+    document.addEventListener("astro:before-preparation", onLeave);
     return () => {
+      document.removeEventListener("astro:before-preparation", onLeave);
       const at = document.activeElement;
-      if ((at === document.body || at?.closest("[cmdk-root]")) && opener.current?.isConnected) opener.current.focus({ preventScroll: true });
+      if (!leaving && (at === document.body || at?.closest("[cmdk-root]")) && opener.current?.isConnected) opener.current.focus({ preventScroll: true });
     };
   }, [open]);
 
   useEffect(() => {
+    const remember = () => document.activeElement?.closest("[cmdk-root]") || (opener.current = document.activeElement as HTMLElement | null);
+    const show = () => (remember(), setOpen(true));
     const onKey = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") (e.preventDefault(), setOpen((o) => !o));
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") (e.preventDefault(), remember(), setOpen((o) => !o));
       else if (e.key === "Escape") setOpen(false);
       else if (e.key === "/" && !(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)) {
         e.preventDefault();
         const ask = document.getElementById("ask");
-        ask ? ask.focus() : setOpen(true);
+        ask ? ask.focus() : show();
       }
     };
-    const onClick = (e: MouseEvent) => (e.target as Element).closest?.("[data-open-search]") && setOpen(true);
-    const onSearch = (e: Event) => (e instanceof CustomEvent && typeof e.detail === "string" && setQ(e.detail), setOpen(true));
+    const onClick = (e: MouseEvent) => (e.target as Element).closest?.("[data-open-search]") && show();
+    const onSearch = (e: Event) => (e instanceof CustomEvent && typeof e.detail === "string" && setQ(e.detail), show());
     window.addEventListener("keydown", onKey);
     window.addEventListener("tb:search", onSearch);
     document.addEventListener("click", onClick);

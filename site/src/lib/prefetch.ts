@@ -57,7 +57,8 @@ export function startPrefetch() {
     const a = e.pointerType === "mouse" ? linkOf(e.target) : undefined;
     if (a) timer = window.setTimeout(() => warm(a.href), 80);
   }, { passive: true });
-  document.addEventListener("focusin", (e) => { const a = linkOf(e.target); if (a) warm(a.href); }, { passive: true });
+  // Keyboard focus only: focus a script puts back on a link (closing /browse's sheet) is not a sign of a visit to come.
+  document.addEventListener("focusin", (e) => { const a = linkOf(e.target); if (a?.matches(":focus-visible")) warm(a.href); }, { passive: true });
   // Hand a warmed page to the router; anything unexpected falls back to its own loader.
   document.addEventListener("astro:before-preparation", (ev) => {
     const e = ev as TransitionBeforePreparationEvent;
@@ -86,7 +87,11 @@ export function startPrefetch() {
     const load = e.loader;
     e.loader = async () => {
       await load();
-      if (!e.signal.aborted && buildOf(e.newDocument) !== buildOf(document)) e.preventDefault();
+      if (e.signal.aborted || buildOf(e.newDocument) === buildOf(document)) return;
+      // Back and Forward have already moved the address to the page, where the router's fallback (assigning the same
+      // URL) would only scroll to its #hash: reload it, and never let this navigation swap.
+      if (e.navigationType === "traverse") return location.reload(), new Promise<void>(() => {});
+      e.preventDefault();
     };
   });
 }
