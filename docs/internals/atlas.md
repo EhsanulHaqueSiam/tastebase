@@ -6,9 +6,10 @@ for tabs and toggles.
 
 ## Decisions
 
-- **Groups come from the curated `aesthetic` tags, not from screenshots.** A library's first look is its group. A
-  look with more than six libraries splits by second look (`minimal / technical`), because one huge "minimal" group
-  says nothing. Wrong grouping means a wrong tag: fix the entry, not the layout.
+- **Groups come from the curated `aesthetic` tags, not from screenshots.** A library sits under every look it is
+  tagged with, since a kit that does minimal and playful belongs in both. A look with more than six libraries splits
+  by each library's next look (`minimal / technical`), because one huge "minimal" group says nothing; a pair is one
+  group from either side, the more common look first. Wrong grouping means a wrong tag: fix the entry, not the layout.
 - **"Near" means "tagged together".** Look affinity is how often two looks share a library across the whole
   registry, so it follows the data as entries change. Island positions start from classical MDS on that affinity,
   get pulled toward the centre, then pushed apart until no box overlaps (`src/atlas.test.ts` checks every view).

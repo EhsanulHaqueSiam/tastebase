@@ -7,10 +7,11 @@ import { kinds } from "./registry/schema.ts";
 const aff = lookAffinity(libraries);
 const views = [libraries, ...kinds.map((k) => libraries.filter((l) => l.kind === k))];
 
-test("every library lands in exactly one group, and best free never has paywalled parts", () => {
+test("every library sits under each of its looks and only those, and best free never has paywalled parts", () => {
   for (const libs of views) {
     const groups = groupByLook(libs, aesthetics);
-    assert.deepEqual(groups.flatMap((g) => g.libs.map((l) => l.id)).sort(), libs.map((l) => l.id).sort());
+    for (const l of libs) for (const a of l.aesthetic) assert.ok(groups.some((g) => g.looks.includes(a) && g.libs.includes(l)), `${l.id} missing under ${a}`);
+    for (const g of groups) for (const l of g.libs) assert.ok(g.looks.every((a) => l.aesthetic.includes(a)), `${l.id} is not ${g.key}`);
     for (const g of groups) if (g.bestFree) assert.ok(!paywalled(g.bestFree) && g.libs.includes(g.bestFree), g.key);
   }
 });
