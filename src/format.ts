@@ -49,9 +49,10 @@ export const SITE = "https://tastebase.ehsanulsiam.workers.dev";
 // An agent needs a few good options, not the whole shelf: the first ones (registry order, best first) and where the rest are.
 const RESOURCES_SHOWN = 10;
 
-/** One resource category, for `get <category>`, in registry order (best first; paid ones say so). */
-export const formatResources = (kind: ResourceKind) => {
-  const all = resources.filter((r) => r.kind === kind);
+/** One resource category, for `get <category>`, in registry order (best first; paid ones say so). `hide`: ids the
+ *  asker hid from their agent. */
+export const formatResources = (kind: ResourceKind, hide?: ReadonlySet<string>) => {
+  const all = resources.filter((r) => r.kind === kind && !hide?.has(r.id));
   const more = all.length - RESOURCES_SHOWN;
   return (
     `${resourceKinds[kind]} (linked, not installed):\n` +

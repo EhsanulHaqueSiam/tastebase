@@ -43,8 +43,14 @@ addEventListener("message", (e) => {
 post({ id: 1, method: "ui/initialize", params: { protocolVersion: "2026-01-26", appInfo: { name: "tastebase", version: "1" }, appCapabilities: {} } });
 </script>`;
 
+/** A signed-in asker's taste, from their agent key: library and resource ids they hid (never offered) and libraries they
+ *  hearted (a slight lead in plan and pick). */
+export type Taste = { hide: ReadonlySet<string>; like: ReadonlySet<string> };
+
 /** `onUse` hears each library an agent reads (`get`) or is offered (`plan`, `pick`); the hosted server counts them. */
-export function createServer(libs: Library[], looks: Aesthetic[], version: string, onUse?: (id: string) => void): McpServer {
+export function createServer(all: Library[], looks: Aesthetic[], version: string, onUse?: (id: string) => void, taste?: Taste): McpServer {
+  const libs = taste?.hide.size ? all.filter((l) => !taste.hide.has(l.id)) : all;
+  const like = taste?.like;
   const server = new McpServer({ name: "tastebase", version }, { instructions: INSTRUCTIONS });
   const byId = new Map(libs.map((l) => [l.id, l]));
   const lookById = new Map(looks.map((a) => [a.id, a]));
@@ -70,7 +76,7 @@ export function createServer(libs: Library[], looks: Aesthetic[], version: strin
     },
     async ({ brief, framework, look }) => {
       if (look && !lookById.has(look)) return unknownLook(look);
-      const p = plan(libs, looks, brief, { framework, look });
+      const p = plan(libs, looks, brief, { framework, look, like });
       p.items.forEach((i) => i.pick && onUse?.(i.pick.lib.id));
       return text(formatPlan(p));
     },
@@ -88,7 +94,7 @@ export function createServer(libs: Library[], looks: Aesthetic[], version: strin
       const look = id ? lookById.get(id) : undefined;
       // The job's own framework when none is passed ("a React date picker" never gets Vue-only answers).
       const fw = framework ?? jobFramework(need);
-      const fits = pick(libs, need, { framework: fw, look });
+      const fits = pick(libs, need, { framework: fw, look, like });
       fits.forEach((s) => onUse?.(s.lib.id));
       const parts = kitParts(libs, need, { framework: fw, look });
       // The project wins: a kit the job names that ships the part ("date picker, we use shadcn") answers first.
@@ -112,7 +118,7 @@ export function createServer(libs: Library[], looks: Aesthetic[], version: strin
       if (l) return onUse?.(l.id), text(formatLibrary(l));
       const site = siteTypes.find((t) => t.id === id);
       if (site) return text(`${formatSite(site)}\npicks: ${JSON.stringify(site.picks)}`);
-      if (isResourceKind(id)) return text(formatResources(id));
+      if (isResourceKind(id)) return text(formatResources(id, taste?.hide));
       if (id === "integrations") return text(formatIntegrations());
       if (id === "looks") return text(formatLooks(looks));
       const a = lookById.get(id);

@@ -2,6 +2,7 @@
 // The detail page every listing shares, library or resource (after Design Index's tool page). Left, scrolling on its
 // own: name with its price pills, the description, Visit and Share, "Try these", then whatever the page adds (a
 // library's notes). Right, desktop only: the live site (LiveSite.tsx). Phones get the screenshot instead of a frame.
+// The left column contains its own overscroll: reaching its end must not carry on into the page and slide the footer up.
 import type { Listing } from "../lib/categories.ts";
 import { thumb } from "../lib/kinds.ts";
 import { withUtm } from "../lib/utm.ts";
@@ -20,7 +21,7 @@ const frameable = !unframeable.includes(item.id);
 ---
 
 <div data-detail class="grid grid-cols-1 pt-14 lg:h-[calc(100svh-8px)] lg:grid-cols-2">
-  <section class="enter min-w-0 px-4 pt-5 pb-44 [scrollbar-width:none] lg:overflow-y-auto lg:px-6 lg:pb-32">
+  <section class="enter min-w-0 px-4 pt-5 pb-44 [scrollbar-width:none] lg:overflow-y-auto lg:overscroll-y-contain lg:px-6 lg:pb-32">
     <div class="flex flex-wrap items-center gap-3">
       <h1 class="text-[26px] leading-tight font-semibold tracking-[-0.03em] md:text-[30px]" transition:name={`name-${item.id}`}>{item.name}</h1>
       {

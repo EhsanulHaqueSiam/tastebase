@@ -165,6 +165,9 @@ const leadKind = (text: string) => {
 };
 
 const MATURITY = { established: 1, stable: 0.6, experimental: 0 } as const;
+/** A library the asker hearted (their agent key, site/src/pages/mcp.ts): it wins a close call (within about a tenth of
+ *  the leader's score), never a clear one. */
+const LIKED = 1.1;
 
 // shadcn registry items (`npx shadcn add ...`) install into a shadcn/ui project; under another kit they drag in a second setup.
 const viaShadcn = (l: Library) => l.install.includes("shadcn@");
@@ -217,7 +220,7 @@ const lookless = (text: string, look?: Aesthetic) => (look ? [look.id, look.name
 export function pick(
   libs: Library[],
   need: string,
-  opts: { framework?: Framework; look?: Aesthetic; kind?: Kind; limit?: number; base?: Library } = {},
+  opts: { framework?: Framework; look?: Aesthetic; kind?: Kind; limit?: number; base?: Library; like?: ReadonlySet<string> } = {},
 ): Scored[] {
   const { want, not } = negations(need);
   const own = terms(want);
@@ -332,7 +335,7 @@ export function pick(
     score += Math.min(1.5, (lib.stats?.starsWeek ?? 0) / 400); // momentum breaks ties, never overrides fit
     const home = named || picked || !family || lib.aesthetic.includes(family as AestheticId);
     const why = named ? "named in the brief" : (!unasked && !stray && best) || (picked ? "look's pick" : lib.tagline);
-    out.push({ lib, score: score + MATURITY[lib.maturity], why, caution, home, fit, picked });
+    out.push({ lib, score: (score + MATURITY[lib.maturity]) * (opts.like?.has(lib.id) ? LIKED : 1), why, caution, home, fit, picked });
   }
   // What asked for each kind ("typewriter", "confetti", "bottom sheet"), not counting the look's own words ("aurora").
   const asks = new Map<Kind, string[][]>();
@@ -630,7 +633,7 @@ export function kitComponents(kit: Library, text: string, items: PlanItem[]): st
 
 /** Picks for a whole app brief: the base kit first, then one per job, ranked to fit that kit and the look. A kind holds
  * several when the brief names several jobs in it ("a carousel and a drawer"). */
-export function plan(libs: Library[], looks: Aesthetic[], brief: string, opts: { framework?: Framework; look?: string } = {}): Plan {
+export function plan(libs: Library[], looks: Aesthetic[], brief: string, opts: { framework?: Framework; look?: string; like?: ReadonlySet<string> } = {}): Plan {
   const { want, not } = negations(brief);
   const found = opts.look ? looks.filter((a) => a.id === opts.look) : detectLooks(looks, want);
   const mobileWords = /\b(mobile|phones?|iphone|android|ios app|pwa|expo|react native)\b/.test(want);
@@ -678,7 +681,7 @@ export function plan(libs: Library[], looks: Aesthetic[], brief: string, opts: {
   // Unforced, never a kit that is mostly paid (Kobra): the base is the one thing a plan cannot swap out later.
   // An alternative base its own avoidWhen warns about is no alternative ("US government": not govuk-frontend).
   // Nor an add-on (audiocn's players and meters): it sits on a kit. One that fits the brief best gets its own line.
-  const kits = kit || uncurated ? [] : pick(libs, brief, { framework, look, kind: baseKind, limit: 8 });
+  const kits = kit || uncurated ? [] : pick(libs, brief, { framework, look, kind: baseKind, limit: 8, like: opts.like });
   // An experimental kit (boardui) goes behind proven ones unless the look picks it: "dashboard" made a new copy-in kit
   // the base over shadcn/ui, and builders could not run its CLI.
   const proven = (s: Scored) => s.lib.maturity !== "experimental" || !!look.picks[baseKind]?.includes(s.lib.id);
@@ -728,7 +731,7 @@ export function plan(libs: Library[], looks: Aesthetic[], brief: string, opts: {
     const exact = (l: Library, m: string) => wordsOf(m).every((w) => namesIn([w[0]!], l));
     for (const m of phrases) {
       let it = out.find((i) => exact(i.pick!.lib, m)) ?? out.find((i) => covers(i.pick!.lib, m));
-      const s = it || named.length || namesLib(slotSaid, lead) ? undefined : pick(libs, m, { framework, look: tuned, kind, limit: 8, base }).find((s) => s.lib.kind === kind && covers(s.lib, m) && !namesLib(notSaid, s.lib));
+      const s = it || named.length || namesLib(slotSaid, lead) ? undefined : pick(libs, m, { framework, look: tuned, kind, limit: 8, base, like: opts.like }).find((s) => s.lib.kind === kind && covers(s.lib, m) && !namesLib(notSaid, s.lib));
       if (s && !out.some((i) => i.pick!.lib === s.lib)) out.push((it = { kind, pick: s, alternatives: [] }));
       owner.set(m, it ?? out[0]!);
     }
@@ -742,7 +745,7 @@ export function plan(libs: Library[], looks: Aesthetic[], brief: string, opts: {
   // The best pick for one kind under this base layer, with its alternatives.
   const slot = (kind: Kind, layer: Library | undefined, base: Library | undefined): PlanItem[] => {
     // Under a kit we do not curate, shadcn registry items would drag in a second setup.
-    const r = pick(libs, brief, { framework, look: tuned, kind, limit: 8, base }).filter((s) => !(uncurated && viaShadcn(s.lib)));
+    const r = pick(libs, brief, { framework, look: tuned, kind, limit: 8, base, like: opts.like }).filter((s) => !(uncurated && viaShadcn(s.lib)));
     // The project wins: a library the brief names for this job ("we use Tabler Icons") is the pick, like a named kit.
     const mine = libs.find((l) => l.kind === kind && l.frameworks.includes(framework) && namesLib(slotSaid, l));
     if (mine) return [{ kind, pick: r.find((s) => s.lib === mine) ?? { lib: mine, score: 20, why: "named in the brief" }, alternatives: r.filter((s) => s.lib !== mine).slice(0, 2) }];

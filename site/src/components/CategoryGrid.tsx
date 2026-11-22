@@ -43,7 +43,7 @@ export default function CategoryGrid({ items, label }: { items: Listing[]; label
 
       {shown.length ? (
         <div className="mt-6 grid grid-cols-2 gap-3 pb-10 sm:gap-5 lg:grid-cols-4">
-          {withSponsors(shown, live).map((slot, i) => ("sponsor" in slot ? <ListingCard key={slot.key} sponsor={slot.sponsor} where="category-grid" /> : <ListingCard key={slot.key} item={slot.item} eager={i < 4} />))}
+          {withSponsors(shown, live).map((slot, i) => ("sponsor" in slot ? <ListingCard key={slot.key} sponsor={slot.sponsor} where="category-grid" /> : <ListingCard key={slot.key} item={slot.item} actions eager={i < 4} />))}
         </div>
       ) : (
         <div role="status" className="mt-6 flex min-h-56 flex-col items-center justify-center rounded-xl bg-s1 px-6 py-10 text-center shadow-[inset_0_0_0_1px_var(--color-line)]">

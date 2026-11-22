@@ -5,9 +5,9 @@ import { test } from "node:test";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { formatLibrary } from "./format.ts";
-import { createServer, INSTRUCTIONS } from "./mcp.ts";
+import { createServer, INSTRUCTIONS, type Taste } from "./mcp.ts";
 import { aesthetics, libraries } from "./registry/index.ts";
-import { agentResourceKinds } from "./registry/resources.ts";
+import { agentResourceKinds, resources } from "./registry/resources.ts";
 
 const tokens = (s: string) => Math.ceil(s.length / 4); // ~4 chars per token for English and code
 const worst = (sizes: (readonly [string, number])[]) => sizes.reduce((m, g) => (g[1] > m[1] ? g : m));
@@ -50,9 +50,9 @@ const BUDGET = {
   get: 670,
 };
 
-async function connect() {
+async function connect(taste?: Taste) {
   const [a, b] = InMemoryTransport.createLinkedPair();
-  await createServer(libraries, aesthetics, "test").connect(a);
+  await createServer(libraries, aesthetics, "test", undefined, taste).connect(a);
   const client = new Client({ name: "budget", version: "0" });
   await client.connect(b);
   const text = async (name: string, args: Record<string, unknown>) =>
@@ -94,4 +94,15 @@ test("an unknown look id is answered with the closest ids", async () => {
 test("every library's get answer stays within the budget", () => {
   const over = libraries.map((l) => [l.id, tokens(formatLibrary(l))] as const).filter(([, n]) => n > BUDGET.get);
   assert.deepEqual(over.map(([id, n]) => `${id}: ${n}`), [], "over the get budget");
+});
+
+// An agent key's taste (site/src/pages/mcp.ts): what its owner hid is never offered, by any tool.
+test("a hidden library or resource never reaches that user's agent", async () => {
+  const icons = resources.find((r) => r.kind === "icons")!;
+  const { text } = await connect({ hide: new Set(["sonner", icons.id]), like: new Set() });
+  assert.doesNotMatch(await text("pick", { need: "toast" }), /\bsonner\b/);
+  assert.doesNotMatch(await text("plan", { brief: "dashboard with toasts" }), /\bsonner\b/);
+  assert.match(await text("get", { id: "sonner" }), /^Unknown id/);
+  assert.ok(!(await text("get", { id: "icons" })).includes(icons.url));
+  assert.match(await (await connect()).text("pick", { need: "toast" }), /\bsonner\b/);
 });

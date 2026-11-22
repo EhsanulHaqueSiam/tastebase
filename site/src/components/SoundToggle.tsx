@@ -13,7 +13,7 @@ export default function SoundToggle({ className = "", size = 17 }: { className?:
       aria-label={on ? "Turn interface sounds off" : "Turn interface sounds on"}
       aria-pressed={on}
       title={on ? "Sounds on" : "Sounds off"}
-      onClick={() => (haptic("selection"), void setSound(!on))}
+      onClick={() => (haptic("selection"), setSound(!on))}
       className={`press grid place-items-center text-fg2 hover:text-fg ${className}`}
     >
       <IconMorph k={on ? "on" : "off"}>
