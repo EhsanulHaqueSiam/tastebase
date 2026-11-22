@@ -100,17 +100,17 @@ const graph = [
     <script type="application/ld+json" set:html={jsonLd({ "@context": "https://schema.org", "@graph": graph })} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="preconnect" href="https://api.fontshare.com" />
-    <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600&display=swap" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Instrument+Serif:ital@1&display=swap" />
+    <link rel="preload" href="/_fonts/general-sans-400.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/_fonts/general-sans-600.woff2" as="font" type="font/woff2" crossorigin />
     <slot name="head" />
     <ClientRouter />
   </head>
   <body class="max-lg:pb-[calc(60px+env(safe-area-inset-bottom))]">
     <!-- Desktop: a 56px icon rail (Rail.tsx), a top bar with the section name and search, and the page inside a rounded
          inset frame. Phones: the top bar and a bottom tab bar (TabBar.tsx). All three persist across navigations. -->
-    <Rail client:load path={path} transition:persist="rail" />
+    {/* persist-props: navigations do not re-render persisted islands, so one clicked before it hydrated is not updated
+        early (React #424). Rail follows the path itself (usePath); its prop is only the first value. */}
+    <Rail client:load path={path} transition:persist="rail" transition:persist-props />
 
     <header data-shell="header" class="fixed inset-x-0 top-0 z-40 flex h-14 items-center gap-4 px-5 lg:left-14 lg:pl-2.5" transition:persist="header">
       <!-- Phones: content scrolls under the header, so it fades out through a progressive blur (Motion Primitives). -->
@@ -127,10 +127,12 @@ const graph = [
       </a>
       <span class="hidden text-[13.5px] text-fg2 lg:inline">tastebase <span class="mx-1.5 text-fg3">/</span> <b class="font-medium text-fg" data-crumb>{current?.label ?? ""}</b></span>
       <span class="flex-1"></span>
-      <HeaderSearch client:idle />
-      <SoundToggle client:idle className="size-9 rounded-[10px]" />
-      <ThemeToggle client:idle className="size-9 rounded-[10px]" />
-      <AccountButton client:idle />
+      {/* client:load: the header persists across navigations, and an idle island moved mid-hydration by a fast click
+          broke React (#424). These four are small. */}
+      <HeaderSearch client:load />
+      <SoundToggle client:load className="size-9 rounded-[10px]" />
+      <ThemeToggle client:load className="size-9 rounded-[10px]" />
+      <AccountButton client:load />
       <a href="https://github.com/EhsanulHaqueSiam/tastebase" aria-label="GitHub" class="press text-fg2 hover:text-fg lg:hidden"><GithubMark size={18} /></a>
     </header>
 
@@ -149,6 +151,18 @@ const graph = [
       import { startSound } from "../lib/sound.ts";
       import { toggleNav } from "../lib/rail.ts";
       document.addEventListener("astro:page-load", countView);
+      // A view transition is aborted when the viewport resizes mid-navigation (a phone's URL bar hiding): the page still
+      // swaps, only the animation is skipped, so the rejection the browser raises is noise, not an error.
+      // React #424: a navigation removed an island while it was still hydrating (Astro unmounts it; React reports the
+      // early update and falls back to client rendering a root that is going away). Only reachable with clicks tens of
+      // milliseconds apart; nothing on screen breaks, so it is not reported as an error.
+      // Only while a navigation swaps the page (and a second after), so a #424 at any other time still shows.
+      let swapping = 0;
+      document.addEventListener("astro:before-swap", () => (swapping = Date.now()));
+      addEventListener("error", (e) => Date.now() - swapping < 1000 && /Minified React error #424\b/.test(e.message) && e.preventDefault());
+      addEventListener("unhandledrejection", (e) => {
+        if (e.reason instanceof DOMException && e.reason.name === "InvalidStateError" && /transition was aborted/i.test(e.reason.message)) e.preventDefault();
+      });
       startSound();
       // The header's "Show sidebar" button, there only while the rail is hidden. The header persists, so one listener.
       document.addEventListener("click", (e) => (e.target as Element).closest?.("[data-toggle-nav]") && toggleNav());
@@ -187,9 +201,9 @@ const graph = [
         },
       });
     </script>
-    <Palette client:idle transition:persist="palette" />
-    <TabBar client:load transition:persist="tabbar" />
+    <Palette client:idle transition:persist="palette" transition:persist-props />
+    <TabBar client:load transition:persist="tabbar" transition:persist-props />
     <BackToTop client:idle />
-    <SessionToasts client:idle transition:persist="toasts" />
+    <SessionToasts client:idle transition:persist="toasts" transition:persist-props />
   </body>
 </html>

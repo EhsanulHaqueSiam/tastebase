@@ -6,3 +6,9 @@
   Cache-Control: public, max-age=86400, stale-while-revalidate=604800
 /sponsors/*
   Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+# Rebuilt with each deploy; an hour of browser cache keeps tab switches instant without serving a stale list long.
+/atlas-rows
+  Cache-Control: public, max-age=3600
+# Fonts never change under the same name (a new cut gets a new file name).
+/_fonts/*
+  Cache-Control: public, max-age=31536000, immutable

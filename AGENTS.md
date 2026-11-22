@@ -112,6 +112,9 @@ Architecture in one page: [docs/internals/overview.md](docs/internals/overview.m
   the snapshot's diff moved.
 - UI changes: open the page in the browser (`.agents/skills/test-tastebase`), check desktop and ~390px, and
   attach before/after screenshots. Motion changes get a short recording.
+- Speed, load and free-plan fit: `pnpm bench`, `pnpm load`, `pnpm cpu` and `pnpm bombadil` against a `preview`
+  stage, never prod. Each page and profile holds 9.5+; what each tool checks and the capacity math are in
+  [docs/operations/performance.md](docs/operations/performance.md).
 
 ## Shipping
 

@@ -21,7 +21,8 @@ export function ShaderBg({ colors, className, speed = 0.25 }: { colors: string[]
 export function IconMorph({ k, children }: { k: string; children: ReactNode }) {
   return (
     <span className="relative inline-grid size-4 place-items-center">
-      <AnimatePresence initial={false} mode="popLayout">
+      {/* Both icons share one grid cell, so they overlap without popLayout's measuring (a forced page layout per swap). */}
+      <AnimatePresence initial={false}>
         <motion.span
           key={k}
           className="col-start-1 row-start-1 grid place-items-center"

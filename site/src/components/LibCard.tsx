@@ -12,7 +12,10 @@ import { CopyButton, SpotCard } from "./fx.tsx";
 import { GithubMark } from "./GithubMark.tsx";
 import { LibMark } from "./LibMark.tsx";
 
+// "picks" is the default: the registry's own best-first order, which the prerendered page already has. A live-stats
+// default re-sorted the grid once stats loaded, moving every card on screen (CLS 0.2).
 export const SORTS = [
+  ["picks", "Picks", "our picks first"],
   ["hot", "Hot this week", "hottest this week first"],
   ["stars", "Stars", "most stars first"],
   ["agents", "Used by agents", "most used by agents this week first"],
@@ -26,6 +29,7 @@ export const compact = new Intl.NumberFormat("en", { notation: "compact" });
 export function sortBy(sort: Sort, stats: Stats | undefined) {
   const n = (id: string, k: "stars" | "starsWeek" | "agentUses") => stats?.[id]?.[k] ?? 0;
   return {
+    picks: () => 0, // stable sort keeps registry order
     hot: (a: ShelfLib, b: ShelfLib) => n(b.id, "starsWeek") - n(a.id, "starsWeek") || n(b.id, "stars") - n(a.id, "stars"),
     stars: (a: ShelfLib, b: ShelfLib) => n(b.id, "stars") - n(a.id, "stars"),
     agents: (a: ShelfLib, b: ShelfLib) => n(b.id, "agentUses") - n(a.id, "agentUses") || n(b.id, "stars") - n(a.id, "stars"),
@@ -33,7 +37,7 @@ export function sortBy(sort: Sort, stats: Stats | undefined) {
   }[sort];
 }
 
-/** The live number a sort is about: weekly gain for hot, total for stars, agent uses, nothing for A to Z. */
+/** The live number a sort is about: weekly gain for hot, total for stars, agent uses, nothing for picks or A to Z. */
 export function statBadge(sort: Sort, s: Stats[string] | undefined) {
   if (sort === "hot") return s?.starsWeek ? `+${compact.format(s.starsWeek)}★ wk` : "";
   if (sort === "agents") return s?.agentUses ? `${compact.format(s.agentUses)} agent uses wk` : "";
@@ -91,13 +95,14 @@ export function SaveButton({ id, name, className = "" }: { id: string; name: str
 
 /** Screenshot card: links to the library page; install, GitHub, folder and save sit outside the link. */
 // Memoized: the directory keeps every card mounted and re-renders on each filter change.
-export const LibCard = memo(function LibCard({ lib, badge, pick }: { lib: ShelfLib; badge?: string; pick?: boolean }) {
+/** `eager` for the first cards on screen: their screenshot is often the page's largest paint. */
+export const LibCard = memo(function LibCard({ lib, badge, pick, eager }: { lib: ShelfLib; badge?: string; pick?: boolean; eager?: boolean }) {
   return (
     <div className="anim-host group relative">
       <a href={`/browse/${lib.id}`} className="block">
         <SpotCard className="overflow-hidden rounded-2xl bg-s1 shadow-[inset_0_0_0_1px_var(--color-line)] transition-shadow duration-300 group-hover:shadow-[inset_0_0_0_1px_var(--color-line2)]">
           <div className="relative aspect-[16/10] overflow-hidden bg-s2">
-            <img src={shot(lib.id)} alt={`${lib.name} website`} loading="lazy" className="size-full object-cover object-top transition-transform duration-700 ease-[var(--ease-out)] group-hover:scale-[1.04]" />
+            <img src={shot(lib.id)} alt={`${lib.name} website`} loading={eager ? "eager" : "lazy"} fetchPriority={eager ? "high" : undefined} className="size-full object-cover object-top transition-transform duration-700 ease-[var(--ease-out)] group-hover:scale-[1.04]" />
             <span className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-s1 to-transparent" />
             {badge && <span className="absolute top-2.5 left-2.5 rounded-md bg-black/60 px-1.5 py-0.5 font-mono text-[11px] font-medium text-fg backdrop-blur-md">{badge}</span>}
             {pick && <span className="absolute top-3 right-12 rounded-md bg-fg px-1.5 py-0.5 font-mono text-[11px] font-medium text-bg">pick</span>}

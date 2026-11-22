@@ -3,10 +3,10 @@
 import { chain, groupByLook, islands, ISLAND, lookAffinity, partsMatrix, paywalled, type Group } from "../../../src/atlas.ts";
 import { resourceKinds, resources } from "../../../src/registry/resources.ts";
 import type { Kind, Library } from "../../../src/registry/schema.ts";
+import Lazy from "../components/Lazy.astro";
 import Base from "../layouts/Base.astro";
 import { kindMeta, shot } from "../lib/kinds.ts";
 import { aesthetics, libraries } from "../lib/server.ts";
-import { withUtm } from "../lib/utm.ts";
 
 export const prerender = true;
 
@@ -25,12 +25,12 @@ const views = tabs.map((t) => {
 const title = (g: Group) => g.looks.join(" / ");
 // Resources listed in category order; the filter above the table narrows to one category.
 const resKinds = (Object.keys(resourceKinds) as (keyof typeof resourceKinds)[]).filter((k) => resources.some((r) => r.kind === k));
-const resSorted = resKinds.flatMap((k) => resources.filter((r) => r.kind === k));
 const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.length ?? 0] as const;
 ---
 
 <Base title="Atlas · tastebase" description="Every library grouped by look: what looks alike sits together, with what is free and what each one ships.">
-  <div class="atlas mx-auto max-w-[1240px] px-4 pt-20 pb-24" data-view="islands">
+  {/* Island sizes set once here: define:vars wrote them inline on every element (~1 MB of the page). */}
+  <div class="atlas mx-auto max-w-[1240px] px-4 pt-20 pb-24" data-view="islands" style={`--chip:${ISLAND.chip}px;--row:${ISLAND.row}px;--head:${ISLAND.head}px;--padx:${ISLAND.padX}px;--pady:${ISLAND.padY}px`}>
     <div class="enter flex flex-wrap items-end justify-between gap-3">
       <div>
         <h1 class="text-[22px] font-semibold tracking-[-0.02em]">Atlas</h1>
@@ -56,6 +56,7 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
     {
       views.map((v) => (
         <section class="panel" id={v.id} data-panel={v.id} hidden={v.id !== "component-kit"}>
+          <Lazy when={v.id !== "component-kit"}>
           <div class="isles-scroll" data-only="islands">
             <div class="isles dots" style={`height:${v.map.height}px;min-width:${v.map.width}px`}>
               {v.map.islands.map((i) => (
@@ -66,13 +67,12 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
                   </header>
                   <ul>
                     {i.libs.map((l) => (
-                      <li class:list={["chip", paywalled(l) && "t-paid"]}>
+                      <li class:list={["chip", paywalled(l) && "t-paid"]} data-shot={shot(l.id)}>
                         <a href={`/browse/${l.id}`}>
                           <img src={`/marks/${l.id}.png`} alt="" width="16" height="16" loading="lazy" />
                           <span>{l.name}</span>
                           {paywalled(l) && <sup>paid</sup>}
                         </a>
-                        <img class="tip" src={shot(l.id)} alt="" width="1200" height="750" loading="lazy" decoding="async" />
                       </li>
                     ))}
                   </ul>
@@ -82,17 +82,18 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
           </div>
 
           <div class="mood" data-only="mood">
-            {v.mood.map((g) => (
+            <template data-mood>
+            {v.mood.map((g, gi) => (
               <section>
                 <header class="ghead row">
                   <h2>{title(g)}<small>{g.libs.length}</small></h2>
                   <p>{g.bestFree ? <>best free <b>{g.bestFree.name}</b></> : "no free pick yet"}</p>
                 </header>
                 <ul>
-                  {g.libs.map((l) => (
+                  {g.libs.map((l, li) => (
                     <li class:list={["tile", paywalled(l) && "t-paid"]}>
                       <a href={`/browse/${l.id}`} class="press">
-                        <img class="shot" src={shot(l.id)} alt={`${l.name} site`} loading="lazy" decoding="async" width="1200" height="750" />
+                        <img class="shot" src={shot(l.id)} alt={`${l.name} site`} loading={gi === 0 && li < 4 ? "eager" : "lazy"} decoding="async" width="1200" height="750" />
                         <span><img src={`/marks/${l.id}.png`} alt="" width="16" height="16" loading="lazy" />{l.name}{paywalled(l) && <sup>paid</sup>}</span>
                       </a>
                     </li>
@@ -100,6 +101,7 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
                 </ul>
               </section>
             ))}
+            </template>
           </div>
 
           {v.id !== "all" && (
@@ -127,12 +129,14 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
                   <h3>What's inside</h3>
                   <div class="mx-wrap">
                     <table class="mx">
+                      <caption class="sr-only">Parts each library ships: free, paid only, or a blank cell when it does not include that part.</caption>
                       <thead><tr><th scope="col"><span class="sr-only">Library</span></th>{v.matrix.columns.map((c) => <th scope="col"><span>{c}</span></th>)}</tr></thead>
                       <tbody>
                         {v.matrix.rows.map((r) => (
                           <tr class:list={[paywalled(r.lib) && "t-paid"]}>
                             <th scope="row"><a href={`/browse/${r.lib.id}`}><img src={`/marks/${r.lib.id}.png`} alt="" width="16" height="16" loading="lazy" />{r.lib.name}</a></th>
-                            {r.cells.map((c, i) => <td title={`${v.matrix!.columns[i]}: ${c ?? "not included"}`}><i class={c ?? "none"} aria-hidden="true" /><span class="sr-only">{c ?? "not included"}</span></td>)}
+                            {/* One element per cell (the dot is CSS): these tables are most of the page's HTML. */}
+                            {r.cells.map((c) => <td class={c ?? "none"}>{c && <span class="sr-only">{c}</span>}</td>)}
                           </tr>
                         ))}
                       </tbody>
@@ -154,11 +158,15 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
               )}
             </>
           )}
+          </Lazy>
         </section>
       ))
     }
 
+    <img class="tip" alt="" width="240" height="150" decoding="async" hidden />
+
     <section class="panel" id="resources" data-panel="resources" hidden>
+      <template data-lazy>
       <p class="max-w-[720px] text-[13.5px] text-fg2">Not installed, but they help you design. tastebase only links to them. If your agent already has one connected under your own account, its plan answer says what to search for. Agents can list one category with <code>get fonts</code>, <code>get agent-tools</code> and so on.</p>
       <div class="rfilter" role="group" aria-label="Resource category">
         <button type="button" data-rkind="all" aria-pressed="true">All<small>{resources.length}</small></button>
@@ -166,17 +174,10 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
       </div>
       <table class="rtbl">
         <thead><tr><th scope="col">Name</th><th scope="col">Good for</th><th scope="col">Cost</th><th scope="col">With your agent</th></tr></thead>
-        <tbody>
-          {resSorted.map((r) => (
-            <tr data-kind={r.kind}>
-              <td><a href={withUtm(r.url, "atlas")} target="_blank" rel="noopener">{r.name}</a></td>
-              <td>{r.goodFor}</td>
-              <td class:list={[!r.free && "text-fg3"]}>{r.cost}</td>
-              <td>{r.mcp ? <a href={r.mcp.url} target="_blank" rel="noreferrer">{r.mcp.name}{r.mcp.needsPaidPlan && " (paid plan)"}</a> : <span class="text-fg3">link only</span>}</td>
-            </tr>
-          ))}
-        </tbody>
+        <!-- Rows load from /atlas-rows (atlas-rows.html, served without the .html) when the tab first opens (atlas-rows.html.ts). -->
+        <tbody data-rows></tbody>
       </table>
+      </template>
     </section>
   </div>
 
@@ -187,7 +188,13 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
       if (!root) return;
       const store = (k: string, v?: string) => { try { return v === undefined ? localStorage.getItem(k) : localStorage.setItem(k, v); } catch { return null; } };
       const press = (attr: string, val: string) => root.querySelectorAll<HTMLButtonElement>(`[${attr}]`).forEach((b) => b.setAttribute("aria-pressed", String(b.getAttribute(attr) === val)));
-      const view = (v: string) => { root.dataset.view = v; press("data-set-view", v); store("atlas:view", v); };
+      // Hidden tabs and every moodboard ship as <template>s (28k nodes otherwise); each is built in on first use.
+      const current = () => root.querySelector<HTMLElement>("[data-panel]:not([hidden])");
+      const build = (scope: ParentNode | null, sel: string) => scope?.querySelectorAll<HTMLTemplateElement>(sel).forEach((t) => t.replaceWith(t.content));
+      const view = (v: string) => {
+        if (v === "mood") build(current(), "template[data-mood]");
+        root.dataset.view = v; press("data-set-view", v); store("atlas:view", v);
+      };
       const free = (f: string) => { root.toggleAttribute("data-free", f === "1"); press("data-set-free", f); store("atlas:free", f); };
       const rkind = (k: string) => {
         press("data-rkind", k);
@@ -196,26 +203,64 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
       // #resources/tools opens the Resources tab filtered to one category.
       const tab = () => {
         const [id, sub] = location.hash.slice(1).split("/");
-        if (id === "resources") rkind(sub && root.querySelector(`[data-rkind="${CSS.escape(sub)}"]`) ? sub : "all");
         const t = root.querySelector(`[data-panel="${CSS.escape(id)}"]`) ? id : "component-kit";
+        const panel = root.querySelector<HTMLElement>(`[data-panel="${CSS.escape(t)}"]`);
+        build(panel, ":scope > template[data-lazy]");
+        if (root.dataset.view === "mood") build(panel, "template[data-mood]");
+        if (id === "resources") {
+          const k = sub && root.querySelector(`[data-rkind="${CSS.escape(sub)}"]`) ? sub : "all";
+          const body = root.querySelector<HTMLElement>("tbody[data-rows]");
+          if (body && !body.dataset.loaded) {
+            body.dataset.loaded = "1";
+            body.innerHTML = '<tr><td colspan="4" class="text-fg3">Loading resources</td></tr>';
+            fetch("/atlas-rows").then((r) => (r.ok ? r.text() : Promise.reject(new Error(String(r.status))))).then((html) => ((body.innerHTML = html), rkind(k))).catch(() => ((body.innerHTML = '<tr><td colspan="4" class="text-fg3">Could not load the resources; open the tab again to retry.</td></tr>'), delete body.dataset.loaded));
+          }
+          rkind(k);
+        }
         root.querySelectorAll<HTMLElement>("[data-panel]").forEach((p) => p.toggleAttribute("hidden", p.dataset.panel !== t));
         root.querySelectorAll<HTMLElement>("[data-tab]").forEach((a) => a.toggleAttribute("aria-current", a.dataset.tab === t));
       };
       // Switching tabs keeps the scroll position; the hash still makes each tab linkable.
       root.querySelectorAll<HTMLAnchorElement>("[data-tab]").forEach((a) => a.addEventListener("click", (e) => { e.preventDefault(); history.replaceState(null, "", a.hash); tab(); }));
-      root.querySelectorAll<HTMLElement>("[data-rkind]").forEach((b) => b.addEventListener("click", () => { history.replaceState(null, "", b.dataset.rkind === "all" ? "#resources" : `#resources/${b.dataset.rkind}`); rkind(b.dataset.rkind!); }));
+      // Delegated: the resource filter is built in with its tab, after this runs.
+      root.addEventListener("click", (e) => {
+        const b = (e.target as Element).closest<HTMLElement>("[data-rkind]");
+        if (b) { history.replaceState(null, "", b.dataset.rkind === "all" ? "#resources" : `#resources/${b.dataset.rkind}`); rkind(b.dataset.rkind!); }
+      });
       root.querySelectorAll<HTMLElement>("[data-set-view]").forEach((b) => b.addEventListener("click", () => view(b.dataset.setView!)));
       root.querySelectorAll<HTMLElement>("[data-set-free]").forEach((b) => b.addEventListener("click", () => free(b.dataset.setFree!)));
       view(store("atlas:view") === "mood" ? "mood" : "islands");
       free(store("atlas:free") === "1" ? "1" : "0");
       tab();
       window.onhashchange = tab; // one handler even after client-side navigations back here
+      // One shared screenshot preview for every chip, placed above the hovered one (below it near the top edge).
+      const tip = root.querySelector<HTMLImageElement>("img.tip")!;
+      if (matchMedia("(hover: hover) and (pointer: fine)").matches) {
+        let over: string | undefined; // the screenshot of the chip under the pointer, if any
+        tip.onload = () => (tip.hidden = tip.getAttribute("src") !== over);
+        root.addEventListener("pointerover", (e) => {
+          const chip = (e.target as Element).closest<HTMLElement>(".chip[data-shot]");
+          over = chip?.dataset.shot;
+          if (!chip) return void (tip.hidden = true);
+          const r = chip.getBoundingClientRect();
+          tip.style.left = `${Math.max(8, Math.min(r.left, innerWidth - 252))}px`;
+          tip.style.top = `${r.top > 170 ? r.top - 156 : r.bottom + 6}px`;
+          // A new screenshot shows once it has loaded, never the previous chip's in the meantime.
+          if (tip.getAttribute("src") === chip.dataset.shot) tip.hidden = false;
+          else { tip.hidden = true; tip.src = chip.dataset.shot!; }
+        });
+        root.addEventListener("pointerleave", () => ((over = undefined), (tip.hidden = true)));
+        const off = new AbortController();
+        // capture: also hides it when the islands map itself scrolls sideways.
+        addEventListener("scroll", () => (tip.hidden = true), { passive: true, capture: true, signal: off.signal });
+        document.addEventListener("astro:before-swap", () => off.abort(), { once: true });
+      }
     }
     document.addEventListener("astro:page-load", setup);
   </script>
 </Base>
 
-<style define:vars={{ chip: `${ISLAND.chip}px`, row: `${ISLAND.row}px`, head: `${ISLAND.head}px`, padx: `${ISLAND.padX}px`, pady: `${ISLAND.padY}px` }}>
+<style>
   .tabs { position: sticky; top: 56px; z-index: 10; margin: 18px -16px 16px; display: flex; gap: 18px; overflow-x: auto; border-bottom: 1px solid var(--color-line); background: var(--color-bg); padding: 0 16px; scrollbar-width: none; }
   .tabs a { white-space: nowrap; border-bottom: 1.5px solid transparent; padding: 10px 0; font-size: 13px; color: var(--color-fg2); transition: color 200ms; }
   .tabs a:hover, .tabs a[aria-current] { color: var(--color-fg); }
@@ -233,19 +278,20 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
 
   .isles-scroll { overflow-x: auto; border-radius: 12px; }
   .isles { position: relative; border-radius: 12px; background-color: var(--color-s1); box-shadow: inset 0 0 0 1px var(--color-line); }
-  .isle { position: absolute; border-radius: 10px; background: color-mix(in srgb, var(--color-bg) 75%, transparent); box-shadow: inset 0 0 0 1px var(--color-line2); padding: var(--pady) var(--padx); }
+  .isle { content-visibility: auto; position: absolute; border-radius: 10px; background: color-mix(in srgb, var(--color-bg) 75%, transparent); box-shadow: inset 0 0 0 1px var(--color-line2); padding: var(--pady) var(--padx); }
   .isle .ghead { height: calc(var(--head) - 4px); }
   .isle ul { display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); column-gap: 8px; }
   .chip { position: relative; height: var(--row); }
   .chip a { display: flex; height: 100%; align-items: center; gap: 7px; font-size: 13px; color: var(--color-fg); }
   .chip a span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .chip a:hover span { text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--color-line2); }
-  .chip img:not(.tip), .tile span img, .bar a img, .mx th img { width: 16px; height: 16px; flex: none; border-radius: 4px; object-fit: contain; }
-  .tip { display: none; position: absolute; bottom: calc(100% + 6px); left: 0; z-index: 5; width: 240px; aspect-ratio: 16 / 10; object-fit: cover; object-position: top; border-radius: 8px; box-shadow: 0 0 0 1px var(--color-line2), 0 16px 40px rgb(0 0 0 / 0.6); pointer-events: none; }
-  @media (hover: hover) and (pointer: fine) { .chip:hover .tip { display: block; } }
+  .chip img, .tile span img, .bar a img, .mx th img { width: 16px; height: 16px; flex: none; border-radius: 4px; object-fit: contain; }
+  .tip { position: fixed; z-index: 50; width: 240px; aspect-ratio: 16 / 10; object-fit: cover; object-position: top; border-radius: 8px; box-shadow: 0 0 0 1px var(--color-line2), 0 16px 40px rgb(0 0 0 / 0.6); pointer-events: none; }
+  .tip[hidden] { display: none; }
   sup { margin-left: 3px; font: 500 9.5px var(--font-mono); color: var(--color-blue); }
 
   .mood { display: grid; gap: 22px; }
+  .mood > section, .bars, .mx-wrap, .plist { content-visibility: auto; contain-intrinsic-size: auto 600px; }
   .mood ul { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
   .tile a { display: grid; gap: 7px; font-size: 13px; }
   .tile span { display: flex; align-items: center; gap: 7px; white-space: nowrap; overflow: hidden; }
@@ -277,10 +323,10 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
   .mx tbody th { position: sticky; left: 0; background: var(--color-bg); padding: 5px 14px 5px 0; text-align: left; font-weight: 400; white-space: nowrap; }
   .mx tbody th a { display: flex; align-items: center; gap: 7px; }
   .mx td { border-bottom: 1px solid var(--color-line); padding: 5px 6px; text-align: center; }
-  .mx td i, .legend i.dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; }
-  .mx td i.free, .legend i.dot.free { background: var(--color-fg); }
-  .mx td i.paid, .legend i.dot.paid { background: none; box-shadow: inset 0 0 0 1.5px var(--color-blue); }
-  .mx td i.none, .legend i.dot.none { background: var(--color-s3); }
+  .mx td::before, .legend i.dot { content: ""; display: inline-block; width: 9px; height: 9px; border-radius: 50%; vertical-align: middle; }
+  .mx td.free::before, .legend i.dot.free { background: var(--color-fg); }
+  .mx td.paid::before, .legend i.dot.paid { background: none; box-shadow: inset 0 0 0 1.5px var(--color-blue); }
+  .mx td.none::before, .legend i.dot.none { background: var(--color-s3); }
   .legend i.dot { margin-right: -8px; }
 
   .plist { display: grid; grid-template-columns: 170px 1fr; gap: 0 16px; font-size: 13px; }
@@ -294,13 +340,13 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
   .rfilter button:hover, .rfilter button[aria-pressed="true"] { color: var(--color-fg); }
   .rfilter button[aria-pressed="true"] { border-color: var(--color-fg); }
   .rfilter small { margin-left: 5px; color: var(--color-fg3); font-variant-numeric: tabular-nums; font-size: 12px; }
-  .rtbl tr[hidden] { display: none; }
+  .rtbl :global(tr[hidden]) { display: none; }
   .rtbl { margin-top: 4px; width: 100%; border-collapse: collapse; font-size: 13px; }
   .rtbl th { border-bottom: 1px solid var(--color-line2); padding: 6px 10px 6px 0; text-align: left; font-weight: 500; color: var(--color-fg3); }
-  .rtbl td { border-bottom: 1px solid var(--color-line); padding: 9px 10px 9px 0; vertical-align: top; }
-  .rtbl td:nth-child(2) { color: var(--color-fg2); }
-  .rtbl a:hover { text-decoration: underline; text-underline-offset: 3px; }
-  @media (max-width: 700px) { .rtbl th:nth-child(2), .rtbl td:nth-child(2) { display: none; } }
+  .rtbl :global(td) { border-bottom: 1px solid var(--color-line); padding: 9px 10px 9px 0; vertical-align: top; }
+  .rtbl :global(td:nth-child(2)) { color: var(--color-fg2); }
+  .rtbl :global(a:hover) { text-decoration: underline; text-underline-offset: 3px; }
+  @media (max-width: 700px) { .rtbl th:nth-child(2), .rtbl :global(td:nth-child(2)) { display: none; } }
 
   /* Narrow screens: islands stack in similarity order instead of floating on a canvas. */
   @media (max-width: 760px) {

@@ -5,7 +5,11 @@ import { env } from "cloudflare:workers";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import { createServer } from "../../../src/mcp.ts";
 import pkg from "../../../package.json" with { type: "json" };
-import { aesthetics, getLibraries } from "../lib/server.ts";
+import { aesthetics, getLibraries, libraries } from "../lib/server.ts";
+
+// Build one server while the Worker starts (its own CPU limit): compiling the tool schemas costs ~2.5ms once, which
+// would otherwise land on a cold isolate's first MCP request, the one closest to the 10ms limit (pnpm cpu).
+createServer(libraries, aesthetics, pkg.version);
 
 export const ALL: APIRoute = async ({ request }) => {
   // No server-initiated stream in stateless mode; the spec answers GET with 405.

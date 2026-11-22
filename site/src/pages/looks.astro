@@ -618,7 +618,6 @@ const data = JSON.stringify(Object.fromEntries(aesthetics.map((a) => [a.id, look
 ---
 
 <Base title="Looks · tastebase" description="Every look tastebase knows, as specimens: how each one differs, its type, colour and motion rules, and the libraries to pick for it.">
-  <link slot="head" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Silkscreen&text=!-01234ABCDEFGHIKMNOPRSTUVYabcdeghiklmnoprstuvwy%E2%96%B6&display=swap" />
   <div class="lk">
     <div class="content mx-auto max-w-[1240px] px-4 pt-20 pb-32" data-content>
       <div class="head enter">
@@ -905,7 +904,8 @@ const data = JSON.stringify(Object.fromEntries(aesthetics.map((a) => [a.id, look
     .fam h2 { display: flex; align-items: baseline; font: italic 400 19px/24px var(--font-serif); }
     .wall { margin-top: 10px; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px 12px; }
     .card { position: relative; display: grid; gap: 7px; scroll-margin-top: 200px; }
-    .card > .spec { aspect-ratio: 4 / 3; border-radius: 10px; box-shadow: 0 0 0 1px var(--color-line); transition: box-shadow 160ms, transform 160ms var(--ease-out); }
+    /* Off-screen specimens skip layout and paint; their box keeps its 4:3 size, so filtering and scrolling stay cheap. */
+    .card > .spec { content-visibility: auto; contain-intrinsic-size: auto 240px; aspect-ratio: 4 / 3; border-radius: 10px; box-shadow: 0 0 0 1px var(--color-line); transition: box-shadow 160ms, transform 160ms var(--ease-out); }
     .card:hover > .spec { box-shadow: 0 0 0 1px var(--color-line2); }
     .card:active > .spec { transform: scale(0.98); }
     .card[data-current] > .spec { box-shadow: 0 0 0 1.5px var(--color-fg); }

@@ -63,6 +63,9 @@ export default function Palette() {
   const ads = open ? liveSponsors(sponsors) : []; // read when the palette opens, so an ended sponsor drops out
   const groups = Object.entries(kindMeta).map(([k, m]) => [m.label, (lists?.libs ?? []).filter((r) => r.kind === k)] as const).filter(([, list]) => list.length);
   const resGroups = Object.entries(resourceKinds).map(([k, label]) => [label, (lists?.resources ?? []).filter((r) => r.kind === k)] as const).filter(([, list]) => list.length);
+  // With nothing typed, each group shows its first few (the Browse group links to the full lists): mounting all 900+
+  // entries made opening the palette cost ~300ms on a slow phone. Typing renders them all for cmdk to filter.
+  const cap = q.trim() ? undefined : 5;
   const heading = "[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-[12px] [&_[cmdk-group-heading]]:text-fg3";
 
   const panel = (
@@ -93,7 +96,7 @@ export default function Palette() {
         )}
         {groups.map(([label, list]) => (
           <Command.Group key={label} heading={label} className={heading}>
-            {list.map((l) => (
+            {list.slice(0, cap).map((l) => (
               <Command.Item key={l.id} value={`${l.name} ${l.tagline} ${l.search}`} onSelect={() => (setOpen(false), navigate(`/browse/${l.id}`))} className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 data-[selected=true]:bg-s3">
                 <LibMark lib={l} size={26} />
                 <span className="shrink-0 font-medium">{l.name}</span>
@@ -104,7 +107,7 @@ export default function Palette() {
         ))}
         {resGroups.map(([label, list]) => (
           <Command.Group key={label} heading={`Resources · ${label}`} className={heading}>
-            {list.map((r) => (
+            {list.slice(0, cap && 3).map((r) => (
               <Command.Item key={r.id} value={`${r.name} ${r.goodFor} ${label} resource`} onSelect={() => (setOpen(false), r.href.startsWith("/") ? navigate(r.href) : window.open(r.href, "_blank", "noopener"))} className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 data-[selected=true]:bg-s3">
                 <span className="grid size-[26px] flex-none place-items-center rounded-md bg-s2 text-fg3"><ArrowUpRight size={14} /></span>
                 <span className="shrink-0 font-medium">{r.name}</span>

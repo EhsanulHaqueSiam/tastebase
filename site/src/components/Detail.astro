@@ -37,7 +37,8 @@ const frameable = !unframeable.includes(item.id);
         <i class="size-2 rounded-full bg-[#ff5f57]"></i><i class="size-2 rounded-full bg-[#febc2e]"></i><i class="size-2 rounded-full bg-[#28c840]"></i>
         <span class="ml-1 truncate font-mono text-[10px] text-fg3">{item.url}</span>
       </span>
-      <img src={item.image} alt={`${item.name} website`} width="1200" height="750" class="aspect-[16/10] w-full object-cover object-top" />
+      {/* The phone layout's largest paint: fetched first, ahead of the islands' scripts. */}
+      <img src={item.image} alt={`${item.name} website`} width="1200" height="750" fetchpriority="high" class="aspect-[16/10] w-full object-cover object-top" />
     </a>
 
     {
@@ -52,6 +53,8 @@ const frameable = !unframeable.includes(item.id);
   </section>
 
   <section class="hidden min-h-0 py-3 pr-3 lg:block">
+    {/* Open the preview site's connection while our page loads, so its frame starts sooner (a body-ok link type). */}
+    {frameable && <link rel="preconnect" href={new URL(item.demo ?? item.url).origin} />}
     <LiveSite client:media="(min-width: 1024px)" id={item.id} name={item.name} url={item.demo ?? item.url} image={item.image} frameable={frameable} />
   </section>
 </div>

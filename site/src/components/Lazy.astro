@@ -1,0 +1,7 @@
+---
+// With `when`, the children ship inside a <template>: in the HTML, but not built into the page until a script moves
+// them in on first use (the Atlas's hidden tabs). Without it they render as usual.
+const { when } = Astro.props as { when: boolean };
+---
+
+{when ? <template data-lazy><slot /></template> : <slot />}

@@ -22,7 +22,9 @@ export default function Stage({ id, name, url }: { id: string; name: string; url
         <a href={withUtm(url, "embed")} target="_blank" rel="noopener" className="press inline-flex items-center gap-1 text-[12.5px] text-fg2 hover:text-fg">Open site <ArrowUpRight size={13} /></a>
       </div>
       <div className="dots relative grid flex-1 place-items-center overflow-hidden p-6">
-        <AnimatePresence mode="wait">
+        {/* initial={false}: the first view shows as rendered on the server, not at opacity 0 until hydration (the page's
+            LCP in an agent's chat); switching views still animates. */}
+        <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={view}
             className="grid size-full place-items-center"

@@ -20,6 +20,8 @@ test("site views sum 30 days of page views, and visitors only the points flagged
   let body = "";
   const views = await fetchViews({ accountId: "a", token: "t", dataset: "tastebase_views", fetch: async (_url, init) => ((body = String(init?.body)), new Response(JSON.stringify({ data: [{ views: "40", visitors: "9" }] }))) });
   assert.match(body, /SUM\(_sample_interval \* double1\) AS visitors FROM tastebase_views WHERE timestamp > NOW\(\) - INTERVAL '30' DAY/);
+  // One point per send carries its views as double2 + 1, so older one-view points (double2 = 0) still count once.
+  assert.match(body, /SUM\(_sample_interval \* \(1 \+ double2\)\) AS views/);
   assert.deepEqual(views, { views: 40, visitors: 9 });
   // An empty dataset sums to null, which reads as zero.
   assert.deepEqual(await fetchViews({ accountId: "a", token: "t", dataset: "d", fetch: async () => new Response(JSON.stringify({ data: [{ views: null, visitors: null }] })) }), { views: 0, visitors: 0 });
