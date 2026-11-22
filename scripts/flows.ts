@@ -219,7 +219,8 @@ const flows: Record<string, [Size, string, (p: P) => Promise<void>][]> = {
     expect(blank === 0, `${blank} screenshots stayed blank after a cancelled navigation`);
   }]],
   // Phones get to /browse from the tab bar.
-  // ⌘K from the header's Search pill: Esc gives focus back to the pill, and a Tab straight after moves on from it.
+  // ⌘K from the header's Search pill: Esc gives focus back to the pill, a Tab straight after moves on from it, and
+  // ⌘K again while it is still closing has the typing focus.
   palette: [[DESKTOP, "/about", async (p) => {
     await p.js(`document.querySelector('[data-shell="header"] .island button').focus()`);
     await p.key("k", "KeyK", 4);
