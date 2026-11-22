@@ -94,6 +94,16 @@ export function toggleSaved(id: string) {
   api("POST", "/api/saved", { lib: id, on }).catch((e) => (fail(e), set({ saved })));
 }
 
+/** Hearts several libraries at once (the taste survey); ones already hearted stay as they are. */
+export function saveAll(ids: string[]) {
+  const { user, saved } = snapshot();
+  const add = ids.filter((id) => !saved.includes(id));
+  if (!add.length) return;
+  set({ saved: [...saved, ...add] });
+  if (!user) return store.set(KEY, JSON.stringify(snapshot().saved));
+  api("POST", "/api/saved", { merge: add }).catch((e) => (fail(e), set({ saved })));
+}
+
 /** Whether the user hid this library or resource from their agent. */
 export const useHidden = (id: string) => useAccount().hidden.some((h) => h.id === id);
 
