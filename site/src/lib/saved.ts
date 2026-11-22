@@ -1,6 +1,7 @@
 // Client-side: what this visitor saved, shared by every island on the page. Signed out, hearts live in localStorage
 // (synced across tabs). Signed in, hearts and folders live in the account (D1, via /api/*) and follow them to any
-// device; the first sign-in on a device moves its local hearts into the account.
+// device; the first sign-in on a device moves its local hearts into the account. Signed in only: what they hid from
+// their agent, and the last 4 characters of their agent key (/mcp reads both through the key).
 import { useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import type { Provider } from "./auth.ts";
@@ -8,14 +9,16 @@ import type { AccountData, Folder } from "./auth-data.ts";
 
 export type { Folder, Provider };
 export type User = { name: string; image: string | null };
+/** Something the user hid from their agent, with the name and page the account sheet lists it by. */
+export type Hidden = { id: string; name: string; href: string };
 /** `loading`: this browser signed in before and /api/me has not answered yet. */
-type State = { user: User | null; loading: boolean; saved: string[]; folders: Folder[] };
+type State = { user: User | null; loading: boolean; saved: string[]; folders: Folder[]; hidden: Hidden[]; key: string | null };
 
 const KEY = "tastebase:saved";
 // Set when this browser starts a sign-in, cleared on sign-out. Without it no page asks /api/me, so signed-out visits
 // stay static and cost the Worker nothing.
 const SIGNED_IN = "tastebase:account";
-const EMPTY: State = { user: null, loading: false, saved: [], folders: [] };
+const EMPTY: State = { user: null, loading: false, saved: [], folders: [], hidden: [], key: null };
 const subs = new Set<() => void>();
 let state: State | undefined;
 
@@ -54,11 +57,11 @@ function snapshot(): State {
 }
 
 async function load() {
-  const me = (await api<{ user: User | null } & Partial<AccountData>>("GET", "/api/me").catch(() => null)) ?? { user: null };
+  const me = (await api<{ user: User | null; hidden?: Hidden[] } & Partial<Omit<AccountData, "hidden">>>("GET", "/api/me").catch(() => null)) ?? { user: null };
   if (!me.user) return store.set(SIGNED_IN, null), set({ loading: false });
   const local = readLocal();
   const saved = [...new Set([...(me.saved ?? []), ...local])];
-  set({ user: me.user, loading: false, saved, folders: me.folders ?? [] });
+  set({ user: me.user, loading: false, saved, folders: me.folders ?? [], hidden: me.hidden ?? [], key: me.key ?? null });
   if (local.length && (await api("POST", "/api/saved", { merge: local }).catch(fail))) store.set(KEY, null);
 }
 
@@ -89,6 +92,25 @@ export function toggleSaved(id: string) {
   set({ saved: on ? [...saved, id] : saved.filter((x) => x !== id) });
   if (!user) return store.set(KEY, JSON.stringify(snapshot().saved));
   api("POST", "/api/saved", { lib: id, on }).catch((e) => (fail(e), set({ saved })));
+}
+
+/** Whether the user hid this library or resource from their agent. */
+export const useHidden = (id: string) => useAccount().hidden.some((h) => h.id === id);
+
+/** Hides or unhides a library or resource from the user's agent. Signed out, it asks them to sign in first. */
+export function toggleHidden(item: Hidden) {
+  const { user, hidden } = snapshot();
+  if (!user) return askSignIn();
+  const on = !hidden.some((h) => h.id === item.id);
+  set({ hidden: on ? [...hidden, item] : hidden.filter((h) => h.id !== item.id) });
+  api("POST", "/api/hidden", { item: item.id, on }).catch((e) => (fail(e), set({ hidden })));
+}
+
+/** A new agent key (the old one stops working). Resolves to the key itself, the only time the browser sees it. */
+export async function makeAgentKey() {
+  const r = await api<{ key: string }>("POST", "/api/agent-key", {}).catch(fail);
+  if (r) set({ key: r.key.slice(-4) });
+  return r?.key;
 }
 
 let offered: Promise<Provider[]> | undefined;

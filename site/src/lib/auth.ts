@@ -4,6 +4,7 @@ import type { APIContext, APIRoute } from "astro";
 import { betterAuth } from "better-auth";
 import { env } from "cloudflare:workers";
 import { libraries } from "../../../src/registry/index.ts";
+import { resources } from "../../../src/registry/resources.ts";
 
 /** The providers this stage has keys for (alchemy.run.ts authEnv), in the order the sign-in sheet lists them. */
 const socialProviders = () => ({
@@ -39,6 +40,9 @@ export async function sessionUser(request: Request) {
 const known = new Set(libraries.map((l) => l.id));
 /** A registry id from untrusted input, or undefined. Hearts and folders hold nothing else. */
 export const libId = (v: unknown) => (typeof v === "string" && known.has(v) ? v : undefined);
+const items = new Set([...known, ...resources.map((r) => r.id)]);
+/** A library or resource id from untrusted input, or undefined: what a user may hide from their agent. */
+export const itemId = (v: unknown) => (typeof v === "string" && items.has(v) ? v : undefined);
 
 /** A folder name from untrusted input: trimmed, 1 to 60 characters. */
 export const folderName = (v: unknown) => {

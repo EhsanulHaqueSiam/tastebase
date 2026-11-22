@@ -2,12 +2,12 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
-import { createFolder, deleteFolder, loadAccount, mergeSaved, readFolder, setSaved, updateFolder } from "./auth-data.ts";
+import { createFolder, deleteFolder, loadAccount, makeAgentKey, mergeSaved, readFolder, setHidden, setSaved, tasteForKey, updateFolder } from "./auth-data.ts";
 import { memoryD1 } from "./d1-shim.test-util.ts";
 
 function setup() {
   const d1 = memoryD1();
-  d1.exec(readFileSync(new URL("../../../migrations/0001_accounts.sql", import.meta.url), "utf8"));
+  for (const m of ["0001_accounts", "0002_taste"]) d1.exec(readFileSync(new URL(`../../../migrations/${m}.sql`, import.meta.url), "utf8"));
   for (const u of ["ana", "bo"]) d1.exec(`insert into user values ('${u}', '${u}', '${u}@x.dev', 1, null, 0, 0)`);
   return d1 as unknown as D1Database;
 }
@@ -40,4 +40,21 @@ test("a private folder is readable and editable only by its owner; a public one 
   assert.equal(await deleteFolder(db, "ana", f.id), true);
   assert.equal(await readFolder(db, f.id, "ana"), null);
   assert.deepEqual((await loadAccount(db, "ana")).folders, []);
+});
+
+test("an agent key reads its owner's hidden and hearted items, and a new key stops the old one", async () => {
+  const db = setup();
+  await setSaved(db, "ana", "sonner", true);
+  await setHidden(db, "ana", "vaul", true);
+  await setHidden(db, "bo", "motion", true);
+  const old = await makeAgentKey(db, "ana");
+  const taste = await tasteForKey(db, old);
+  assert.deepEqual(taste && { hide: [...taste.hide], like: [...taste.like] }, { hide: ["vaul"], like: ["sonner"] });
+  assert.equal((await loadAccount(db, "ana")).key, old.slice(-4));
+
+  const key = await makeAgentKey(db, "ana");
+  assert.equal(await tasteForKey(db, old), undefined);
+  await setHidden(db, "ana", "vaul", false);
+  assert.deepEqual([...(await tasteForKey(db, key))!.hide], []);
+  assert.equal(await tasteForKey(db, "tb_sk_made_up"), undefined);
 });

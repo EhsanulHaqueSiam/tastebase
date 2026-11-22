@@ -1,12 +1,12 @@
 // The library card shared by the home shelf and the /browse directory, its sponsored twin, and the sort and save
 // pieces both use.
-import { ArrowUpRight, Heart } from "lucide-react";
+import { ArrowUpRight, EyeOff, Heart } from "lucide-react";
 import { memo, useState, type CSSProperties } from "react";
 import type { Framework, Kind } from "../../../src/registry/schema.ts";
 import type { Stats } from "../../../src/trending.ts";
 import { haptic } from "../lib/haptics.ts";
 import { kindMeta, shot, thumb } from "../lib/kinds.ts";
-import { toggleSaved, useSaved } from "../lib/saved.ts";
+import { toggleHidden, toggleSaved, useHidden, useSaved, type Hidden } from "../lib/saved.ts";
 import type { ShelfLib } from "../lib/server.ts";
 import type { Sponsor } from "../lib/sponsors.ts";
 import { withUtm } from "../lib/utm.ts";
@@ -96,7 +96,38 @@ export function SaveButton({ id, name, className = "" }: { id: string; name: str
   );
 }
 
-/** Screenshot card: links to the library page; install, GitHub, folder and save sit outside the link. */
+/** Hides one library or resource from the user's agent (their key, /mcp), or shows it again. Signed out, it asks them to
+ *  sign in. A hidden card fades (`group-has-[[data-hidden]]`) under HiddenNote. */
+export function HideButton({ id, name, href, className = "" }: Hidden & { className?: string }) {
+  const on = useHidden(id);
+  return (
+    <button
+      type="button"
+      aria-pressed={on}
+      aria-label={on ? `Let my agent use ${name} again` : `Hide ${name} from my agent`}
+      title={on ? "Hidden from your agent" : "Hide from my agent"}
+      onClick={() => (haptic("selection"), toggleHidden({ id, name, href }))}
+      className={`press grid size-8 place-items-center rounded-lg transition-colors ${on ? "bg-pink/25 text-fg" : "text-fg2 hover:text-fg"} ${className}`}
+    >
+      <EyeOff size={15} aria-hidden />
+    </button>
+  );
+}
+
+/** Over a hidden card: says so, with Undo. Renders nothing while the card is not hidden. */
+export function HiddenNote({ id, name, href }: Hidden) {
+  if (!useHidden(id)) return null;
+  return (
+    <div data-hidden className="absolute inset-x-2 bottom-2 z-20 flex items-center justify-between gap-2 rounded-lg bg-s2 px-3 py-2 text-[12.5px] shadow-[inset_0_0_0_1px_var(--color-line2)]">
+      <span className="font-medium">Hidden from your agent</span>
+      <button type="button" onClick={() => toggleHidden({ id, name, href })} className="press font-semibold text-fg hover:underline">
+        Undo
+      </button>
+    </div>
+  );
+}
+
+/** Screenshot card: links to the library page; install, GitHub, folder, hide and save sit outside the link. */
 // Memoized: the directory keeps every card mounted and re-renders on each filter change.
 /** `eager` for the first card on screen: its screenshot is often the page's largest paint. `late` holds the screenshot
  * back (useLoaded) for cards below the first view. */
@@ -104,12 +135,12 @@ export const LibCard = memo(function LibCard({ lib, badge, pick, eager, late }: 
   return (
     <div className="anim-host group relative">
       <a href={`/browse/${lib.id}`} className="block">
-        <SpotCard className="overflow-hidden rounded-2xl bg-s1 shadow-[inset_0_0_0_1px_var(--color-line)] transition-shadow duration-300 group-hover:shadow-[inset_0_0_0_1px_var(--color-line2)]">
+        <SpotCard className="overflow-hidden rounded-2xl bg-s1 shadow-[inset_0_0_0_1px_var(--color-line)] transition-[box-shadow,opacity] duration-300 group-hover:shadow-[inset_0_0_0_1px_var(--color-line2)] group-has-[[data-hidden]]:opacity-35">
           <div className="relative aspect-[16/10] overflow-hidden bg-s2">
             {!late && <img src={thumb(shot(lib.id))} alt={`${lib.name} website`} loading={eager ? "eager" : "lazy"} fetchPriority={eager ? "high" : undefined} className="size-full object-cover object-top transition-transform duration-700 ease-[var(--ease-out)] group-hover:scale-[1.04]" />}
             <span className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-s1 to-transparent" />
             {badge && <span className="absolute top-2.5 left-2.5 rounded-md bg-black/60 px-1.5 py-0.5 font-mono text-[11px] font-medium text-fg backdrop-blur-md">{badge}</span>}
-            {pick && <span className="absolute top-3 right-12 rounded-md bg-fg px-1.5 py-0.5 font-mono text-[11px] font-medium text-bg">pick</span>}
+            {pick && <span className="absolute top-3 right-[5.25rem] rounded-md bg-fg px-1.5 py-0.5 font-mono text-[11px] font-medium text-bg">pick</span>}
           </div>
           <div className="flex items-center gap-3 p-4 pt-1">
             <LibMark lib={lib} size={30} />
@@ -121,7 +152,11 @@ export const LibCard = memo(function LibCard({ lib, badge, pick, eager, late }: 
           </div>
         </SpotCard>
       </a>
-      <SaveButton id={lib.id} name={lib.name} className="absolute top-2 right-2 bg-black/55 backdrop-blur-md" />
+      <div className="absolute top-2 right-2 flex gap-1">
+        <HideButton id={lib.id} name={lib.name} href={`/browse/${lib.id}`} className="bg-black/55 backdrop-blur-md" />
+        <SaveButton id={lib.id} name={lib.name} className="bg-black/55 backdrop-blur-md" />
+      </div>
+      <HiddenNote id={lib.id} name={lib.name} href={`/browse/${lib.id}`} />
       {/* Outside the link so the buttons are not nested in it; they sit over the kind label. */}
       <div className="card-acts absolute right-3 bottom-[15px] flex gap-1 bg-[linear-gradient(to_left,var(--color-s1)_75%,transparent)] pl-8">
         <CopyButton value={lib.install} label="Install" className="h-8" />

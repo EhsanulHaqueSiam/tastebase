@@ -51,6 +51,11 @@ One Cloudflare Worker (declared in `alchemy.run.ts`) does everything:
 - **Hearts and folders hold registry ids only.** The API drops any id the registry does not know, which also bounds
   what one account can store; folders are capped at 100 per user. Every write is scoped `where userId = ?`, and a
   folder that is not yours answers 404, never 403, so private ids do not leak.
+- **An agent key carries a user's taste into `/mcp`, nothing else.** Signed in, people hide libraries and tools from
+  their agent and make an agent key (`tb_sk_…`, shown once; D1 keeps its SHA-256 and last 4). A request with the key
+  (Bearer header only: a URL would leave it in logs and history) costs one D1 read: hidden ids leave every answer, hearted libraries get ×1.1 in `pick`
+  (a close call, never a clear one). No key, no read: answers stay the same for everyone. A wrong key gets a 401,
+  not a quiet fallback.
 - **One OAuth app per provider for every stage.** GitHub's redirect URIs are prod, `*.ehsanulsiam.workers.dev`
   (wildcard, so `pr-<n>` previews sign in too), `localhost:1337` and `127.0.0.1` on any port (GitHub's loopback rule).
   Google and X match URIs exactly, so a preview signs in with them only once its URI is registered

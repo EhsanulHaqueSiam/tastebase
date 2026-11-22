@@ -11,7 +11,7 @@ export default function TryThese({ related }: { related: Listing[] }) {
   return (
     <div className="mt-3 grid grid-cols-2 gap-3 md:gap-5">
       {ad && <ListingCard sponsor={ad} compact late={!loaded} where="detail-suggested" />}
-      {related.map((r) => <ListingCard key={r.id} item={r} compact late={!loaded} />)}
+      {related.map((r) => <ListingCard key={r.id} item={r} compact late={!loaded} actions />)}
     </div>
   );
 }

@@ -173,7 +173,7 @@ export default function Hero({ counts }: { counts: { libs: number; resources: nu
               </div>
               {list.length ? (
                 <div className="grid grid-cols-2 gap-3 pb-6 sm:gap-5 lg:grid-cols-3">
-                  {withSponsors(list, grid).map((slot, i) => ("sponsor" in slot ? <ListingCard key={slot.key} sponsor={slot.sponsor} where="search-results" /> : <ListingCard key={slot.key} item={slot.item} eager={i < 3} />))}
+                  {withSponsors(list, grid).map((slot, i) => ("sponsor" in slot ? <ListingCard key={slot.key} sponsor={slot.sponsor} where="search-results" /> : <ListingCard key={slot.key} item={slot.item} actions eager={i < 3} />))}
                 </div>
               ) : (
                 <Empty title={`No ${tab} results`} body={`Nothing fit closely enough here, but ${res[other].length} ${res[other].length === 1 ? "library was" : "libraries were"} found in the other tab.`}>

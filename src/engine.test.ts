@@ -252,6 +252,14 @@ const JOBS: Job[] = [
   ["one-time password input", "base-ui|kobra|rare-ui", ["prompt-kit", "gsap-splittext"]],
 ];
 
+test("a hearted library wins a close call, never a clear one", () => {
+  const like = (need: string, id: string) => pick(libraries, need, { like: new Set([id]) })[0]?.lib.id;
+  assert.equal(like("toast", "react-hot-toast"), "react-hot-toast"); // tied with sonner
+  assert.equal(like("charts", "recharts"), "recharts"); // a point behind echarts
+  assert.equal(like("bottom sheet", "rare-ui"), "vaul"); // a third of vaul's fit
+  assert.equal(like("carousel", "swiper"), "embla-carousel");
+});
+
 test("single jobs land on the specialist, or on nothing", () => {
   for (const [need, best, never = [], part] of JOBS) {
     const ids = pick(libraries, need).map((s) => s.lib.id);
