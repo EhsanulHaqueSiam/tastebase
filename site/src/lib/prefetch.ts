@@ -6,7 +6,17 @@
 import type { TransitionBeforePreparationEvent } from "astro:transitions/client";
 
 const FRESH = 5 * 60_000; // prerendered pages change only on deploy; live numbers load separately
-const pages = new Map<string, { at: number; html: Promise<string | undefined> }>();
+// `doc`: the page already parsed, for pages warmed with `parse` (the phone tab bar's), so a tap only swaps. The router
+// consumes a document, so it is parsed again in idle time after each use.
+type Entry = { at: number; html: Promise<string | undefined>; doc?: Document; parse: boolean };
+const pages = new Map<string, Entry>();
+const idle = (fn: () => void) => ("requestIdleCallback" in window ? requestIdleCallback(fn) : setTimeout(fn, 200));
+const parse = (html: string) => {
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  doc.querySelectorAll("noscript").forEach((n) => n.remove());
+  return doc;
+};
+const preparse = (e: Entry) => void e.html.then((h) => h && idle(() => (e.doc ??= parse(h))));
 
 const BLANK = "data:image/gif;base64,R0lGODlhAQABAAAAACw=";
 const keyOf = (u: URL) => u.pathname + u.search;
@@ -15,8 +25,9 @@ const slow = () => {
   return !!c && (!!c.saveData || /2g/.test(c.effectiveType ?? ""));
 };
 
-/** Fetches a same-origin page once into memory (kept for FRESH). Not on save-data or 2G. */
-export function warm(href: string) {
+/** Fetches a same-origin page once into memory (kept for FRESH), and with `parse` parses it in idle time too. Not on
+ * save-data or 2G. */
+export function warm(href: string, parse = false) {
   const u = new URL(href, location.href);
   const key = keyOf(u);
   const had = pages.get(key);
@@ -25,7 +36,9 @@ export function warm(href: string) {
   const html = fetch(u)
     .then((r) => (r.ok && !r.redirected && r.headers.get("content-type")?.startsWith("text/html") ? r.text() : undefined))
     .catch(() => undefined);
-  pages.set(key, { at: Date.now(), html });
+  const entry: Entry = { at: Date.now(), html, parse };
+  pages.set(key, entry);
+  if (parse) preparse(entry);
 }
 
 const linkOf = (t: EventTarget | null) => {
@@ -55,9 +68,10 @@ export function startPrefetch() {
     e.loader = async () => {
       const html = await hit.html;
       if (e.signal.aborted) return; // a newer navigation took over
-      const doc = html && new DOMParser().parseFromString(html, "text/html");
+      const doc = hit.doc ?? (html && parse(html));
+      hit.doc = undefined;
+      if (hit.parse) preparse(hit);
       if (!doc || !doc.querySelector('[name="astro-view-transitions-enabled"]')) return fallback();
-      doc.querySelectorAll("noscript").forEach((n) => n.remove());
       e.newDocument = doc; // stylesheets are inlined (astro.config), so there are none to preload
     };
   });

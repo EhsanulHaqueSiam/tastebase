@@ -1,6 +1,6 @@
 // /browse: every library, filtered by job (with live counts), price, framework and words; grid or list; saved ones.
 import { ChevronDown, Heart, LayoutGrid, List, Search } from "lucide-react";
-import { memo, useEffect, useRef, useState, type ReactNode } from "react";
+import { memo, startTransition, useDeferredValue, useEffect, useRef, useState, type ReactNode } from "react";
 import { frameworks, kinds, type Framework, type Kind } from "../../../src/registry/schema.ts";
 import { kindMeta } from "../lib/kinds.ts";
 import { useLoaded } from "../lib/loaded.ts";
@@ -33,7 +33,8 @@ export default function Directory({ libs }: { libs: ShelfLib[] }) {
   // so they do not share a slow phone's bandwidth with the first card's (the page's largest paint).
   const [limit, setLimit] = useState(6);
   const loaded = useLoaded();
-  useEffect(() => setLimit((n) => Math.max(n, PAGE)), []);
+  // A transition: React renders the extra cards in slices, so a slow phone's main thread stays free during the swap.
+  useEffect(() => startTransition(() => setLimit((n) => Math.max(n, PAGE))), []);
   const more = useRef<HTMLDivElement>(null);
 
   // The job lives in the URL (?job=motion, ?job=saved) so a filtered directory can be linked.
@@ -48,20 +49,24 @@ export default function Directory({ libs }: { libs: ShelfLib[] }) {
     history.replaceState(history.state, "", u);
   }, [job]);
 
-  const terms = words(q);
   // Price, framework and words narrow everything; the job picks within that, so job counts follow the other filters.
-  const base = libs
-    .filter((l) => price === "any" || l.paid === (price === "paid"))
-    .filter((l) => !fw || l.frameworks.includes(fw))
-    .filter((l) => terms.every((t) => `${l.name} ${l.tagline} ${kindMeta[l.kind].label} ${l.aesthetic.join(" ")}`.toLowerCase().includes(t)));
+  const narrow = (p: Price, f: Framework | undefined, terms: string[]) =>
+    libs
+      .filter((l) => p === "any" || l.paid === (p === "paid"))
+      .filter((l) => !f || l.frameworks.includes(f))
+      .filter((l) => terms.every((t) => `${l.name} ${l.tagline} ${kindMeta[l.kind].label} ${l.aesthetic.join(" ")}`.toLowerCase().includes(t)));
+  const base = narrow(price, fw, words(q));
   const count = (j: Job) => (j === "all" ? base.length : j === "saved" ? base.filter((l) => saved.includes(l.id)).length : base.filter((l) => l.kind === j).length);
-  const list = base.filter((l) => (job === "all" ? true : job === "saved" ? saved.includes(l.id) : l.kind === job)).sort(sortBy(sort, stats));
+  // The cards follow deferred filters: a tap repaints the controls and counts at once, and the grid re-renders after,
+  // in slices a newer tap can interrupt (a phone's filter tap was one ~170ms frame).
+  const [dJob, dPrice, dFw, dQ, dSort] = [useDeferredValue(job), useDeferredValue(price), useDeferredValue(fw), useDeferredValue(q), useDeferredValue(sort)];
+  const list = narrow(dPrice, dFw, words(dQ)).filter((l) => (dJob === "all" ? true : dJob === "saved" ? saved.includes(l.id) : l.kind === dJob)).sort(sortBy(dSort, stats));
   // Keyed cards are reused across filter changes, so switching jobs mounts at most PAGE new ones.
   const visible = list.slice(0, limit);
   const hasMore = list.length > limit;
   useEffect(() => {
     if (!hasMore || !more.current) return;
-    const io = new IntersectionObserver(([e]) => e?.isIntersecting && setLimit((n) => n + PAGE), { rootMargin: "1200px" });
+    const io = new IntersectionObserver(([e]) => e?.isIntersecting && startTransition(() => setLimit((n) => n + PAGE)), { rootMargin: "1200px" });
     io.observe(more.current);
     return () => io.disconnect();
   }, [hasMore, limit]);
@@ -91,7 +96,7 @@ export default function Directory({ libs }: { libs: ShelfLib[] }) {
       <section aria-labelledby="dir-title" className="min-w-0 px-4 pt-5 pb-24 lg:px-6">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
           <h1 id="dir-title" className="text-[18px] font-semibold tracking-[-0.02em]">
-            {title} <span className="ml-1 font-mono text-[13px] font-medium text-fg3 tabular-nums">{list.length}</span>
+            {title} <span className="ml-1 font-mono text-[13px] font-medium text-fg3 tabular-nums">{count(job)}</span>
           </h1>
           <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-1.5 max-sm:basis-full max-sm:justify-start">
             <label className="flex h-[34px] min-w-0 flex-[1_1_220px] items-center gap-2 rounded-[9px] bg-s2 px-2.5 shadow-[inset_0_0_0_1px_var(--color-line)] transition-shadow focus-within:shadow-[inset_0_0_0_1px_rgb(91_124_255/0.6)] max-sm:basis-full">
