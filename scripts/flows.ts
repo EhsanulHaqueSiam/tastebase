@@ -255,6 +255,8 @@ const flows: Record<string, [Size, string, (p: P) => Promise<void>][]> = {
     const focused = () => p.js<string>(`(document.activeElement?.getAttribute("aria-label") ?? document.activeElement?.textContent ?? "").trim()`);
     await p.key("Tab");
     expect((await focused()) === "Skip to content", `the first Tab lands on "${await focused()}", not the skip link`);
+    await p.key("Enter");
+    expect(await p.js(`document.activeElement?.id === "main"`), `the skip link left focus on "${await focused()}"`);
     const href = await markCard(p);
     await p.js(`document.querySelector("${ON_SCREEN}").focus()`);
     await p.key("Enter");

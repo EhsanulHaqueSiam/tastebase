@@ -66,6 +66,8 @@ html { background: var(--color-bg); color: var(--color-fg); color-scheme: dark; 
 body { font-family: var(--font-sans); font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
 ::selection { background: rgb(91 124 255 / 0.4); }
 :focus-visible { outline: 2px solid var(--color-blue); outline-offset: 2px; border-radius: 8px; }
+/* The skip link's target: a ring around the whole page would say nothing. */
+main:focus-visible { outline: none; }
 
 /* press feedback for anything tappable */
 .press { transition: transform 160ms var(--ease-out), background-color 200ms, color 200ms, box-shadow 250ms var(--ease-out); }

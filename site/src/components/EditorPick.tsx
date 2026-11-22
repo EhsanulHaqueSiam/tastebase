@@ -36,7 +36,7 @@ export function PickToggle({ id }: { id: string }) {
         type="button"
         aria-expanded={draft !== null}
         onClick={() => setDraft(draft === null ? (reason ?? "") : null)}
-        className={`press inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-[12.5px] font-medium ${reason ? "bg-amber/14 text-amber shadow-[inset_0_0_0_1px_rgb(245_176_65/0.5)]" : "bg-s3 text-fg2 hover:text-fg"}`}
+        className={`press inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-[12.5px] font-medium ${reason ? "bg-amber/10 text-amber shadow-[inset_0_0_0_1px_rgb(245_176_65/0.5)]" : "bg-s3 text-fg2 hover:text-fg"}`}
       >
         {reason ? "★ Editor's pick · Edit reason" : "☆ Make editor's pick"}
       </button>
