@@ -8,6 +8,7 @@ import type { TransitionBeforePreparationEvent } from "astro:transitions/client"
 const FRESH = 5 * 60_000; // prerendered pages change only on deploy; live numbers load separately
 const pages = new Map<string, { at: number; html: Promise<string | undefined> }>();
 
+const BLANK = "data:image/gif;base64,R0lGODlhAQABAAAAACw=";
 const keyOf = (u: URL) => u.pathname + u.search;
 const slow = () => {
   const c = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
@@ -20,7 +21,8 @@ export function warm(href: string) {
   const key = keyOf(u);
   const had = pages.get(key);
   if (u.origin !== location.origin || key === keyOf(new URL(location.href)) || (had && Date.now() - had.at < FRESH) || slow()) return;
-  const html = fetch(u, { priority: "low" })
+  // Normal priority: a click often lands while this is in flight, and the navigation then waits for it.
+  const html = fetch(u)
     .then((r) => (r.ok && !r.redirected && r.headers.get("content-type")?.startsWith("text/html") ? r.text() : undefined))
     .catch(() => undefined);
   pages.set(key, { at: Date.now(), html });
@@ -43,6 +45,9 @@ export function startPrefetch() {
   // Hand a warmed page to the router; anything unexpected falls back to its own loader.
   document.addEventListener("astro:before-preparation", (ev) => {
     const e = ev as TransitionBeforePreparationEvent;
+    // The page is going away: stop its unfinished screenshots, so the next page's HTML gets the bandwidth (a phone
+    // scrolled down a long grid has dozens in flight). Only in <main>, which is swapped; the shell persists.
+    document.querySelectorAll<HTMLImageElement>("main img").forEach((i) => i.complete || (i.src = BLANK));
     const hit = !e.formData && pages.get(keyOf(e.to));
     if (!hit || Date.now() - hit.at >= FRESH) return;
     const fallback = e.loader;
