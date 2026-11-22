@@ -14,7 +14,7 @@ export default function ThemeToggle({ className = "", size = 18 }: { className?:
     <button
       type="button"
       aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
-      data-cuelume-toggle
+      data-sound="toggle"
       onClick={() => (haptic("selection"), setTheme(theme === "dark" ? "light" : "dark"))}
       {...on}
       className={`press grid place-items-center text-fg2 hover:text-fg ${className}`}

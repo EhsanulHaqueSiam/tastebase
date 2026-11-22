@@ -96,7 +96,7 @@ function Tab({ href, icon: Icon, on, onTap, children, ...rest }: { href?: string
     </>
   );
   return href ? (
-    <a href={href} aria-current={on ? "page" : undefined} data-cuelume-navigate onClick={tap} className={cls}>{body}</a>
+    <a href={href} aria-current={on ? "page" : undefined} data-sound="navigate" onClick={tap} className={cls}>{body}</a>
   ) : (
     <button type="button" {...rest} onClick={(e) => (rest.onClick?.(e), tap())} className={cls}>{body}</button>
   );
@@ -106,7 +106,7 @@ function SheetRow({ href, icon: Icon, on, onPick, children }: { href: string; ic
   const { ref, on: hover } = useIconHover();
   return (
     <li>
-      <a href={href} {...hover} data-cuelume-navigate onClick={() => (haptic("selection"), onPick())} aria-current={on ? "page" : undefined} className={`flex h-12 items-center gap-[15px] rounded-2xl px-4 text-[17px] font-semibold transition-transform active:scale-95 ${on ? "bg-fg text-bg" : "bg-s3 text-fg"}`}>
+      <a href={href} {...hover} data-sound="navigate" onClick={() => (haptic("selection"), onPick())} aria-current={on ? "page" : undefined} className={`flex h-12 items-center gap-[15px] rounded-2xl px-4 text-[17px] font-semibold transition-transform active:scale-95 ${on ? "bg-fg text-bg" : "bg-s3 text-fg"}`}>
         <Icon ref={ref} size={20} className="grid place-items-center" />
         {children}
       </a>

@@ -69,7 +69,7 @@ export default function Rail({ path: initial }: { path: string }) {
                 href={it.href}
                 aria-label={it.label}
                 aria-current={on ? "page" : undefined}
-                {...(it.external ? { target: "_blank", rel: "noreferrer" } : { "data-cuelume-navigate": "" })}
+                {...(it.external ? { target: "_blank", rel: "noreferrer" } : { "data-sound": "navigate" })}
                 onPointerEnter={(e) => (icons.current.get(it.href)?.startAnimation(), show(it.label, e.currentTarget))}
                 onPointerLeave={() => icons.current.get(it.href)?.stopAnimation()}
                 onFocus={(e) => show(it.label, e.currentTarget)}
