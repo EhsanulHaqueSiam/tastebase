@@ -88,7 +88,7 @@ function Frame({ url, name, image }: { url: string; name: string; image: string 
 
 function Fallback({ url, name, image, full, reason }: { url: string; name: string; image: string; full?: { src: string; height: number }; reason: string }) {
   return (
-    <div className="absolute inset-0 flex flex-col overflow-y-auto bg-s1">
+    <div className="absolute inset-0 flex flex-col overflow-y-auto overscroll-y-contain bg-s1">
       <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-3 border-b border-line bg-s2/90 px-4 py-2.5 backdrop-blur-md">
         <p className="text-[13px] text-fg2">{reason} Here is how it looks.</p>
         <a href={withUtm(url, "detail-preview")} target="_blank" rel="noopener" className="press inline-flex h-8 items-center gap-1.5 rounded-lg bg-fg px-3 text-[13px] font-medium text-bg">
