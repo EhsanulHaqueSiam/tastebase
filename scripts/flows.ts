@@ -218,12 +218,16 @@ const flows: Record<string, [Size, string, (p: P) => Promise<void>][]> = {
     const blank = await p.js<number>(`[...document.querySelectorAll("main img")].filter((i) => i.src.startsWith("data:")).length`);
     expect(blank === 0, `${blank} screenshots stayed blank after a cancelled navigation`);
   }]],
-  // ⌘K opens the palette from any page; Esc closes it. Phones get there from the tab bar.
+  // Phones get to /browse from the tab bar.
+  // ⌘K from the header's Search pill: Esc gives focus back to the pill, and a Tab straight after moves on from it.
   palette: [[DESKTOP, "/about", async (p) => {
+    await p.js(`document.querySelector('[data-shell="header"] .island button').focus()`);
     await p.key("k", "KeyK", 4);
     await p.until(`!!document.querySelector("[cmdk-input]")`, "⌘K to open the palette");
     await p.key("Escape");
+    await p.key("Tab"); // straight away, while the panel animates out: focus moves on, not into the closing input
     await p.until(`!document.querySelector("[cmdk-input]")`, "Esc to close the palette");
+    expect(await p.js("document.activeElement !== document.body && !document.activeElement.closest('[data-shell=\"header\"] .island')"), "Tab right after closing the palette did not move on from the Search pill");
   }], [PHONE, "/about", async (p) => {
     await p.click('nav[data-shell="tabbar"] a[href="/browse"]');
     await p.until(`location.pathname === "/browse"`, "the tab bar to reach /browse");

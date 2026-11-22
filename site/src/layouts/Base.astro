@@ -214,7 +214,11 @@ const graph = [
       // only here, so a click on page text does not focus it.
       document.addEventListener("click", (e) => {
         const main = (e.target as Element).closest?.("[data-skip]") && document.getElementById("main");
-        if (main) e.preventDefault(), (main.tabIndex = -1), main.focus();
+        if (!main) return;
+        e.preventDefault();
+        main.tabIndex = -1;
+        main.focus();
+        main.addEventListener("blur", () => main.removeAttribute("tabindex"), { once: true });
       }, true);
       startSound();
       startPrefetch();

@@ -44,9 +44,14 @@ export default function Palette() {
     if (!open) return;
     let leaving = false;
     const onLeave = () => (leaving = true);
+    // Its input is the one control: Tab stays there, even after a click on the panel left focus on the page. Tied to
+    // `open`, not to the panel, which stays mounted while it animates out.
+    const onTab = (e: KeyboardEvent) => e.key === "Tab" && (e.preventDefault(), document.querySelector<HTMLInputElement>("[data-palette] [cmdk-input]")?.focus());
     document.addEventListener("astro:before-preparation", onLeave);
+    window.addEventListener("keydown", onTab);
     return () => {
       document.removeEventListener("astro:before-preparation", onLeave);
+      window.removeEventListener("keydown", onTab);
       const at = document.activeElement;
       if (!leaving && (at === document.body || at?.closest("[data-palette]")) && opener.current?.isConnected) opener.current.focus({ preventScroll: true });
     };
@@ -57,8 +62,6 @@ export default function Palette() {
     const show = () => (remember(), setOpen(true));
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") (e.preventDefault(), remember(), setOpen((o) => !o));
-      // Open, its input is the one control: Tab stays there, even after a click on the panel left focus on the page.
-      else if (e.key === "Tab" && document.querySelector("[data-palette]")) (e.preventDefault(), document.querySelector<HTMLInputElement>("[data-palette] [cmdk-input]")?.focus());
       else if (e.key === "Escape") setOpen(false);
       else if (e.key === "/" && !(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)) {
         e.preventDefault();
