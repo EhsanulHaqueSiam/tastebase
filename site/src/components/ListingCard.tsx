@@ -20,8 +20,10 @@ export function ListingCard({ item, sponsor, eager = false, late = false, compac
     <div className="group relative flex h-full flex-col overflow-hidden rounded-xl bg-s1 shadow-[0_0_0_1px_var(--color-line),0_4px_14px_var(--drop)] transition-[translate,box-shadow] duration-200 ease-[var(--ease-out)] has-[h3_a:focus-visible]:outline-2 has-[h3_a:focus-visible]:outline-blue hover:-translate-y-1 hover:shadow-[0_0_0_1px_var(--color-line2),0_18px_40px_-12px_var(--drop-lift)]">
       {sponsor && <span className="absolute top-2.5 left-2.5 z-10 rounded-md bg-bg/80 px-2 py-0.5 font-mono text-[10px] font-medium tracking-[0.1em] uppercase backdrop-blur">Sponsored</span>}
       <div className="relative aspect-video overflow-hidden bg-s2">
-        {!late && <img
-          src={thumb(c.image)}
+        {/* `late`: the screenshot waits for the page's load (Base.astro fills data-late), static pages included. */}
+        <img
+          src={late ? undefined : thumb(c.image)}
+          data-late={late ? thumb(c.image) : undefined}
           alt=""
           width={1200}
           height={675}
@@ -30,7 +32,7 @@ export function ListingCard({ item, sponsor, eager = false, late = false, compac
           decoding="async"
           data-fallback
           className="peer size-full object-cover object-top transition-transform duration-500 ease-[var(--ease-out)] group-hover:scale-[1.04] data-failed:invisible"
-        />}
+        />
         <span aria-hidden="true" className="absolute inset-0 hidden place-items-center text-[13px] text-fg3 peer-data-failed:grid">no preview</span>
       </div>
       <div className={`flex flex-1 flex-col gap-1 ${compact ? "p-3" : "p-3 sm:gap-1.5 sm:p-4"}`}>

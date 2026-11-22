@@ -1,23 +1,35 @@
 // /components: every listed component, grouped by name, so "Date Picker" shows each library that ships one.
 import { ArrowUpRight, Search } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { Kind } from "../../../src/registry/schema.ts";
 import { withUtm } from "../lib/utm.ts";
 import { LibMark } from "./LibMark.tsx";
 
 /** One component name and every library that documents it. `terms` is what search matches. */
 export type Group = { name: string; terms: string; libs: { id: string; name: string; kind: Kind; url: string }[] };
+type Shown = Omit<Group, "terms">;
 
-const SHOWN = 120;
+export const SHOWN = 120;
 
-export default function Components({ groups, libCount }: { groups: Group[]; libCount: number }) {
+/** `first`: the groups shown before any search, without terms. Search fetches every group once (/components.json);
+ * until it arrives, a query matches the shown groups by name. */
+export default function Components({ first, groupCount, parts, libCount }: { first: Shown[]; groupCount: number; parts: number; libCount: number }) {
   const [q, setQ] = useState("");
+  const [all, setAll] = useState<Group[]>();
+  const asked = useRef(false);
+  const load = () => {
+    if (asked.current) return;
+    asked.current = true;
+    fetch("/components.json").then((r) => (r.ok ? (r.json() as Promise<Group[]>) : Promise.reject(new Error(String(r.status))))).then(setAll, () => (asked.current = false));
+  };
   const terms = q.toLowerCase().split(/\s+/).filter(Boolean);
-  const list = groups.filter((g) => terms.every((t) => g.terms.includes(t)));
+  const matches = (text: string) => terms.every((t) => text.includes(t));
+  const list: Shown[] = !terms.length ? first : all ? all.filter((g) => matches(g.terms)) : first.filter((g) => matches(`${g.name} ${g.libs.map((l) => l.name).join(" ")}`.toLowerCase()));
+  const total = terms.length ? list.length : groupCount;
   return (
     <section className="mx-auto max-w-5xl px-4 pt-24 pb-24">
       <h1 className="text-[clamp(28px,3.6vw,40px)] leading-tight font-semibold tracking-[-0.035em]">
-        Components <span className="font-mono text-[15px] font-medium text-fg3 tabular-nums">{groups.reduce((n, g) => n + g.libs.length, 0)}</span>
+        Components <span className="font-mono text-[15px] font-medium text-fg3 tabular-nums">{parts}</span>
       </h1>
       <p className="mt-2 max-w-xl text-fg2">Each part, and every library of the {libCount} we index that documents it. Open the docs to try it. Coverage is partial: a missing library means not listed yet.</p>
 
@@ -26,14 +38,15 @@ export default function Components({ groups, libCount }: { groups: Group[]; libC
         <input
           type="search"
           value={q}
-          onChange={(e) => setQ(e.target.value)}
+          onFocus={load}
+          onChange={(e) => (load(), setQ(e.target.value))}
           placeholder="Date picker, marquee, bottom sheet…"
           aria-label="Search components"
           autoComplete="off"
           spellCheck={false}
           className="min-w-0 flex-1 bg-transparent text-[14px] outline-none placeholder:text-fg3 [&::-webkit-search-cancel-button]:hidden"
         />
-        <span aria-live="polite" className="font-mono text-[12px] text-fg3 tabular-nums">{list.length}</span>
+        <span aria-live="polite" className="font-mono text-[12px] text-fg3 tabular-nums">{total}</span>
       </label>
 
       <ul className="mt-4">
@@ -52,7 +65,7 @@ export default function Components({ groups, libCount }: { groups: Group[]; libC
           </li>
         ))}
       </ul>
-      {list.length > SHOWN && <p className="py-6 text-center text-[13px] text-fg3">Showing {SHOWN} of {list.length}. Search to narrow it.</p>}
+      {total > SHOWN && <p className="py-6 text-center text-[13px] text-fg3">Showing {SHOWN} of {total}. Search to narrow it.</p>}
       {!list.length && <p className="py-16 text-center text-fg3">No listed component matches. Try the job instead, like “toast”, on <a href="/browse" className="text-fg hover:underline">Browse</a>.</p>}
     </section>
   );
