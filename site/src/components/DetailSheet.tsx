@@ -4,7 +4,7 @@
 // page). ×, Esc, the dimmed grid and Back close it onto the same grid and scroll; a press on the job list or header
 // closes it too, then does what it was pressed for. Phones and modified clicks navigate as before.
 import { X } from "lucide-react";
-import { useEffect, useRef, useState, type RefObject } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from "react";
 
 const DESKTOP = "(min-width: 1024px)";
 type State = { sheet?: string } | null;
@@ -50,7 +50,8 @@ export default function DetailSheet({ scope }: { scope: RefObject<HTMLElement | 
     return () => removeEventListener("tb:sheet", onStep);
   }, [scope]);
 
-  useEffect(() => {
+  // Before paint: data-sheet folds the job list (Directory.tsx), so the sheet's left edge is measured after it.
+  useLayoutEffect(() => {
     if (!path) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
     const onDown = (e: PointerEvent) => !box.current?.contains(e.target as Node) && !(e.target as Element).closest("[data-sheet-backdrop]") && closeNow();
@@ -59,6 +60,7 @@ export default function DetailSheet({ scope }: { scope: RefObject<HTMLElement | 
     const root = document.documentElement;
     root.style.overflow = "hidden"; // the grid stays put under the sheet
     root.setAttribute("data-sheet", "");
+    if (scope.current) setLeft(scope.current.getBoundingClientRect().left);
     return () => {
       document.removeEventListener("keydown", onKey);
       document.removeEventListener("pointerdown", onDown, true);

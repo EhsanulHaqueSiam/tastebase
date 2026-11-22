@@ -1,6 +1,7 @@
 // /browse: every library, filtered by job (with live counts), price, framework and words; grid or list; saved ones.
 // A running sponsor leads the results and follows every 8th (lib/sponsors.ts). On desktop a library opens in a sheet
-// over the results (DetailSheet.tsx), so the job list stays in reach.
+// over the results (DetailSheet.tsx), so the job list stays in reach; while it is open the list folds to its icons
+// (html[data-sheet]), each naming its job and count on hover, like the nav rail.
 import { ArrowUpRight, ChevronDown, Heart, LayoutGrid, List, Search } from "lucide-react";
 import { memo, startTransition, useDeferredValue, useEffect, useRef, useState, type ReactNode } from "react";
 import { frameworks, kinds, type Framework, type Kind } from "../../../src/registry/schema.ts";
@@ -83,17 +84,17 @@ export default function Directory({ libs }: { libs: ShelfLib[] }) {
   const reset = () => (setPrice("any"), setFw(undefined), setQ(""));
 
   return (
-    <div className="mx-auto grid max-w-[1440px] grid-cols-1 pt-14 lg:grid-cols-[236px_minmax(0,1fr)]">
-      <aside aria-label="Jobs" className="flex gap-1 overflow-x-auto border-b border-line px-4 py-3 [scrollbar-width:none] lg:sticky lg:top-14 lg:h-[calc(100svh-4rem)] lg:flex-col lg:gap-px lg:overflow-y-auto lg:border-r lg:border-b-0 lg:px-2.5 lg:py-4">
+    <div className="mx-auto grid max-w-[1440px] grid-cols-1 pt-14 lg:grid-cols-[236px_minmax(0,1fr)] lg:[[data-sheet]_&]:grid-cols-[56px_minmax(0,1fr)]">
+      <aside aria-label="Jobs" className="flex gap-1 overflow-x-auto border-b border-line px-4 py-3 [scrollbar-width:none] lg:sticky lg:top-14 lg:h-[calc(100svh-4rem)] lg:flex-col lg:gap-px lg:overflow-y-auto lg:border-r lg:border-b-0 lg:px-2.5 lg:py-4 lg:[[data-sheet]_&]:items-center lg:[[data-sheet]_&]:overflow-visible lg:[[data-sheet]_&]:z-[55] lg:[[data-sheet]_&]:px-1.5">
         <Row on={job === "saved"} onClick={() => setJob("saved")} n={count("saved")} icon={<span data-anim="pop" className="grid place-items-center text-pink"><Heart size={15} aria-hidden /></span>}>Saved</Row>
         <Row on={job === "all"} onClick={() => setJob("all")} n={count("all")} icon={<span data-anim="pop" className="grid place-items-center"><LayoutGrid size={15} aria-hidden /></span>}>All libraries</Row>
-        <h2 className="hidden px-2 pt-4 pb-1.5 font-mono text-[11.5px] text-fg3 lg:block">Job</h2>
+        <h2 className="hidden px-2 pt-4 pb-1.5 font-mono text-[11.5px] text-fg3 lg:block lg:[[data-sheet]_&]:hidden">Job</h2>
         {jobs.map((k) => (
           <Row key={k} on={job === k} onClick={() => setJob(k)} n={count(k)} icon={<KindIcon kind={k} />}>{kindMeta[k].label}</Row>
         ))}
-        <h2 className="hidden px-2 pt-4 pb-1.5 font-mono text-[11.5px] text-fg3 lg:block">Price</h2>
+        <h2 className="hidden px-2 pt-4 pb-1.5 font-mono text-[11.5px] text-fg3 lg:block lg:[[data-sheet]_&]:hidden">Price</h2>
         {/* A wrapper, because .seg's own display would beat Tailwind's `hidden`. */}
-        <div className="mx-1 hidden lg:block">
+        <div className="mx-1 hidden lg:block lg:[[data-sheet]_&]:hidden">
           <Seg label="Price">
             {PRICES.map(([id, label]) => <button key={id} type="button" aria-pressed={price === id} onClick={() => setPrice(id)}>{label}</button>)}
           </Seg>
@@ -174,11 +175,16 @@ function Row({ on, onClick, n, icon, children }: { on: boolean; onClick: () => v
       type="button"
       aria-pressed={on}
       onClick={onClick}
-      className={`anim-host press flex h-8 flex-none items-center gap-2.5 rounded-lg px-2.5 text-[13.5px] whitespace-nowrap [transition-duration:160ms,60ms,60ms,250ms]! max-lg:shadow-[inset_0_0_0_1px_var(--color-line)] ${on ? "bg-s2 text-fg max-lg:shadow-[inset_0_0_0_1px_var(--color-fg)]" : "text-fg2 hover:bg-s1 hover:text-fg"}`}
+      className={`anim-host press group/job relative flex h-8 flex-none items-center gap-2.5 rounded-lg px-2.5 text-[13.5px] whitespace-nowrap [transition-duration:160ms,60ms,60ms,250ms]! max-lg:shadow-[inset_0_0_0_1px_var(--color-line)] lg:[[data-sheet]_&]:w-9 lg:[[data-sheet]_&]:justify-center lg:[[data-sheet]_&]:px-0 ${on ? "bg-s2 text-fg max-lg:shadow-[inset_0_0_0_1px_var(--color-fg)]" : "text-fg2 hover:bg-s1 hover:text-fg"}`}
     >
       {icon}
-      <span className="flex-1 text-left">{children}</span>
-      <span className="font-mono text-[11.5px] text-fg3 tabular-nums">{n}</span>
+      {/* Folded beside an open sheet: the name and count leave the row for a hover label (and stay for screen readers). */}
+      <span className="flex-1 text-left lg:[[data-sheet]_&]:sr-only">{children}</span>
+      <span className="font-mono text-[11.5px] text-fg3 tabular-nums lg:[[data-sheet]_&]:sr-only">{n}</span>
+      <span aria-hidden className="pointer-events-none absolute left-full ml-2 hidden items-center gap-1.5 rounded-md bg-s3 px-2 py-1 text-[12px] text-fg shadow-[0_0_0_1px_var(--color-line2)] lg:[[data-sheet]_&]:group-hover/job:flex">
+        {children}
+        <span className="font-mono text-[11px] text-fg3 tabular-nums">{n}</span>
+      </span>
     </button>
   );
 }
