@@ -8,7 +8,8 @@ import { askSignIn, createFolder, updateFolder, useAccount } from "../lib/saved.
 import { Sheet } from "./AccountSheet.tsx";
 import { FolderPlusIcon } from "./icons/folder-plus.tsx";
 
-export default function FolderPicker({ id, name, label, className = "" }: { id: string; name: string; label?: boolean; className?: string }) {
+/** `className` replaces the default background (bg-s3), e.g. the translucent one over a card's screenshot. */
+export default function FolderPicker({ id, name, label, className = "bg-s3" }: { id: string; name: string; label?: boolean; className?: string }) {
   const { user, folders } = useAccount();
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState("");
@@ -31,7 +32,7 @@ export default function FolderPicker({ id, name, label, className = "" }: { id: 
         {...hover}
         onClick={() => (user ? (setOpen(true), haptic("light")) : askSignIn())}
         aria-label={`Add ${name} to a folder`}
-        className={`press inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-s3 hover:bg-fg hover:text-black ${label ? "px-2.5 text-[12.5px] font-medium" : "w-8"} ${filed ? "text-fg" : "text-fg2"} ${className}`}
+        className={`press inline-flex h-8 items-center justify-center gap-1.5 rounded-lg hover:bg-fg hover:text-bg ${label ? "px-2.5 text-[12.5px] font-medium" : "w-8"} ${filed ? "text-fg" : "text-fg2"} ${className}`}
       >
         <FolderPlusIcon ref={ref} size={14} className="grid place-items-center" />
         {label && (filed ? "In a folder" : "Add to folder")}
@@ -52,7 +53,7 @@ export default function FolderPicker({ id, name, label, className = "" }: { id: 
                   >
                     <span className="min-w-0 flex-1 truncate">{f.name}</span>
                     <span className="font-mono text-[12.5px] font-medium text-fg3 tabular-nums">{f.libs.length}</span>
-                    <span className={`grid size-5 place-items-center rounded-full transition-[background-color,box-shadow] duration-200 ${on ? "bg-fg text-black" : "shadow-[inset_0_0_0_1.5px_var(--color-line2)]"}`}>
+                    <span className={`grid size-5 place-items-center rounded-full transition-[background-color,box-shadow] duration-200 ${on ? "bg-fg text-bg" : "shadow-[inset_0_0_0_1.5px_var(--color-line2)]"}`}>
                       {on && <Check size={13} strokeWidth={3} aria-hidden />}
                     </span>
                   </button>
@@ -71,7 +72,7 @@ export default function FolderPicker({ id, name, label, className = "" }: { id: 
             autoComplete="off"
             className="h-12 min-w-0 flex-1 rounded-2xl bg-s3 px-4 text-[16px] text-fg outline-none placeholder:text-fg3 focus-visible:shadow-[inset_0_0_0_1px_rgb(91_124_255/0.6)] focus-visible:outline-none"
           />
-          <button type="submit" disabled={!draft.trim() || busy} className="press h-12 rounded-2xl bg-fg px-4 text-[15px] font-semibold text-black active:scale-95 disabled:opacity-40">
+          <button type="submit" disabled={!draft.trim() || busy} className="press h-12 rounded-2xl bg-fg px-4 text-[15px] font-semibold text-bg active:scale-95 disabled:opacity-40">
             Create
           </button>
         </form>

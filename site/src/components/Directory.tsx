@@ -3,8 +3,10 @@
 // A running sponsor leads the results and follows every 8th (lib/sponsors.ts). On desktop a library opens in a sheet
 // over the results (DetailSheet.tsx), so the job list stays in reach; while it is open the list folds to its icons
 // (html[data-sheet]), each naming its job and count on hover, like the nav rail.
+// No max width: the job list sits against the nav rail at any size (folded beside a sheet too), and wide screens get
+// more columns instead of bigger cards.
 import { ArrowUpRight, ChevronDown, Heart, LayoutGrid, List, Search, Star } from "lucide-react";
-import { memo, startTransition, useDeferredValue, useEffect, useRef, useState, type ReactNode } from "react";
+import { memo, startTransition, useDeferredValue, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { frameworks, kinds, type Framework, type Kind } from "../../../src/registry/schema.ts";
 import { kindMeta } from "../lib/kinds.ts";
 import { useLoaded } from "../lib/loaded.ts";
@@ -19,6 +21,11 @@ import { CopyButton } from "./fx.tsx";
 import { FW, KindIcon, LibCard, SaveButton, SponsorLibCard, SORTS, sortBy, statBadge, type Sort } from "./LibCard.tsx";
 import { LibMark } from "./LibMark.tsx";
 import { Seg } from "./Seg.tsx";
+
+declare global {
+  /** Set by Base.astro on Back and Forward: the scroll the history entry `index` was left at. */
+  interface Window { tbBack?: { index?: number; y?: number } }
+}
 
 type Job = Kind | "all" | "saved" | "editors";
 const PRICES = [["any", "Any"], ["free", "Free"], ["paid", "Paid"]] as const;
@@ -47,12 +54,23 @@ export default function Directory({ libs }: { libs: ShelfLib[] }) {
   // Back to a scrolled directory: the router restores the scroll while only six cards exist, so the page is short, the
   // restore stops at its bottom and the end-of-list loader then mounts every card under the reader, who lands at the
   // footer. Mount every card first, then put the scroll back.
+  const restore = useRef<number>(undefined);
   useEffect(() => {
-    const y = (history.state as { scrollY?: number } | null)?.scrollY ?? 0;
+    const at = history.state as { index?: number; scrollY?: number } | null;
+    const y = (window.tbBack?.index === at?.index ? window.tbBack?.y : at?.scrollY) ?? 0;
     if (y < innerHeight) return startTransition(() => setLimit((n) => Math.max(n, PAGE)));
-    setLimit(libs.length + 8); // every card, plus the sponsor slots
-    requestAnimationFrame(() => requestAnimationFrame(() => scrollTo({ top: y, behavior: "instant" })));
+    restore.current = y;
+    // A transition, so it commits after the sponsor slots (useSponsors sets them in this same pass, urgently): slots
+    // arriving after the restore would push the reader's cards down.
+    startTransition(() => setLimit(libs.length + 8)); // every card, plus the sponsor slots
   }, []);
+  // Before paint in that commit, so the footer the short page was restored to never shows.
+  useLayoutEffect(() => {
+    if (restore.current === undefined || limit < libs.length) return;
+    document.documentElement.style.removeProperty("--tb-hold"); // set by Base.astro for the router's restore
+    scrollTo({ top: restore.current, behavior: "instant" });
+    restore.current = undefined;
+  }, [limit]);
   const more = useRef<HTMLDivElement>(null);
   const results = useRef<HTMLElement>(null);
 
@@ -113,14 +131,16 @@ export default function Directory({ libs }: { libs: ShelfLib[] }) {
   const reset = () => (setPrice("any"), setFw(undefined), setQ(""));
 
   return (
-    <div className="mx-auto grid max-w-[1440px] grid-cols-1 pt-14 lg:grid-cols-[236px_minmax(0,1fr)] lg:[[data-sheet]_&]:grid-cols-[56px_minmax(0,1fr)]">
+    <div className="grid grid-cols-1 pt-14 lg:grid-cols-[236px_minmax(0,1fr)] lg:[[data-sheet]_&]:grid-cols-[56px_minmax(0,1fr)]">
       <aside aria-label="Jobs" className="flex gap-1 overflow-x-auto border-b border-line px-4 py-3 [scrollbar-width:none] lg:sticky lg:top-14 lg:h-[calc(100svh-4rem)] lg:flex-col lg:gap-px lg:overflow-y-auto lg:border-r lg:border-b-0 lg:px-2.5 lg:py-4 lg:[[data-sheet]_&]:items-center lg:[[data-sheet]_&]:overflow-visible lg:[[data-sheet]_&]:z-[55] lg:[[data-sheet]_&]:px-1.5">
         <Row on={job === "saved"} onClick={() => pickJob("saved")} n={count("saved")} icon={<span data-anim="pop" className="grid place-items-center text-pink"><Heart size={15} aria-hidden /></span>}>Saved</Row>
         <Row on={job === "all"} onClick={() => pickJob("all")} n={count("all")} icon={<span data-anim="pop" className="grid place-items-center"><LayoutGrid size={15} aria-hidden /></span>}>All libraries</Row>
         {(picks.size > 0 || job === "editors") && (
           <Row on={job === "editors"} onClick={() => pickJob("editors")} n={count("editors")} icon={<span data-anim="pop" className="grid place-items-center text-amber"><Star size={15} aria-hidden /></span>}>Editor's picks</Row>
         )}
-        <h2 className="hidden px-2 pt-4 pb-1.5 font-mono text-[11.5px] text-fg3 lg:block lg:[[data-sheet]_&]:hidden">Job</h2>
+        {/* Folded, it keeps its space: a press on a job unfolds the list before the release, and moved rows would turn
+            the click into a press on the row above. */}
+        <h2 className="hidden px-2 pt-4 pb-1.5 font-mono text-[11.5px] text-fg3 lg:block lg:[[data-sheet]_&]:invisible">Job</h2>
         {jobs.map((k) => (
           <Row key={k} on={job === k} onClick={() => pickJob(k)} n={count(k)} icon={<KindIcon kind={k} />}>{kindMeta[k].label}</Row>
         ))}
@@ -133,7 +153,7 @@ export default function Directory({ libs }: { libs: ShelfLib[] }) {
         </div>
       </aside>
 
-      <section ref={results} data-sheet-host aria-labelledby="dir-title" className="min-w-0 px-4 pt-5 pb-24 lg:px-6">
+      <section ref={results} data-sheet-host aria-labelledby="dir-title" className="min-h-(--tb-hold) min-w-0 px-4 pt-5 pb-24 lg:px-6">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
           <h1 id="dir-title" className="text-[18px] font-semibold tracking-[-0.02em]">
             {title} <span className="ml-1 font-mono text-[13px] font-medium text-fg3 tabular-nums">{count(job)}</span>
@@ -178,7 +198,7 @@ export default function Directory({ libs }: { libs: ShelfLib[] }) {
         </div>
 
         {view === "grid" ? (
-          <div className="mt-2.5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="mt-2.5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3 min-[112.5rem]:grid-cols-4 min-[144rem]:grid-cols-5">
             {withSponsors(visible, live).map((slot, i) => <div key={slot.key}>{"sponsor" in slot ? <SponsorLibCard sponsor={slot.sponsor} where="browse-grid" /> : <LibCard lib={slot.item} badge={statBadge(sort, stats?.[slot.item.id])} eager={i === 0} late={!loaded && i > 0} />}</div>)}
           </div>
         ) : (

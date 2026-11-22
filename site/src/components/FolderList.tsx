@@ -33,7 +33,7 @@ export default function FolderList() {
               <FolderPlus size={14} className="shrink-0 text-fg3" aria-hidden />
               <input value={draft} onChange={(e) => setDraft(e.target.value)} maxLength={60} placeholder="New folder" aria-label="New folder name" autoComplete="off" className="min-w-0 flex-1 bg-transparent text-[13.5px] outline-none placeholder:text-fg3 focus-visible:outline-none" />
             </label>
-            <button type="submit" disabled={!draft.trim() || busy} className="press h-[34px] rounded-[9px] bg-fg px-3 text-[13px] font-medium text-black disabled:opacity-40">Create</button>
+            <button type="submit" disabled={!draft.trim() || busy} className="press h-[34px] rounded-[9px] bg-fg px-3 text-[13px] font-medium text-bg disabled:opacity-40">Create</button>
           </form>
         )}
       </div>
@@ -42,7 +42,7 @@ export default function FolderList() {
         !loading && (
           <div className="mt-16 grid justify-items-center text-center">
             <p className="max-w-[340px] text-fg2">Sign in to group libraries into folders, keep them on every device and share one with a link.</p>
-            <button type="button" onClick={askSignIn} className="press mt-5 h-10 rounded-xl bg-fg px-4 text-[14px] font-semibold text-black active:scale-95">Sign in with GitHub</button>
+            <button type="button" onClick={askSignIn} className="press mt-5 h-10 rounded-xl bg-fg px-4 text-[14px] font-semibold text-bg active:scale-95">Sign in</button>
           </div>
         )
       ) : folders.length === 0 ? (

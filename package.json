@@ -29,6 +29,7 @@
     "load": "node --experimental-strip-types --no-warnings scripts/load.ts",
     "cpu": "node --experimental-strip-types --no-warnings scripts/cpu.ts",
     "bombadil": "sh scripts/bombadil.sh",
+    "flows": "node --experimental-strip-types --no-warnings scripts/flows.ts",
     "plan": "sh scripts/with-env.sh alchemy plan --stage prod",
     "deploy": "sh scripts/with-env.sh alchemy deploy --stage prod",
     "logs": "sh scripts/with-env.sh alchemy logs --stage prod --tail",

@@ -27,7 +27,8 @@ Open `http://localhost:<port>` in the browser panel (T3 Code: `preview_open` / `
 the agent-browser or playwright skills). Exercise the change, not just the page load:
 
 - hero search, the plan box (switch briefs), ⌘K palette, a `/browse/<id>` page with a live demo
-- desktop and ~390px wide (no horizontal scroll: `document.documentElement.scrollWidth === innerWidth`)
+- ~390px, 1440px and a wide screen, 1920 to 2560px (no horizontal scroll: `document.documentElement.scrollWidth === innerWidth`)
+- `pnpm flows http://localhost:<port>` for the flows (the /browse sheet, Back, the survey, card buttons, ⌘K)
 - reduced motion when you touched animation
 
 Capture before/after screenshots for UI changes and a short recording for motion.

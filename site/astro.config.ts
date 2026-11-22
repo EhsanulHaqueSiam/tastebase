@@ -20,4 +20,7 @@ export default defineConfig({
   // shareCopies: each page's OG card and Markdown copy, written after prerendering (build.ts).
   integrations: [react(), shareCopies()],
   vite: { plugins: [tailwindcss()] },
+  // Off: under pnpm dev its pill covers the phone tab bar, and its overlays (Audit, X-ray) widen the page, so local
+  // screenshots, pnpm flows and pnpm bombadil would judge the toolbar instead of the site.
+  devToolbar: { enabled: false },
 });

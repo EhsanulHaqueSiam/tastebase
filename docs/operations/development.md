@@ -18,6 +18,13 @@ T3 Code worktrees run `scripts/setup-worktree.ts` automatically (`t3.json`): it 
 local KV. Stage `dev_<user>`; the Cloudflare account is only used for Alchemy's state store. Then:
 
 - `pnpm probe http://localhost:1337` checks pages, API and every MCP tool (use the printed port).
+- `pnpm flows http://localhost:1337 [flow ...]` walks the UI flows with a real mouse, keys and wheel at phone,
+  desktop and 2560px sizes, and fails on a broken step or any console error: the /browse sheet (open, close by ×,
+  Esc, backdrop and Back, Forward, "Try these", a job pressed while open, and its place beside the nav rail), filters
+  and scroll surviving Back, detail panels that must not scroll the page, the taste survey, the card buttons signed
+  out, ⌘K and the tab bar. Flow names are the keys in `scripts/flows.ts`. Run it after any change to those.
+- `pnpm bombadil http://localhost:1337 [3m]` explores the site on its own ([performance.md](performance.md)); it
+  works against `pnpm dev` too.
 - `curl "localhost:1337/api/dev/cron?batch=80"` fills local stats (real GitHub/npm calls with your token).
 - Point an agent at your local MCP: `claude mcp add --transport http tastebase-dev http://localhost:1337/mcp`.
 

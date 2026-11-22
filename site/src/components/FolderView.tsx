@@ -66,7 +66,7 @@ export default function FolderView(p: Props) {
 
         {mine && (
           <div className="ml-auto flex flex-wrap items-center gap-1.5 max-sm:ml-0 max-sm:basis-full">
-            <button type="button" onClick={() => (setDraft(name), setRenaming(true))} className="press h-8 rounded-lg bg-s3 px-2.5 text-[12.5px] font-medium text-fg2 hover:bg-fg hover:text-black">Rename</button>
+            <button type="button" onClick={() => (setDraft(name), setRenaming(true))} className="press h-8 rounded-lg bg-s3 px-2.5 text-[12.5px] font-medium text-fg2 hover:bg-fg hover:text-bg">Rename</button>
             <div className="seg" role="group" aria-label="Who can see this folder">
               <button type="button" aria-pressed={!mine.public} onClick={() => updateFolder(p.id, { public: false })}>Private</button>
               <button type="button" aria-pressed={mine.public} onClick={() => updateFolder(p.id, { public: true })}>Anyone with the link</button>

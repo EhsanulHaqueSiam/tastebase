@@ -18,7 +18,9 @@ const parse = (html: string) => {
 };
 const preparse = (e: Entry) => void e.html.then((h) => h && idle(() => (e.doc ??= parse(h))));
 
-const BLANK = "data:image/gif;base64,R0lGODlhAQABAAAAACw=";
+// A valid 1x1 GIF: swapping to it cancels a download without an error (an invalid one fired `error`, which shows a
+// card its "no preview" fallback).
+const BLANK = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
 const keyOf = (u: URL) => u.pathname + u.search;
 const slow = () => {
   const c = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
@@ -61,7 +63,11 @@ export function startPrefetch() {
     clearTimeout(timer); // a click within 80ms of the hover: the navigation fetches it, no prefetch after
     // The page is going away: stop its unfinished screenshots, so the next page's HTML gets the bandwidth (a phone
     // scrolled down a long grid has dozens in flight). Only in <main>, which is swapped; the shell persists.
-    document.querySelectorAll<HTMLImageElement>("main img").forEach((i) => i.complete || (i.src = BLANK));
+    // A navigation that is cancelled or overtaken (a second click, an in-page #link) leaves this page up: put them back.
+    // The attribute as written, not the resolved URL: an island hydrating later compares it with its own.
+    const stopped = [...document.querySelectorAll<HTMLImageElement>("main img")].filter((i) => !i.complete).map((i) => [i, i.getAttribute("src")!] as const);
+    for (const [i] of stopped) i.src = BLANK;
+    e.signal.addEventListener("abort", () => stopped.forEach(([i, src]) => i.isConnected && i.setAttribute("src", src)), { once: true });
     const hit = !e.formData && pages.get(keyOf(e.to));
     if (!hit || Date.now() - hit.at >= FRESH) return;
     const fallback = e.loader;

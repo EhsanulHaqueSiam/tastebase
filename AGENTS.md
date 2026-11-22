@@ -112,8 +112,9 @@ Architecture in one page: [docs/internals/overview.md](docs/internals/overview.m
   to an existing test before writing a new one. Do not test what types guarantee, copy text or static markup.
 - Ranking changes: `pnpm test` fails when a pick moves; `pnpm test:update`, then say in the PR why each line in
   the snapshot's diff moved.
-- UI changes: open the page in the browser (`.agents/skills/test-tastebase`), check desktop and ~390px, and
-  attach before/after screenshots. Motion changes get a short recording.
+- UI changes: open the page in the browser (`.agents/skills/test-tastebase`), check ~390px, 1440px and a wide
+  screen (1920 to 2560px), run `pnpm flows <url>`, and attach before/after screenshots. Motion changes get a short
+  recording.
 - Speed, load and free-plan fit: `pnpm bench`, `pnpm load`, `pnpm cpu` and `pnpm bombadil` against a `preview`
   stage, never prod. Each page and profile holds 9.5+; what each tool checks and the capacity math are in
   [docs/operations/performance.md](docs/operations/performance.md).

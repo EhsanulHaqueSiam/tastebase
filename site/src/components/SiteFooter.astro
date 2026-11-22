@@ -131,6 +131,7 @@ const year = new Date().getFullYear();
     const unit = tp.dataset.unit!;
     tp.textContent = unit;
     const unitWidth = text.getComputedTextLength();
+    if (!unitWidth) return; // not rendered: a page framed by /browse's sheet hides the footer
     const length = path.getTotalLength();
     const reps = Math.max(1, Math.round(length / unitWidth)) + 1; // one extra repeat to slide into
     tp.textContent = unit.repeat(reps);
