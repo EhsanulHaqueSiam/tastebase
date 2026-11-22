@@ -151,6 +151,7 @@ const graph = [
       import { startSound } from "../lib/sound.ts";
       import { toggleNav } from "../lib/rail.ts";
       import { prefetch } from "astro:prefetch";
+      import type { TransitionBeforePreparationEvent } from "astro:transitions/client";
       document.addEventListener("astro:page-load", countView);
       // A view transition is aborted when the viewport resizes mid-navigation (a phone's URL bar hiding): the page still
       // swaps, only the animation is skipped, so the rejection the browser raises is noise, not an error.
@@ -166,13 +167,13 @@ const graph = [
       });
       startSound();
       // Phones have no hover to prefetch on (astro.config's default). Once this page has loaded, fetch the tab bar's pages
-      // so a tab switch swaps at once; a finger landing on any other menu link (the More sheet) fetches that one.
+      // so a tab switch swaps at once.
       const warm = () => matchMedia("(max-width: 1023.98px)").matches && document.querySelectorAll<HTMLAnchorElement>('nav[aria-label="Sections"] a[href^="/"]').forEach((a) => prefetch(a.href));
       addEventListener("load", () => ("requestIdleCallback" in window ? requestIdleCallback(warm) : setTimeout(warm, 200)), { once: true });
-      document.addEventListener("touchstart", (e) => {
-        const a = (e.target as Element).closest?.<HTMLAnchorElement>('nav a[href^="/"], [role="dialog"] a[href^="/"]');
-        if (a) prefetch(a.href, { ignoreSlowConnection: true });
-      }, { passive: true });
+      // A tap fires the mouseenter and focus that hover prefetch listens for, and its prefetch starts 80ms later, when the
+      // navigation is already fetching the page: phones downloaded every tapped page twice at once. The mouseleave that
+      // cancels a pending hover prefetch is sent when a navigation starts, so only the navigation's own fetch runs.
+      document.addEventListener("astro:before-preparation", (e) => (e as TransitionBeforePreparationEvent).sourceElement?.dispatchEvent(new MouseEvent("mouseleave")));
       // The header's "Show sidebar" button, there only while the rail is hidden. The header persists, so one listener.
       document.addEventListener("click", (e) => (e.target as Element).closest?.("[data-toggle-nav]") && toggleNav());
     </script>
