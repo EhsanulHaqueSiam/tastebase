@@ -16,6 +16,7 @@ export default function BackToTop() {
   return (
     <MotionConfig reducedMotion="user">
       <button
+        data-chrome
         type="button"
         aria-label="Back to top"
         tabIndex={on ? 0 : -1}
