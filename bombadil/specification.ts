@@ -7,9 +7,12 @@ export * from "@antithesishq/bombadil/browser/defaults";
 
 const page = extract((s) => {
   const d = s.document;
+  // Our own pages only: exploration can follow a link out (GitHub, a library's site) and their markup is not ours.
+  const ours = /tastebase|localhost/.test(s.window.location.host);
   const named = (e: Element) => !!(e.textContent?.trim() || e.getAttribute("aria-label") || e.getAttribute("aria-labelledby") || e.getAttribute("title"));
   return {
-    overflow: d.documentElement.scrollWidth > s.window.innerWidth + 1,
+    ours,
+    overflow: ours && d.documentElement.scrollWidth > d.documentElement.clientWidth + 1,
     title: d.title,
     h1s: d.querySelectorAll("h1").length,
     // A failed screenshot marked with data-fallback shows its fallback on purpose (ListingCard.tsx); others are broken.
@@ -22,11 +25,11 @@ const page = extract((s) => {
 /** Nothing on any screen makes the page scroll sideways, at desktop or phone width. */
 export const noHorizontalScroll = always(() => !page.current.overflow);
 /** Every page has a title and at most one top-level heading. */
-export const titledWithOneHeading = always(() => page.current.title.length > 0 && page.current.h1s <= 1);
+export const titledWithOneHeading = always(() => !page.current.ours || (page.current.title.length > 0 && page.current.h1s <= 1));
 /** Images either load or show their designed fallback. */
-export const noBrokenImages = always(() => page.current.brokenImages.length === 0);
+export const noBrokenImages = always(() => !page.current.ours || page.current.brokenImages.length === 0);
 /** Every button and link has a name a screen reader can announce. */
-export const controlsHaveNames = always(() => page.current.unnamedButtons === 0);
+export const controlsHaveNames = always(() => !page.current.ours || page.current.unnamedButtons === 0);
 /** A live preview never sits on its loading state: LiveSite.tsx gives up at 12 seconds and shows the screenshot, so
  *  anything past 13 means that fallback broke. How fast it loads is pnpm bench's job. */
 export const previewFinishesLoading = always(now(() => page.current.previewLoading).implies(eventually(() => !page.current.previewLoading).within(13, "seconds")));

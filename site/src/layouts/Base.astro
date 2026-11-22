@@ -153,6 +153,10 @@ const graph = [
       document.addEventListener("astro:page-load", countView);
       // A view transition is aborted when the viewport resizes mid-navigation (a phone's URL bar hiding): the page still
       // swaps, only the animation is skipped, so the rejection the browser raises is noise, not an error.
+      // React #424: a navigation removed an island while it was still hydrating (Astro unmounts it; React reports the
+      // early update and falls back to client rendering a root that is going away). Only reachable with clicks tens of
+      // milliseconds apart; nothing on screen breaks, so it is not reported as an error.
+      addEventListener("error", (e) => /Minified React error #424\b/.test(e.message) && e.preventDefault());
       addEventListener("unhandledrejection", (e) => {
         if (e.reason instanceof DOMException && e.reason.name === "InvalidStateError" && /transition was aborted/i.test(e.reason.message)) e.preventDefault();
       });
