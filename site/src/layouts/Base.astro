@@ -171,6 +171,11 @@ const graph = [
       });
       startSound();
       startPrefetch();
+      // Screenshots marked data-late (ListingCard's `late`) wait for the page's load, so on a slow phone they do not
+      // share bandwidth with the page's largest paint; after a client navigation the page is already loaded.
+      const late = () => document.querySelectorAll<HTMLImageElement>("img[data-late]").forEach((i) => ((i.src = i.dataset.late!), i.removeAttribute("data-late")));
+      addEventListener("load", late, { once: true });
+      document.addEventListener("astro:page-load", () => document.readyState === "complete" && late());
       // Phones have no hover to prefetch on: once the first page has loaded, and after each navigation, warm the tab
       // bar's pages so a tab switch swaps at once.
       const idle = (fn: () => void) => ("requestIdleCallback" in window ? requestIdleCallback(fn) : setTimeout(fn, 200));
