@@ -1,7 +1,8 @@
 // A detail page's right panel: the real site in a browser window, laid out at the panel's width but never under 1024px
 // (then scaled down to fit), so it reads as the desktop site at a legible size and stays fully usable (scroll, click,
-// browse). Sites that refuse framing (checked by `pnpm capture`, site/src/lib/unframeable.json) or that never finish
-// loading show their screenshot and a way out.
+// browse). Sites that refuse framing (checked by `pnpm capture`, site/src/lib/unframeable.json) show a full-page
+// screenshot the panel scrolls through (`pnpm capture --full`); sites without one, or that never finish loading, show
+// their card screenshot centred over a blurred copy of itself. Either way with a way out.
 // A library with a hand-made demo (Demos.tsx) gets a second tab for it.
 import { ArrowUpRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -12,9 +13,10 @@ const DESKTOP = 1024; // narrowest layout most sites still treat as desktop; wid
 const BLEED = 24; // extra width pushes the framed page's scrollbar past the clipped edge
 const GIVE_UP_MS = 12_000;
 
-type Props = { id: string; name: string; url: string; image: string; frameable: boolean };
+/** fullHeight: height of /shots/full/<id>.webp at 1200px wide, when it was captured. */
+type Props = { id: string; name: string; url: string; image: string; frameable: boolean; fullHeight?: number };
 
-export default function LiveSite({ id, name, url, image, frameable }: Props) {
+export default function LiveSite({ id, name, url, image, frameable, fullHeight }: Props) {
   const Demo = demos[id];
   const [tab, setTab] = useState<"site" | "demo">("site");
   const host = url.replace(/^https?:\/\//, "");
@@ -43,7 +45,7 @@ export default function LiveSite({ id, name, url, image, frameable }: Props) {
         ) : frameable ? (
           <Frame url={url} name={name} image={image} />
         ) : (
-          <Fallback url={url} name={name} image={image} reason="This site doesn't allow being shown inside another page." />
+          <Fallback url={url} name={name} image={image} full={fullHeight ? { src: `/shots/full/${id}.webp`, height: fullHeight } : undefined} reason="This site doesn't allow being shown inside another page." />
         )}
       </div>
     </div>
@@ -84,16 +86,23 @@ function Frame({ url, name, image }: { url: string; name: string; image: string 
   );
 }
 
-function Fallback({ url, name, image, reason }: { url: string; name: string; image: string; reason: string }) {
+function Fallback({ url, name, image, full, reason }: { url: string; name: string; image: string; full?: { src: string; height: number }; reason: string }) {
   return (
-    <div className="absolute inset-0 overflow-y-auto bg-s1">
+    <div className="absolute inset-0 flex flex-col overflow-y-auto bg-s1">
       <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-3 border-b border-line bg-s2/90 px-4 py-2.5 backdrop-blur-md">
         <p className="text-[13px] text-fg2">{reason} Here is how it looks.</p>
         <a href={withUtm(url, "detail-preview")} target="_blank" rel="noopener" className="press inline-flex h-8 items-center gap-1.5 rounded-lg bg-fg px-3 text-[13px] font-medium text-bg">
           Open in a new tab <ArrowUpRight size={14} aria-hidden />
         </a>
       </div>
-      <img src={image} alt={`${name} website`} className="w-full" />
+      {full ? (
+        <img src={full.src} alt={`${name} website`} width={1200} height={full.height} loading="lazy" decoding="async" className="h-auto w-full" />
+      ) : (
+        <div className="relative grid flex-1 place-items-center overflow-hidden p-6">
+          <img src={image} alt="" aria-hidden className="absolute inset-0 size-full scale-110 object-cover blur-2xl brightness-[0.3]" />
+          <img src={image} alt={`${name} website`} width={1200} height={750} decoding="async" className="relative h-auto w-full rounded-lg shadow-[0_0_0_1px_var(--color-line2),0_30px_80px_-30px_rgb(0_0_0/0.9)]" />
+        </div>
+      )}
     </div>
   );
 }
