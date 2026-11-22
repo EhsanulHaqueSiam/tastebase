@@ -21,7 +21,9 @@ ${CATALOG}
 type Answer = { look?: unknown; parts?: unknown; style?: unknown };
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, url }) => {
+  // Same-origin only: each match spends the free plan's shared daily Workers AI allowance (10,000 neurons).
+  if (request.headers.get("origin") !== url.origin) return json({ error: "Matching runs from tastebase's own /match page." }, 403);
   const body = (await request.json().catch(() => null)) as { image?: unknown } | null;
   const image = body?.image;
   if (typeof image !== "string" || !/^data:image\/(png|jpeg|webp);base64,/.test(image)) return json({ error: "Send {image} as a PNG, JPEG or WebP data URL." }, 400);
@@ -41,6 +43,9 @@ export const POST: APIRoute = async ({ request }) => {
     if (!look) return json({ error: "Could not place that screenshot in a look. Try a larger or clearer one." }, 422);
     return json({ description: style, parts, plan: planJson(await getLibraries(), `${look} ${parts.join(", ")}`, look) });
   } catch (e) {
-    return json({ error: `Could not read the screenshot: ${(e as Error).message}` }, 502);
+    const message = (e as Error).message;
+    // The free daily allowance is spent until 00:00 UTC; say so instead of a raw upstream error.
+    if (/neuron|quota|limit|429|capacity/i.test(message)) return json({ error: "Screenshot matching has reached today's free limit. It resets at 00:00 UTC; describe the look in the search box meanwhile." }, 429);
+    return json({ error: `Could not read the screenshot: ${message}` }, 502);
   }
 };

@@ -128,7 +128,8 @@ async function click(tab: Tab, selector: string, index = 0, touch = false) {
     document.querySelectorAll("[data-bench-target]").forEach((e) => e.removeAttribute("data-bench-target"));
     el.setAttribute("data-bench-target", "");
     el.scrollIntoView({ block: "center", inline: "center", behavior: "instant" });
-    return { x: 0, y: 0, label: (el.getAttribute('aria-label') || el.textContent || el.tagName).trim().replace(/\\s+/g, ' ').slice(0, 32) };
+    const pressed = el.getAttribute("aria-pressed") === "true" || el.hasAttribute("aria-current") ? "(pressed) " : "";
+    return { x: 0, y: 0, label: pressed + (el.getAttribute('aria-label') || el.textContent || el.tagName).trim().replace(/\\s+/g, ' ').slice(0, 32) };
   })()`);
   if (!box) return null;
   // A visitor sees a control before clicking it: a second after it scrolls in, not the instant it appears.
@@ -170,6 +171,8 @@ async function slowestSince(tab: Tab, from: number) {
   }));
 }
 const eventCount = (tab: Tab) => evaluate<number>(tab, "window.__bench.events.length");
+// DOM changes since load, counted in the page: a click that leaves this number (and the URL) unchanged did nothing.
+const MUTATIONS = "(window.__muts ??= (new MutationObserver((l) => (window.__mutCount = (window.__mutCount ?? 0) + l.length)).observe(document.body, { subtree: true, childList: true, attributes: true, characterData: true }), true)) && (window.__mutCount ?? 0) + location.href.length * 0 + (location.hash.length + location.search.length) * 1e6";
 
 async function measure(openTab: () => Promise<Tab>, page: (typeof pages)[number], profile: "desktop" | "mobile"): Promise<Result> {
   const tab = await openTab();
@@ -201,7 +204,9 @@ async function measure(openTab: () => Promise<Tab>, page: (typeof pages)[number]
     if (mobile) {
       await tab.send("Emulation.setTouchEmulationEnabled", { enabled: true });
       await tab.send("Emulation.setCPUThrottlingRate", { rate: 4 });
-      await tab.send("Network.emulateNetworkConditions", { offline: false, latency: 150, downloadThroughput: (1.6 * 1024 * 1024) / 8, uploadThroughput: (750 * 1024) / 8 });
+      // Chrome's "Slow 4G", which is Lighthouse's simulated mobile network applied per request: 150ms RTT x 3.75 because
+      // request-level latency skips connection setup and slow start. Lighthouse's phone curves assume this network.
+      await tab.send("Network.emulateNetworkConditions", { offline: false, latency: 562.5, downloadThroughput: (1474.56 * 1024) / 8, uploadThroughput: (675 * 1024) / 8 });
     }
     await tab.send("Page.navigate", { url: base + page.path });
     await networkIdle(() => inflight);
@@ -234,8 +239,14 @@ async function measure(openTab: () => Promise<Tab>, page: (typeof pages)[number]
     const controls = await evaluate<number>(tab, `document.querySelectorAll('nav.tabs a, .seg button, .rfilter button, [role=tab], [data-set-view], [data-set-free], main button[aria-pressed]').length`);
     for (let i = 0; i < Math.min(controls, 8); i++) {
       const before = await eventCount(tab);
+      const mark = await evaluate<number>(tab, MUTATIONS);
       const label = await tap("nav.tabs a, .seg button, .rfilter button, [role=tab], [data-set-view], [data-set-free], main button[aria-pressed]", i);
-      if (label) interactions.push({ name: `click "${label}"`, inp: await slowestSince(tab, before), note: covered(label) });
+      if (label) {
+        const inp = await slowestSince(tab, before);
+        // Already-pressed controls (the default tab or sort) are allowed to do nothing; anything else must change the page.
+        const idle = !label.startsWith("(pressed)") && (await evaluate<number>(tab, MUTATIONS)) === mark;
+        interactions.push({ name: `click "${label}"`, inp, note: covered(label) ?? (idle ? "the click changed nothing" : undefined) });
+      }
     }
     if (await evaluate<boolean>(tab, `!!document.querySelector('main input[type=search], main input[type=text], main textarea')`)) {
       const before = await eventCount(tab);
@@ -305,6 +316,11 @@ await withChrome(async (openTab) => {
       const mid = [...tries].sort((a, b) => a.loadScore - b.loadScore)[Math.floor(tries.length / 2)]!;
       mid.interactionScore = [...tries].sort((a, b) => a.interactionScore - b.interactionScore)[Math.floor(tries.length / 2)]!.interactionScore;
       mid.consoleErrors = [...new Set(tries.flatMap((t) => t.consoleErrors))];
+      // A failure in any run counts: notes and a never-loaded preview are merged, not taken from the median run only.
+      mid.interactions = [...mid.interactions, ...tries.filter((t) => t !== mid).flatMap((t) => t.interactions.filter((i) => i.note))];
+      if (tries.some((t) => t.live === "never loaded")) mid.live = "never loaded";
+      if (mid.interactions.some((i) => i.note)) mid.interactionScore = Math.min(mid.interactionScore, ...tries.map((t) => t.interactionScore));
+      mid.uncached = [...new Set(tries.flatMap((t) => t.uncached))];
       mid.failed = [...new Set(tries.flatMap((t) => t.failed))];
       mid.overflow = tries.some((t) => t.overflow);
       results.push(mid);
@@ -316,7 +332,7 @@ await withChrome(async (openTab) => {
 mkdirSync("bench-results", { recursive: true });
 const file = `bench-results/${new Date().toISOString().replace(/[:.]/g, "-")}.json`;
 writeFileSync(file, JSON.stringify({ base, runs, results }, null, 1));
-const low = results.filter((r) => r.loadScore < min || r.interactionScore < min || r.overflow || r.consoleErrors.length || r.failed.length || r.live === "never loaded");
+const low = results.filter((r) => r.loadScore < min || r.interactionScore < min || r.overflow || r.consoleErrors.length || r.failed.length || r.uncached.length || r.live === "never loaded");
 const avg = (k: "loadScore" | "interactionScore", p: string) => round(results.filter((r) => r.profile === p).reduce((s, r) => s + r[k], 0) / Math.max(1, results.filter((r) => r.profile === p).length), 2);
 console.log(`\nmean load: desktop ${avg("loadScore", "desktop")}, mobile ${avg("loadScore", "mobile")} · mean interaction: desktop ${avg("interactionScore", "desktop")}, mobile ${avg("interactionScore", "mobile")}`);
 console.log(low.length ? `${low.length} page/profile results below ${min} or with problems. Details: ${file}` : `every page scores ${min}+ with no problems. Details: ${file}`);

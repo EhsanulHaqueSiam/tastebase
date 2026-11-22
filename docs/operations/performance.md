@@ -27,15 +27,20 @@ scores 0.9) on desktop too; navigation between our own pages keeps each profile'
 ## Free plan capacity
 
 Prerendered pages, bundles, fonts, screenshots and marks are static assets: free, unlimited, and served without the
-Worker. A visit runs the Worker about three times: one `POST /api/hit` carrying all its page views, sent when the tab
-is hidden or closed (`site/src/lib/views.ts`), and `/api/stats` and `/api/views` once (then the browser keeps them
-for 10 minutes). With 100,000 Worker requests a day shared with the API and MCP, that is about 30,000 visits a day
-before agents' calls, whatever the pages per visit. Past the quota the API and MCP fail until midnight UTC; every
-page still loads.
+Worker. A visit that only browses runs the Worker about three times: one `POST /api/hit` carrying all its page views,
+sent when the tab is hidden or closed (`site/src/lib/views.ts`), and `/api/stats` and `/api/views` once (then the
+browser keeps them for 10 minutes). Each search on the home page (one request per pause in typing), plan demo
+brief, first palette open (`/api/libs`), shared folder (`/f/<id>`, rendered per request) and screenshot match adds
+one. With 100,000 Worker requests a day shared with the MCP, that is about 30,000 browsing visits a day, fewer when
+people search. Past the quota the API and MCP fail until midnight UTC; every prerendered page still loads.
 
 The other limits sit further out. KV: each isolate keeps the stats and view totals for a minute
 (`site/src/lib/server.ts`), so reads scale with isolates, not requests. Analytics Engine: one write per visit, plus
-one per library each MCP `plan` or `pick` offers (5 to 12 a call). D1: reads only when someone is signed in.
+one per library each MCP `plan` or `pick` offers (5 to 12 a call), so heavy agent traffic reaches its daily write
+allowance before the Worker quota; check the account's Analytics Engine usage if MCP calls grow. D1: signed-in
+requests, plus two reads for every visit to a shared folder `/f/<id>`, signed in or not. Workers AI: each screenshot
+match (`/api/match`, same-origin only) spends part of the free daily neuron allowance; once it is spent, matching
+answers "today's free limit" until 00:00 UTC.
 
 Caching that keeps it there: hashed `/_astro/*` bundles and `/_fonts/*` are `immutable`; screenshots, marks and
 sponsor logos get a day fresh and a week stale-while-revalidate (`site/public/_headers`); HTML is `max-age=0` with

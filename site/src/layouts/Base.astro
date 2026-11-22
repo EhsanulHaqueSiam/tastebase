@@ -156,7 +156,10 @@ const graph = [
       // React #424: a navigation removed an island while it was still hydrating (Astro unmounts it; React reports the
       // early update and falls back to client rendering a root that is going away). Only reachable with clicks tens of
       // milliseconds apart; nothing on screen breaks, so it is not reported as an error.
-      addEventListener("error", (e) => /Minified React error #424\b/.test(e.message) && e.preventDefault());
+      // Only while a navigation swaps the page (and a second after), so a #424 at any other time still shows.
+      let swapping = 0;
+      document.addEventListener("astro:before-swap", () => (swapping = Date.now()));
+      addEventListener("error", (e) => Date.now() - swapping < 1000 && /Minified React error #424\b/.test(e.message) && e.preventDefault());
       addEventListener("unhandledrejection", (e) => {
         if (e.reason instanceof DOMException && e.reason.name === "InvalidStateError" && /transition was aborted/i.test(e.reason.message)) e.preventDefault();
       });
