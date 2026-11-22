@@ -3,6 +3,7 @@ import { ChevronDown, Heart, LayoutGrid, List, Search } from "lucide-react";
 import { memo, useEffect, useRef, useState, type ReactNode } from "react";
 import { frameworks, kinds, type Framework, type Kind } from "../../../src/registry/schema.ts";
 import { kindMeta } from "../lib/kinds.ts";
+import { useLoaded } from "../lib/loaded.ts";
 import { useSaved } from "../lib/saved.ts";
 import type { ShelfLib } from "../lib/server.ts";
 import { useStats } from "../lib/stats.ts";
@@ -28,9 +29,10 @@ export default function Directory({ libs }: { libs: ShelfLib[] }) {
   const [sort, setSort] = useState<Sort>("picks");
   const [view, setView] = useState<"grid" | "list">("grid");
   // Cards mount PAGE at a time as the end comes near: all ~200 at once cost ~300ms of hydration on a slow phone.
-  // The server renders the first row; the rest mount after hydration, so their lazy screenshots do not compete with
-  // the first card's (the page's largest paint) on a slow phone.
+  // The server renders six; the rest mount after hydration. Screenshots after the first card wait for the page to load,
+  // so they do not share a slow phone's bandwidth with the first card's (the page's largest paint).
   const [limit, setLimit] = useState(6);
+  const loaded = useLoaded();
   useEffect(() => setLimit((n) => Math.max(n, PAGE)), []);
   const more = useRef<HTMLDivElement>(null);
 
@@ -132,7 +134,7 @@ export default function Directory({ libs }: { libs: ShelfLib[] }) {
 
         {view === "grid" ? (
           <div className="mt-2.5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            {visible.map((l, i) => <div key={l.id}><LibCard lib={l} badge={statBadge(sort, stats?.[l.id])} eager={i < 3} /></div>)}
+            {visible.map((l, i) => <div key={l.id}><LibCard lib={l} badge={statBadge(sort, stats?.[l.id])} eager={i === 0} late={!loaded && i > 0} /></div>)}
           </div>
         ) : (
           <ul className="mt-2.5 overflow-hidden rounded-2xl shadow-[inset_0_0_0_1px_var(--color-line)]">

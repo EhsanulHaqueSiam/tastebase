@@ -5,7 +5,7 @@ import { resourceKinds, resources } from "../../../src/registry/resources.ts";
 import type { Kind, Library } from "../../../src/registry/schema.ts";
 import Lazy from "../components/Lazy.astro";
 import Base from "../layouts/Base.astro";
-import { kindMeta, shot } from "../lib/kinds.ts";
+import { kindMeta, shot, thumb } from "../lib/kinds.ts";
 import { aesthetics, libraries } from "../lib/server.ts";
 
 export const prerender = true;
@@ -67,7 +67,7 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
                   </header>
                   <ul>
                     {i.libs.map((l) => (
-                      <li class:list={["chip", paywalled(l) && "t-paid"]} data-shot={shot(l.id)}>
+                      <li class:list={["chip", paywalled(l) && "t-paid"]} data-shot={thumb(shot(l.id))}>
                         <a href={`/browse/${l.id}`}>
                           <img src={`/marks/${l.id}.png`} alt="" width="16" height="16" loading="lazy" />
                           <span>{l.name}</span>
@@ -93,7 +93,7 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
                   {g.libs.map((l, li) => (
                     <li class:list={["tile", paywalled(l) && "t-paid"]}>
                       <a href={`/browse/${l.id}`} class="press">
-                        <img class="shot" src={shot(l.id)} alt={`${l.name} site`} loading={gi === 0 && li < 4 ? "eager" : "lazy"} decoding="async" width="1200" height="750" />
+                        <img class="shot" src={thumb(shot(l.id))} alt={`${l.name} site`} loading={gi === 0 && li < 4 ? "eager" : "lazy"} decoding="async" width="1200" height="750" />
                         <span><img src={`/marks/${l.id}.png`} alt="" width="16" height="16" loading="lazy" />{l.name}{paywalled(l) && <sup>paid</sup>}</span>
                       </a>
                     </li>

@@ -38,7 +38,7 @@ const host = (url: string) => new URL(url).hostname.replace(/^www\./, "");
   <section class="mt-12" aria-labelledby="picks">
     <h2 id="picks" class="text-[22px] font-semibold tracking-[-0.02em]">{a.kind === "best" ? `${a.libs.length} picks` : `${a.libs.length} ${a.title}`}</h2>
     <ol class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
-      {a.libs.map((l, i) => <li class="flex"><div class="w-full"><ListingCard item={libraryListing(l)} eager={i < 2} pills={pillsFor(l, a.path)} /></div></li>)}
+      {a.libs.map((l, i) => <li class="flex"><div class="w-full"><ListingCard item={libraryListing(l)} eager={i === 0} pills={pillsFor(l, a.path)} /></div></li>)}
     </ol>
   </section>
 

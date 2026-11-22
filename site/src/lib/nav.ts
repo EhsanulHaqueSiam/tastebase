@@ -1,5 +1,6 @@
 // Client-safe: every section of the site, in rail order. The desktop rail (Rail.tsx) shows them all; the phone tab bar
 // (TabBar.tsx) shows the `tab` ones and puts the rest in its More sheet, so every section is reachable everywhere.
+import type { TransitionBeforePreparationEvent } from "astro:transitions/client";
 import { useEffect, useRef, useState, type ForwardRefExoticComponent, type RefAttributes } from "react";
 import { BlocksIcon } from "../components/icons/blocks.tsx";
 import { BookTextIcon } from "../components/icons/book-text.tsx";
@@ -43,14 +44,17 @@ export const sections: Section[] = [
 export const isCurrent = ({ href, also = [] }: Pick<Section, "href" | "also">, path: string) =>
   href === "/" ? path === "/" : !href.includes("#") && [href, ...also].some((p) => path === p || path.startsWith(`${p}/`));
 
-/** The current path for navigation that persists across client navigations (Rail, TabBar). */
+/** The current path for navigation that persists across client navigations (Rail, TabBar). It moves when a navigation
+ * starts, so the tapped tab lights up at once instead of after the next page arrives; page-load settles it. */
 export function usePath(initial = "") {
   const [path, setPath] = useState(initial);
   useEffect(() => {
     const sync = () => setPath(location.pathname);
+    const start = (e: Event) => setPath((e as TransitionBeforePreparationEvent).to.pathname);
     sync();
+    document.addEventListener("astro:before-preparation", start);
     document.addEventListener("astro:page-load", sync);
-    return () => document.removeEventListener("astro:page-load", sync);
+    return () => (document.removeEventListener("astro:before-preparation", start), document.removeEventListener("astro:page-load", sync));
   }, []);
   return path;
 }

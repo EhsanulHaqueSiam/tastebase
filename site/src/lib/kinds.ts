@@ -26,3 +26,5 @@ export const kindMeta: Record<Kind, { label: string; short: string; icon: Lucide
 };
 
 export const shot = (id: string) => `/shots/${id}.webp`;
+/** The card-sized copy of a screenshot (build.ts writes them); other images pass through. */
+export const thumb = (src: string) => src.replace(/^\/shots\//, "/shots/720/");

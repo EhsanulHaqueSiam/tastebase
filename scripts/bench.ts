@@ -264,7 +264,7 @@ async function measure(openTab: () => Promise<Tab>, page: (typeof pages)[number]
       await sleep(600); // let the palette finish closing before clicking the page under it
     }
     {
-      const shell = mobile ? '[data-shell="header"] button, nav[aria-label="Sections"]:not([data-shell]) button' : '[data-shell="header"] button, nav[data-shell="rail"] button';
+      const shell = mobile ? '[data-shell="header"] button, nav[data-shell="tabbar"] button' : '[data-shell="header"] button, nav[data-shell="rail"] button';
       const n = page.bare ? 0 : await evaluate<number>(tab, `[...document.querySelectorAll(${JSON.stringify(shell)})].filter((e) => e.getBoundingClientRect().width > 0).length`);
       for (let i = 0; i < Math.min(n, 6); i++) {
         const before = await eventCount(tab);

@@ -3,6 +3,7 @@
 // own: name with its price pills, the description, Visit and Share, "Try these", then whatever the page adds (a
 // library's notes). Right, desktop only: the live site (LiveSite.tsx). Phones get the screenshot instead of a frame.
 import type { Listing } from "../lib/categories.ts";
+import { thumb } from "../lib/kinds.ts";
 import { withUtm } from "../lib/utm.ts";
 import { DetailActions, DetailPill } from "./DetailActions.tsx";
 import TryThese from "./TryThese.tsx";
@@ -38,7 +39,7 @@ const frameable = !unframeable.includes(item.id);
         <span class="ml-1 truncate font-mono text-[10px] text-fg3">{item.url}</span>
       </span>
       {/* The phone layout's largest paint: fetched first, ahead of the islands' scripts. */}
-      <img src={item.image} alt={`${item.name} website`} width="1200" height="750" fetchpriority="high" class="aspect-[16/10] w-full object-cover object-top" />
+      <img src={thumb(item.image)} alt={`${item.name} website`} width="1200" height="750" fetchpriority="high" class="aspect-[16/10] w-full object-cover object-top" />
     </a>
 
     {

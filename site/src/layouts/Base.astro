@@ -150,6 +150,7 @@ const graph = [
       import { countView } from "../lib/views.ts";
       import { startSound } from "../lib/sound.ts";
       import { toggleNav } from "../lib/rail.ts";
+      import { startPrefetch, warm } from "../lib/prefetch.ts";
       document.addEventListener("astro:page-load", countView);
       // A view transition is aborted when the viewport resizes mid-navigation (a phone's URL bar hiding): the page still
       // swaps, only the animation is skipped, so the rejection the browser raises is noise, not an error.
@@ -164,6 +165,12 @@ const graph = [
         if (e.reason instanceof DOMException && e.reason.name === "InvalidStateError" && /transition was aborted/i.test(e.reason.message)) e.preventDefault();
       });
       startSound();
+      startPrefetch();
+      // Phones have no hover to prefetch on: once the first page has loaded, and after each navigation, warm the tab
+      // bar's pages so a tab switch swaps at once.
+      const idle = (fn: () => void) => ("requestIdleCallback" in window ? requestIdleCallback(fn) : setTimeout(fn, 200));
+      const tabs = () => matchMedia("(max-width: 1023.98px)").matches && document.querySelectorAll<HTMLAnchorElement>('nav[data-shell="tabbar"] a[href^="/"]').forEach((a) => warm(a.href));
+      addEventListener("load", () => (idle(tabs), document.addEventListener("astro:page-load", () => idle(tabs))), { once: true });
       // The header's "Show sidebar" button, there only while the rail is hidden. The header persists, so one listener.
       document.addEventListener("click", (e) => (e.target as Element).closest?.("[data-toggle-nav]") && toggleNav());
     </script>
