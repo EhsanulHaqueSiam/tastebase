@@ -136,6 +136,7 @@ const graph = [
          inset frame. Phones: the top bar and a bottom tab bar (TabBar.tsx). All three persist across navigations. -->
     {/* persist-props: navigations do not re-render persisted islands, so one clicked before it hydrated is not updated
         early (React #424). Rail follows the path itself (usePath); its prop is only the first value. */}
+    <a href="#main" data-skip class="sr-only rounded-lg bg-fg px-3 py-2 text-[13px] font-semibold text-bg focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[60]">Skip to content</a>
     <Rail client:load path={path} transition:persist="rail" transition:persist-props />
 
     <header data-shell="header" class="fixed inset-x-0 top-0 z-40 flex h-14 items-center gap-4 px-5 lg:left-14 lg:pl-2.5" transition:persist="header">
@@ -166,7 +167,7 @@ const graph = [
          and need no layout of their own. Painted once; scrolling never repaints it. -->
     <div aria-hidden="true" data-shell="frame" class="pointer-events-none fixed top-14 right-2 bottom-2 left-16 z-30 hidden rounded-2xl shadow-[0_0_0_100vmax_var(--color-bg),inset_0_0_0_1px_var(--color-line2)] lg:block"></div>
 
-    <main transition:animate={pageSwap} data-shell="main" class="lg:pr-2 lg:pl-16">
+    <main id="main" tabindex="-1" transition:animate={pageSwap} data-shell="main" class="outline-none lg:pr-2 lg:pl-16">
       <slot />
       <SiteFooter />
     </main>
@@ -208,6 +209,8 @@ const graph = [
       document.addEventListener("astro:hydration-error", (e) => reloadStale((e as CustomEvent<{ error: unknown }>).detail.error) && e.preventDefault());
       addEventListener("unhandledrejection", (e) => reloadStale(e.reason) && e.preventDefault());
       addEventListener("error", (e) => reloadStale(e.error) && e.preventDefault());
+      // The skip link: the router would take #main for a navigation and leave focus where it was.
+      document.addEventListener("click", (e) => (e.target as Element).closest?.("[data-skip]") && (e.preventDefault(), document.getElementById("main")?.focus()), true);
       startSound();
       startPrefetch();
       // Screenshots marked data-late (ListingCard's `late`) wait for the page's load, so on a slow phone they do not

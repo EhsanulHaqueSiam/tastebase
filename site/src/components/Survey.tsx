@@ -207,7 +207,7 @@ function Result({ looks, libs, onAgain, onKey, onSignIn }: { looks: SurveyLook[]
       )}
       <p className="mt-3 px-2 text-center text-[13px] text-fg2">
         {user ? "Then make an agent key, and your agent picks with your taste. " : "Hearts stay in this browser. Sign in to keep them and give your agent your taste. "}
-        <button type="button" onClick={user ? onKey : onSignIn} className="font-semibold text-fg underline-offset-2 hover:underline">{user ? "Agent key" : "Sign in"}</button>
+        <button type="button" onClick={user ? onKey : onSignIn} className="font-semibold text-fg underline decoration-fg3 underline-offset-4 hover:decoration-fg">{user ? "Agent key" : "Sign in"}</button>
       </p>
       <button type="button" onClick={onAgain} className="press mt-2 h-10 w-full rounded-2xl text-[14px] font-semibold text-fg2 hover:text-fg">Start over</button>
     </div>

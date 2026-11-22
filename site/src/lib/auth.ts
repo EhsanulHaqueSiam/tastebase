@@ -26,6 +26,8 @@ const make = () =>
     baseURL: { allowedHosts: ["*.workers.dev", "localhost:*", "127.0.0.1:*"] },
     secret: env.BETTER_AUTH_SECRET,
     socialProviders: socialProviders(),
+    // Under `pnpm dev` only (false in every build): `pnpm flows` signs up a throwaway user, since OAuth needs a person.
+    emailAndPassword: { enabled: import.meta.env.DEV },
     telemetry: { enabled: false },
   });
 

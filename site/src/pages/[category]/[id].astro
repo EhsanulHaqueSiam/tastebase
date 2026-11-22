@@ -17,7 +17,7 @@ const label = categories.find((c) => c.slug === category)!.label;
 <Base title={`${r.name} · tastebase`} description={r.goodFor} shot={item.image} crumbs={[[label, `/${category}`], [r.name, item.href]]}>
   <Detail item={item} related={relatedTo(item)}>
     <div slot="meta" class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-[13.5px] text-fg3">
-      <p>{r.cost}{r.mcp && <> · <a href={r.mcp.url} target="_blank" rel="noopener" class="text-fg2 underline-offset-4 hover:text-fg hover:underline">{r.mcp.name}</a>{r.mcp.needsPaidPlan ? " (paid plan)" : " (free)"}</>}</p>
+      <p>{r.cost}{r.mcp && <> · <a href={r.mcp.url} target="_blank" rel="noopener" class="text-fg2 underline decoration-fg3 underline-offset-4 hover:decoration-fg hover:text-fg">{r.mcp.name}</a>{r.mcp.needsPaidPlan ? " (paid plan)" : " (free)"}</>}</p>
       <PickToggle client:idle id={r.id} />
     </div>
   </Detail>

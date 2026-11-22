@@ -81,7 +81,8 @@ export default function HomeFeatures({ categories, libraries, articles, sample }
 /** Words that rise out of a blur one after another, once, when the line scrolls into view. */
 function Words({ text, className = "", delay = 0 }: { text: string; className?: string; delay?: number }) {
   return (
-    <motion.span className={`block ${className}`} initial="hidden" whileInView="shown" viewport={{ once: true, amount: 0.6 }} transition={{ delayChildren: delay, staggerChildren: 0.05 }} aria-label={text}>
+    <motion.span className={`block ${className}`} initial="hidden" whileInView="shown" viewport={{ once: true, amount: 0.6 }} transition={{ delayChildren: delay, staggerChildren: 0.05 }}>
+      <span className="sr-only">{text}</span>
       {text.split(" ").map((w, i) => (
         <span key={i} className="inline-block overflow-hidden align-bottom" aria-hidden>
           <motion.span className="inline-block" variants={{ hidden: { opacity: 0, y: 20, filter: "blur(6px)" }, shown: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.72, ease: [0.22, 1, 0.36, 1] } } }}>

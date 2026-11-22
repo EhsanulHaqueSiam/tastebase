@@ -6,7 +6,7 @@ import { navigate } from "astro:transitions/client";
 import { Command } from "cmdk";
 import { ArrowRight, ArrowUpRight, Search } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { Toaster } from "sonner";
 import { Drawer } from "vaul";
 import { resourceKinds, type ResourceKind } from "../../../src/registry/resources.ts";
@@ -36,6 +36,21 @@ export default function Palette() {
   const [lists, setLists] = useState<Lists>();
   const [q, setQ] = useState("");
   useEffect(() => void (open || setQ("")), [open]);
+
+  // What had focus before the palette (its input takes focus as it mounts): closing without a navigation returns there.
+  const opener = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const onFocus = (e: FocusEvent) => !(e.target as Element).closest?.("[cmdk-root]") && (opener.current = e.target as HTMLElement);
+    document.addEventListener("focusin", onFocus);
+    return () => document.removeEventListener("focusin", onFocus);
+  }, []);
+  useEffect(() => {
+    if (!open) return;
+    return () => {
+      const at = document.activeElement;
+      if ((at === document.body || at?.closest("[cmdk-root]")) && opener.current?.isConnected) opener.current.focus({ preventScroll: true });
+    };
+  }, [open]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -131,7 +146,7 @@ export default function Palette() {
       <AnimatePresence>
         {open && !phone && (
           <motion.div className="fixed inset-0 z-50 grid place-items-start justify-center bg-black/60 px-4 pt-[16vh] backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} onClick={() => setOpen(false)}>
-            <motion.div initial={{ opacity: 0, scale: 0.97, y: -8 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ type: "spring", duration: 0.3, bounce: 0.1 }} onClick={(e) => e.stopPropagation()} className="w-full max-w-[560px]">
+            <motion.div role="dialog" aria-modal="true" aria-label="Search" onKeyDown={(e) => e.key === "Tab" && e.preventDefault()} initial={{ opacity: 0, scale: 0.97, y: -8 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ type: "spring", duration: 0.3, bounce: 0.1 }} onClick={(e) => e.stopPropagation()} className="w-full max-w-[560px]">
               {panel}
             </motion.div>
           </motion.div>

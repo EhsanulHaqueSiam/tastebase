@@ -21,7 +21,7 @@ export default function CodeTabs({ usage, prompt, install }: { usage: string; pr
         <CopyButton value={body} quiet />
       </div>
       <AnimatePresence mode="wait">
-        <motion.pre key={tab} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }} className="h-[218px] overflow-auto p-4 font-mono text-[12.5px] leading-relaxed whitespace-pre-wrap text-fg/85">
+        <motion.pre tabIndex={0} key={tab} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }} className="h-[218px] overflow-auto p-4 font-mono text-[12.5px] leading-relaxed whitespace-pre-wrap text-fg/85">
           {body}
         </motion.pre>
       </AnimatePresence>

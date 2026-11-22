@@ -62,7 +62,7 @@ const item = libraryListing(lib);
         lib.paid && (
           <p class="mt-2.5 flex gap-2.5 rounded-xl bg-s1 p-3 text-[13px] text-fg2 shadow-[inset_0_0_0_1px_var(--color-line)]">
             <CircleDollarSign size={15} class="mt-[2px] shrink-0 text-amber" />
-            <span><b class="font-medium text-fg">Free + paid.</b> <a href={withUtm(lib.paid.url, "detail-page")} target="_blank" rel="noopener" class="text-fg hover:underline">{lib.paid.price}</a>: {lib.paid.what}</span>
+            <span><b class="font-medium text-fg">Free + paid.</b> <a href={withUtm(lib.paid.url, "detail-page")} target="_blank" rel="noopener" class="text-fg underline decoration-fg3 underline-offset-4 hover:decoration-fg">{lib.paid.price}</a>: {lib.paid.what}</span>
           </p>
         )
       }

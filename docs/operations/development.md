@@ -22,7 +22,9 @@ local KV. Stage `dev_<user>`; the Cloudflare account is only used for Alchemy's 
   desktop and 2560px sizes, and fails on a broken step or any console error: the /browse sheet (open, close by ×,
   Esc, backdrop and Back, Forward, "Try these", a job pressed while open, and its place beside the nav rail), filters
   and scroll surviving Back, detail panels that must not scroll the page, the taste survey, the card buttons signed
-  out, ⌘K and the tab bar. Flow names are the keys in `scripts/flows.ts`. Run it after any change to those.
+  out, ⌘K, the tab bar and keyboard focus (the skip link; sheets take focus and give it back). Against `pnpm dev` it
+  also signs up a throwaway user (email sign-up exists only there) and checks hearts, folders, hiding and the agent
+  key. Flow names are the keys in `scripts/flows.ts`. Run it after any change to those.
 - `pnpm bombadil http://localhost:1337 [3m]` explores the site on its own ([performance.md](performance.md)); it
   works against `pnpm dev` too.
 - `curl "localhost:1337/api/dev/cron?batch=80"` fills local stats (real GitHub/npm calls with your token).

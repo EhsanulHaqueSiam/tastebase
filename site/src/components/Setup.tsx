@@ -30,7 +30,7 @@ export default function Setup({ commands, sample }: { commands: string[]; sample
         <Rise delay={0.1}>
           <div className="overflow-hidden rounded-2xl bg-s1 shadow-[inset_0_0_0_1px_var(--color-line)]">
             <div className="flex items-center gap-2 border-b border-line px-4 py-2.5 text-[12.5px] text-fg2"><span className="size-2 rounded-full bg-green" /> What Claude gets back from <code className="font-mono text-fg">plan</code></div>
-            <pre className="max-h-[420px] overflow-auto p-4 font-mono text-[12px] leading-relaxed whitespace-pre-wrap text-fg/85">{sample}</pre>
+            <pre tabIndex={0} className="max-h-[420px] overflow-auto p-4 font-mono text-[12px] leading-relaxed whitespace-pre-wrap text-fg/85">{sample}</pre>
           </div>
         </Rise>
       </div>

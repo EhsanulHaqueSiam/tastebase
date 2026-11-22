@@ -121,7 +121,7 @@ export function HiddenNote({ id, name, href }: Hidden) {
   return (
     <div data-hidden className="absolute inset-x-2 bottom-2 z-20 flex items-center justify-between gap-2 rounded-lg bg-s2 px-3 py-2 text-[12.5px] shadow-[inset_0_0_0_1px_var(--color-line2)]">
       <span className="font-medium">Hidden from your agent</span>
-      <button type="button" onClick={() => toggleHidden({ id, name, href })} className="press font-semibold text-fg hover:underline">
+      <button type="button" onClick={() => toggleHidden({ id, name, href })} className="press font-semibold text-fg underline decoration-fg3 underline-offset-4 hover:decoration-fg">
         Undo
       </button>
     </div>

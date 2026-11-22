@@ -27,13 +27,13 @@ export default function HeaderSearch() {
 
   return (
     <div className="island" data-open={open || undefined}>
-      <button type="button" onClick={grow} aria-label="Search" inert={open} className="island-pane justify-center text-fg2 hover:text-fg">
-        <Search size={14} /> <span className="hidden sm:inline">Search</span> <span className="kbd hidden sm:inline">⌘K</span>
+      <button type="button" onClick={grow} inert={open} className="island-pane justify-center text-fg2 hover:text-fg">
+        <Search size={14} aria-hidden /> <span className="sr-only sm:not-sr-only">Search</span> <span className="kbd hidden sm:inline" aria-hidden>⌘K</span>
       </button>
       <label className="island-pane gap-2 pr-1.5 pl-3" inert={!open}>
         <Search size={14} className="shrink-0 text-fg3" />
         <input ref={input} onKeyDown={onKey} onBlur={shrink} placeholder="toast, bottom sheet, claymorphism" aria-label="Search libraries" autoComplete="off" spellCheck={false} className="min-w-0 flex-1 bg-transparent text-[13px] text-fg outline-none placeholder:text-fg3 focus-visible:outline-none" />
-        <span className="kbd">esc</span>
+        <span className="kbd" aria-hidden>esc</span>
       </label>
     </div>
   );
