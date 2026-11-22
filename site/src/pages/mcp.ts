@@ -1,6 +1,6 @@
 // Hosted MCP endpoint: `claude mcp add --transport http tastebase https://<host>/mcp`.
 // Stateless Streamable HTTP: a fresh server per request, JSON responses, no sessions to store. A signed-in user's agent
-// key (Authorization: Bearer, or ?key=) brings their taste: what they hid is never offered, what they hearted leads a
+// key (Authorization: Bearer, never the URL, which lands in logs and history) brings their taste: what they hid is never offered, what they hearted leads a
 // close call. One D1 read per keyed request; without a key, answers are the same for everyone.
 import type { APIRoute } from "astro";
 import { env } from "cloudflare:workers";
@@ -17,7 +17,7 @@ createServer(libraries, aesthetics, pkg.version);
 export const ALL: APIRoute = async ({ request }) => {
   // No server-initiated stream in stateless mode; the spec answers GET with 405.
   if (request.method === "GET") return new Response(null, { status: 405, headers: { allow: "POST" } });
-  const key = request.headers.get("authorization")?.match(/^Bearer\s+(\S+)$/i)?.[1] ?? new URL(request.url).searchParams.get("key");
+  const key = request.headers.get("authorization")?.match(/^Bearer\s+(\S+)$/i)?.[1];
   const taste = key ? await tasteForKey(env.DB, key) : undefined;
   // A wrong or replaced key says so, rather than quietly answering without the user's taste.
   if (key && !taste) return Response.json({ jsonrpc: "2.0", id: null, error: { code: -32001, message: "Unknown tastebase agent key. Make a new one in your account." } }, { status: 401 });

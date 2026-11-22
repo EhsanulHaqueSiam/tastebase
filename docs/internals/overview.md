@@ -53,7 +53,7 @@ One Cloudflare Worker (declared in `alchemy.run.ts`) does everything:
   folder that is not yours answers 404, never 403, so private ids do not leak.
 - **An agent key carries a user's taste into `/mcp`, nothing else.** Signed in, people hide libraries and tools from
   their agent and make an agent key (`tb_sk_…`, shown once; D1 keeps its SHA-256 and last 4). A request with the key
-  (Bearer header or `?key=`) costs one D1 read: hidden ids leave every answer, hearted libraries get ×1.1 in `pick`
+  (Bearer header only: a URL would leave it in logs and history) costs one D1 read: hidden ids leave every answer, hearted libraries get ×1.1 in `pick`
   (a close call, never a clear one). No key, no read: answers stay the same for everyone. A wrong key gets a 401,
   not a quiet fallback.
 - **One OAuth app per provider for every stage.** GitHub's redirect URIs are prod, `*.ehsanulsiam.workers.dev`
