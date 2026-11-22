@@ -1,9 +1,10 @@
-// Server-only: hearts and folders in D1 (tables in migrations/0001_accounts.sql). Plain SQL over the D1 binding so
+// Server-only: hearts, folders, hidden items and agent keys in D1 (tables in migrations/0001_accounts.sql and
+// 0002_taste.sql). Plain SQL over the D1 binding so
 // tests can run it on node:sqlite. Every write is scoped to the signed-in user; callers validate lib ids first.
 
 export type Folder = { id: string; name: string; public: boolean; libs: string[] };
-/** What the browser holds for a signed-in user: GET /api/me. */
-export type AccountData = { saved: string[]; folders: Folder[] };
+/** What the browser holds for a signed-in user: GET /api/me. `key`: the last 4 characters of their agent key, if any. */
+export type AccountData = { saved: string[]; folders: Folder[]; hidden: string[]; key: string | null };
 /** A folder as /f/<id> shows it: whose it is, and whether the viewer may edit it. */
 export type SharedFolder = Folder & { owner: { name: string; image: string | null }; mine: boolean };
 
@@ -15,11 +16,51 @@ const FOLDER_COLS = `f.id, f.name, f.public, (select group_concat(lib, ',') from
 export const MAX_FOLDERS = 100;
 
 export async function loadAccount(db: D1Database, userId: string): Promise<AccountData> {
-  const [saved, folders] = await db.batch([
+  const [saved, folders, hidden, key] = await db.batch([
     db.prepare(`select lib from saved where userId = ? order by createdAt, rowid`).bind(userId),
     db.prepare(`select ${FOLDER_COLS} from folder f where f.userId = ? order by f.createdAt, f.id`).bind(userId),
+    db.prepare(`select item from hidden where userId = ? order by createdAt, rowid`).bind(userId),
+    db.prepare(`select last4 from agent_key where userId = ?`).bind(userId),
   ]);
-  return { saved: (saved!.results as { lib: string }[]).map((r) => r.lib), folders: (folders!.results as Row[]).map(toFolder) };
+  return {
+    saved: (saved!.results as { lib: string }[]).map((r) => r.lib),
+    folders: (folders!.results as Row[]).map(toFolder),
+    hidden: (hidden!.results as { item: string }[]).map((r) => r.item),
+    key: (key!.results[0] as { last4: string } | undefined)?.last4 ?? null,
+  };
+}
+
+/** Hide or unhide one library or resource from the user's agent. */
+export async function setHidden(db: D1Database, userId: string, item: string, on: boolean) {
+  await (on
+    ? db.prepare(`insert or ignore into hidden (userId, item, createdAt) values (?, ?, ?)`).bind(userId, item, Date.now())
+    : db.prepare(`delete from hidden where userId = ? and item = ?`).bind(userId, item)
+  ).run();
+}
+
+const sha256 = async (s: string) => [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)))].map((b) => b.toString(16).padStart(2, "0")).join("");
+
+/** A new agent key for the user, replacing any old one (which stops working at once). Only its hash is stored. */
+export async function makeAgentKey(db: D1Database, userId: string): Promise<string> {
+  const key = `tb_sk_${Array.from(crypto.getRandomValues(new Uint8Array(24)), (b) => ALPHABET[b % 32]).join("")}`;
+  await db
+    .prepare(`insert into agent_key (userId, hash, last4, createdAt) values (?, ?, ?, ?) on conflict (userId) do update set hash = excluded.hash, last4 = excluded.last4, createdAt = excluded.createdAt`)
+    .bind(userId, await sha256(key), key.slice(-4), Date.now())
+    .run();
+  return key;
+}
+
+/** What an agent key's owner hid and hearted, in one read; undefined for an unknown key. */
+export async function tasteForKey(db: D1Database, key: string): Promise<{ hide: Set<string>; like: Set<string> } | undefined> {
+  const row = await db
+    .prepare(
+      `select (select group_concat(item, ',') from hidden h where h.userId = k.userId) as hide, (select group_concat(lib, ',') from saved s where s.userId = k.userId) as "like" from agent_key k where k.hash = ?`,
+    )
+    .bind(await sha256(key))
+    .first<{ hide: string | null; like: string | null }>();
+  if (!row) return undefined;
+  const ids = (v: string | null) => new Set(v ? v.split(",") : []);
+  return { hide: ids(row.hide), like: ids(row.like) };
 }
 
 /** Heart or unheart one library. */
