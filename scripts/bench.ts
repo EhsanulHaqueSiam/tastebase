@@ -172,7 +172,7 @@ async function slowestSince(tab: Tab, from: number) {
 }
 const eventCount = (tab: Tab) => evaluate<number>(tab, "window.__bench.events.length");
 // DOM changes since load, counted in the page: a click that leaves this number (and the URL) unchanged did nothing.
-const MUTATIONS = "(window.__muts ??= (new MutationObserver((l) => (window.__mutCount = (window.__mutCount ?? 0) + l.length)).observe(document.body, { subtree: true, childList: true, attributes: true, characterData: true }), true)) && (window.__mutCount ?? 0) + location.href.length * 0 + (location.hash.length + location.search.length) * 1e6";
+const MUTATIONS = "(window.__muts ??= (new MutationObserver((l) => (window.__mutCount = (window.__mutCount ?? 0) + l.length)).observe(document.body, { subtree: true, childList: true, attributes: true, characterData: true }), true)) && (window.__mutCount ?? 0) + (location.pathname + location.hash + location.search).length * 1e6";
 
 async function measure(openTab: () => Promise<Tab>, page: (typeof pages)[number], profile: "desktop" | "mobile"): Promise<Result> {
   const tab = await openTab();

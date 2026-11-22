@@ -45,7 +45,7 @@ export const POST: APIRoute = async ({ request, url }) => {
   } catch (e) {
     const message = (e as Error).message;
     // The free daily allowance is spent until 00:00 UTC; say so instead of a raw upstream error.
-    if (/neuron|quota|limit|429|capacity/i.test(message)) return json({ error: "Screenshot matching has reached today's free limit. It resets at 00:00 UTC; describe the look in the search box meanwhile." }, 429);
+    if (/neuron|4006|429/i.test(message)) return json({ error: "Screenshot matching has reached today's free limit. It resets at 00:00 UTC; describe the look in the search box meanwhile." }, 429);
     return json({ error: `Could not read the screenshot: ${message}` }, 502);
   }
 };

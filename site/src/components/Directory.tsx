@@ -28,7 +28,10 @@ export default function Directory({ libs }: { libs: ShelfLib[] }) {
   const [sort, setSort] = useState<Sort>("picks");
   const [view, setView] = useState<"grid" | "list">("grid");
   // Cards mount PAGE at a time as the end comes near: all ~200 at once cost ~300ms of hydration on a slow phone.
-  const [limit, setLimit] = useState(PAGE);
+  // The server renders the first row; the rest mount after hydration, so their lazy screenshots do not compete with
+  // the first card's (the page's largest paint) on a slow phone.
+  const [limit, setLimit] = useState(6);
+  useEffect(() => setLimit((n) => Math.max(n, PAGE)), []);
   const more = useRef<HTMLDivElement>(null);
 
   // The job lives in the URL (?job=motion, ?job=saved) so a filtered directory can be linked.

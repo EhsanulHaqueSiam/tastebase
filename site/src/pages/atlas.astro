@@ -29,7 +29,8 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
 ---
 
 <Base title="Atlas · tastebase" description="Every library grouped by look: what looks alike sits together, with what is free and what each one ships.">
-  <div class="atlas mx-auto max-w-[1240px] px-4 pt-20 pb-24" data-view="islands">
+  {/* Island sizes set once here: define:vars wrote them inline on every element (~1 MB of the page). */}
+  <div class="atlas mx-auto max-w-[1240px] px-4 pt-20 pb-24" data-view="islands" style={`--chip:${ISLAND.chip}px;--row:${ISLAND.row}px;--head:${ISLAND.head}px;--padx:${ISLAND.padX}px;--pady:${ISLAND.padY}px`}>
     <div class="enter flex flex-wrap items-end justify-between gap-3">
       <div>
         <h1 class="text-[22px] font-semibold tracking-[-0.02em]">Atlas</h1>
@@ -259,7 +260,7 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
   </script>
 </Base>
 
-<style define:vars={{ chip: `${ISLAND.chip}px`, row: `${ISLAND.row}px`, head: `${ISLAND.head}px`, padx: `${ISLAND.padX}px`, pady: `${ISLAND.padY}px` }}>
+<style>
   .tabs { position: sticky; top: 56px; z-index: 10; margin: 18px -16px 16px; display: flex; gap: 18px; overflow-x: auto; border-bottom: 1px solid var(--color-line); background: var(--color-bg); padding: 0 16px; scrollbar-width: none; }
   .tabs a { white-space: nowrap; border-bottom: 1.5px solid transparent; padding: 10px 0; font-size: 13px; color: var(--color-fg2); transition: color 200ms; }
   .tabs a:hover, .tabs a[aria-current] { color: var(--color-fg); }
