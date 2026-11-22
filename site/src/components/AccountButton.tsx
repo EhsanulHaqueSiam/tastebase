@@ -1,8 +1,9 @@
 // Header account control. Signed out: "Sign in", which opens the sign-in sheet with a button for each provider this
 // stage has keys for (GitHub, Google, X; also opened by askSignIn() when a signed-out visitor reaches for a folder). Signed in: the avatar, which opens a sheet with folders, saved, hidden (what their agent skips,
-// each with Undo), their agent key (shown once, when made, with the setup command) and sign out.
-import { ChevronRight, EyeOff, KeyRound, LogOut } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
+// each with Undo), their agent key (shown once, when made, with the setup command) and sign out. Both sheets offer
+// the taste survey (Survey.tsx, loaded on open), which the home banner opens too with a `tb:survey` event.
+import { ChevronRight, EyeOff, KeyRound, LogOut, Sparkles } from "lucide-react";
+import { lazy, Suspense, useEffect, useState, type ReactNode } from "react";
 import { haptic } from "../lib/haptics.ts";
 import { useIconHover, type AnimatedIcon } from "../lib/nav.ts";
 import { toast } from "sonner";
@@ -13,10 +14,12 @@ import { FoldersIcon } from "./icons/folders.tsx";
 import { HeartIcon } from "./icons/heart.tsx";
 import { UserIcon } from "./icons/user.tsx";
 
+const Survey = lazy(() => import("./Survey.tsx"));
+
 export default function AccountButton() {
   const { user, loading, saved, folders, hidden, key } = useAccount();
   const [open, setOpen] = useState(false);
-  const [view, setView] = useState<"main" | "hidden" | "key">("main");
+  const [view, setView] = useState<"main" | "hidden" | "key" | "survey">("main");
   const [fresh, setFresh] = useState<string>(); // the key just made: the only time it can be shown
   const [going, setGoing] = useState<Provider>();
   const [offered, setOffered] = useState<Provider[]>();
@@ -24,8 +27,10 @@ export default function AccountButton() {
   const { ref, on: hover } = useIconHover();
   useEffect(() => {
     const show = () => setOpen(true);
+    const survey = () => (setView("survey"), setOpen(true));
     addEventListener("tb:signin", show);
-    return () => removeEventListener("tb:signin", show);
+    addEventListener("tb:survey", survey);
+    return () => (removeEventListener("tb:signin", show), removeEventListener("tb:survey", survey));
   }, []);
 
   const toggle = (o: boolean) => (setOpen(o), o ? haptic("light") : (setView("main"), setFresh(undefined)));
@@ -44,8 +49,12 @@ export default function AccountButton() {
         </button>
       )}
 
-      <Sheet open={open} onOpenChange={toggle} title={user ? (view === "hidden" ? "Hidden from your agent" : view === "key" ? "Agent key" : user.name) : "Sign in"}>
-        {user && view === "hidden" ? (
+      <Sheet open={open} onOpenChange={toggle} title={view === "survey" ? "Find your taste" : user ? (view === "hidden" ? "Hidden from your agent" : view === "key" ? "Agent key" : user.name) : "Sign in"}>
+        {view === "survey" ? (
+          <Suspense fallback={<div className="h-[392px]" aria-busy="true" />}>
+            <Survey onKey={() => setView("key")} onSignIn={() => setView("main")} />
+          </Suspense>
+        ) : user && view === "hidden" ? (
           <HiddenList hidden={hidden} onBack={() => setView("main")} />
         ) : user && view === "key" ? (
           <AgentKey last4={key} fresh={fresh} onMake={async () => setFresh((await makeAgentKey()) ?? fresh)} onBack={() => (setView("main"), setFresh(undefined))} />
@@ -55,6 +64,7 @@ export default function AccountButton() {
             <Row href="/browse?job=saved" icon={HeartIcon} n={saved.length} onPick={() => setOpen(false)}>Saved</Row>
             <ViewRow icon={<EyeOff size={20} aria-hidden />} value={String(hidden.length)} onPick={() => setView("hidden")}>Hidden</ViewRow>
             <ViewRow icon={<KeyRound size={20} aria-hidden />} value={key ? `…${key}` : "none"} onPick={() => setView("key")}>Agent key</ViewRow>
+            <ViewRow icon={<Sparkles size={20} aria-hidden />} value="30s" onPick={() => setView("survey")}>Find your taste</ViewRow>
             <li>
               <button type="button" onClick={() => (setOpen(false), signOut())} className="flex h-12 w-full items-center gap-[15px] rounded-2xl px-4 text-[17px] font-semibold text-fg2 transition-transform hover:text-fg active:scale-95">
                 <LogOut size={20} aria-hidden />
@@ -84,6 +94,9 @@ export default function AccountButton() {
               {offered?.length === 0 && <p className="grid h-12 place-items-center rounded-2xl bg-s3 text-[14px] text-fg2">Sign-in is not set up here.</p>}
             </div>
             <p className="mt-3 text-center text-[12.5px] text-fg3">We keep the name, avatar and email your provider shares. Nothing else.</p>
+            <ul className="mt-4 border-t border-line pt-4">
+              <ViewRow icon={<Sparkles size={20} aria-hidden />} value="30s" onPick={() => setView("survey")}>Find your taste</ViewRow>
+            </ul>
           </div>
         )}
       </Sheet>
