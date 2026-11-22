@@ -1,12 +1,14 @@
-// /browse: every library, filtered by job (with live counts), price, framework and words; grid or list; saved ones.
+// /browse: every library, filtered by job (with live counts), price, framework and words; grid or list; saved ones and
+// editor's picks (searching "editor" or "editor's pick" finds those too).
 // A running sponsor leads the results and follows every 8th (lib/sponsors.ts). On desktop a library opens in a sheet
 // over the results (DetailSheet.tsx), so the job list stays in reach; while it is open the list folds to its icons
 // (html[data-sheet]), each naming its job and count on hover, like the nav rail.
-import { ArrowUpRight, ChevronDown, Heart, LayoutGrid, List, Search } from "lucide-react";
+import { ArrowUpRight, ChevronDown, Heart, LayoutGrid, List, Search, Star } from "lucide-react";
 import { memo, startTransition, useDeferredValue, useEffect, useRef, useState, type ReactNode } from "react";
 import { frameworks, kinds, type Framework, type Kind } from "../../../src/registry/schema.ts";
 import { kindMeta } from "../lib/kinds.ts";
 import { useLoaded } from "../lib/loaded.ts";
+import { useEditorPicks } from "../lib/picks.ts";
 import { useSaved } from "../lib/saved.ts";
 import { useSponsors, withSponsors, type Sponsor } from "../lib/sponsors.ts";
 import { withUtm } from "../lib/utm.ts";
@@ -18,16 +20,17 @@ import { FW, KindIcon, LibCard, SaveButton, SponsorLibCard, SORTS, sortBy, statB
 import { LibMark } from "./LibMark.tsx";
 import { Seg } from "./Seg.tsx";
 
-type Job = Kind | "all" | "saved";
+type Job = Kind | "all" | "saved" | "editors";
 const PRICES = [["any", "Any"], ["free", "Free"], ["paid", "Paid"]] as const;
 const PAGE = 48; // cards per step: enough to fill a large screen several times over
 type Price = (typeof PRICES)[number][0];
-const isJob = (v: string | null): v is Job => v === "all" || v === "saved" || kinds.some((k) => k === v);
+const isJob = (v: string | null): v is Job => v === "all" || v === "saved" || v === "editors" || kinds.some((k) => k === v);
 const words = (s: string) => s.toLowerCase().split(/\s+/).filter(Boolean);
 
 export default function Directory({ libs }: { libs: ShelfLib[] }) {
   const stats = useStats();
   const saved = useSaved();
+  const picks = useEditorPicks();
   const [job, setJob] = useState<Job>("all");
   const [price, setPrice] = useState<Price>("any");
   const [fw, setFw] = useState<Framework>();
@@ -87,13 +90,14 @@ export default function Directory({ libs }: { libs: ShelfLib[] }) {
     libs
       .filter((l) => p === "any" || l.paid === (p === "paid"))
       .filter((l) => !f || l.frameworks.includes(f))
-      .filter((l) => terms.every((t) => `${l.name} ${l.tagline} ${kindMeta[l.kind].label} ${l.aesthetic.join(" ")}`.toLowerCase().includes(t)));
+      .filter((l) => terms.every((t) => `${l.name} ${l.tagline} ${kindMeta[l.kind].label} ${l.aesthetic.join(" ")}${picks.has(l.id) ? " editor's pick editors picks" : ""}`.toLowerCase().includes(t)));
+  const inJob = (j: Job) => (l: ShelfLib) => (j === "all" ? true : j === "saved" ? saved.includes(l.id) : j === "editors" ? picks.has(l.id) : l.kind === j);
   const base = narrow(price, fw, words(q));
-  const count = (j: Job) => (j === "all" ? base.length : j === "saved" ? base.filter((l) => saved.includes(l.id)).length : base.filter((l) => l.kind === j).length);
+  const count = (j: Job) => base.filter(inJob(j)).length;
   // The cards follow deferred filters: a tap repaints the controls and counts at once, and the grid re-renders after,
   // in slices a newer tap can interrupt (a phone's filter tap was one ~170ms frame).
   const [dJob, dPrice, dFw, dQ, dSort] = [useDeferredValue(job), useDeferredValue(price), useDeferredValue(fw), useDeferredValue(q), useDeferredValue(sort)];
-  const list = narrow(dPrice, dFw, words(dQ)).filter((l) => (dJob === "all" ? true : dJob === "saved" ? saved.includes(l.id) : l.kind === dJob)).sort(sortBy(dSort, stats));
+  const list = narrow(dPrice, dFw, words(dQ)).filter(inJob(dJob)).sort(sortBy(dSort, stats));
   // Keyed cards are reused across filter changes, so switching jobs mounts at most PAGE new ones.
   const visible = list.slice(0, limit);
   const hasMore = list.length > limit;
@@ -104,7 +108,7 @@ export default function Directory({ libs }: { libs: ShelfLib[] }) {
     return () => io.disconnect();
   }, [hasMore, limit]);
   const jobs = [...kinds].sort((a, b) => count(b) - count(a));
-  const title = job === "all" ? "All libraries" : job === "saved" ? "Saved" : kindMeta[job].label;
+  const title = job === "all" ? "All libraries" : job === "saved" ? "Saved" : job === "editors" ? "Editor's picks" : kindMeta[job].label;
   const filtered = price !== "any" || fw || q.trim();
   const reset = () => (setPrice("any"), setFw(undefined), setQ(""));
 
@@ -113,6 +117,9 @@ export default function Directory({ libs }: { libs: ShelfLib[] }) {
       <aside aria-label="Jobs" className="flex gap-1 overflow-x-auto border-b border-line px-4 py-3 [scrollbar-width:none] lg:sticky lg:top-14 lg:h-[calc(100svh-4rem)] lg:flex-col lg:gap-px lg:overflow-y-auto lg:border-r lg:border-b-0 lg:px-2.5 lg:py-4 lg:[[data-sheet]_&]:items-center lg:[[data-sheet]_&]:overflow-visible lg:[[data-sheet]_&]:z-[55] lg:[[data-sheet]_&]:px-1.5">
         <Row on={job === "saved"} onClick={() => pickJob("saved")} n={count("saved")} icon={<span data-anim="pop" className="grid place-items-center text-pink"><Heart size={15} aria-hidden /></span>}>Saved</Row>
         <Row on={job === "all"} onClick={() => pickJob("all")} n={count("all")} icon={<span data-anim="pop" className="grid place-items-center"><LayoutGrid size={15} aria-hidden /></span>}>All libraries</Row>
+        {(picks.size > 0 || job === "editors") && (
+          <Row on={job === "editors"} onClick={() => pickJob("editors")} n={count("editors")} icon={<span data-anim="pop" className="grid place-items-center text-amber"><Star size={15} aria-hidden /></span>}>Editor's picks</Row>
+        )}
         <h2 className="hidden px-2 pt-4 pb-1.5 font-mono text-[11.5px] text-fg3 lg:block lg:[[data-sheet]_&]:hidden">Job</h2>
         {jobs.map((k) => (
           <Row key={k} on={job === k} onClick={() => pickJob(k)} n={count(k)} icon={<KindIcon kind={k} />}>{kindMeta[k].label}</Row>

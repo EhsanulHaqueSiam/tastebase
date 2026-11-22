@@ -1,5 +1,5 @@
-// Server-only: hearts, folders, hidden items and agent keys in D1 (tables in migrations/0001_accounts.sql and
-// 0002_taste.sql). Plain SQL over the D1 binding so
+// Server-only: hearts, folders, hidden items, agent keys and editor's picks in D1 (tables in migrations/). Plain SQL
+// over the D1 binding so
 // tests can run it on node:sqlite. Every write is scoped to the signed-in user; callers validate lib ids first.
 
 export type Folder = { id: string; name: string; public: boolean; libs: string[] };
@@ -124,4 +124,25 @@ export async function readFolder(db: D1Database, id: string, viewerId: string | 
   const mine = r.userId === viewerId;
   if (!r.public && !mine) return null;
   return { ...toFolder(r), owner: { name: r.ownerName, image: r.ownerImage }, mine };
+}
+
+/** Whether a signed-in user may set editor's picks: a verified email on the comma-separated ADMIN_EMAILS list. Unset
+ *  list, nobody. Verified, because X may share no email and better-auth then stores a placeholder. */
+export const isAdmin = (user: { email: string; emailVerified: boolean }, list: string | undefined) =>
+  user.emailVerified && !!list?.split(",").some((e) => e.trim().toLowerCase() === user.email.toLowerCase());
+
+export type EditorPick = { id: string; reason: string };
+
+/** Every editor's pick, newest first. */
+export async function listPicks(db: D1Database): Promise<EditorPick[]> {
+  const { results } = await db.prepare(`select item as id, reason from editor_pick order by createdAt desc, rowid desc`).all<EditorPick>();
+  return results;
+}
+
+/** Picks an item with its reason (editing the reason keeps its place), or unpicks it when `reason` is null. */
+export async function setPick(db: D1Database, item: string, reason: string | null) {
+  await (reason === null
+    ? db.prepare(`delete from editor_pick where item = ?`).bind(item)
+    : db.prepare(`insert into editor_pick (item, reason, createdAt) values (?, ?, ?) on conflict (item) do update set reason = excluded.reason`).bind(item, reason, Date.now())
+  ).run();
 }

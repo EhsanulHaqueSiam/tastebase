@@ -2,12 +2,12 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
-import { createFolder, deleteFolder, loadAccount, makeAgentKey, mergeSaved, readFolder, setHidden, setSaved, tasteForKey, updateFolder } from "./auth-data.ts";
+import { createFolder, deleteFolder, isAdmin, listPicks, loadAccount, makeAgentKey, mergeSaved, readFolder, setHidden, setPick, setSaved, tasteForKey, updateFolder } from "./auth-data.ts";
 import { memoryD1 } from "./d1-shim.test-util.ts";
 
 function setup() {
   const d1 = memoryD1();
-  for (const m of ["0001_accounts", "0002_taste"]) d1.exec(readFileSync(new URL(`../../../migrations/${m}.sql`, import.meta.url), "utf8"));
+  for (const m of ["0001_accounts", "0002_taste", "0003_editor_picks"]) d1.exec(readFileSync(new URL(`../../../migrations/${m}.sql`, import.meta.url), "utf8"));
   for (const u of ["ana", "bo"]) d1.exec(`insert into user values ('${u}', '${u}', '${u}@x.dev', 1, null, 0, 0)`);
   return d1 as unknown as D1Database;
 }
@@ -57,4 +57,26 @@ test("an agent key reads its owner's hidden and hearted items, and a new key sto
   await setHidden(db, "ana", "vaul", false);
   assert.deepEqual([...(await tasteForKey(db, key))!.hide], []);
   assert.equal(await tasteForKey(db, "tb_sk_made_up"), undefined);
+});
+
+test("editor's picks list newest first; re-wording keeps a pick's place, unpicking drops it", async () => {
+  const db = setup();
+  await setPick(db, "vaul", "The drawer that feels native.");
+  await setPick(db, "sonner", "Toasts with promise states.");
+  await setPick(db, "vaul", "The only drawer that feels native on a phone.");
+  assert.deepEqual((await listPicks(db)).map((p) => ({ ...p })), [
+    { id: "sonner", reason: "Toasts with promise states." },
+    { id: "vaul", reason: "The only drawer that feels native on a phone." },
+  ]);
+  await setPick(db, "sonner", null);
+  assert.deepEqual((await listPicks(db)).map((p) => p.id), ["vaul"]);
+});
+
+test("only a verified email on ADMIN_EMAILS may pick; an unset list means nobody", () => {
+  const ana = { email: "Ana@x.dev", emailVerified: true };
+  assert.equal(isAdmin(ana, " bo@x.dev, ana@x.dev"), true);
+  assert.equal(isAdmin(ana, "bo@x.dev"), false);
+  assert.equal(isAdmin(ana, undefined), false);
+  assert.equal(isAdmin(ana, ""), false);
+  assert.equal(isAdmin({ ...ana, emailVerified: false }, "ana@x.dev"), false);
 });

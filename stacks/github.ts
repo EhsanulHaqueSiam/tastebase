@@ -64,6 +64,8 @@ export default Alchemy.Stack(
       yield* GitHub.Secret(`auth-${id}-id`, { ...repo, name: `AUTH_${p}_ID`, value: yield* Config.Redacted(`AUTH_${p}_ID`) });
       yield* GitHub.Secret(`auth-${id}-secret`, { ...repo, name: `AUTH_${p}_SECRET`, value: yield* Config.Redacted(`AUTH_${p}_SECRET`) });
     }
+    // Who may set editor's picks (alchemy.run.ts). A secret, like FORMS_TO, so the addresses stay private.
+    if (process.env.ADMIN_EMAILS) yield* GitHub.Secret("admin-emails", { ...repo, name: "ADMIN_EMAILS", value: yield* Config.Redacted("ADMIN_EMAILS") });
     yield* GitHub.Variable("cf-account-id", { ...repo, name: "CLOUDFLARE_ACCOUNT_ID", value: accountId });
     yield* GitHub.Variable("deploy-enabled", { ...repo, name: "DEPLOY_ENABLED", value: "true" });
 

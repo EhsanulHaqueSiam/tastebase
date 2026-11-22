@@ -3,6 +3,7 @@
 import { Check, CircleDollarSign, Package, X } from "lucide-react";
 import CodeTabs from "../../components/CodeTabs.tsx";
 import FolderPicker from "../../components/FolderPicker.tsx";
+import { PickToggle } from "../../components/EditorPick.tsx";
 import McpSetup from "../../components/McpSetup.tsx";
 import { integrations } from "../../../../src/registry/integrations.ts";
 import { CopyButton } from "../../components/fx.tsx";
@@ -48,6 +49,7 @@ const item = libraryListing(lib);
       {lib.repo && <a href={lib.repo} target="_blank" rel="noreferrer" class="inline-flex items-center gap-1 hover:text-fg"><GithubMark size={13} /> GitHub</a>}
       {lib.npm && <a href={`https://npmjs.com/package/${lib.npm}`} target="_blank" rel="noreferrer" class="inline-flex items-center gap-1 hover:text-fg"><Package size={13} /> npm</a>}
       <FolderPicker client:idle id={lib.id} name={lib.name} label />
+      <PickToggle client:idle id={lib.id} />
     </div>
     <div class="max-w-[640px]">
       <h2 class="mt-10 mb-2 font-mono text-[11px] font-medium tracking-[0.12em] text-fg3 uppercase">For your agent</h2>
