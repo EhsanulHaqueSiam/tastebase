@@ -66,6 +66,7 @@ const graph = [
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#000000" />
+    <meta name="tb-build" content={__BUILD__} />
     <!-- Theme, the hidden rail (⌘B) and embed mode (framed by our own /browse sheet, DetailSheet.tsx) before first
          paint, and again after each client navigation (the router replaces <html>'s attributes). Also marks listing screenshots that fail to load, so their fallback shows (ListingCard.tsx);
          the listener sits in the head so it catches errors from before any island hydrates. -->
@@ -190,6 +191,23 @@ const graph = [
       addEventListener("unhandledrejection", (e) => {
         if (e.reason instanceof DOMException && e.reason.name === "InvalidStateError" && /transition was aborted/i.test(e.reason.message)) e.preventDefault();
       });
+      // A deploy deletes the previous build's scripts, so an island or lazy part of a page opened before it fails to load
+      // (Chrome, Safari and Firefox each word it differently). Reload into the new build, once per build, so a flaky
+      // network cannot loop.
+      const reloadStale = (err: unknown) => {
+        if (!(err instanceof Error) || !navigator.onLine || !/dynamically imported module|Importing a module script failed/i.test(err.message)) return false;
+        try {
+          if (sessionStorage.getItem("tb-reload") === __BUILD__) return false;
+          sessionStorage.setItem("tb-reload", __BUILD__);
+        } catch {
+          return false;
+        }
+        location.reload();
+        return true;
+      };
+      document.addEventListener("astro:hydration-error", (e) => reloadStale((e as CustomEvent<{ error: unknown }>).detail.error) && e.preventDefault());
+      addEventListener("unhandledrejection", (e) => reloadStale(e.reason) && e.preventDefault());
+      addEventListener("error", (e) => reloadStale(e.error) && e.preventDefault());
       startSound();
       startPrefetch();
       // Screenshots marked data-late (ListingCard's `late`) wait for the page's load, so on a slow phone they do not

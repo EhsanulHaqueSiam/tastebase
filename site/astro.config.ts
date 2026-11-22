@@ -19,7 +19,8 @@ export default defineConfig({
   prefetch: false, // src/lib/prefetch.ts: Astro's <link rel="prefetch"> was never reused by the router (see there)
   // shareCopies: each page's OG card and Markdown copy, written after prerendering (build.ts).
   integrations: [react(), shareCopies()],
-  vite: { plugins: [tailwindcss()] },
+  // __BUILD__: one id per build, stamped on every page, so an open tab can tell it is a deploy behind (lib/prefetch.ts).
+  vite: { plugins: [tailwindcss()], define: { __BUILD__: JSON.stringify(Date.now().toString(36)) } },
   // Off: under pnpm dev its pill covers the phone tab bar, and its overlays (Audit, X-ray) widen the page, so local
   // screenshots, pnpm flows and pnpm bombadil would judge the toolbar instead of the site.
   devToolbar: { enabled: false },

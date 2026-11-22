@@ -22,6 +22,7 @@ const preparse = (e: Entry) => void e.html.then((h) => h && idle(() => (e.doc ??
 // card its "no preview" fallback).
 const BLANK = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
 const keyOf = (u: URL) => u.pathname + u.search;
+const buildOf = (d: Document) => d.querySelector<HTMLMetaElement>('meta[name="tb-build"]')?.content;
 const slow = () => {
   const c = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
   return !!c && (!!c.saveData || /2g/.test(c.effectiveType ?? ""));
@@ -69,16 +70,23 @@ export function startPrefetch() {
     for (const [i] of stopped) i.src = BLANK;
     e.signal.addEventListener("abort", () => stopped.forEach(([i, src]) => i.isConnected && i.setAttribute("src", src)), { once: true });
     const hit = !e.formData && pages.get(keyOf(e.to));
-    if (!hit || Date.now() - hit.at >= FRESH) return;
     const fallback = e.loader;
+    if (hit && Date.now() - hit.at < FRESH)
+      e.loader = async () => {
+        const html = await hit.html;
+        if (e.signal.aborted) return; // a newer navigation took over
+        const doc = hit.doc ?? (html && parse(html));
+        hit.doc = undefined;
+        if (hit.parse) preparse(hit);
+        if (!doc || !doc.querySelector('[name="astro-view-transitions-enabled"]')) return fallback();
+        e.newDocument = doc; // stylesheets are inlined (astro.config), so there are none to preload
+      };
+    // A page from another build (a deploy since this tab loaded) names that build's scripts and expects its shell, and a
+    // swap would keep running this one's: cancelling hands the navigation to the browser, which loads the page whole.
+    const load = e.loader;
     e.loader = async () => {
-      const html = await hit.html;
-      if (e.signal.aborted) return; // a newer navigation took over
-      const doc = hit.doc ?? (html && parse(html));
-      hit.doc = undefined;
-      if (hit.parse) preparse(hit);
-      if (!doc || !doc.querySelector('[name="astro-view-transitions-enabled"]')) return fallback();
-      e.newDocument = doc; // stylesheets are inlined (astro.config), so there are none to preload
+      await load();
+      if (!e.signal.aborted && buildOf(e.newDocument) !== buildOf(document)) e.preventDefault();
     };
   });
 }
