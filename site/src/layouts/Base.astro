@@ -66,8 +66,8 @@ const graph = [
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#000000" />
-    <!-- Theme and the hidden rail (⌘B) before first paint, and again after each client navigation (the router replaces
-         <html>'s attributes). Also marks listing screenshots that fail to load, so their fallback shows (ListingCard.tsx);
+    <!-- Theme, the hidden rail (⌘B) and embed mode (framed by our own /browse sheet, DetailSheet.tsx) before first
+         paint, and again after each client navigation (the router replaces <html>'s attributes). Also marks listing screenshots that fail to load, so their fallback shows (ListingCard.tsx);
          the listener sits in the head so it catches errors from before any island hydrates. -->
     <script is:inline>
       (() => {
@@ -76,10 +76,21 @@ const graph = [
           try { t = localStorage.getItem("tb-theme") === "light" ? "light" : "dark"; rail = localStorage.getItem("tb-rail") === "hidden"; } catch {}
           document.documentElement.dataset.theme = t;
           document.documentElement.toggleAttribute("data-rail-hidden", rail);
+          let framed = false;
+          try { framed = window !== top && top.location.origin === location.origin; } catch {} // another origin: not ours
+          document.documentElement.toggleAttribute("data-embed", framed);
           document.querySelector('meta[name="theme-color"]')?.setAttribute("content", t === "light" ? "#ffffff" : "#000000");
         };
         apply();
         document.addEventListener("astro:after-swap", apply);
+        // Back and Forward into or out of /browse's sheet (DetailSheet.tsx) belong to the sheet. Registered here, before
+        // the router's own listener, so the router never re-renders /browse or loads the full page for them.
+        addEventListener("popstate", (e) => {
+          const into = e.state && e.state.sheet;
+          if (!document.documentElement.hasAttribute("data-sheet") && !(into && document.querySelector("[data-sheet-host]") && matchMedia("(min-width: 1024px)").matches)) return;
+          e.stopImmediatePropagation();
+          dispatchEvent(new CustomEvent("tb:sheet", { detail: into || null }));
+        });
         addEventListener("error", (e) => { const t = e.target; if (t instanceof HTMLImageElement && "fallback" in t.dataset) t.dataset.failed = ""; }, true);
       })();
     </script>
