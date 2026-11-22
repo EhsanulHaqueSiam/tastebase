@@ -48,7 +48,7 @@ export default function DetailSheet({ scope }: { scope: RefObject<HTMLElement | 
     const onStep = (e: Event) => {
       const sheet = (e as CustomEvent<string | null>).detail;
       if (sheet && scope.current) setLeft(scope.current.getBoundingClientRect().left);
-      if (sheet) opener.current = null; // entered by Forward: no card opened it
+      if (sheet && opener.current?.pathname !== sheet) opener.current = null; // Forward to another library: not its card
       setPath(sheet && matchMedia(DESKTOP).matches ? sheet : null);
     };
     addEventListener("tb:sheet", onStep);
