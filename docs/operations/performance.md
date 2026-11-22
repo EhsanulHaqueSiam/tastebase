@@ -8,12 +8,15 @@ prod: they make real requests, and prod's quota is shared with real users.
 | `pnpm bench <url>` | Loads each kind of page cold on desktop and on a phone profile (4x CPU, Chrome's Slow 4G: 562.5ms RTT per request, 1.47 / 0.675 Mbps), scores it 0-10 with Lighthouse 12's curves and weights (FCP, LCP, TBT, CLS; Speed Index is not measured, so the rest scale up; TTFB is reported only), then clicks every tab and toggle and the header, rail and phone tab bar (touch on the phone), types in search, opens ⌘K and clicks through to a page, scoring each by INP, and the navigation and live preview times on the LCP curve. Each page runs in a fresh browser profile | every page and profile is 9.5+ on load and interaction, with no sideways scroll, console errors or failed requests |
 | `pnpm load <url>` | 40 visitors for 60s over pages, `/api/*` (including the view beacon) and the hosted MCP, plus 6 CLI sessions querying for the whole run | under 0.5% errors (an MCP tool error counts, though it answers 200) and p95 under 800ms per endpoint; every response compressed, bundles immutable |
 | `pnpm cpu` | CPU per Worker route (search, pick, plan, palette list, MCP calls) in Node, the same V8, and a cold isolate's first MCP requests | warm p95 under 5ms, half the free plan's 10ms because Workers cores are slower; cold under 10ms |
-| `pnpm bombadil <url> [3m]` | Bombadil explores at desktop and phone size, checking its defaults (HTTP errors, exceptions, rejections, console errors) and `bombadil/specification.ts` | no property is violated in the time limit |
+| `pnpm bombadil <url> [3m]` | Bombadil explores at desktop, 2560px wide and phone size, checking its defaults (HTTP errors, exceptions, rejections, console errors) and `bombadil/specification.ts` | no property is violated in the time limit |
 
 `--runs 3` (the default) takes the median of three cold loads; `--runs 1 --only atlas,home` is for quick checks.
 Results land in `bench-results/` (gitignored); `node --experimental-strip-types scripts/requests.ts <url>` lists
 what one page downloads, largest first. A Bombadil violation prints a `--reproduce` command and a trace for
-`npx bombadil browser inspect`.
+`npx bombadil browser inspect`. Bombadil also runs against `pnpm dev` (`pnpm bombadil http://localhost:1337`), where
+React's development build adds one rare, harmless finding: a hydration warning whose diff shows only
+`aria-hidden`/`data-aria-hidden`. That is vaul hiding the page behind an open sheet before an island under it
+hydrated; the sheet removes them on close, and production React neither warns nor patches.
 
 Interactions click one second after a control scrolls into view, as a person would; clicking the instant it appears
 measures hydration, which the load phase already counts as blocking time.

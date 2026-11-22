@@ -78,11 +78,11 @@ export function SaveButton({ id, name, className = "" }: { id: string; name: str
       className={`press grid size-8 place-items-center rounded-lg transition-colors ${on ? "text-pink" : "text-fg2 hover:text-fg"} ${className}`}
     >
       <span className="lk-heart">
-        <span key={on && beat ? beat : "rest"} className="lk-glyph" data-on={(on && beat > 0) || undefined}>
+        <span key={on && beat ? `glyph-${beat}` : "rest"} className="lk-glyph" data-on={(on && beat > 0) || undefined}>
           <Heart size={15} fill={on ? "currentColor" : "none"} aria-hidden />
         </span>
         {on && beat > 0 && (
-          <span key={beat} className="lk-burst" aria-hidden>
+          <span key={`burst-${beat}`} className="lk-burst" aria-hidden>
             <span className="lk-bloom" />
             {CONFETTI.map((c, k) => (
               <span key={c} className="lk-spoke" style={{ "--a": `${k * (360 / 7) - 90}deg` } as CSSProperties}>
