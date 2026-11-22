@@ -11,7 +11,9 @@ export default defineConfig({
   // Server output for /mcp and /api/*; every page opts into `prerender` and ships as a static asset.
   output: "server",
   // Prerendered pages as /browse/vaul.html, served at /browse/vaul with no trailing-slash redirect.
-  build: { format: "file" },
+  // Styles inline in each page: on a phone network a stylesheet is one more ~560ms round trip before first paint,
+  // which costs more than re-sending ~20 KB of compressed CSS with each page.
+  build: { format: "file", inlineStylesheets: "always" },
   trailingSlash: "never",
   // Every same-site link loads its page on hover or focus, so the click lands on a page already fetched.
   prefetch: { prefetchAll: true, defaultStrategy: "hover" },
