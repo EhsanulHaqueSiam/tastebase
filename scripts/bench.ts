@@ -278,7 +278,8 @@ async function measure(openTab: () => Promise<Tab>, page: (typeof pages)[number]
     {
       const navs = await evaluate<number>(tab, "window.__bench.navs.length");
       const before = await eventCount(tab);
-      const target = await tap(`main a[href^="/browse/"], main a[href^="/best/"], main a[href="/atlas"]`);
+      // A catalog link when the page has one; utility pages (about, terms, submit) fall back to any link of ours in main.
+      const target = (await tap(`main a[href^="/browse/"], main a[href^="/best/"], main a[href="/atlas"]`)) ?? (await tap(`main a[href^="/"]:not([href^="/api"]):not([href$=".txt"]):not([href$=".md"])`));
       const t0 = Date.now(); // from the click itself; tap() waits a second before clicking, which is not navigation time
       if (target) {
         let ms: number | undefined;

@@ -212,7 +212,7 @@ const partCount = (l: Library) => [l.parts?.free.length ?? 0, l.parts?.paid?.len
           if (body && !body.dataset.loaded) {
             body.dataset.loaded = "1";
             body.innerHTML = '<tr><td colspan="4" class="text-fg3">Loading resources</td></tr>';
-            fetch("/atlas-rows").then((r) => (r.ok ? r.text() : Promise.reject(new Error(String(r.status))))).then((html) => ((body.innerHTML = html), rkind(k))).catch(() => (body.innerHTML = '<tr><td colspan="4" class="text-fg3">Could not load the resources; reload to try again.</td></tr>'));
+            fetch("/atlas-rows").then((r) => (r.ok ? r.text() : Promise.reject(new Error(String(r.status))))).then((html) => ((body.innerHTML = html), rkind(k))).catch(() => ((body.innerHTML = '<tr><td colspan="4" class="text-fg3">Could not load the resources; open the tab again to retry.</td></tr>'), delete body.dataset.loaded));
           }
           rkind(k);
         }
