@@ -56,7 +56,7 @@ export default function TabBar() {
           <Tab key={s.href} href={s.href} icon={s.icon} on={isCurrent(s, path)}>{s.label}</Tab>
         ))}
         <Tab icon={SearchIcon} on={false} onTap={search}>Search</Tab>
-        <Drawer.Root open={open} onOpenChange={(o) => (setOpen(o), o && haptic("light"))}>
+        <Drawer.Root open={open} onOpenChange={(o) => (setOpen(o), o && haptic("light"))} autoFocus>
           <Drawer.Trigger asChild>
             <Tab icon={MenuIcon} on={more.some((s) => isCurrent(s, path))}>More</Tab>
           </Drawer.Trigger>

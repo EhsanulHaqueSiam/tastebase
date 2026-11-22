@@ -18,7 +18,7 @@ export default function McpSetup({ integration }: { integration: Integration }) 
         </div>
         <CopyButton value={code} quiet />
       </div>
-      <pre className="overflow-x-auto p-3 font-mono text-[12px] leading-relaxed text-fg/85">{code}</pre>
+      <pre tabIndex={0} className="overflow-x-auto p-3 font-mono text-[12px] leading-relaxed text-fg/85">{code}</pre>
     </div>
   );
 }

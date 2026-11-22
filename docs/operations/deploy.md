@@ -108,6 +108,11 @@ pick" on every library and resource page; everyone else, and every stage without
   the MCP instructions carry `SKILL_VERSION`, a hash of the skill, and send agents whose copy differs to the
   Update section of `/llms.txt`. `src/skill.test.ts` fails until the hash is set after editing the skill.
 
+- **The site in an open tab**: a deploy deletes the previous build's `/_astro` scripts. Every page carries its build
+  id (`<meta name="tb-build">`, the `__BUILD__` define in `site/astro.config.ts`); a client navigation into a page of
+  another build loads it whole (`site/src/lib/prefetch.ts`), and a script that fails to load reloads the page once per
+  build (`Base.astro`).
+
 Not declared because GitHub Free does not offer them on private repos: deployment environments with required
 reviewers and branch protection. Add them to the stack when the repo is public or on a paid plan.
 

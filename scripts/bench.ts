@@ -246,6 +246,8 @@ async function measure(openTab: () => Promise<Tab>, page: (typeof pages)[number]
         // Already-pressed controls (the default tab or sort) are allowed to do nothing; anything else must change the page.
         const idle = !label.startsWith("(pressed)") && (await evaluate<number>(tab, MUTATIONS)) === mark;
         interactions.push({ name: `click "${label}"`, inp, note: covered(label) ?? (idle ? "the click changed nothing" : undefined) });
+        // Signed out, a card's hide or folder button opens the sign-in sheet, which would cover the next control.
+        if (await evaluate<boolean>(tab, "!!document.querySelector('[role=dialog]')")) await key(tab, "Escape"), await sleep(600);
       }
     }
     if (await evaluate<boolean>(tab, `!!document.querySelector('main input[type=search], main input[type=text], main textarea')`)) {

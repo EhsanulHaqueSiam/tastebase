@@ -28,7 +28,8 @@ the agent-browser or playwright skills). Exercise the change, not just the page 
 
 - hero search, the plan box (switch briefs), ⌘K palette, a `/browse/<id>` page with a live demo
 - ~390px, 1440px and a wide screen, 1920 to 2560px (no horizontal scroll: `document.documentElement.scrollWidth === innerWidth`)
-- `pnpm flows http://localhost:<port>` for the flows (the /browse sheet, Back, the survey, card buttons, ⌘K)
+- `pnpm flows http://localhost:<port>` for the flows (the /browse sheet, Back, the survey, card buttons, ⌘K,
+  keyboard focus, and signed in: hearts, folders, hiding, the agent key)
 - reduced motion when you touched animation
 
 Capture before/after screenshots for UI changes and a short recording for motion.

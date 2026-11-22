@@ -51,7 +51,7 @@ function SonnerDemo() {
 
 function VaulDemo() {
   return (
-    <Drawer.Root>
+    <Drawer.Root autoFocus>
       <Drawer.Trigger className={`${btn} bg-fg text-bg`}>Open drawer</Drawer.Trigger>
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 z-50 bg-black/60" />

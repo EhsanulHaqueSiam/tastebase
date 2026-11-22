@@ -82,7 +82,7 @@ export default function Components({ first, groupCount, parts, libCount }: { fir
         )}
       </ul>
       {total > SHOWN && <p className="py-6 text-center text-[13px] text-fg3">Showing {SHOWN} of {total}. Search to narrow it.</p>}
-      {!list.length && <p className="py-16 text-center text-fg3">No listed component matches. Try the job instead, like “toast”, on <a href="/browse" className="text-fg hover:underline">Browse</a>.</p>}
+      {!list.length && <p className="py-16 text-center text-fg3">No listed component matches. Try the job instead, like “toast”, on <a href="/browse" className="text-fg underline decoration-fg3 underline-offset-4 hover:decoration-fg">Browse</a>.</p>}
     </section>
   );
 }

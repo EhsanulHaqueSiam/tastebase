@@ -31,7 +31,7 @@ export default function FolderPicker({ id, name, label, className = "bg-s3" }: {
         type="button"
         {...hover}
         onClick={() => (user ? (setOpen(true), haptic("light")) : askSignIn())}
-        aria-label={`Add ${name} to a folder`}
+        aria-label={label ? undefined : `Add ${name} to a folder`} // with `label`, its visible text names it
         className={`press inline-flex h-8 items-center justify-center gap-1.5 rounded-lg hover:bg-fg hover:text-bg ${label ? "px-2.5 text-[12.5px] font-medium" : "w-8"} ${filed ? "text-fg" : "text-fg2"} ${className}`}
       >
         <FolderPlusIcon ref={ref} size={14} className="grid place-items-center" />

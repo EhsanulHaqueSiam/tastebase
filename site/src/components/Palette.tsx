@@ -6,7 +6,7 @@ import { navigate } from "astro:transitions/client";
 import { Command } from "cmdk";
 import { ArrowRight, ArrowUpRight, Search } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { Toaster } from "sonner";
 import { Drawer } from "vaul";
 import { resourceKinds, type ResourceKind } from "../../../src/registry/resources.ts";
@@ -37,18 +37,42 @@ export default function Palette() {
   const [q, setQ] = useState("");
   useEffect(() => void (open || setQ("")), [open]);
 
+  // What had focus when the palette opened (its input takes focus as it mounts) gets it back on close, unless a pick
+  // started a navigation: the router fires astro:before-preparation inside navigate(), before this cleanup runs.
+  const opener = useRef<HTMLElement>(null);
   useEffect(() => {
+    if (!open) return;
+    // Reopened while closing, the panel animating out is reused and its input's autoFocus does not run again.
+    document.querySelector<HTMLInputElement>("[data-palette] [cmdk-input]")?.focus();
+    let leaving = false;
+    const onLeave = () => (leaving = true);
+    // Its input is the one control: Tab stays there, even after a click on the panel left focus on the page. Tied to
+    // `open`, not to the panel, which stays mounted while it animates out.
+    const onTab = (e: KeyboardEvent) => e.key === "Tab" && (e.preventDefault(), document.querySelector<HTMLInputElement>("[data-palette] [cmdk-input]")?.focus());
+    document.addEventListener("astro:before-preparation", onLeave);
+    window.addEventListener("keydown", onTab);
+    return () => {
+      document.removeEventListener("astro:before-preparation", onLeave);
+      window.removeEventListener("keydown", onTab);
+      const at = document.activeElement;
+      if (!leaving && (at === document.body || at?.closest("[data-palette]")) && opener.current?.isConnected) opener.current.focus({ preventScroll: true });
+    };
+  }, [open]);
+
+  useEffect(() => {
+    const remember = () => document.activeElement?.closest("[data-palette]") || (opener.current = document.activeElement as HTMLElement | null);
+    const show = () => (remember(), setOpen(true));
     const onKey = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") (e.preventDefault(), setOpen((o) => !o));
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") (e.preventDefault(), remember(), setOpen((o) => !o));
       else if (e.key === "Escape") setOpen(false);
       else if (e.key === "/" && !(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)) {
         e.preventDefault();
         const ask = document.getElementById("ask");
-        ask ? ask.focus() : setOpen(true);
+        ask ? ask.focus() : show();
       }
     };
-    const onClick = (e: MouseEvent) => (e.target as Element).closest?.("[data-open-search]") && setOpen(true);
-    const onSearch = (e: Event) => (e instanceof CustomEvent && typeof e.detail === "string" && setQ(e.detail), setOpen(true));
+    const onClick = (e: MouseEvent) => (e.target as Element).closest?.("[data-open-search]") && show();
+    const onSearch = (e: Event) => (e instanceof CustomEvent && typeof e.detail === "string" && setQ(e.detail), show());
     window.addEventListener("keydown", onKey);
     window.addEventListener("tb:search", onSearch);
     document.addEventListener("click", onClick);
@@ -69,7 +93,7 @@ export default function Palette() {
   const heading = "[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-[12px] [&_[cmdk-group-heading]]:text-fg3";
 
   const panel = (
-    <Command label="Search libraries" className={phone ? "flex min-h-0 flex-col" : "overflow-hidden rounded-2xl bg-s1 shadow-[0_0_0_1px_var(--color-line2),0_40px_100px_-20px_rgb(0_0_0/0.9)]"}>
+    <Command data-palette label="Search libraries" className={phone ? "flex min-h-0 flex-col" : "overflow-hidden rounded-2xl bg-s1 shadow-[0_0_0_1px_var(--color-line2),0_40px_100px_-20px_rgb(0_0_0/0.9)]"}>
       <div className="flex items-center gap-3 border-b border-line px-4"><Search size={16} className="text-fg3" /><Command.Input autoFocus value={q} onValueChange={setQ} placeholder="Search libraries, jobs, looks, resources" className="h-12 flex-1 bg-transparent text-[15px] outline-none placeholder:text-fg3" /><span className="kbd">esc</span></div>
       <Command.List className="max-h-[360px] overflow-auto p-2">
         {lists ? <Command.Empty className="p-6 text-center text-fg3">Nothing found.</Command.Empty> : <Command.Loading><div className="p-6 text-center text-fg3">Loading</div></Command.Loading>}
@@ -131,7 +155,7 @@ export default function Palette() {
       <AnimatePresence>
         {open && !phone && (
           <motion.div className="fixed inset-0 z-50 grid place-items-start justify-center bg-black/60 px-4 pt-[16vh] backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} onClick={() => setOpen(false)}>
-            <motion.div initial={{ opacity: 0, scale: 0.97, y: -8 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ type: "spring", duration: 0.3, bounce: 0.1 }} onClick={(e) => e.stopPropagation()} className="w-full max-w-[560px]">
+            <motion.div role="dialog" aria-modal="true" aria-label="Search" initial={{ opacity: 0, scale: 0.97, y: -8 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ type: "spring", duration: 0.3, bounce: 0.1 }} onClick={(e) => e.stopPropagation()} className="w-full max-w-[560px]">
               {panel}
             </motion.div>
           </motion.div>

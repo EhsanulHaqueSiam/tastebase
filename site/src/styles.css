@@ -48,13 +48,13 @@
   --color-s3: #e4e4e8;
   --color-fg: #0a0a0b;
   --color-fg2: #55555c;
-  --color-fg3: #6b6b73;
+  --color-fg3: #64646b;
   --color-line: rgb(0 0 0 / 0.08);
   --color-line2: rgb(0 0 0 / 0.14);
   --color-blue: #3355ff;
-  --color-green: #12865a;
+  --color-green: #107750;
   --color-violet: #6d4fd6;
-  --color-amber: #a8650c;
+  --color-amber: #995c0b;
   --color-pink: #c2337f;
   --color-cyan: #0a8396;
   --drop: rgb(0 0 0 / 0.06);
@@ -66,6 +66,8 @@ html { background: var(--color-bg); color: var(--color-fg); color-scheme: dark; 
 body { font-family: var(--font-sans); font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
 ::selection { background: rgb(91 124 255 / 0.4); }
 :focus-visible { outline: 2px solid var(--color-blue); outline-offset: 2px; border-radius: 8px; }
+/* The skip link's target: a ring around the whole page would say nothing. */
+main:focus-visible { outline: none; }
 
 /* press feedback for anything tappable */
 .press { transition: transform 160ms var(--ease-out), background-color 200ms, color 200ms, box-shadow 250ms var(--ease-out); }
@@ -184,7 +186,7 @@ body > header > * { animation: blur-in 900ms var(--ease-quart) backwards; }
 
 /* A detail page framed by /browse's sheet (DetailSheet.tsx; Base.astro sets data-embed): the page alone, filling the
    frame, without the site's header, rail, tab bar, footer or floating controls. */
-[data-embed] :is([data-shell="header"], [data-shell="rail"], [data-shell="frame"], [data-shell="tabbar"], [data-footer], [data-chrome]) { display: none !important; }
+[data-embed] :is([data-shell="header"], [data-shell="rail"], [data-shell="frame"], [data-shell="tabbar"], [data-footer], [data-chrome], [data-skip]) { display: none !important; }
 [data-embed] [data-shell="main"] { padding: 0; }
 [data-embed] [data-detail] { padding-top: 0; height: 100svh; }
 

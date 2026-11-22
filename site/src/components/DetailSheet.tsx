@@ -1,7 +1,7 @@
 // /browse on desktop: a library card opens its page in a sheet over the grid instead of leaving the directory (after
 // Pinterest and Zillow). The sheet frames the real detail page, which drops the site's chrome when framed (Base.astro),
 // so the two never drift. The URL follows the sheet (/browse/<id>, so it can be copied, shared or reloaded into the full
-// page). ×, Esc, the dimmed grid and Back close it onto the same grid and scroll; a press on the job list or header
+// page). ×, Esc, the dimmed grid and Back close it onto the same grid, scroll and card (focus); a press on the job list or header
 // closes it too, then does what it was pressed for. Phones and modified clicks navigate as before.
 import { X } from "lucide-react";
 import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from "react";
@@ -16,6 +16,7 @@ export default function DetailSheet({ scope }: { scope: RefObject<HTMLElement | 
   const origin = useRef<{ url: string; state: unknown }>({ url: "", state: null });
   const box = useRef<HTMLDivElement>(null);
   const frame = useRef<HTMLIFrameElement>(null);
+  const opener = useRef<HTMLAnchorElement>(null); // the card link that opened it: focus goes back there on close
 
   // Back from the sheet's entry, or the × / Esc / backdrop (which step back to it).
   const close = () => ((history.state as State)?.sheet ? history.back() : setPath(null));
@@ -33,6 +34,7 @@ export default function DetailSheet({ scope }: { scope: RefObject<HTMLElement | 
       if (!a || a.target) return;
       e.preventDefault();
       origin.current = { url: location.href, state: history.state };
+      opener.current = a;
       history.pushState({ ...(history.state as object), sheet: a.pathname }, "", a.pathname);
       setLeft(el.getBoundingClientRect().left);
       setPath(a.pathname);
@@ -46,6 +48,7 @@ export default function DetailSheet({ scope }: { scope: RefObject<HTMLElement | 
     const onStep = (e: Event) => {
       const sheet = (e as CustomEvent<string | null>).detail;
       if (sheet && scope.current) setLeft(scope.current.getBoundingClientRect().left);
+      if (sheet && opener.current?.pathname !== sheet) opener.current = null; // Forward to another library: not its card
       setPath(sheet && matchMedia(DESKTOP).matches ? sheet : null);
     };
     addEventListener("tb:sheet", onStep);
@@ -56,10 +59,16 @@ export default function DetailSheet({ scope }: { scope: RefObject<HTMLElement | 
   useLayoutEffect(() => {
     if (!path) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
-    const onDown = (e: PointerEvent) => !box.current?.contains(e.target as Node) && !(e.target as Element).closest("[data-sheet-backdrop]") && closeNow();
+    const onDown = (e: Event) => !box.current?.contains(e.target as Node) && !(e.target as Element).closest("[data-sheet-backdrop]") && closeNow();
+    const onKeyClick = (e: MouseEvent) => e.detail === 0 && onDown(e); // Enter or Space on a job: no pointerdown before it
     document.addEventListener("keydown", onKey);
     document.addEventListener("pointerdown", onDown, true);
+    document.addEventListener("click", onKeyClick, true);
     const root = document.documentElement;
+    // What the sheet covers goes inert, so Tab moves between the sheet, the job list and the header, never onto a card
+    // or footer link hidden behind it. The job list and header stay live: a press there closes the sheet (onDown).
+    const covered = [scope.current, document.querySelector("[data-footer]")];
+    covered.forEach((e) => e?.setAttribute("inert", ""));
     // Folding the job list reflows the grid, and the browser's scroll anchoring would move it: hold the grid where it
     // was, and put it back there on close, after the list unfolds.
     const y = scrollY;
@@ -71,9 +80,11 @@ export default function DetailSheet({ scope }: { scope: RefObject<HTMLElement | 
     return () => {
       document.removeEventListener("keydown", onKey);
       document.removeEventListener("pointerdown", onDown, true);
+      document.removeEventListener("click", onKeyClick, true);
       root.style.overflow = "";
       root.removeAttribute("data-sheet");
-      if (keep.current) scrollTo({ top: y, behavior: "instant" });
+      covered.forEach((e) => e?.removeAttribute("inert"));
+      if (keep.current) scrollTo({ top: y, behavior: "instant" }), opener.current?.focus({ preventScroll: true });
     };
   }, [path]);
 
@@ -104,7 +115,7 @@ export default function DetailSheet({ scope }: { scope: RefObject<HTMLElement | 
   return (
     <>
       <div data-sheet-backdrop onClick={close} aria-hidden className="fixed top-14 right-0 bottom-0 z-40 bg-black/60 [animation:fade-in_200ms_var(--ease-out)]" style={{ left }} />
-      <div ref={box} role="dialog" aria-modal="true" aria-label="Library" className="fixed top-16 right-16 bottom-3 z-50 [animation:sheet-in_240ms_var(--ease-out)]" style={{ left: left + 16 }}>
+      <div ref={box} role="dialog" aria-label="Library" className="fixed top-16 right-16 bottom-3 z-50 [animation:sheet-in_240ms_var(--ease-out)]" style={{ left: left + 16 }}>
         <iframe ref={frame} key={path} src={path} title="Library details" onLoad={onLoad} className="size-full rounded-2xl bg-bg shadow-[0_0_0_1px_var(--color-line2),0_30px_80px_-20px_rgb(0_0_0/0.9)]" />
         <button type="button" onClick={close} aria-label="Close" title="Close (Esc)" className="press absolute top-0 -right-12 grid size-9 place-items-center rounded-[10px] bg-s2 text-fg2 shadow-[inset_0_0_0_1px_var(--color-line2)] hover:text-fg">
           <X size={18} />

@@ -1,8 +1,11 @@
 // pnpm flows <url> [name ...]: walks the site's flows the way a person does (real mouse, keys and wheel through the
 // DevTools protocol) at phone and desktop sizes, and fails on the first broken step of each: the /browse sheet (open,
 // close by ×, Esc, backdrop and Back, Forward, "Try these", a job while open, and its layout beside the nav rail on wide
-// screens), filters and scroll surviving Back, detail panels that must not scroll the page, the taste survey, and the
-// card buttons signed out. Each flow runs in a fresh profile. Point it at `pnpm dev` or a preview stage, never prod.
+// screens), filters and scroll surviving Back, detail panels that must not scroll the page, the taste survey, the
+// card buttons signed out, keyboard focus (skip link, sheets that take focus and give it back), and a tab left open
+// across a deploy. Against `pnpm dev`
+// it also signs up a throwaway user and checks the account (hearts, folders, hiding, the agent key). Each flow runs in a
+// fresh profile. Point it at `pnpm dev` or a preview stage, never prod.
 import { withChrome, type Tab } from "./cdp.ts";
 
 const [base, ...only] = process.argv.slice(2);
@@ -50,8 +53,9 @@ async function page(tab: Tab, size: Size, path: string) {
   const clickAt = async ({ x, y }: { x: number; y: number }) => (await mouse("mouseMoved", x, y), await mouse("mousePressed", x, y), await mouse("mouseReleased", x, y));
   const click = async (selector: string) => clickAt(await center(selector));
   const key = async (key: string, code = key, modifiers = 0) => {
-    const vk = { Escape: 27, ArrowLeft: 37, ArrowRight: 39, k: 75 }[key] ?? 0;
-    await tab.send("Input.dispatchKeyEvent", { type: "rawKeyDown", key, code, modifiers, windowsVirtualKeyCode: vk });
+    const vk = { Tab: 9, Enter: 13, Escape: 27, ArrowLeft: 37, ArrowRight: 39, k: 75 }[key] ?? 0;
+    // Enter needs its text to activate the focused link or button.
+    await tab.send("Input.dispatchKeyEvent", { type: key === "Enter" ? "keyDown" : "rawKeyDown", key, code, modifiers, windowsVirtualKeyCode: vk, ...(key === "Enter" && { text: "\r" }) });
     await tab.send("Input.dispatchKeyEvent", { type: "keyUp", key, code, modifiers, windowsVirtualKeyCode: vk });
   };
   // Load, then a moment for islands to hydrate.
@@ -214,17 +218,109 @@ const flows: Record<string, [Size, string, (p: P) => Promise<void>][]> = {
     const blank = await p.js<number>(`[...document.querySelectorAll("main img")].filter((i) => i.src.startsWith("data:")).length`);
     expect(blank === 0, `${blank} screenshots stayed blank after a cancelled navigation`);
   }]],
-  // ⌘K opens the palette from any page; Esc closes it. Phones get there from the tab bar.
+  // Phones get to /browse from the tab bar.
+  // ⌘K from the header's Search pill: Esc gives focus back to the pill, a Tab straight after moves on from it, and
+  // ⌘K again while it is still closing has the typing focus.
   palette: [[DESKTOP, "/about", async (p) => {
+    await p.js(`document.querySelector('[data-shell="header"] .island button').focus()`);
     await p.key("k", "KeyK", 4);
     await p.until(`!!document.querySelector("[cmdk-input]")`, "⌘K to open the palette");
     await p.key("Escape");
+    await p.key("Tab"); // straight away, while the panel animates out: focus moves on, not into the closing input
     await p.until(`!document.querySelector("[cmdk-input]")`, "Esc to close the palette");
+    expect(await p.js("document.activeElement !== document.body && !document.activeElement.closest('[data-shell=\"header\"] .island')"), "Tab right after closing the palette did not move on from the Search pill");
+    // Reopened while it is still animating out, its input has the focus.
+    await p.key("k", "KeyK", 4);
+    await p.until(`document.activeElement?.matches("[data-palette] [cmdk-input]")`, "the palette's input to take focus");
+    await p.key("Escape");
+    await sleep(120); // closed and animating out, not yet gone
+    await p.key("k", "KeyK", 4);
+    await sleep(300);
+    expect(await p.js(`document.activeElement?.matches("[data-palette] [cmdk-input]")`), "a palette reopened as it closed does not have the typing focus");
   }], [PHONE, "/about", async (p) => {
     await p.click('nav[data-shell="tabbar"] a[href="/browse"]');
     await p.until(`location.pathname === "/browse"`, "the tab bar to reach /browse");
     await noSideScroll(p);
   }]],
+  // A tab left open across a deploy: a navigation into another build's page loads it whole (lib/prefetch.ts), so the
+  // old page's scripts never meet the new page. The build is faked by rewriting this page's id.
+  // Back lands on a #hash URL, which a plain same-URL assignment would only scroll to.
+  "new-build": [[DESKTOP, "/about#main", async (p) => {
+    const go = (href: string) => p.js(`(() => { window.flowMark = 1; const a = document.createElement("a"); a.href = "${href}"; document.querySelector("main").append(a); a.click(); })()`);
+    const old = () => p.js(`document.querySelector('meta[name="tb-build"]').content = "old"`);
+    await go("/terms");
+    await p.until(`location.pathname === "/terms"`, "a client navigation");
+    expect(await p.js("window.flowMark === 1"), "a navigation within one build loaded the page whole");
+    await old(); // Back, within this document: the router's traverse
+    await p.js("window.flowMark = 1");
+    await p.back();
+    await p.until(`location.pathname === "/about" && document.readyState === "complete"`, "Back from an old build");
+    await sleep(500);
+    expect(await p.js("window.flowMark === undefined"), "Back from an old build swapped the page instead of loading it");
+    await old();
+    await go("/terms");
+    await p.until(`location.pathname === "/terms" && document.readyState === "complete"`, "the navigation from an old build");
+    await sleep(500);
+    expect(await p.js("window.flowMark === undefined"), "a navigation from an old build swapped the page instead of loading it");
+  }]],
+  // Keyboard only: the skip link comes first, and the library and sign-in sheets take focus and give it back.
+  keyboard: [[DESKTOP, "/browse", async (p) => {
+    const focused = () => p.js<string>(`(document.activeElement?.getAttribute("aria-label") ?? document.activeElement?.textContent ?? "").trim()`);
+    await p.key("Tab");
+    expect((await focused()) === "Skip to content", `the first Tab lands on "${await focused()}", not the skip link`);
+    await p.key("Enter");
+    expect(await p.js(`document.activeElement?.id === "main"`), `the skip link left focus on "${await focused()}"`);
+    const href = await markCard(p);
+    await p.js(`document.querySelector("${ON_SCREEN}").focus()`);
+    await p.key("Enter");
+    await sheetReady(p);
+    await p.key("Escape");
+    await closed(p, "Esc to close the sheet");
+    expect(await p.js(`document.activeElement?.pathname === "${href}"`), `closing the sheet left focus on "${await focused()}", not the card`);
+    // Enter on a job while the sheet is open closes it and filters, like a press does.
+    await p.js(`document.querySelector("${ON_SCREEN}").focus()`);
+    await p.key("Enter");
+    await sheetReady(p);
+    await p.js(`document.querySelector("aside[aria-label=Jobs] button:nth-of-type(5)").focus()`);
+    await p.key("Enter");
+    await p.until(`!document.querySelector('${SHEET}') && location.pathname === "/browse" && new URL(location.href).searchParams.has("job")`, "Enter on a job to close the sheet and filter");
+    await p.js(`document.querySelector('button[aria-label="Sign in"]').focus()`);
+    await p.key("Enter");
+    await p.until(`!!document.activeElement?.closest("[role=dialog]")`, "the sign-in sheet to take focus");
+    await p.key("Escape");
+    await p.until(`document.activeElement?.getAttribute("aria-label") === "Sign in"`, "focus back on Sign in");
+  }]],
+  // Signed in. Only `pnpm dev` has email sign-up (lib/auth.ts), so only there.
+  ...(/^http:\/\/(localhost|127\.0\.0\.1)[:/]/.test(base) && {
+    "signed-in": [[DESKTOP, "/browse/ark-ui", async (p) => {
+      const me = <T>(field: string) => p.js<T>(`fetch("/api/me").then((r) => r.json()).then((m) => m.${field})`);
+      const up = await p.js<number>(`fetch("/api/auth/sign-up/email", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email: "flows-" + Date.now() + "@example.test", password: "flows-password-1", name: "Flows" }) }).then((r) => r.status)`);
+      if (up === 404) return console.log("      signed-in: skipped, this .env has no sign-in provider"); // auth() is off without one
+      expect(up === 200, `sign-up answered ${up}`);
+      await p.js(`localStorage.setItem("tastebase:account", "1")`); // what signIn() sets before the provider's page
+      await p.go("/browse/ark-ui"); // "Try these" cards carry heart, folder and hide
+      await p.until(`!!document.querySelector('button[aria-label^="Account: "]')`, "the account button");
+      await p.click('button[aria-label^="Save "]');
+      await p.until(`fetch("/api/me").then((r) => r.json()).then((m) => m.saved.length > 0)`, "the heart to reach the account");
+      await p.click('button[aria-label$=" to a folder"]');
+      await p.until(`!!document.querySelector('input[aria-label="New folder name"]')`, "the folder picker");
+      await p.js(`(() => { const i = document.querySelector('input[aria-label="New folder name"]'); Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set.call(i, "Flows"); i.dispatchEvent(new Event("input", { bubbles: true })); [...document.querySelectorAll("button")].find((b) => b.textContent.trim() === "Create").click(); })()`);
+      await p.until(`fetch("/api/me").then((r) => r.json()).then((m) => m.folders.some((f) => f.name === "Flows" && f.libs.length))`, "a new folder holding the library");
+      await p.key("Escape");
+      await p.until(`!document.querySelector('input[aria-label="New folder name"]')`, "the folder picker to close");
+      await p.click('button[aria-label^="Hide "]');
+      await p.until(`fetch("/api/me").then((r) => r.json()).then((m) => m.hidden.length > 0)`, "hiding to reach the account");
+      await p.click('button[aria-label^="Account: "]');
+      await p.until(`[...document.querySelectorAll("[role=dialog] button")].some((b) => b.textContent.includes("Agent key"))`, "the account sheet");
+      await p.js(`[...document.querySelectorAll("[role=dialog] button")].find((b) => b.textContent.includes("Agent key")).click()`);
+      await p.until(`[...document.querySelectorAll("[role=dialog] button")].some((b) => b.textContent === "Make a key")`, "the agent key view");
+      await p.js(`[...document.querySelectorAll("[role=dialog] button")].find((b) => b.textContent === "Make a key").click()`);
+      await p.until(`[...document.querySelectorAll("[role=dialog] code")].some((c) => c.textContent.startsWith("tb_sk_"))`, "the new key");
+      const mcp = await p.js<number>(`fetch("/mcp", { method: "POST", headers: { "content-type": "application/json", accept: "application/json, text/event-stream", authorization: "Bearer " + [...document.querySelectorAll("[role=dialog] code")].find((c) => c.textContent.startsWith("tb_sk_")).textContent }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list" }) }).then((r) => r.status)`);
+      expect(mcp === 200, `/mcp answered the new key with ${mcp}`);
+      expect((await me<string | null>("key"))?.length === 4, "the account does not know its key");
+    }]],
+  }),
 };
 
 let failed = 0;
