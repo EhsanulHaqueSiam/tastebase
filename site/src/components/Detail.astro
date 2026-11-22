@@ -11,6 +11,7 @@ import TryThese from "./TryThese.tsx";
 import { PickReason } from "./EditorPick.tsx";
 import LiveSite from "./LiveSite.tsx";
 import unframeable from "../lib/unframeable.json";
+import fullshots from "../lib/fullshots.json";
 
 interface Props {
   item: Listing;
@@ -19,6 +20,7 @@ interface Props {
 const { item, related } = Astro.props;
 const pills = item.pricing === "freemium" ? (["free", "paid"] as const) : ([item.pricing] as const);
 const frameable = !unframeable.includes(item.id);
+const fullHeight = (fullshots as Record<string, number>)[item.id];
 ---
 
 <div data-detail class="grid grid-cols-1 pt-14 lg:h-[calc(100svh-8px)] lg:grid-cols-2">
@@ -59,7 +61,7 @@ const frameable = !unframeable.includes(item.id);
   <section class="hidden min-h-0 py-3 pr-3 lg:block">
     {/* Open the preview site's connection while our page loads, so its frame starts sooner (a body-ok link type). */}
     {frameable && <link rel="preconnect" href={new URL(item.demo ?? item.url).origin} />}
-    <LiveSite client:media="(min-width: 1024px)" id={item.id} name={item.name} url={item.demo ?? item.url} image={item.image} frameable={frameable} />
+    <LiveSite client:media="(min-width: 1024px)" id={item.id} name={item.name} url={item.demo ?? item.url} image={item.image} frameable={frameable} fullHeight={fullHeight} />
   </section>
 </div>
 <DetailPill client:load name={item.name} url={item.url} />
