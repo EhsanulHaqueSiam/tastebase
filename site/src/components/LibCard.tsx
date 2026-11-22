@@ -1,5 +1,6 @@
-// The library card shared by the home shelf and the /browse directory, plus the sort and save pieces both use.
-import { Heart } from "lucide-react";
+// The library card shared by the home shelf and the /browse directory, its sponsored twin, and the sort and save
+// pieces both use.
+import { ArrowUpRight, Heart } from "lucide-react";
 import { memo, useState, type CSSProperties } from "react";
 import type { Framework, Kind } from "../../../src/registry/schema.ts";
 import type { Stats } from "../../../src/trending.ts";
@@ -7,6 +8,8 @@ import { haptic } from "../lib/haptics.ts";
 import { kindMeta, shot, thumb } from "../lib/kinds.ts";
 import { toggleSaved, useSaved } from "../lib/saved.ts";
 import type { ShelfLib } from "../lib/server.ts";
+import type { Sponsor } from "../lib/sponsors.ts";
+import { withUtm } from "../lib/utm.ts";
 import FolderPicker from "./FolderPicker.tsx";
 import { CopyButton, SpotCard } from "./fx.tsx";
 import { GithubMark } from "./GithubMark.tsx";
@@ -132,3 +135,27 @@ export const LibCard = memo(function LibCard({ lib, badge, pick, eager, late }: 
     </div>
   );
 });
+
+/** A sponsor in a LibCard grid: the same card shape, linking straight to its site, with "Sponsored" where the kind goes. */
+export function SponsorLibCard({ sponsor, where }: { sponsor: Sponsor; where: string }) {
+  return (
+    <a href={withUtm(sponsor.url, where)} target="_blank" rel="sponsored noopener" className="group block">
+      <SpotCard className="overflow-hidden rounded-2xl bg-s1 shadow-[inset_0_0_0_1px_var(--color-line2)] transition-shadow duration-300 group-hover:shadow-[inset_0_0_0_1px_var(--color-fg3)]">
+        <div className="relative aspect-[16/10] overflow-hidden bg-s2">
+          <img src={thumb(sponsor.image)} alt="" loading="lazy" className="size-full object-cover object-top transition-transform duration-700 ease-[var(--ease-out)] group-hover:scale-[1.04]" />
+          <span className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-s1 to-transparent" />
+        </div>
+        <div className="flex items-center gap-3 p-4 pt-1">
+          <span className="min-w-0 flex-1">
+            <span className="block font-medium">
+              {sponsor.name}
+              <ArrowUpRight size={14} className="ml-0.5 inline align-[-1px] text-fg3" aria-hidden />
+            </span>
+            <span className="block truncate text-[13px] text-fg2">{sponsor.description}</span>
+          </span>
+          <span className="shrink-0 font-mono text-[11px] tracking-[0.08em] text-fg3 uppercase">Sponsored</span>
+        </div>
+      </SpotCard>
+    </a>
+  );
+}

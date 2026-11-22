@@ -1,9 +1,10 @@
 // The card every category grid, "Recently added", "Try these", search results and article share: a 16:9 screenshot,
 // the name and two lines. Hover lifts it 4px and eases the screenshot to 1.04 (after Design Index's cards). A sponsor
-// gets the same card with a "Sponsored" tag, linking straight to its site with rel="sponsored". The title's link is
-// stretched over the card, so `pills` (other articles a library is in) can be links of their own, not nested anchors.
+// gets the same card with a brighter ring, ↗ and "Sponsored" beside the name (the screenshot stays clean), linking
+// straight to its site with rel="sponsored". The title's link is stretched over the card, so `pills` (other articles
+// a library is in) can be links of their own, not nested anchors.
 // A screenshot that fails to load is marked by Base.astro's error listener and shows "no preview" instead.
-import { ArrowRightLeft, Gift, ListOrdered } from "lucide-react";
+import { ArrowRightLeft, ArrowUpRight, Gift, ListOrdered } from "lucide-react";
 import type { Pill } from "../lib/articles.ts";
 import type { Listing } from "../lib/categories.ts";
 import type { Sponsor } from "../lib/sponsors.ts";
@@ -17,8 +18,7 @@ type Props = { eager?: boolean; late?: boolean; compact?: boolean; where?: strin
 export function ListingCard({ item, sponsor, eager = false, late = false, compact = false, where = "card", pills = [] }: Props) {
   const c = sponsor ? { href: withUtm(sponsor.url, where), name: sponsor.name, description: sponsor.description, image: sponsor.image } : item;
   return (
-    <div className="group relative flex h-full flex-col overflow-hidden rounded-xl bg-s1 shadow-[0_0_0_1px_var(--color-line),0_4px_14px_var(--drop)] transition-[translate,box-shadow] duration-200 ease-[var(--ease-out)] has-[h3_a:focus-visible]:outline-2 has-[h3_a:focus-visible]:outline-blue hover:-translate-y-1 hover:shadow-[0_0_0_1px_var(--color-line2),0_18px_40px_-12px_var(--drop-lift)]">
-      {sponsor && <span className="absolute top-2.5 left-2.5 z-10 rounded-md bg-bg/80 px-2 py-0.5 font-mono text-[10px] font-medium tracking-[0.1em] uppercase backdrop-blur">Sponsored</span>}
+    <div className={`group relative flex h-full flex-col overflow-hidden rounded-xl bg-s1 ${sponsor ? "shadow-[0_0_0_1px_var(--color-line2),0_4px_14px_var(--drop)]" : "shadow-[0_0_0_1px_var(--color-line),0_4px_14px_var(--drop)]"} transition-[translate,box-shadow] duration-200 ease-[var(--ease-out)] has-[h3_a:focus-visible]:outline-2 has-[h3_a:focus-visible]:outline-blue hover:-translate-y-1 hover:shadow-[0_0_0_1px_var(--color-line2),0_18px_40px_-12px_var(--drop-lift)]`}>
       <div className="relative aspect-video overflow-hidden bg-s2">
         {/* `late`: the screenshot waits for the page's load (Base.astro fills data-late), static pages included. */}
         <img
@@ -36,10 +36,12 @@ export function ListingCard({ item, sponsor, eager = false, late = false, compac
         <span aria-hidden="true" className="absolute inset-0 hidden place-items-center text-[13px] text-fg3 peer-data-failed:grid">no preview</span>
       </div>
       <div className={`flex flex-1 flex-col gap-1 ${compact ? "p-3" : "p-3 sm:gap-1.5 sm:p-4"}`}>
-        <h3 className={`leading-snug font-semibold tracking-[-0.01em] ${compact ? "text-[14px] sm:text-[15px]" : "text-[14px] sm:text-[17px]"}`}>
+        <h3 className={`${sponsor ? "flex items-baseline gap-2" : ""} leading-snug font-semibold tracking-[-0.01em] ${compact ? "text-[14px] sm:text-[15px]" : "text-[14px] sm:text-[17px]"}`}>
           <a href={c.href} {...(sponsor ? { target: "_blank", rel: "sponsored noopener" } : { "data-cuelume-navigate": "" })} className="outline-none after:absolute after:inset-0 after:content-['']">
             {c.name}
+            {sponsor && <ArrowUpRight size={14} className="ml-0.5 inline align-[-1px] text-fg3" aria-hidden />}
           </a>
+          {sponsor && <span className="ml-auto shrink-0 font-mono text-[10px] font-normal tracking-[0.08em] text-fg3 uppercase">Sponsored</span>}
         </h3>
         <p className="line-clamp-2 text-[12px] leading-4 text-fg2 sm:text-[13.5px] sm:leading-5">{c.description}</p>
         {pills.length > 0 && (

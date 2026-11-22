@@ -7,7 +7,6 @@ import PlanDemo from "../components/PlanDemo.tsx";
 import Setup from "../components/Setup.tsx";
 import TouchIt from "../components/TouchIt.tsx";
 import Base from "../layouts/Base.astro";
-import { kinds } from "../../../src/registry/schema.ts";
 import { formatPlan } from "../../../src/format.ts";
 import { plan } from "../../../src/engine.ts";
 import { aesthetics, libraries, lookChip, planJson, shelfLib } from "../lib/server.ts";
@@ -31,7 +30,7 @@ const commands = ["Set up tastebase from https://tastebase.ehsanulsiam.workers.d
 ---
 
 <Base>
-  <Hero client:load counts={{ libs: libs.length, resources: listedResources.length, looks: aesthetics.length, kinds: kinds.length }} />
+  <Hero client:load counts={{ libs: libs.length, resources: listedResources.length, looks: aesthetics.length }} />
   <HomeFeatures client:visible categories={categories.length} libraries={Math.floor(libs.length / 10) * 10} articles={roundups.length + comparisons.length} sample={{ name: sample.name, tagline: sample.tagline }} />
   <section aria-labelledby="recent" class="mx-auto w-full max-w-[1250px] px-4 pb-20 md:px-8">
     <h2 id="recent" class="text-[24px] leading-[1.05] font-medium tracking-[-0.03em] sm:text-[30px] md:text-[36px]">Recently added</h2>

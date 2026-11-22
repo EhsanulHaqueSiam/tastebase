@@ -4,7 +4,7 @@
 import { SearchX } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { Listing, Pricing } from "../lib/categories.ts";
-import { liveSponsors, sponsors, withSponsors } from "../lib/sponsors.ts";
+import { useSponsors, withSponsors } from "../lib/sponsors.ts";
 import { ListingCard } from "./ListingCard.tsx";
 
 const FILTERS = [["all", "All"], ["free", "Free"], ["paid", "Paid"], ["freemium", "Freemium"]] as const;
@@ -13,8 +13,7 @@ const isFilter = (v: string | null): v is Filter => FILTERS.some(([id]) => id ==
 
 export default function CategoryGrid({ items, label }: { items: Listing[]; label: string }) {
   const [filter, setFilter] = useState<Filter>("all");
-  const [live, setLive] = useState<ReturnType<typeof liveSponsors>>([]);
-  useEffect(() => setLive(liveSponsors(sponsors)), []); // after hydration: the date check runs at view time, not build time
+  const live = useSponsors();
   useEffect(() => {
     const p = new URLSearchParams(location.search).get("pricing");
     if (isFilter(p)) setFilter(p);

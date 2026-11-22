@@ -3,16 +3,18 @@ import { AnimatePresence, MotionConfig, motion } from "motion/react";
 import { useState, type ComponentProps } from "react";
 import { frameworks, type Framework } from "../../../src/registry/schema.ts";
 import { kindMeta } from "../lib/kinds.ts";
+import { useSponsors, withSponsors } from "../lib/sponsors.ts";
 import type { LookChip, ShelfLib } from "../lib/server.ts";
 import { useStats } from "../lib/stats.ts";
 import { ArrowLink, Rise } from "./fx.tsx";
-import { FW, LibCard, SORTS, sortBy, statBadge, type Sort } from "./LibCard.tsx";
+import { FW, LibCard, SponsorLibCard, SORTS, sortBy, statBadge, type Sort } from "./LibCard.tsx";
 import { Seg } from "./Seg.tsx";
 
 const SHOWN = 12;
 const words = (s: string) => s.toLowerCase().split(/\s+/).filter(Boolean);
 
-/** The shelf: screenshot cards with search, framework, sort and look filters. A look's picks lead, marked "pick". */
+/** The shelf: screenshot cards with search, framework, sort and look filters. A look's picks lead, marked "pick"; a
+ *  running sponsor leads before them and follows every 8th card. */
 export default function Gallery({ libs, looks }: { libs: ShelfLib[]; looks: LookChip[] }) {
   const stats = useStats();
   const [q, setQ] = useState("");
@@ -33,7 +35,9 @@ export default function Gallery({ libs, looks }: { libs: ShelfLib[]; looks: Look
     .filter((l) => !family || l.aesthetic.some((a) => a === family) || picks.has(l.id))
     .filter((l) => terms.every((t) => `${l.name} ${l.tagline} ${kindMeta[l.kind].label} ${l.aesthetic.join(" ")}`.toLowerCase().includes(t)))
     .sort((a, b) => Number(picks.has(b.id)) - Number(picks.has(a.id)) || order(a, b));
-  const shown = showAll ? list : list.slice(0, SHOWN);
+  const live = useSponsors();
+  // With a sponsor running, 10 libraries + 2 sponsor cards keep the first screen at 4 full rows of 3.
+  const shown = showAll ? list : list.slice(0, live.length ? SHOWN - 2 : SHOWN);
 
   const chooseLook = (id?: string) => {
     if (looks.find((l) => l.id === id)?.family) setQ(""); // the words were for the look, not for library names
@@ -99,16 +103,16 @@ export default function Gallery({ libs, looks }: { libs: ShelfLib[]; looks: Look
       <MotionConfig reducedMotion="user">
         <motion.div layout className="mt-2.5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <AnimatePresence mode="popLayout">
-            {shown.map((l, i) => (
-                <motion.div key={l.id} layout initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1, transition: { delay: (i % SHOWN) * 0.02 } }} exit={{ opacity: 0, scale: 0.96 }}>
-                  <LibCard lib={l} badge={statBadge(sort, stats?.[l.id])} pick={picks.has(l.id)} />
+            {withSponsors(shown, live).map((slot, i) => (
+                <motion.div key={slot.key} layout initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1, transition: { delay: (i % SHOWN) * 0.02 } }} exit={{ opacity: 0, scale: 0.96 }}>
+                  {"sponsor" in slot ? <SponsorLibCard sponsor={slot.sponsor} where="home-shelf" /> : <LibCard lib={slot.item} badge={statBadge(sort, stats?.[slot.item.id])} pick={picks.has(slot.item.id)} />}
                 </motion.div>
             ))}
           </AnimatePresence>
         </motion.div>
       </MotionConfig>
       {!list.length && <p className="py-12 text-center text-fg3">{offers.length ? "No library is called that. Pick the look above to see what fits it." : "Nothing on the shelf for that. Try another framework or look."}</p>}
-      {!showAll && list.length > SHOWN && (
+      {!showAll && list.length > shown.length && (
         <button type="button" onClick={() => setShowAll(true)} className="press mx-auto mt-[18px] flex h-9 items-center rounded-[9px] bg-s2 px-4 text-[13px] shadow-[inset_0_0_0_1px_var(--color-line2)] hover:bg-s3">
           Show all {list.length}
         </button>

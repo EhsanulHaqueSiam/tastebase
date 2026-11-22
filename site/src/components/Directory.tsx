@@ -1,14 +1,17 @@
 // /browse: every library, filtered by job (with live counts), price, framework and words; grid or list; saved ones.
-import { ChevronDown, Heart, LayoutGrid, List, Search } from "lucide-react";
+// A running sponsor leads the results and follows every 8th (lib/sponsors.ts).
+import { ArrowUpRight, ChevronDown, Heart, LayoutGrid, List, Search } from "lucide-react";
 import { memo, startTransition, useDeferredValue, useEffect, useRef, useState, type ReactNode } from "react";
 import { frameworks, kinds, type Framework, type Kind } from "../../../src/registry/schema.ts";
 import { kindMeta } from "../lib/kinds.ts";
 import { useLoaded } from "../lib/loaded.ts";
 import { useSaved } from "../lib/saved.ts";
+import { useSponsors, withSponsors, type Sponsor } from "../lib/sponsors.ts";
+import { withUtm } from "../lib/utm.ts";
 import type { ShelfLib } from "../lib/server.ts";
 import { useStats } from "../lib/stats.ts";
 import { CopyButton } from "./fx.tsx";
-import { FW, KindIcon, LibCard, SaveButton, SORTS, sortBy, statBadge, type Sort } from "./LibCard.tsx";
+import { FW, KindIcon, LibCard, SaveButton, SponsorLibCard, SORTS, sortBy, statBadge, type Sort } from "./LibCard.tsx";
 import { LibMark } from "./LibMark.tsx";
 import { Seg } from "./Seg.tsx";
 
@@ -33,6 +36,7 @@ export default function Directory({ libs }: { libs: ShelfLib[] }) {
   // so they do not share a slow phone's bandwidth with the first card's (the page's largest paint).
   const [limit, setLimit] = useState(6);
   const loaded = useLoaded();
+  const live = useSponsors();
   // A transition: React renders the extra cards in slices, so a slow phone's main thread stays free during the swap.
   useEffect(() => startTransition(() => setLimit((n) => Math.max(n, PAGE))), []);
   const more = useRef<HTMLDivElement>(null);
@@ -139,11 +143,11 @@ export default function Directory({ libs }: { libs: ShelfLib[] }) {
 
         {view === "grid" ? (
           <div className="mt-2.5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            {visible.map((l, i) => <div key={l.id}><LibCard lib={l} badge={statBadge(sort, stats?.[l.id])} eager={i === 0} late={!loaded && i > 0} /></div>)}
+            {withSponsors(visible, live).map((slot, i) => <div key={slot.key}>{"sponsor" in slot ? <SponsorLibCard sponsor={slot.sponsor} where="browse-grid" /> : <LibCard lib={slot.item} badge={statBadge(sort, stats?.[slot.item.id])} eager={i === 0} late={!loaded && i > 0} />}</div>)}
           </div>
         ) : (
           <ul className="mt-2.5 overflow-hidden rounded-2xl shadow-[inset_0_0_0_1px_var(--color-line)]">
-            {visible.map((l) => <ListRow key={l.id} lib={l} stat={statBadge(sort, stats?.[l.id])} />)}
+            {withSponsors(visible, live).map((slot) => ("sponsor" in slot ? <SponsorRow key={slot.key} sponsor={slot.sponsor} /> : <ListRow key={slot.key} lib={slot.item} stat={statBadge(sort, stats?.[slot.item.id])} />))}
           </ul>
         )}
         {hasMore && <div ref={more} aria-hidden className="h-px" />}
@@ -188,6 +192,22 @@ function Select<V extends string>({ label, value, shown, onChange, options, clas
 }
 
 /** List view row: the whole row links to the library; install and save sit above the link. */
+function SponsorRow({ sponsor }: { sponsor: Sponsor }) {
+  return (
+    <li className="relative flex items-center gap-3 border-t border-line px-3 py-2.5 transition-colors first:border-t-0 hover:bg-s1">
+      <img src={sponsor.image} alt="" loading="lazy" className="size-[30px] shrink-0 rounded-lg bg-s2 object-cover" />
+      <a href={withUtm(sponsor.url, "browse-list")} target="_blank" rel="sponsored noopener" className="min-w-0 flex-1 after:absolute after:inset-0">
+        <span className="block font-medium">
+          {sponsor.name}
+          <ArrowUpRight size={14} className="ml-0.5 inline align-[-1px] text-fg3" aria-hidden />
+        </span>
+        <span className="block truncate text-[13px] text-fg2">{sponsor.description}</span>
+      </a>
+      <span className="shrink-0 font-mono text-[11px] tracking-[0.08em] text-fg3 uppercase">Sponsored</span>
+    </li>
+  );
+}
+
 const ListRow = memo(function ListRow({ lib, stat }: { lib: ShelfLib; stat: string }) {
   const fws = lib.frameworks.map((f) => FW[f]);
   return (

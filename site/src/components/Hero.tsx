@@ -5,25 +5,26 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { TextMorph } from "torph/react";
 import type { Listing } from "../lib/categories.ts";
 import { cue } from "../lib/sound.ts";
-import { liveSponsors, sponsors, withSponsors, type Sponsor } from "../lib/sponsors.ts";
+import { useSponsors, withSponsors } from "../lib/sponsors.ts";
 import { useTheme } from "../lib/theme.ts";
 import { withUtm } from "../lib/utm.ts";
-import { useViews } from "../lib/views.ts";
 import { ShaderBg } from "./fx.tsx";
 import { ListingCard } from "./ListingCard.tsx";
 import { Seg } from "./Seg.tsx";
 
 const WORDS = ["ui library", "toast", "drawer", "shader", "icon set", "text morph", "glass", "chart"];
+const TRY = ["toast", "bottom sheet", "shader background", "glass"];
+const SLOTS = 4;
 type Results = { relevant: Listing[]; similar: Listing[] };
 type Tab = keyof Results;
 
-/** Hero: morphing headline, live search, rolling counts and the sponsor strip (four slots after Design Index's; empty
- *  ones invite a sponsor). Lifts and blurs away on scroll. Searching (also from a ?q= link, which the WebSite JSON-LD's
- *  SearchAction points at) folds the hero up and shows Design Index's result grid: Relevant and Similar tabs with
- *  counts, a sponsor first and after every 8th card, Clear, and an empty tab that points at the other one. */
-export default function Hero({ counts }: { counts: { libs: number; resources: number; looks: number; kinds: number } }) {
-  const [ads, setAds] = useState<Sponsor[]>([]);
-  useEffect(() => setAds(liveSponsors(sponsors, Date.now(), "home")), []); // at view time: an ended sponsor drops out
+/** Hero: morphing headline, live search with a few queries to try, rolling counts and one sponsor row (up to four
+ *  names; open slots fold into a single "Sponsor" cell). Lifts and blurs away on scroll. Searching (also from a ?q=
+ *  link, which the WebSite JSON-LD's SearchAction points at) folds the hero up and shows Design Index's result grid:
+ *  Relevant and Similar tabs with counts, a sponsor first and after every 8th card, Clear, and an empty tab that
+ *  points at the other one. */
+export default function Hero({ counts }: { counts: { libs: number; resources: number; looks: number } }) {
+  const ads = useSponsors("home");
   // The word changes only when the user points at or presses it: the site has no motion on a loop.
   const [w, setW] = useState(0);
   const next = () => setW((i) => (i + 1) % WORDS.length);
@@ -56,7 +57,7 @@ export default function Hero({ counts }: { counts: { libs: number; resources: nu
   const active = !!q.trim();
   const other: Tab = tab === "relevant" ? "similar" : "relevant";
 
-  const [shown, setShown] = useState({ libs: 0, resources: 0, looks: 0, kinds: 0 });
+  const [shown, setShown] = useState({ libs: 0, resources: 0, looks: 0 });
   useEffect(() => {
     const t = setTimeout(() => setShown(counts), 300);
     return () => clearTimeout(t);
@@ -69,12 +70,12 @@ export default function Hero({ counts }: { counts: { libs: number; resources: nu
   const fade = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
   const blur = useTransform(scrollYProgress, [0, 0.7], ["blur(0px)", "blur(10px)"]);
 
-  const views = useViews();
   const list = res?.[tab] ?? [];
   const grid = ads.filter((ad) => !ad.homepageOnly);
+  const strip = ads.slice(0, SLOTS);
 
   return (
-    <section ref={ref} className={`relative isolate flex flex-col items-center px-4 ${active ? "pt-24 pb-16" : "min-h-[92svh] pt-[22svh] pb-24"}`}>
+    <section ref={ref} className={`relative isolate flex flex-col items-center px-4 ${active ? "pt-24 pb-16" : "pt-[18svh] pb-20"}`}>
       <ShaderBg className="absolute inset-0 -z-10 opacity-80" colors={light ? ["#ffffff", "#c9d3ff", "#e3d9ff", "#f6f7fb", "#b9ccff"] : ["#000000", "#0b1250", "#2a1a6e", "#05060d", "#123a8a"]} />
       <div className="absolute inset-x-0 bottom-0 -z-10 h-1/2 bg-gradient-to-b from-transparent to-bg" />
       {/* While searching, the results scroll with the page: no lift-and-blur. */}
@@ -117,28 +118,36 @@ export default function Hero({ counts }: { counts: { libs: number; resources: nu
               <span className="kbd">/</span>
             )}
           </label>
-          {!active && <a href="/match" className="mt-3 block text-center text-[13px] text-fg2 transition-colors hover:text-fg">or match a screenshot of a UI you like →</a>}
+          {!active && (
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5 text-[13px] text-fg2">
+              <span className="pr-1 text-fg3 max-sm:hidden">Try</span>
+              {TRY.map((t) => (
+                <button key={t} type="button" onClick={() => setQ(t)} data-cuelume-tap className="press h-7 rounded-lg bg-bg/40 px-2.5 shadow-[inset_0_0_0_1px_var(--color-line2)] backdrop-blur-xl transition-colors hover:text-fg">{t}</button>
+              ))}
+              <a href="/match" data-cuelume-navigate className="press inline-flex h-7 items-center rounded-lg bg-bg/40 px-2.5 shadow-[inset_0_0_0_1px_var(--color-line2)] backdrop-blur-xl transition-colors hover:text-fg">match a screenshot →</a>
+            </div>
+          )}
         </div>
         {!active && (
           <>
-            <div className="mt-6 flex flex-wrap justify-center gap-x-5 gap-y-1 text-[13px] text-fg2 tabular-nums">
-              <span><NumberFlow value={shown.libs} /> libraries</span>
-              <span><NumberFlow value={shown.resources} /> resources</span>
-              <span><NumberFlow value={shown.looks} /> looks</span>
-              <span><NumberFlow value={shown.kinds} /> kinds of job</span>
-              {!!views?.views && <span><NumberFlow value={views.views} /> views this month</span>}
-              {!!views?.visitors && <span><NumberFlow value={views.visitors} /> visitors</span>}
-            </div>
-            <ul className="mt-8 grid w-full max-w-[600px] grid-cols-2 border-y border-dashed border-line2 sm:grid-cols-4" aria-label="Sponsors">
-              {Array.from({ length: 4 }, (_, i) => ads[i]).map((ad, i) => (
-                <li key={ad?.id ?? i} className={`flex h-14 border-dashed border-line2 ${i % 2 ? "border-l" : ""} ${i === 2 ? "max-sm:border-t sm:border-l" : ""} ${i === 3 ? "max-sm:border-t" : ""}`}>
-                  {ad ? (
-                    <a href={withUtm(ad.url, "home-strip")} target="_blank" rel="sponsored noopener" className="grid flex-1 place-items-center truncate px-3 text-[15px] font-semibold tracking-[-0.01em] text-fg2 transition-colors hover:text-fg">{ad.name}</a>
-                  ) : (
-                    <a href="/sponsor" data-cuelume-navigate className="grid flex-1 place-items-center text-[13px] text-fg3 transition-colors hover:text-fg">+ sponsor</a>
-                  )}
+            <p className="mt-6 font-mono text-[12px] text-fg3 tabular-nums [&_b]:font-medium [&_b]:text-fg">
+              <b><NumberFlow value={shown.libs} /></b> libraries · <b><NumberFlow value={shown.looks} /></b> looks · <b><NumberFlow value={shown.resources} /></b> resources
+            </p>
+            <ul className="mt-8 flex w-full max-w-[600px] flex-wrap border-y border-line2 max-sm:[&>li:nth-child(n+4)]:border-t" aria-label="Sponsors">
+              <li className="flex items-center pr-4 font-mono text-[11px] tracking-[0.08em] text-fg3 uppercase max-sm:hidden" aria-hidden>Sponsors</li>
+              {strip.map((ad) => (
+                <li key={ad.id} className="flex h-12 flex-1 border-line2 max-sm:basis-1/2 sm:border-l max-sm:[&:nth-child(odd)]:border-l">
+                  <a href={withUtm(ad.url, "home-strip")} target="_blank" rel="sponsored noopener" className="grid flex-1 place-items-center truncate px-3 text-[15px] font-semibold tracking-[-0.01em] text-fg2 transition-colors hover:text-fg">{ad.name}</a>
                 </li>
               ))}
+              {strip.length < SLOTS && (
+                <li className={`flex h-12 border-line2 sm:border-l max-sm:basis-full ${strip.length ? "flex-1" : "flex-[3]"} ${strip.length === 1 ? "max-sm:border-t" : ""}`}>
+                  <a href="/sponsor" data-cuelume-navigate className="group flex flex-1 items-center justify-between gap-3 px-3 text-[13px] text-fg3 transition-colors hover:text-fg">
+                    {strip.length ? `${SLOTS - strip.length} open` : "Your logo here, seen by people picking UI libraries"}
+                    <span className="shrink-0 text-fg">Sponsor <ArrowRight size={13} className="inline transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden /></span>
+                  </a>
+                </li>
+              )}
             </ul>
           </>
         )}
