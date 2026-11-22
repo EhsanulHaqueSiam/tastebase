@@ -11,15 +11,15 @@ import { withUtm } from "../lib/utm.ts";
 
 const PILL_ICON: Record<Pill["icon"], typeof Gift> = { alternatives: ArrowRightLeft, free: Gift, best: ListOrdered };
 
-type Props = { eager?: boolean; compact?: boolean; where?: string; pills?: Pill[] } & ({ item: Listing; sponsor?: never } | { sponsor: Sponsor; item?: never });
+type Props = { eager?: boolean; late?: boolean; compact?: boolean; where?: string; pills?: Pill[] } & ({ item: Listing; sponsor?: never } | { sponsor: Sponsor; item?: never });
 
-export function ListingCard({ item, sponsor, eager = false, compact = false, where = "card", pills = [] }: Props) {
+export function ListingCard({ item, sponsor, eager = false, late = false, compact = false, where = "card", pills = [] }: Props) {
   const c = sponsor ? { href: withUtm(sponsor.url, where), name: sponsor.name, description: sponsor.description, image: sponsor.image } : item;
   return (
     <div className="group relative flex h-full flex-col overflow-hidden rounded-xl bg-s1 shadow-[0_0_0_1px_var(--color-line),0_4px_14px_var(--drop)] transition-[translate,box-shadow] duration-200 ease-[var(--ease-out)] has-[h3_a:focus-visible]:outline-2 has-[h3_a:focus-visible]:outline-blue hover:-translate-y-1 hover:shadow-[0_0_0_1px_var(--color-line2),0_18px_40px_-12px_var(--drop-lift)]">
       {sponsor && <span className="absolute top-2.5 left-2.5 z-10 rounded-md bg-bg/80 px-2 py-0.5 font-mono text-[10px] font-medium tracking-[0.1em] uppercase backdrop-blur">Sponsored</span>}
       <div className="relative aspect-video overflow-hidden bg-s2">
-        <img
+        {!late && <img
           src={c.image}
           alt=""
           width={1200}
@@ -28,7 +28,7 @@ export function ListingCard({ item, sponsor, eager = false, compact = false, whe
           decoding="async"
           data-fallback
           className="peer size-full object-cover object-top transition-transform duration-500 ease-[var(--ease-out)] group-hover:scale-[1.04] data-failed:invisible"
-        />
+        />}
         <span aria-hidden="true" className="absolute inset-0 hidden place-items-center text-[13px] text-fg3 peer-data-failed:grid">no preview</span>
       </div>
       <div className={`flex flex-1 flex-col gap-1 ${compact ? "p-3" : "p-3 sm:gap-1.5 sm:p-4"}`}>
