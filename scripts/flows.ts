@@ -139,6 +139,14 @@ const flows: Record<string, [Size, string, (p: P) => Promise<void>][]> = {
     expect(Math.abs(at.y - y) < 60, `Back put the scroll at ${at.y}, not ${y}`);
     expect(at.bottom - at.y > 400, "Back landed at the footer");
   }]),
+  // Reaching the bottom loads the next cards below the reader; the footer must not hold the view (it would pin the
+  // reader there while every card loads).
+  "browse-bottom": [[DESKTOP, "/browse", async (p) => {
+    await p.js(`scrollTo({ top: document.documentElement.scrollHeight, behavior: "instant" })`);
+    await sleep(2000);
+    const left = await p.js<number>("document.documentElement.scrollHeight - innerHeight - scrollY");
+    expect(left > 400, `the view stayed at the footer (${left}px from the bottom) while cards loaded`);
+  }]],
   // Phones open the library as a page; Back returns to the same place in the grid.
   "phone-library": [[PHONE, "/browse", async (p) => {
     const y = await scrollTo(p, 7000);

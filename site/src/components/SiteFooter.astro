@@ -21,7 +21,9 @@ const unit = "Find the right UI library ✦ ";
 const year = new Date().getFullYear();
 ---
 
-<footer class="relative mt-24 overflow-hidden border-t-0" data-footer>
+<!-- Never a scroll anchor: at the bottom of an endless grid (/browse) the browser would hold the footer in place as
+     cards load above it, pinning the reader to the footer while every card loads. -->
+<footer class="relative mt-24 overflow-hidden border-t-0 [overflow-anchor:none]" data-footer>
   <div class="w-full overflow-hidden pt-4" aria-hidden="true">
     <div class="-my-[33%] -ml-[60%] w-[220%] sm:mx-0 sm:-my-[15%] sm:w-full">
       <svg viewBox="0 0 1200 520" class="block h-auto w-full" data-ribbon>
