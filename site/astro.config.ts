@@ -16,7 +16,7 @@ export default defineConfig({
   build: { format: "file", inlineStylesheets: "always" },
   trailingSlash: "never",
   // Every same-site link loads its page on hover or focus, so the click lands on a page already fetched.
-  prefetch: { prefetchAll: true, defaultStrategy: "hover" },
+  prefetch: false, // src/lib/prefetch.ts: Astro's <link rel="prefetch"> was never reused by the router (see there)
   // shareCopies: each page's OG card and Markdown copy, written after prerendering (build.ts).
   integrations: [react(), shareCopies()],
   vite: { plugins: [tailwindcss()] },
