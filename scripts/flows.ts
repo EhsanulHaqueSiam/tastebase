@@ -228,6 +228,14 @@ const flows: Record<string, [Size, string, (p: P) => Promise<void>][]> = {
     await p.key("Tab"); // straight away, while the panel animates out: focus moves on, not into the closing input
     await p.until(`!document.querySelector("[cmdk-input]")`, "Esc to close the palette");
     expect(await p.js("document.activeElement !== document.body && !document.activeElement.closest('[data-shell=\"header\"] .island')"), "Tab right after closing the palette did not move on from the Search pill");
+    // Reopened while it is still animating out, its input has the focus.
+    await p.key("k", "KeyK", 4);
+    await p.until(`document.activeElement?.matches("[data-palette] [cmdk-input]")`, "the palette's input to take focus");
+    await p.key("Escape");
+    await sleep(120); // closed and animating out, not yet gone
+    await p.key("k", "KeyK", 4);
+    await sleep(300);
+    expect(await p.js(`document.activeElement?.matches("[data-palette] [cmdk-input]")`), "a palette reopened as it closed does not have the typing focus");
   }], [PHONE, "/about", async (p) => {
     await p.click('nav[data-shell="tabbar"] a[href="/browse"]');
     await p.until(`location.pathname === "/browse"`, "the tab bar to reach /browse");

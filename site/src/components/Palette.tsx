@@ -42,6 +42,8 @@ export default function Palette() {
   const opener = useRef<HTMLElement>(null);
   useEffect(() => {
     if (!open) return;
+    // Reopened while closing, the panel animating out is reused and its input's autoFocus does not run again.
+    document.querySelector<HTMLInputElement>("[data-palette] [cmdk-input]")?.focus();
     let leaving = false;
     const onLeave = () => (leaving = true);
     // Its input is the one control: Tab stays there, even after a click on the panel left focus on the page. Tied to
