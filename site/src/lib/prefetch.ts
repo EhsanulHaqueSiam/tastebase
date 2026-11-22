@@ -45,6 +45,7 @@ export function startPrefetch() {
   // Hand a warmed page to the router; anything unexpected falls back to its own loader.
   document.addEventListener("astro:before-preparation", (ev) => {
     const e = ev as TransitionBeforePreparationEvent;
+    clearTimeout(timer); // a click within 80ms of the hover: the navigation fetches it, no prefetch after
     // The page is going away: stop its unfinished screenshots, so the next page's HTML gets the bandwidth (a phone
     // scrolled down a long grid has dozens in flight). Only in <main>, which is swapped; the shell persists.
     document.querySelectorAll<HTMLImageElement>("main img").forEach((i) => i.complete || (i.src = BLANK));

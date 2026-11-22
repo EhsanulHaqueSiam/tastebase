@@ -26,6 +26,7 @@ export function ListingCard({ item, sponsor, eager = false, late = false, compac
           width={1200}
           height={675}
           loading={eager ? "eager" : "lazy"}
+          fetchPriority={eager ? "high" : undefined}
           decoding="async"
           data-fallback
           className="peer size-full object-cover object-top transition-transform duration-500 ease-[var(--ease-out)] group-hover:scale-[1.04] data-failed:invisible"
