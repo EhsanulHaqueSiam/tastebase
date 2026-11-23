@@ -73,9 +73,8 @@ function withTasteNotes(all: Library[], taste: Taste | undefined, t: string, loo
 }
 
 /** The `plan` tool's answer for a brief under a user's taste, as the agent reads it; the site's "try your agent" shows
- *  the same text. `look` must be a known id. */
-export function planAnswer(all: Library[], looks: Aesthetic[], args: { brief: string; framework?: Framework; look?: string }, taste?: Taste, onUse?: (id: string) => void) {
-  const libs = without(all, taste?.hide);
+ *  the same text. `look` must be a known id. `libs`: `all` without what the user hid, when the caller has it already. */
+export function planAnswer(all: Library[], looks: Aesthetic[], args: { brief: string; framework?: Framework; look?: string }, taste?: Taste, onUse?: (id: string) => void, libs = without(all, taste?.hide)) {
   const opts = { framework: args.framework, look: args.look, like: taste?.like, prefer: taste };
   const first = plan(libs, looks, args.brief, opts);
   // Off-look marks hold only under their look, which the first plan settles.
@@ -113,7 +112,7 @@ export function createServer(all: Library[], looks: Aesthetic[], version: string
       },
       annotations: { readOnlyHint: true },
     },
-    async ({ brief, framework, look }) => (look && !lookById.has(look) ? unknownLook(look) : text(planAnswer(all, looks, { brief, framework, look }, taste, onUse))),
+    async ({ brief, framework, look }) => (look && !lookById.has(look) ? unknownLook(look) : text(planAnswer(all, looks, { brief, framework, look }, taste, onUse, libs))),
   );
 
   server.registerTool(

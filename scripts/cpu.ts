@@ -1,12 +1,12 @@
 // CPU per Worker request, against the free plan's 10ms: times the code each dynamic route runs (search, pick, plan,
-// the palette's list, the hosted MCP building its server and answering a tool call) in Node, which is the same V8.
+// the dashboard's plan with a user's taste, the palette's list, the hosted MCP building its server and answering a tool call) in Node, which is the same V8.
 // Workers run on slower cores than a laptop, so the budget here is half: p95 under 5ms. `pnpm cpu`.
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import { jobFramework, pick, plan } from "../src/engine.ts";
 import { formatPlan } from "../src/format.ts";
-import { createServer } from "../src/mcp.ts";
+import { createServer, planAnswer, type Taste } from "../src/mcp.ts";
 import { aesthetics, libraries } from "../src/registry/index.ts";
 import { resources } from "../src/registry/resources.ts";
 import { withStats } from "../src/trending.ts";
@@ -15,6 +15,7 @@ const BUDGET = 5;
 const queries = ["toast", "bottom sheet", "date picker", "pricing table", "command menu", "charts dashboard", "glass card", "data grid"];
 const briefs = ["iOS-feel habit tracker with a bottom sheet", "neo-brutalist landing page with marquee", "analytics dashboard with charts and a data table", "dev-tool landing page like Resend with a shader hero"];
 const libs = () => withStats(libraries, {}); // every request merges the KV stats into the registry first
+const TASTE: Taste = { hide: new Set(["magic-ui", "shadcn-ui/date-picker"]), like: new Set(["sonner", "vaul"]), offLook: new Map(["minimal", "apple", "neo-brutalism", "technical"].map((l) => [l, new Set(["motion", "lucide"])])), look: "minimal", framework: "react" };
 
 async function time(name: string, run: (i: number) => unknown | Promise<unknown>, n = 200) {
   for (let i = 0; i < 20; i++) await run(i); // warm, as a Worker isolate is after its first request
@@ -62,6 +63,8 @@ const results = [
   await time("GET /api/search", (i) => { const q = queries[i % queries.length]!; return pick(libs(), q, { limit: 30, framework: jobFramework(q) }); }),
   await time("GET /api/pick", (i) => pick(libs(), queries[i % queries.length]!)),
   await time("GET /api/plan", (i) => plan(libs(), aesthetics, briefs[i % briefs.length]!)),
+  // The dashboard's "try your agent" with a full taste: a saved look, hides, hearts and an off-look mark that replans.
+  await time("POST /api/try (taste)", (i) => planAnswer(libs(), aesthetics, { brief: briefs[i % briefs.length]! }, TASTE)),
   await time("GET /api/libs", () => JSON.stringify({ libs: libs().map((l) => ({ id: l.id, name: l.name, tagline: l.tagline, kind: l.kind, search: l.useFor.join(" ") })), resources: resources.map((r) => ({ id: r.id, name: r.name, goodFor: r.goodFor, kind: r.kind })) })),
   await time("MCP plan (server + call)", async (i) => {
     const [a, b] = InMemoryTransport.createLinkedPair();

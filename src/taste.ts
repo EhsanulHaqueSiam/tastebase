@@ -33,9 +33,10 @@ export function partOf(libs: readonly Library[], id: string) {
  *  its Hold Button). */
 export function without(libs: Library[], hide: ReadonlySet<string> | undefined): Library[] {
   if (!hide?.size) return libs;
+  const kits = new Set([...hide].flatMap((id) => (id.includes("/") ? [id.split("/")[0]] : []))); // only these lose parts
   return libs.flatMap((l) => {
     if (hide.has(l.id) || (l.partOf && hide.has(l.partOf))) return [];
-    const gone = l.parts ? [...l.parts.free, ...(l.parts.paid ?? [])].filter((p) => hide.has(`${l.id}/${partSlug(p)}`)) : [];
+    const gone = l.parts && kits.has(l.id) ? [...l.parts.free, ...(l.parts.paid ?? [])].filter((p) => hide.has(`${l.id}/${partSlug(p)}`)) : [];
     if (!gone.length) return [l];
     const keep = (ps: string[]) => ps.filter((p) => !gone.includes(p));
     const alt = gone.map(partSlug).join("|");
