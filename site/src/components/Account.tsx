@@ -270,8 +270,8 @@ function TryBrief() {
   const last = useRef(0); // the newest request wins, so the plan shown always matches the brief and toggle shown
   const run = async (e?: FormEvent, b = brief, m = mine) => {
     e?.preventDefault();
-    if (!b.trim()) return;
-    const n = ++last.current;
+    const n = ++last.current; // even an empty brief cancels the answer still on its way
+    if (!b.trim()) return setBusy(false);
     setBusy(true);
     if (m) await tasteSaved(); // a choice made just before must be in D1 when the server reads it
     const r = await fetch("/api/try", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ brief: b, mine: m }) }).catch(() => null);
@@ -331,22 +331,22 @@ function setup(client: Client, key: string) {
 function KeyPanel({ last4 }: { last4: string | null }) {
   const [fresh, setFresh] = useState<string>();
   const [client, setClient] = useState<Client>("Claude Code");
-  const [busy, setBusy] = useState(false);
   const [off, setOff] = useState(false); // "Turn off" asks once: every client using the key stops working
   // One request at a time: a new key landing after "Turn off" would leave a key working.
-  const make = async () => (setBusy(true), setOff(false), setFresh((await makeAgentKey()) ?? fresh), setBusy(false));
-  const turnOff = async () => (setBusy(true), setOff(false), setFresh(undefined), await revokeAgentKey(), setBusy(false));
+  const [busy, setBusyAction] = useState<"make" | "off">();
+  const make = async () => (setBusyAction("make"), setOff(false), setFresh((await makeAgentKey()) ?? fresh), setBusyAction(undefined));
+  const turnOff = async () => (setBusyAction("off"), (await revokeAgentKey()) && setFresh(undefined), setOff(false), setBusyAction(undefined));
   return (
     <div>
       <Rows>
         <Row title={last4 ? `tb_sk_…${last4}` : "No key"} sub={last4 ? "Only its last 4 characters are kept readable" : "Make one to connect your agent"}>
           <span className="flex gap-1.5">
             {last4 && (off ? (
-              <button type="button" disabled={busy} onClick={turnOff} className={`${btn} text-[#ff7b7b]`}>Turn off for good</button>
+              <button type="button" disabled={!!busy} onClick={turnOff} className={`${btn} text-[#ff7b7b]`}>{busy === "off" ? "Turning off…" : "Turn off for good"}</button>
             ) : (
-              <button type="button" disabled={busy} onClick={() => setOff(true)} className={`${btn} bg-transparent text-fg2 shadow-none`}>Turn off</button>
+              <button type="button" disabled={!!busy} onClick={() => setOff(true)} className={`${btn} bg-transparent text-fg2 shadow-none`}>Turn off</button>
             ))}
-            <button type="button" disabled={busy} onClick={make} className={btn}>{busy ? "Making…" : last4 ? "Make a new key" : "Make a key"}</button>
+            <button type="button" disabled={!!busy} onClick={make} className={btn}>{busy === "make" ? "Making…" : last4 ? "Make a new key" : "Make a key"}</button>
           </span>
         </Row>
       </Rows>

@@ -61,13 +61,22 @@ function snapshot(): State {
   return state;
 }
 
+// Counts taste edits on this page. A read of /api/me that an edit overlapped is older than the screen: its taste is dropped.
+let edits = 0;
+const writes = new Set<Promise<unknown>>();
+/** Keeps a write's promise until it settles, so tasteSaved() can wait for it. */
+const track = <T,>(p: Promise<T>) => (writes.add(p), p.finally(() => writes.delete(p)), p);
+
 async function load() {
+  await tasteSaved();
+  const at = edits;
   const me = (await api<{ user: User | null; hidden?: Hidden[]; offLook?: OffLook[]; admin?: boolean } & Partial<Omit<AccountData, "hidden" | "offLook">>>("GET", "/api/me").catch(() => null)) ?? { user: null };
   if (!me.user) return store.set(SIGNED_IN, null), set({ loading: false });
   const local = readLocal();
   const saved = [...new Set([...(me.saved ?? []), ...local])];
   const localLook = store.get(LOOK);
-  set({ user: me.user, loading: false, saved, folders: me.folders ?? [], hidden: me.hidden ?? [], offLook: me.offLook ?? [], key: me.key ?? null, admin: !!me.admin, look: me.look ?? null, framework: me.framework ?? null });
+  const taste = at === edits ? { saved, hidden: me.hidden ?? [], offLook: me.offLook ?? [], look: me.look ?? null, framework: me.framework ?? null } : {};
+  set({ user: me.user, loading: false, folders: me.folders ?? [], key: me.key ?? null, admin: !!me.admin, ...taste });
   // A look chosen signed out is saved once, through the same queue as later choices; one the account has wins.
   store.set(LOOK, null);
   if (localLook && !me.look) setPrefs({ look: localLook });
@@ -103,7 +112,8 @@ export function toggleSaved(id: string) {
   const on = !saved.includes(id);
   set({ saved: on ? [...saved, id] : saved.filter((x) => x !== id) });
   if (!user) return store.set(KEY, JSON.stringify(snapshot().saved));
-  api("POST", "/api/saved", { lib: id, on }).catch((e) => (fail(e), set({ saved })));
+  edits++;
+  track(api("POST", "/api/saved", { lib: id, on }).catch((e) => (fail(e), set({ saved }))));
 }
 
 /** Hearts several libraries at once (the taste survey); ones already hearted stay as they are. */
@@ -125,7 +135,8 @@ export function toggleHidden(item: Hidden) {
   if (!user) return askSignIn();
   const on = !hidden.some((h) => h.id === item.id);
   set({ hidden: on ? [...hidden, item] : hidden.filter((h) => h.id !== item.id) });
-  api("POST", "/api/hidden", { item: item.id, on }).catch((e) => (fail(e), set({ hidden })));
+  edits++;
+  track(api("POST", "/api/hidden", { item: item.id, on }).catch((e) => (fail(e), set({ hidden }))));
 }
 
 let prefsSaved = Promise.resolve();
@@ -137,6 +148,7 @@ export function setPrefs(p: Partial<Prefs>) {
   const next = { look, framework, ...p };
   set(next);
   if (!user) return store.set(LOOK, next.look);
+  edits++;
   prefsSaved = prefsSaved.then(() => {
     const now = snapshot();
     return api("POST", "/api/prefs", { look: now.look, framework: now.framework }).then(
@@ -150,32 +162,41 @@ export function setPrefs(p: Partial<Prefs>) {
 }
 
 let marksSaved = Promise.resolve();
+const confirmed = new Map<string, boolean>(); // item and look -> whether the server has it marked, as last confirmed
 /** Leaves an item out under one look only, or brings it back there. Writes go one at a time, each sending the item's
- *  state when it goes out, so a quick mark and undo cannot land in the wrong order. */
+ *  state when it goes out, so a quick mark and undo cannot land in the wrong order; a failed one falls back to what
+ *  the server last confirmed. */
 export function toggleOffLook(item: OffLook) {
   const { user, offLook } = snapshot();
   if (!user) return askSignIn();
+  const key = `${item.id} ${item.look}`;
   const same = (x: OffLook) => x.id === item.id && x.look === item.look;
   const on = !offLook.some(same);
+  if (!confirmed.has(key)) confirmed.set(key, !on);
   set({ offLook: on ? [...offLook, item] : offLook.filter((x) => !same(x)) });
+  edits++;
   marksSaved = marksSaved.then(() => {
     const now = snapshot().offLook.some(same);
     return api("POST", "/api/off-look", { item: item.id, look: item.look, on: now }).then(
-      () => {},
+      () => void confirmed.set(key, now),
       (e) => {
         fail(e);
-        if (snapshot().offLook.some(same) === now) set({ offLook: now ? snapshot().offLook.filter((x) => !same(x)) : [...snapshot().offLook, item] });
+        const was = confirmed.get(key)!;
+        if (snapshot().offLook.some(same) === now && now !== was) set({ offLook: was ? [...snapshot().offLook, item] : snapshot().offLook.filter((x) => !same(x)) });
       },
     );
   });
 }
 
-/** Resolves once every queued look, framework and off-look write has reached the server: what /api/try then reads. */
-export const tasteSaved = () => Promise.all([prefsSaved, marksSaved]);
+/** Resolves once every pending taste write (hearts, hides, look, framework, off-look marks) has reached the server:
+ *  what /api/try and a fresh /api/me then read. */
+export const tasteSaved = () => Promise.all([prefsSaved, marksSaved, ...writes]);
 
-/** Turns the agent key off without making a new one. */
+/** Turns the agent key off without making a new one. Resolves whether it worked. */
 export async function revokeAgentKey() {
-  if (await api("DELETE", "/api/agent-key").catch(fail)) set({ key: null });
+  const ok = !!(await api("DELETE", "/api/agent-key").catch(fail));
+  if (ok) set({ key: null });
+  return ok;
 }
 
 /** Deletes the account and everything in it. Resolves "stale" when the session is over a day old: better-auth wants a

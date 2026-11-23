@@ -162,6 +162,10 @@ test("a saved look and framework stand in only when the call and the brief name 
   assert.match(await glass.text("pick", { need: "toast" }), /^look: glassmorphism \(the user's saved look/);
   assert.doesNotMatch(await glass.text("plan", { brief: "pricing page, without svelte or vue" }), /\nframework: vue/);
   assert.match(await glass.text("plan", { brief: "settings page, we use headless ui" }), /\nframework: vue \(the user's default\)/);
+  assert.match(await glass.text("plan", { brief: "dashboard, we use chakra" }), /\nframework: react \(assumed/);
+  assert.match(await glass.text("plan", { brief: "settings page, we use shadcn" }), /\nframework: vue \(the user's default\)[\s\S]*shadcn-vue/);
+  const angular = await connect({ hide: new Set(), like: new Set(), framework: "angular" });
+  assert.match(await angular.text("plan", { brief: "settings page, we use shadcn" }), /\nframework: react[^\n]*\n[\s\S]*-> shadcn-ui/);
 });
 
 test("taste saves only valid ids through the key's owner, and says so without a key", async () => {

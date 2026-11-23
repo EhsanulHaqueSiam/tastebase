@@ -557,19 +557,26 @@ export const detectFramework = (brief: string) => FRAMEWORK_WORDS.find(([, re]) 
 export const jobFramework = (need: string): Framework => detectFramework(negations(need).want) ?? "react";
 
 /** The user's saved look and framework, minus what the text rules out ("no glassmorphism", "not vue or angular"). A
- *  text naming kits none of which run on the saved framework ("we use mantine" for a Vue user) drops it. Detection in
+ *  text naming kits none of which run on the saved framework ("we use mantine" for a Vue user), or one the registry does
+ *  not curate, drops it. Detection in
  *  the text still wins over both. */
 export function stillWanted(libs: Library[], looks: Aesthetic[], text: string, prefer?: { look?: string; framework?: Framework }) {
   const { want, not } = negations(text);
   const no = new Set(detectLooks(looks, not).map((a) => a.id));
   const look = looks.find((a) => a.id === prefer?.look && !no.has(a.id) && !no.has(a.family ?? ""));
   const said = words(want);
-  const kits = libs.filter((l) => (l.kind === "component-kit" || l.kind === "primitives") && (said.includes(words(l.id)) || said.includes(words(l.name))));
+  const alias = ELSEWHERE.find(([, re]) => re.test(want))?.[0];
+  const kits = libs.filter((l) => namesKit(l, said, alias));
   const fw = prefer?.framework;
   const refused = FRAMEWORK_WORDS.some(([f, re]) => f === fw && re.test(not.toLowerCase()));
-  const framework = fw && !refused && (!kits.length || kits.some((k) => k.frameworks.includes(fw))) ? fw : undefined;
+  // A kit the registry does not curate ("we use chakra") has no known frameworks: the brief decides, as for everyone.
+  const framework = fw && !refused && !(alias && !kits.length) && (!kits.length || kits.some((k) => k.frameworks.includes(fw))) ? fw : undefined;
   return { look, framework };
 }
+
+/** Whether a brief's words name this kit: its id, its name, a popular alias, or "shadcn" for every shadcn port. */
+const namesKit = (l: Library, said: string, alias?: string) =>
+  (l.kind === "component-kit" || l.kind === "primitives") && (said.includes(words(l.id)) || said.includes(words(l.name)) || l.id === alias || (l.id.startsWith("shadcn-") && said.includes(" shadcn ")));
 
 // Popular kits by the names people call them ("antd", "chakra"). A curated one is the base; naming one the registry does
 // not curate keeps the project's kit instead of quietly swapping in another.
@@ -676,8 +683,7 @@ export function plan(libs: Library[], looks: Aesthetic[], brief: string, opts: {
   // A kit the brief names ("we use mantine", "on shadcn") is the base, whatever the look prefers.
   const said = words(want);
   const alias = ELSEWHERE.find(([, re]) => re.test(want))?.[0];
-  const kit = libs.find((l) => (l.kind === "component-kit" || l.kind === "primitives") && l.frameworks.includes(framework) &&
-    (said.includes(words(l.id)) || said.includes(words(l.name)) || l.id === alias || (l.id.startsWith("shadcn-") && said.includes(" shadcn "))));
+  const kit = libs.find((l) => l.frameworks.includes(framework) && namesKit(l, said, alias));
   // Next, a style's own kit (pixel-art's 8bitcn, neo-brutalism's restyled shadcn/ui) beats its family's base layer.
   // Picks a style leaves out are its family's (merged in the registry index), so "own" means different from the family's.
   const fam = looks.find((a) => a.id === look.family);
