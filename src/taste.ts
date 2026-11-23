@@ -1,17 +1,20 @@
 // A signed-in user's taste: what they hid, hearted or marked off-look, read from their agent key (site/src/pages/mcp.ts)
 // and saved through the `taste` tool or the site's hide button. Ids are a library or resource id, or `library/part`
 // for one part of a kit ("kokonut-ui/pull-cord"): the part's name in lowercase, dashes for the rest.
-import type { Library } from "./registry/schema.ts";
+import type { Framework, Library } from "./registry/schema.ts";
 
 export const tasteActions = ["hide", "like", "off-look", "undo"] as const;
 export type TasteAction = (typeof tasteActions)[number];
 
 /** `hide`: never offered. `like`: hearted, a slight lead in plan and pick. `offLook`: look id -> ids never offered under
- *  that look. `save`: stores one change for the key's owner; absent without a key. */
+ *  that look. `look`, `framework`: the user's defaults, used only when the call and the brief name none. `save`: stores
+ *  one change for the key's owner; absent without a key. */
 export type Taste = {
   hide: ReadonlySet<string>;
   like: ReadonlySet<string>;
   offLook?: ReadonlyMap<string, ReadonlySet<string>>;
+  look?: string;
+  framework?: Framework;
   save?: (id: string, action: TasteAction, look?: string) => Promise<void>;
 };
 

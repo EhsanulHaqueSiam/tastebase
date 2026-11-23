@@ -512,12 +512,15 @@ export type PlanItem = {
 export type Plan = {
   look: Aesthetic;
   lookGuessed: boolean;
+  /** The brief named no look and the user's saved one stood in (`prefer`). */
+  lookSaved?: boolean;
   also: Aesthetic[];
   /** What carries the page apart from its look (3D, scroll motion, media): its picks lead their kinds. */
   site?: SiteType;
   items: PlanItem[];
   framework: Framework;
   frameworkGuessed: boolean;
+  frameworkSaved?: boolean;
   /** Kinds the brief ruled out ("no animation"). */
   skipped: Kind[];
   /** A kit the brief names that the registry does not curate ("we use chakra"): the plan keeps it and has no base pick. */
@@ -632,16 +635,20 @@ export function kitComponents(kit: Library, text: string, items: PlanItem[]): st
 }
 
 /** Picks for a whole app brief: the base kit first, then one per job, ranked to fit that kit and the look. A kind holds
- * several when the brief names several jobs in it ("a carousel and a drawer"). */
-export function plan(libs: Library[], looks: Aesthetic[], brief: string, opts: { framework?: Framework; look?: string; like?: ReadonlySet<string> } = {}): Plan {
+ * several when the brief names several jobs in it ("a carousel and a drawer"). `prefer`: the user's saved look and
+ * framework, used only where neither the call nor the brief names one. */
+export function plan(libs: Library[], looks: Aesthetic[], brief: string, opts: { framework?: Framework; look?: string; like?: ReadonlySet<string>; prefer?: { look?: string; framework?: Framework } } = {}): Plan {
   const { want, not } = negations(brief);
   const found = opts.look ? looks.filter((a) => a.id === opts.look) : detectLooks(looks, want);
   const mobileWords = /\b(mobile|phones?|iphone|android|ios app|pwa|expo|react native)\b/.test(want);
   const fallback = looks.find((a) => a.id === "minimal") ?? looks[0];
   if (!fallback) throw new Error("registry has no aesthetics");
-  const look = found[0] ?? fallback;
+  const saved = found.length ? undefined : looks.find((a) => a.id === opts.prefer?.look);
+  const look = found[0] ?? saved ?? fallback;
   const family = look.family ?? look.id;
-  const named = opts.framework ?? detectFramework(want);
+  const detected = opts.framework ?? detectFramework(want);
+  const savedFw = detected ? undefined : opts.prefer?.framework;
+  const named = detected ?? savedFw;
   const site = detectSite(want);
   // The site type's picks score as the look's own in its slots, so they are candidates even where the look has none.
   // A style's family words are look words too ("frosted" for visionOS): they ask for the look, not for a library.
@@ -790,12 +797,14 @@ export function plan(libs: Library[], looks: Aesthetic[], brief: string, opts: {
   if (baseItem.pick) baseItem = { ...baseItem, components: kitComponents(baseItem.pick.lib, lookless(want, look), items) };
   return {
     look,
-    lookGuessed: !found.length,
+    lookGuessed: !found.length && !saved,
+    ...(saved && { lookSaved: true }),
     also: found.slice(1, 3),
     site,
     items: [baseItem, ...addOn, ...items],
     framework,
     frameworkGuessed: !named,
+    ...(savedFw && { frameworkSaved: true }),
     skipped: [...ruledOut],
     uncurated,
     darkOnLight: /\bdark\b/.test(want) && (luminance(look.swatch.bg) ?? 0) > 0.5,

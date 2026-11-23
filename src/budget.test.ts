@@ -142,6 +142,17 @@ test("a hidden part leaves its kit's answers; an off-look mark holds under its l
   assert.match(await park.text("get", { id: "park-ui" }), /^install: npx @park-ui\/cli add <part>$/m);
 });
 
+test("a saved look and framework stand in only when the call and the brief name none", async () => {
+  const { text } = await connect({ hide: new Set(), like: new Set(), look: "neo-brutalism", framework: "vue" });
+  assert.match(await text("plan", { brief: "habit tracker" }), /^look: Neo-brutalism \(neo-brutalism.*the user's saved look[^\n]*\nframework: vue \(the user's saved default\)/);
+  assert.match(await text("plan", { brief: "glassmorphism dashboard in svelte" }), /^look: Glassmorphism \(glassmorphism[^\n]*\nframework: svelte\n/);
+  assert.match(await text("plan", { brief: "habit tracker", look: "apple", framework: "react" }), /^look: [^\n]*\(apple\)\nframework: react\n/);
+  // Pick ranks by the look the job names, else the saved one; Minimal's toast leads either way.
+  const plain = await connect({ hide: new Set(), like: new Set(), look: "minimal" });
+  assert.match(await plain.text("pick", { need: "toast" }), /^sonner:/);
+  assert.match(await (await connect()).text("pick", { need: "minimal design toast" }), /^sonner:/);
+});
+
 test("taste saves only valid ids through the key's owner, and says so without a key", async () => {
   const saved: unknown[] = [];
   const { text } = await connect({ hide: new Set(), like: new Set(), save: async (...a) => void saved.push(a) });

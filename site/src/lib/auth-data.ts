@@ -1,3 +1,4 @@
+import type { Framework } from "../../../src/registry/schema.ts";
 import type { TasteAction } from "../../../src/taste.ts";
 
 // Server-only: hearts, folders, hidden items, off-look marks, agent keys and editor's picks in D1 (tables in migrations/). Plain SQL
@@ -5,8 +6,11 @@ import type { TasteAction } from "../../../src/taste.ts";
 // tests can run it on node:sqlite. Every write is scoped to the signed-in user; callers validate lib ids first.
 
 export type Folder = { id: string; name: string; public: boolean; libs: string[] };
-/** What the browser holds for a signed-in user: GET /api/me. `key`: the last 4 characters of their agent key, if any. */
-export type AccountData = { saved: string[]; folders: Folder[]; hidden: string[]; key: string | null };
+/** A user's defaults for their agent when a brief names none; null means detect, as for everyone. */
+export type Prefs = { look: string | null; framework: Framework | null };
+/** What the browser holds for a signed-in user: GET /api/me. `key`: the last 4 characters of their agent key, if any.
+ *  `offLook`: items left out under one look only. */
+export type AccountData = { saved: string[]; folders: Folder[]; hidden: string[]; offLook: { item: string; look: string }[]; key: string | null } & Prefs;
 /** A folder as /f/<id> shows it: whose it is, and whether the viewer may edit it. */
 export type SharedFolder = Folder & { owner: { name: string; image: string | null }; mine: boolean };
 
@@ -18,18 +22,45 @@ const FOLDER_COLS = `f.id, f.name, f.public, (select group_concat(lib, ',') from
 export const MAX_FOLDERS = 100;
 
 export async function loadAccount(db: D1Database, userId: string): Promise<AccountData> {
-  const [saved, folders, hidden, key] = await db.batch([
+  const [saved, folders, hidden, offLook, key, pref] = await db.batch([
     db.prepare(`select lib from saved where userId = ? order by createdAt, rowid`).bind(userId),
     db.prepare(`select ${FOLDER_COLS} from folder f where f.userId = ? order by f.createdAt, f.id`).bind(userId),
     db.prepare(`select item from hidden where userId = ? order by createdAt, rowid`).bind(userId),
+    db.prepare(`select item, look from off_look where userId = ? order by createdAt, rowid`).bind(userId),
     db.prepare(`select last4 from agent_key where userId = ?`).bind(userId),
+    db.prepare(`select look, framework from pref where userId = ?`).bind(userId),
   ]);
+  const p = pref!.results[0] as Prefs | undefined;
   return {
     saved: (saved!.results as { lib: string }[]).map((r) => r.lib),
     folders: (folders!.results as Row[]).map(toFolder),
     hidden: (hidden!.results as { item: string }[]).map((r) => r.item),
+    offLook: (offLook!.results as { item: string; look: string }[]).map(({ item, look }) => ({ item, look })),
     key: (key!.results[0] as { last4: string } | undefined)?.last4 ?? null,
+    look: p?.look ?? null,
+    framework: p?.framework ?? null,
   };
+}
+
+/** Sets both defaults at once; callers validate the look and framework ids. */
+export async function setPrefs(db: D1Database, userId: string, { look, framework }: Prefs) {
+  await db
+    .prepare(`insert into pref (userId, look, framework, updatedAt) values (?, ?, ?, ?) on conflict (userId) do update set look = excluded.look, framework = excluded.framework, updatedAt = excluded.updatedAt`)
+    .bind(userId, look, framework, Date.now())
+    .run();
+}
+
+/** Leaves one item out under one look, or brings it back there. Its marks under other looks stay. */
+export async function setOffLook(db: D1Database, userId: string, item: string, look: string, on: boolean) {
+  await (on
+    ? db.prepare(`insert or ignore into off_look (userId, item, look, createdAt) values (?, ?, ?, ?)`).bind(userId, item, look, Date.now())
+    : db.prepare(`delete from off_look where userId = ? and item = ? and look = ?`).bind(userId, item, look)
+  ).run();
+}
+
+/** Turns the agent off: the key stops working and no new one is made. */
+export async function deleteAgentKey(db: D1Database, userId: string) {
+  await db.prepare(`delete from agent_key where userId = ?`).bind(userId).run();
 }
 
 /** Hide or unhide one library or resource from the user's agent. */
@@ -52,15 +83,11 @@ export async function makeAgentKey(db: D1Database, userId: string): Promise<stri
   return key;
 }
 
-/** Who owns an agent key and what they hid, hearted and marked off-look (look id -> items), in one read; undefined for
- *  an unknown key. */
-export async function tasteForKey(db: D1Database, key: string) {
-  const row = await db
-    .prepare(
-      `select k.userId, (select group_concat(item, ',') from hidden h where h.userId = k.userId) as hide, (select group_concat(lib, ',') from saved s where s.userId = k.userId) as "like", (select group_concat(look || ' ' || item, ',') from off_look o where o.userId = k.userId) as off from agent_key k where k.hash = ?`,
-    )
-    .bind(await sha256(key))
-    .first<{ userId: string; hide: string | null; like: string | null; off: string | null }>();
+// Everything a user's taste holds, for one owner row `o` (with a userId column), in one read.
+const TASTE = `select o.userId, (select group_concat(item, ',') from hidden h where h.userId = o.userId) as hide, (select group_concat(lib, ',') from saved s where s.userId = o.userId) as "like", (select group_concat(look || ' ' || item, ',') from off_look f where f.userId = o.userId) as off, p.look, p.framework from`;
+type TasteRow = { userId: string; hide: string | null; like: string | null; off: string | null } & Prefs;
+
+function toTaste(row: TasteRow | null) {
   if (!row) return undefined;
   const ids = (v: string | null) => new Set(v ? v.split(",") : []);
   const offLook = new Map<string, Set<string>>();
@@ -68,7 +95,18 @@ export async function tasteForKey(db: D1Database, key: string) {
     const [look = "", item = ""] = pair.split(" ");
     offLook.set(look, (offLook.get(look) ?? new Set()).add(item));
   }
-  return { userId: row.userId, hide: ids(row.hide), like: ids(row.like), offLook };
+  return { userId: row.userId, hide: ids(row.hide), like: ids(row.like), offLook, look: row.look ?? undefined, framework: row.framework ?? undefined };
+}
+
+/** Who owns an agent key and their taste: what they hid, hearted and marked off-look (look id -> items), and their
+ *  default look and framework, in one read; undefined for an unknown key. */
+export async function tasteForKey(db: D1Database, key: string) {
+  return toTaste(await db.prepare(`${TASTE} agent_key o left join pref p on p.userId = o.userId where o.hash = ?`).bind(await sha256(key)).first<TasteRow>());
+}
+
+/** The same taste for a signed-in user (the site's "try your agent"), key or not. */
+export async function tasteForUser(db: D1Database, userId: string) {
+  return toTaste(await db.prepare(`${TASTE} (select id as userId from user where id = ?) o left join pref p on p.userId = o.userId`).bind(userId).first<TasteRow>());
 }
 
 /** One `taste` tool call for a key's owner; the tool has validated the id and look. Undo clears the item's hide, heart

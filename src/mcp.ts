@@ -2,11 +2,11 @@
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { detectLooks, jobFramework, kitParts, negations, pick, plan, words } from "./engine.ts";
+import { detectFramework, detectLooks, kitParts, negations, pick, plan, words } from "./engine.ts";
 import { formatIntegrations, formatLibrary, formatLook, formatLooks, formatPick, formatPlan, formatResources, formatSite, formatTrending, SITE } from "./format.ts";
 import { siteTypes } from "./registry/index.ts";
 import { agentResourceKinds, isResourceKind, resources } from "./registry/resources.ts";
-import { frameworks, kinds, type Aesthetic, type Library } from "./registry/schema.ts";
+import { frameworks, kinds, type Aesthetic, type Framework, type Library } from "./registry/schema.ts";
 import { partOf, partSlug, tasteActions, without, type Taste, type TasteAction } from "./taste.ts";
 
 export type { Taste } from "./taste.ts";
@@ -54,6 +54,37 @@ const SAVED: Record<TasteAction, (id: string, look?: string) => string> = {
 };
 const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
+// Free text can still name what the user hid or marked off this look (a note's "use motion-primitives", a look's picks,
+// a kit whose part they hid); an answer that names it by id or name says so at the end.
+function withTasteNotes(all: Library[], taste: Taste | undefined, t: string, look?: string) {
+  const named = (ids: Iterable<string>) =>
+    [...ids].filter((id) => {
+      const l = all.find((x) => x.id === (partOf(all, id)?.lib.id ?? id));
+      return [l?.id ?? id, l?.name].some((n) => n && new RegExp(`(?<![\\w.-])${esc(n)}(?![\\w-])`).test(t));
+    });
+  const them = (ids: string[]) => (ids.length > 1 ? "them" : "it");
+  const hide = taste?.hide ?? new Set<string>();
+  // A hidden library's features go with it (GSAP's SplitText), as in `without`.
+  const hid = named([...hide, ...all.filter((l) => l.partOf && hide.has(l.partOf)).map((l) => l.id)]);
+  const off = named(taste?.offLook?.get(look ?? "") ?? []).filter((id) => !hid.includes(id));
+  return [t, hid.length && `the user hid ${hid.join(", ")}: never use ${them(hid)}`, off.length && `the user marked ${off.join(", ")} wrong for the ${look} look: do not use ${them(off)} here`]
+    .filter(Boolean)
+    .join("\n");
+}
+
+/** The `plan` tool's answer for a brief under a user's taste, as the agent reads it; the site's "try your agent" shows
+ *  the same text. `look` must be a known id. */
+export function planAnswer(all: Library[], looks: Aesthetic[], args: { brief: string; framework?: Framework; look?: string }, taste?: Taste, onUse?: (id: string) => void) {
+  const libs = without(all, taste?.hide);
+  const opts = { framework: args.framework, look: args.look, like: taste?.like, prefer: taste };
+  const first = plan(libs, looks, args.brief, opts);
+  // Off-look marks hold only under their look, which the first plan settles.
+  const off = taste?.offLook?.get(first.look.id);
+  const p = off?.size ? plan(without(libs, off), looks, args.brief, opts) : first;
+  p.items.forEach((i) => i.pick && onUse?.(i.pick.lib.id));
+  return withTasteNotes(all, taste, formatPlan(p), first.look.id);
+}
+
 /** `onUse` hears each library an agent reads (`get`) or is offered (`plan`, `pick`); the hosted server counts them. */
 export function createServer(all: Library[], looks: Aesthetic[], version: string, onUse?: (id: string) => void, taste?: Taste): McpServer {
   const libs = without(all, taste?.hide);
@@ -69,25 +100,7 @@ export function createServer(all: Library[], looks: Aesthetic[], version: string
     const close = [...new Set([...detectLooks(looks, id).map((a) => a.id), ...near(id, lookById.keys())])].slice(0, 5);
     return text(`Unknown look "${id}".${close.length ? ` Closest: ${close.join(", ")}.` : ""} get looks lists every id.`);
   };
-  // Free text can still name what the user hid or marked off this look (a note's "use motion-primitives", a look's
-  // picks, a kit whose part they hid); an answer that names it by id or name says so at the end.
-  const reply = (t: string, look?: string) => {
-    const named = (ids: Iterable<string>) =>
-      [...ids].filter((id) => {
-        const l = all.find((x) => x.id === (partOf(all, id)?.lib.id ?? id));
-        return [l?.id ?? id, l?.name].some((n) => n && new RegExp(`(?<![\\w.-])${esc(n)}(?![\\w-])`).test(t));
-      });
-    const them = (ids: string[]) => (ids.length > 1 ? "them" : "it");
-    const hide = taste?.hide ?? new Set<string>();
-    // A hidden library's features go with it (GSAP's SplitText), as in `without`.
-    const hid = named([...hide, ...all.filter((l) => l.partOf && hide.has(l.partOf)).map((l) => l.id)]);
-    const off = named(taste?.offLook?.get(look ?? "") ?? []).filter((id) => !hid.includes(id));
-    return text(
-      [t, hid.length && `the user hid ${hid.join(", ")}: never use ${them(hid)}`, off.length && `the user marked ${off.join(", ")} wrong for the ${look} look: do not use ${them(off)} here`]
-        .filter(Boolean)
-        .join("\n"),
-    );
-  };
+  const reply = (t: string, look?: string) => text(withTasteNotes(all, taste, t, look));
 
   server.registerTool(
     "plan",
@@ -100,15 +113,7 @@ export function createServer(all: Library[], looks: Aesthetic[], version: string
       },
       annotations: { readOnlyHint: true },
     },
-    async ({ brief, framework, look }) => {
-      if (look && !lookById.has(look)) return unknownLook(look);
-      const first = plan(libs, looks, brief, { framework, look, like });
-      // Off-look marks hold only under their look, which the first plan detects.
-      const off = taste?.offLook?.get(first.look.id);
-      const p = off?.size ? plan(without(libs, off), looks, brief, { framework, look, like }) : first;
-      p.items.forEach((i) => i.pick && onUse?.(i.pick.lib.id));
-      return reply(formatPlan(p), first.look.id);
-    },
+    async ({ brief, framework, look }) => (look && !lookById.has(look) ? unknownLook(look) : text(planAnswer(all, looks, { brief, framework, look }, taste, onUse))),
   );
 
   server.registerTool(
@@ -120,11 +125,12 @@ export function createServer(all: Library[], looks: Aesthetic[], version: string
     },
     async ({ need, framework, look: id }) => {
       if (id && !lookById.has(id)) return unknownLook(id);
-      const look = id ? lookById.get(id) : undefined;
-      // The job's own framework when none is passed ("a React date picker" never gets Vue-only answers).
-      const fw = framework ?? jobFramework(need);
-      // Off-look marks follow the look passed, else the one the job names ("minimal dashboard toast", not "not minimal").
-      const lookId = look?.id ?? detectLooks(looks, negations(need).want)[0]?.id;
+      // The look passed, else the one the job names ("minimal dashboard toast", not "not minimal"), else the user's saved
+      // look: it ranks the picks and its off-look marks apply.
+      const look = lookById.get(id ?? detectLooks(looks, negations(need).want)[0]?.id ?? taste?.look ?? "");
+      const lookId = look?.id;
+      // The job's own framework when none is passed ("a React date picker" never gets Vue-only answers), else the saved one.
+      const fw = framework ?? detectFramework(negations(need).want) ?? taste?.framework ?? "react";
       const off = taste?.offLook?.get(lookId ?? "");
       const pool = off ? without(libs, off) : libs;
       const fits = pick(pool, need, { framework: fw, look, like });

@@ -1,24 +1,29 @@
 // Client-side: what this visitor saved, shared by every island on the page. Signed out, hearts live in localStorage
 // (synced across tabs). Signed in, hearts and folders live in the account (D1, via /api/*) and follow them to any
-// device; the first sign-in on a device moves its local hearts into the account. Signed in only: what they hid from
-// their agent, and the last 4 characters of their agent key (/mcp reads both through the key).
+// device; the first sign-in on a device moves its local hearts (and look) into the account. Signed in only: what they hid
+// from their agent or marked wrong for one look, their default look and framework, and the last 4 characters of their
+// agent key (/mcp reads all of it through the key).
 import { useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import type { Provider } from "./auth.ts";
-import type { AccountData, Folder } from "./auth-data.ts";
+import type { AccountData, Folder, Prefs } from "./auth-data.ts";
 
-export type { Folder, Provider };
+export type { Folder, Prefs, Provider };
 export type User = { name: string; image: string | null };
 /** Something the user hid from their agent, with the name and page the account sheet lists it by. */
 export type Hidden = { id: string; name: string; href: string };
+/** Something left out of the agent's answers under one look only. */
+export type OffLook = Hidden & { look: string };
 /** `loading`: this browser signed in before and /api/me has not answered yet. `admin`: may set editor's picks. */
-type State = { user: User | null; loading: boolean; saved: string[]; folders: Folder[]; hidden: Hidden[]; key: string | null; admin: boolean };
+type State = { user: User | null; loading: boolean; saved: string[]; folders: Folder[]; hidden: Hidden[]; offLook: OffLook[]; key: string | null; admin: boolean } & Prefs;
 
 const KEY = "tastebase:saved";
 // Set when this browser starts a sign-in, cleared on sign-out. Without it no page asks /api/me, so signed-out visits
 // stay static and cost the Worker nothing.
 const SIGNED_IN = "tastebase:account";
-const EMPTY: State = { user: null, loading: false, saved: [], folders: [], hidden: [], key: null, admin: false };
+// A look chosen while signed out (the taste survey); the first sign-in saves it when the account has none.
+const LOOK = "tastebase:look";
+const EMPTY: State = { user: null, loading: false, saved: [], folders: [], hidden: [], offLook: [], key: null, admin: false, look: null, framework: null };
 const subs = new Set<() => void>();
 let state: State | undefined;
 
@@ -51,19 +56,25 @@ const set = (next: Partial<State>) => ((state = { ...snapshot(), ...next }), sub
 
 function snapshot(): State {
   if (state) return state;
-  state = { ...EMPTY, saved: readLocal(), loading: !!store.get(SIGNED_IN) };
+  state = { ...EMPTY, saved: readLocal(), look: store.get(LOOK), loading: !!store.get(SIGNED_IN) };
   if (state.loading) void load();
   return state;
 }
 
 async function load() {
-  const me = (await api<{ user: User | null; hidden?: Hidden[]; admin?: boolean } & Partial<Omit<AccountData, "hidden">>>("GET", "/api/me").catch(() => null)) ?? { user: null };
+  const me = (await api<{ user: User | null; hidden?: Hidden[]; offLook?: OffLook[]; admin?: boolean } & Partial<Omit<AccountData, "hidden" | "offLook">>>("GET", "/api/me").catch(() => null)) ?? { user: null };
   if (!me.user) return store.set(SIGNED_IN, null), set({ loading: false });
   const local = readLocal();
   const saved = [...new Set([...(me.saved ?? []), ...local])];
-  set({ user: me.user, loading: false, saved, folders: me.folders ?? [], hidden: me.hidden ?? [], key: me.key ?? null, admin: !!me.admin });
+  const localLook = store.get(LOOK);
+  const prefs = { look: me.look ?? localLook ?? null, framework: me.framework ?? null };
+  set({ user: me.user, loading: false, saved, folders: me.folders ?? [], hidden: me.hidden ?? [], offLook: me.offLook ?? [], key: me.key ?? null, admin: !!me.admin, ...prefs });
   if (local.length && (await api("POST", "/api/saved", { merge: local }).catch(fail))) store.set(KEY, null);
+  if (localLook && (me.look || (await api("POST", "/api/prefs", prefs).catch(fail)))) store.set(LOOK, null);
 }
+
+/** Reads the account again: the agent's taste tool may have changed it since this page loaded. */
+export const refreshAccount = () => (snapshot().user ? load() : Promise.resolve());
 
 function subscribe(cb: () => void) {
   const onStorage = (e: StorageEvent) => e.key === KEY && !snapshot().user && set({ saved: readLocal() });
@@ -114,6 +125,40 @@ export function toggleHidden(item: Hidden) {
   const on = !hidden.some((h) => h.id === item.id);
   set({ hidden: on ? [...hidden, item] : hidden.filter((h) => h.id !== item.id) });
   api("POST", "/api/hidden", { item: item.id, on }).catch((e) => (fail(e), set({ hidden })));
+}
+
+/** Sets the user's default look or framework for their agent (null: detect, as for everyone). Signed out, only the look,
+ *  kept in this browser until the first sign-in. */
+export function setPrefs(p: Partial<Prefs>) {
+  const { user, look, framework } = snapshot();
+  const next = { look, framework, ...p };
+  set(next);
+  if (!user) return store.set(LOOK, next.look);
+  api("POST", "/api/prefs", next).catch((e) => (fail(e), set({ look, framework })));
+}
+
+/** Leaves an item out under one look only, or brings it back there. */
+export function toggleOffLook(item: OffLook) {
+  const { user, offLook } = snapshot();
+  if (!user) return askSignIn();
+  const same = (x: OffLook) => x.id === item.id && x.look === item.look;
+  const on = !offLook.some(same);
+  set({ offLook: on ? [...offLook, item] : offLook.filter((x) => !same(x)) });
+  api("POST", "/api/off-look", { item: item.id, look: item.look, on }).catch((e) => (fail(e), set({ offLook })));
+}
+
+/** Turns the agent key off without making a new one. */
+export async function revokeAgentKey() {
+  if (await api("DELETE", "/api/agent-key").catch(fail)) set({ key: null });
+}
+
+/** Deletes the account and everything in it. Resolves false when the server refused (a session older than a day). */
+export async function deleteAccount() {
+  const ok = await api("POST", "/api/auth/delete-user", {}).catch(fail);
+  if (!ok) return false;
+  store.set(SIGNED_IN, null);
+  set({ ...EMPTY, saved: readLocal() });
+  return true;
 }
 
 /** A new agent key (the old one stops working). Resolves to the key itself, the only time the browser sees it. */

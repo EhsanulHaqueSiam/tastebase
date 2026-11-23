@@ -1,0 +1,265 @@
+---
+// /looks/<id>: one look's full picture. Its specimen and a small screen built from its tokens to click and type in, the
+// tokens themselves, every library it picks per job with what each is for and where it goes wrong, the installs an
+// agent runs for a page in it, its rules, the looks it is mistaken for, and its family. Prerendered; the two buttons
+// that write to the account are islands.
+import { ArrowUpRight, Check, X } from "lucide-react";
+import { kinds, type Aesthetic, type Library } from "../../../../src/registry/schema.ts";
+import { OffLookToggle, UseLook } from "../../components/LookActions.tsx";
+import { CopyButton } from "../../components/fx.tsx";
+import Base from "../../layouts/Base.astro";
+import { kindMeta, shot, thumb } from "../../lib/kinds.ts";
+import { aesthetics, libraries, planJson } from "../../lib/server.ts";
+import { ink, isDark, specimen } from "../../lib/specimens.ts";
+import "../../specimens.css";
+
+export const prerender = true;
+export const getStaticPaths = () => aesthetics.map((a) => ({ params: { id: a.id } }));
+
+const a = aesthetics.find((x) => x.id === Astro.params.id)!;
+const s = a.swatch;
+const byId = new Map(libraries.map((l) => [l.id, l]));
+const family = a.family ? aesthetics.find((x) => x.id === a.family) : undefined;
+const kin = aesthetics.filter((x) => x.id !== a.id && (x.family ?? x.id) === (a.family ?? a.id));
+const spec = specimen(a);
+const r = Math.min(s.radius, 24);
+
+// Every job the look curates, in the registry's kind order; an empty list means the look does it in plain CSS.
+const stack = kinds.flatMap((k) => {
+  const ids = a.picks[k];
+  if (!ids) return [];
+  const libs = ids.flatMap((id) => byId.get(id) ?? []);
+  return [{ kind: k, lead: libs[0], rest: libs.slice(1), css: !ids.length, needed: !!a.needs?.includes(k) }];
+});
+const inLook = new Set(Object.values(a.picks).flat());
+const pairs = (l: Library) => (l.pairsWith ?? []).filter((id) => inLook.has(id)).flatMap((id) => byId.get(id) ?? []);
+
+// The installs an agent gets for an ordinary page in this look, in order: the same plan the MCP `plan` tool returns.
+const brief = "landing page with a signup form, a pricing table and toasts";
+const page = planJson(libraries, brief, a.id);
+const prompt = `Build a ${brief} in the ${a.name} look (tastebase look id: ${a.id}). Plan it with tastebase first.`;
+
+// "Not brutalist: colourful and tidy." -> the look it is mistaken for, and how they differ.
+const nameOf = (n: string) => aesthetics.find((x) => [x.id, x.name.toLowerCase()].includes(n.toLowerCase().trim().replace(/\s+/g, "-")) || x.name.toLowerCase() === n.toLowerCase().trim());
+const near = [...a.vs.matchAll(/Not ([^:.]+): ([^.]+)\./g)].map(([, n, why]) => ({ name: n!, look: nameOf(n!), why: why! }));
+const otherVs = a.vs.replace(/Not ([^:.]+): ([^.]+)\.\s*/g, "").trim();
+
+const tokens: [string, string][] = [
+  ["Ground", s.bg],
+  ["Surface", s.surface],
+  ["Text", s.text],
+  ["Accent", s.accent],
+];
+const hex = (v: string) => (/^#[0-9a-f]{3,8}$/i.test(v) ? v : "gradient");
+const material = s.card?.split(";").filter(Boolean) ?? [];
+---
+
+<Base title={`${a.name} · Looks · tastebase`} description={a.summary} crumbs={[["Looks", "/looks"], ...(family ? [[family.name, `/looks/${family.id}`] as [string, string]] : []), [a.name, `/looks/${a.id}`]]}>
+  <div class="lp mx-auto max-w-[1120px] px-4 pt-[76px] pb-32 lg:px-6">
+    <header class="grid items-start gap-6 md:grid-cols-[1fr_minmax(0,440px)]">
+      <div class="enter">
+        <p class="text-[12.5px] text-fg3"><a href="/looks" class="hover:text-fg">Looks</a>{family && <> / <a href={`/looks/${family.id}`} class="hover:text-fg">{family.name}</a></>}</p>
+        <h1 class="mt-1.5 text-[30px] leading-tight font-semibold tracking-[-0.03em] md:text-[36px]">{a.name}</h1>
+        <p class="mt-2 max-w-[56ch] text-[15.5px] leading-[1.5] text-fg2">{a.summary}</p>
+        <div class="mt-5 flex flex-wrap items-center gap-2">
+          <UseLook client:load id={a.id} name={a.name} />
+          <CopyButton client:idle value={prompt} label="Copy plan prompt" className="h-9 rounded-[10px] px-3.5 text-[13px]" />
+          <a href={`/looks#${a.id}`} class="press inline-flex h-9 items-center rounded-[10px] px-3 text-[13px] font-medium text-fg2 hover:text-fg">Compare with others</a>
+        </div>
+      </div>
+      <div class={`${spec.cls} aspect-[4/3] rounded-xl shadow-[0_0_0_1px_var(--color-line2)]`} style={spec.style} aria-hidden="true" set:html={spec.html} />
+    </header>
+
+    <h2 class="sect">Try it</h2>
+    <div class="grid gap-3 lg:grid-cols-[1.35fr_1fr]">
+      <div class={`stage f-${s.font}`} style={`background:${s.bg};color:${s.text};--r:${r}px;--rs:${Math.min(r, 12)}px;--acc:${s.accent};--ink:${ink(s.accent)};--surf:${s.surface}`} data-stage>
+        <div class="st-nav"><b>Acme</b><span>Pricing</span><span>Docs</span><button type="button" class="st-btn st-ghost">Log in</button></div>
+        <form class="st-card" style={s.card} data-st-form>
+          <h3>Start your trial</h3>
+          <p class="st-mute">Fourteen days free. No card needed.</p>
+          <label class="st-field">Work email<input type="email" placeholder="you@company.com" autocomplete="off" /></label>
+          <label class="st-row"><input type="checkbox" role="switch" checked /> Yearly billing, save 20%</label>
+          <div class="st-acts">
+            <button type="submit" class="st-btn st-pri">Start free trial</button>
+            <button type="button" class="st-btn st-ghost">Talk to sales</button>
+          </div>
+        </form>
+        <p class="st-toast" style={s.card} role="status" data-st-toast><Check size={14} aria-hidden="true" /> Trial started</p>
+      </div>
+
+      <div class="grid content-start gap-3 rounded-xl bg-s1 p-4 shadow-[inset_0_0_0_1px_var(--color-line2)]">
+        <div class="grid grid-cols-4 gap-2">
+          {tokens.map(([k, v]) => (
+            <div class="min-w-0">
+              <i class="block h-11 rounded-lg shadow-[inset_0_0_0_1px_var(--color-line2)]" style={`background:${v}`}></i>
+              <p class="mt-1.5 text-[12px] font-medium">{k}</p>
+              <p class="truncate font-mono text-[11px] text-fg3">{hex(v)}</p>
+            </div>
+          ))}
+        </div>
+        <dl class="grid grid-cols-[80px_1fr] gap-y-1.5 border-t border-line pt-3 text-[12.5px]">
+          <dt class="text-fg3">Type</dt><dd>{s.font}{isDark(a) ? ", on a dark ground" : ""}</dd>
+          <dt class="text-fg3">Radius</dt><dd class="font-mono">{s.radius}px</dd>
+          {material.length > 0 && <><dt class="text-fg3">Material</dt><dd class="font-mono text-[11.5px] break-words text-fg2">{material.join("; ")}</dd></>}
+        </dl>
+        <p class="border-t border-line pt-3 text-[12.5px] leading-relaxed text-fg2">This screen uses only the look's tokens. Click, type and toggle it. The libraries below are what your agent installs to build the real thing.</p>
+      </div>
+    </div>
+
+    <h2 class="sect">What your agent builds it with</h2>
+    <ul class="divide-y divide-line rounded-xl shadow-[inset_0_0_0_1px_var(--color-line2)]">
+      {stack.map(({ kind, lead, rest, css, needed }) => (
+        <li class="grid gap-x-4 gap-y-2 px-4 py-3.5 md:grid-cols-[150px_1fr]">
+          <p class="text-[12.5px] text-fg3">{kindMeta[kind].label}{needed && <span class="ml-1.5 rounded bg-s3 px-1.5 py-px text-[10.5px] font-medium text-fg2">always</span>}</p>
+          {css || !lead ? (
+            <p class="text-[13.5px] text-fg2">No library. This look does it in plain CSS{needed ? ", and every plan in it gets one" : ""}.</p>
+          ) : (
+            <div class="flex min-w-0 gap-3.5">
+              <a href={`/browse/${lead.id}`} class="shrink-0"><img src={thumb(shot(lead.id))} alt="" loading="lazy" width="96" height="60" class="h-[60px] w-24 rounded-md bg-s3 object-cover object-top shadow-[0_0_0_1px_var(--color-line)]" /></a>
+              <div class="min-w-0 flex-1">
+                <div class="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+                  <a href={`/browse/${lead.id}`} class="text-[14.5px] font-semibold hover:underline">{lead.name}</a>
+                  <span class="text-[12.5px] text-fg3">{lead.tagline}</span>
+                </div>
+                <p class="mt-1 flex gap-1.5 text-[13px] text-fg2"><Check size={14} class="mt-[3px] shrink-0 text-green" aria-hidden="true" />{lead.useFor[0]}</p>
+                {lead.avoidWhen[0] && <p class="mt-0.5 flex gap-1.5 text-[13px] text-fg2"><X size={14} class="mt-[3px] shrink-0 text-amber" aria-hidden="true" />{lead.avoidWhen[0]}</p>}
+                <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12.5px] text-fg3">
+                  {pairs(lead).length > 0 && <span>Pairs with {pairs(lead).map((p, i) => <>{i > 0 && ", "}<a href={`/browse/${p.id}`} class="text-fg2 hover:text-fg">{p.name}</a></>)}</span>}
+                  {rest.length > 0 && <span>Else {rest.map((p, i) => <>{i > 0 && ", "}<a href={`/browse/${p.id}`} class="text-fg2 hover:text-fg">{p.name}</a></>)}</span>}
+                  <span class="ml-auto"><OffLookToggle client:visible item={{ id: lead.id, name: lead.name, href: `/browse/${lead.id}`, look: a.id }} /></span>
+                </div>
+              </div>
+            </div>
+          )}
+        </li>
+      ))}
+    </ul>
+
+    <h2 class="sect">Installs for a page in this look</h2>
+    <p class="-mt-1 mb-3 text-[13px] text-fg2">What the <code class="font-mono text-[12px]">plan</code> tool hands an agent for “{brief}”, in order.</p>
+    <ol class="grid gap-1.5">
+      {page.first && <li class="inst"><span class="k">first</span><code>{page.first}</code></li>}
+      {page.items.map((it) => it.pick ? (
+        <li class="inst">
+          <span class="k">{kindMeta[it.kind].short}</span>
+          <a href={`/browse/${it.pick.lib.id}`} class="shrink-0 font-medium hover:underline">{it.pick.lib.name}</a>
+          <code>{it.pick.lib.install}</code>
+        </li>
+      ) : (
+        <li class="inst"><span class="k">{kindMeta[it.kind].short}</span><span class="text-fg2">{it.empty}</span></li>
+      ))}
+    </ol>
+
+    <h2 class="sect">Rules</h2>
+    <div class="grid gap-3 md:grid-cols-2">
+      <dl class="grid content-start gap-3 rounded-xl bg-s1 p-4 text-[13.5px] shadow-[inset_0_0_0_1px_var(--color-line)]">
+        {([["Type", a.type], ["Colour", a.colour], ["Motion", a.motion]] as const).map(([k, v]) => <div><dt class="text-[12px] font-semibold text-green">{k}</dt><dd class="mt-0.5 text-fg2">{v}</dd></div>)}
+      </dl>
+      <div class="rounded-xl bg-s1 p-4 shadow-[inset_0_0_0_1px_var(--color-line)]">
+        <p class="text-[12px] font-semibold text-amber">Goes wrong when</p>
+        <ul class="mt-1.5 grid gap-1.5 text-[13.5px] text-fg2">{a.avoid.map((x) => <li class="flex gap-1.5"><X size={14} class="mt-[3px] shrink-0 text-amber" aria-hidden="true" />{x}</li>)}</ul>
+      </div>
+    </div>
+
+    {(near.length > 0 || otherVs) && (
+      <>
+        <h2 class="sect">Not to be confused with</h2>
+        <ul class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          {near.map(({ name, look, why }) => {
+            const sp = look && specimen(look);
+            return (
+              <li>
+                <a href={look ? `/looks/${look.id}` : undefined} class="flex h-full gap-3 rounded-xl bg-s1 p-2.5 shadow-[inset_0_0_0_1px_var(--color-line)] hover:shadow-[inset_0_0_0_1px_var(--color-line2)]">
+                  {sp && <div class={`${sp.cls} aspect-[4/3] w-20 shrink-0 rounded-md`} style={sp.style} aria-hidden="true" set:html={sp.html} />}
+                  <span class="min-w-0">
+                    <span class="block text-[13.5px] font-semibold">{look?.name ?? name}</span>
+                    <span class="mt-0.5 block text-[12.5px] leading-snug text-fg2">{why}.</span>
+                  </span>
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+        {otherVs && <p class="mt-3 max-w-[70ch] text-[13px] text-fg2">{otherVs}</p>}
+      </>
+    )}
+
+    {kin.length > 0 && (
+      <>
+        <h2 class="sect">{family ? `Also in ${family.name}` : `Styles in ${a.name}`}</h2>
+        <ul class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          {kin.map((k) => {
+            const sp = specimen(k);
+            return (
+              <li>
+                <a href={`/looks/${k.id}`} class="group grid gap-1.5">
+                  <div class={`${sp.cls} aspect-[4/3] rounded-lg shadow-[0_0_0_1px_var(--color-line)] transition-shadow group-hover:shadow-[0_0_0_1px_var(--color-line2)]`} style={sp.style} aria-hidden="true" set:html={sp.html} />
+                  <span class="text-[13px]">{k.name}</span>
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </>
+    )}
+
+    <h2 class="sect">Brief words that land here</h2>
+    <p class="text-[13px] text-fg2">{a.signals.join(" · ")}</p>
+    {a.references.length > 0 && (
+      <p class="mt-3 flex flex-wrap gap-1.5">
+        {a.references.map((ref) => <a href={ref.url} target="_blank" rel="noreferrer" class="press inline-flex items-center gap-1 rounded-lg bg-s2 px-2.5 py-1 text-[13px] hover:bg-s3">{ref.name}<ArrowUpRight size={12} aria-hidden="true" /></a>)}
+      </p>
+    )}
+  </div>
+</Base>
+
+<script>
+  // The sample screen's submit shows its toast for a moment; nothing else on the page runs script of its own.
+  function setup() {
+    for (const stage of document.querySelectorAll<HTMLElement>("[data-stage]")) {
+      const toast = stage.querySelector<HTMLElement>("[data-st-toast]")!;
+      let t: number | undefined;
+      stage.querySelector("[data-st-form]")!.addEventListener("submit", (e) => {
+        e.preventDefault();
+        toast.dataset.show = "";
+        clearTimeout(t);
+        t = window.setTimeout(() => delete toast.dataset.show, 1800);
+      });
+    }
+  }
+  document.addEventListener("astro:page-load", setup);
+</script>
+
+<style>
+  .sect { margin: 44px 0 12px; font-size: 13px; font-weight: 600; color: var(--color-fg2); }
+  .inst { display: flex; min-width: 0; align-items: baseline; gap: 12px; border-radius: 10px; background: var(--color-s1); padding: 8px 12px; font-size: 13px; box-shadow: inset 0 0 0 1px var(--color-line); }
+  .inst .k { width: 78px; flex: none; font: 500 11px var(--font-mono); color: var(--color-fg3); }
+  .inst code { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 12px var(--font-mono); color: var(--color-fg2); }
+
+  /* The sample screen: every colour, radius and material from the look's swatch (inline custom properties). */
+  .stage { position: relative; display: grid; align-content: start; gap: 18px; overflow: hidden; border-radius: 14px; padding: 20px; min-height: 380px; box-shadow: 0 0 0 1px var(--color-line2); }
+  .st-nav { display: flex; align-items: center; gap: 16px; font-size: 13px; }
+  .st-nav b { margin-right: auto; font-size: 16px; }
+  .st-nav span { opacity: 0.7; font-weight: 400; }
+  .st-card { display: grid; gap: 12px; max-width: 400px; padding: 20px; border-radius: var(--r); background: var(--surf); }
+  .st-card h3 { font-size: 20px; line-height: 1.15; }
+  .st-mute { margin-top: -6px; font-size: 13px; font-weight: 400; opacity: 0.7; }
+  .st-field { display: grid; gap: 6px; font-size: 12.5px; font-weight: 600; }
+  .st-field input { height: 38px; border-radius: var(--rs); padding: 0 12px; font: 400 14px var(--font-sans); color: inherit; background: color-mix(in srgb, currentColor 5%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 22%, transparent); outline: none; transition: box-shadow 160ms; }
+  .st-field input::placeholder { color: currentColor; opacity: 0.45; }
+  .st-field input:focus-visible { box-shadow: inset 0 0 0 2px var(--acc); }
+  .st-row { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 500; cursor: pointer; }
+  .st-row input { appearance: none; position: relative; width: 38px; height: 22px; flex: none; border-radius: 99px; background: color-mix(in srgb, currentColor 20%, transparent); cursor: pointer; transition: background-color 200ms; }
+  .st-row input::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgb(0 0 0 / 0.3); transition: transform 200ms var(--ease-out); }
+  .st-row input:checked { background: var(--acc); }
+  .st-row input:checked::after { transform: translateX(16px); }
+  .st-acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px; }
+  .st-btn { height: 38px; padding: 0 16px; border-radius: var(--rs); font-size: 13.5px; font-weight: 600; transition: transform 160ms var(--ease-out), opacity 160ms; }
+  .st-btn:active { transform: scale(0.97); }
+  .st-pri { background: var(--acc); color: var(--ink); }
+  .st-ghost { color: inherit; box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 25%, transparent); }
+  .st-nav .st-btn { height: 32px; padding: 0 12px; font-size: 12.5px; }
+  .st-toast { position: absolute; right: 16px; bottom: 16px; display: inline-flex; align-items: center; gap: 6px; padding: 10px 14px; border-radius: var(--rs); background: var(--surf); font-size: 13px; font-weight: 600; opacity: 0; transform: translateY(8px); pointer-events: none; transition: opacity 200ms, transform 200ms var(--ease-out); }
+  .st-toast[data-show] { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) { .st-toast, .st-row input::after { transition: none; } }
+</style>

@@ -1,8 +1,9 @@
 // Header account control. Signed out: "Sign in", which opens the sign-in sheet with a button for each provider this
 // stage has keys for (GitHub, Google, X; also opened by askSignIn() when a signed-out visitor reaches for a folder). Signed in: the avatar, which opens a sheet with folders, saved, hidden (what their agent skips,
 // each with Undo), their agent key (shown once, when made, with the setup command) and sign out. Both sheets offer
-// the taste survey (Survey.tsx, loaded on open), which the home banner opens too with a `tb:survey` event.
-import { ChevronRight, EyeOff, KeyRound, LogOut, Sparkles } from "lucide-react";
+// the taste survey (Survey.tsx, loaded on open), which the home banner opens too with a `tb:survey` event. Dashboard
+// opens /account, where all of it (and the user's look) lives on one page.
+import { ChevronRight, EyeOff, KeyRound, LayoutDashboard, LogOut, Sparkles } from "lucide-react";
 import { lazy, Suspense, useEffect, useState, type ReactNode } from "react";
 import { haptic } from "../lib/haptics.ts";
 import { useIconHover, type AnimatedIcon } from "../lib/nav.ts";
@@ -60,6 +61,13 @@ export default function AccountButton() {
           <AgentKey last4={key} fresh={fresh} onMake={async () => setFresh((await makeAgentKey()) ?? fresh)} onBack={() => (setView("main"), setFresh(undefined))} />
         ) : user ? (
           <ul className="grid gap-2">
+            <li>
+              <a href="/account" onClick={() => (haptic("selection"), setOpen(false))} className="flex h-12 items-center gap-[15px] rounded-2xl bg-fg px-4 text-[17px] font-semibold text-bg transition-transform active:scale-95">
+                <LayoutDashboard size={20} aria-hidden />
+                <span className="flex-1">Dashboard</span>
+                <ChevronRight size={16} aria-hidden />
+              </a>
+            </li>
             <Row href="/folders" icon={FoldersIcon} n={folders.length} onPick={() => setOpen(false)}>Folders</Row>
             <Row href="/browse?job=saved" icon={HeartIcon} n={saved.length} onPick={() => setOpen(false)}>Saved</Row>
             <ViewRow icon={<EyeOff size={20} aria-hidden />} value={String(hidden.length)} onPick={() => setView("hidden")}>Hidden</ViewRow>
