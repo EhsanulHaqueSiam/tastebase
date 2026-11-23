@@ -168,7 +168,8 @@ export function setPrefs(p: Partial<Prefs>) {
   const next = { look, framework, ...p };
   set(next);
   if (!user) return store.set(LOOK, next.look);
-  write("POST", "/api/prefs", () => ({ look: snapshot().look, framework: snapshot().framework }));
+  // Once a choice is saved, a look still waiting from a failed first-sign-in import is out of date.
+  write("POST", "/api/prefs", () => ({ look: snapshot().look, framework: snapshot().framework }), () => store.set(LOOK, null));
 }
 
 /** Leaves an item out under one look only, or brings it back there. */
