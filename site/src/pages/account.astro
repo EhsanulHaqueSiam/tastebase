@@ -1,0 +1,24 @@
+---
+// /account: the signed-in dashboard. Prerendered shell; the island reads the account store (lib/saved.ts). The look
+// picker's specimens and the hearts list's names come in as props, so the island needs no registry import.
+import Account, { type LibName, type LookOption } from "../components/Account.tsx";
+import Base from "../layouts/Base.astro";
+import { kindMeta } from "../lib/kinds.ts";
+import { aesthetics, libraries } from "../lib/server.ts";
+
+export const prerender = true;
+
+const famName = new Map(aesthetics.map((a) => [a.id, a.name]));
+const looks: LookOption[] = aesthetics.map(({ id, name, family, swatch: { layout: _, ...swatch } }) => ({ id, name, family: famName.get(family ?? id) ?? name, swatch }));
+const libs: Record<string, LibName> = Object.fromEntries(libraries.map((l) => [l.id, { name: l.name, kind: kindMeta[l.kind].label }]));
+---
+
+<Base noindex title="Account · tastebase" description="Your look, your agent's plan, and everything it recommends or leaves out.">
+  <Account client:only="react" looks={looks} libs={libs}>
+    <!-- Same heading and space as the island, so nothing moves when it mounts. -->
+    <section slot="fallback" class="mx-auto max-w-[1120px] px-4 pt-[76px] pb-24 lg:px-6">
+      <h1 class="text-[18px] font-semibold tracking-[-0.02em]">Account</h1>
+      <div class="mt-16 h-[112px]"></div>
+    </section>
+  </Account>
+</Base>

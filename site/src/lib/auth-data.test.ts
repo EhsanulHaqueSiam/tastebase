@@ -2,12 +2,12 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
-import { createFolder, deleteFolder, isAdmin, listPicks, loadAccount, makeAgentKey, mergeSaved, offLookCounts, readFolder, saveTaste, setHidden, setPick, setSaved, tasteForKey, updateFolder } from "./auth-data.ts";
+import { createFolder, deleteAgentKey, deleteFolder, isAdmin, listPicks, loadAccount, makeAgentKey, mergeSaved, offLookCounts, readFolder, saveTaste, setHidden, setOffLook, setPick, setPrefs, setSaved, tasteForKey, tasteForUser, updateFolder } from "./auth-data.ts";
 import { memoryD1 } from "./d1-shim.test-util.ts";
 
 function setup() {
   const d1 = memoryD1();
-  for (const m of ["0001_accounts", "0002_taste", "0003_editor_picks", "0004_off_look"]) d1.exec(readFileSync(new URL(`../../../migrations/${m}.sql`, import.meta.url), "utf8"));
+  for (const m of ["0001_accounts", "0002_taste", "0003_editor_picks", "0004_off_look", "0005_pref"]) d1.exec(readFileSync(new URL(`../../../migrations/${m}.sql`, import.meta.url), "utf8"));
   for (const u of ["ana", "bo"]) d1.exec(`insert into user values ('${u}', '${u}', '${u}@x.dev', 1, null, 0, 0)`);
   return d1 as unknown as D1Database;
 }
@@ -95,4 +95,23 @@ test("only a verified email on ADMIN_EMAILS may pick; an unset list means nobody
   assert.equal(isAdmin(ana, undefined), false);
   assert.equal(isAdmin(ana, ""), false);
   assert.equal(isAdmin({ ...ana, emailVerified: false }, "ana@x.dev"), false);
+});
+
+test("saved defaults and single off-look marks reach the agent key and the account, and only that user's", async () => {
+  const db = setup();
+  const key = await makeAgentKey(db, "ana");
+  assert.deepEqual(await tasteForUser(db, "ana").then((t) => t && [t.look, t.framework]), [undefined, undefined]);
+  await setPrefs(db, "ana", { look: "glass", framework: "vue" });
+  await setPrefs(db, "ana", { look: "neo-brutalism", framework: null });
+  await setOffLook(db, "ana", "sonner", "minimal", true);
+  await setOffLook(db, "ana", "sonner", "glass", true);
+  await setOffLook(db, "ana", "sonner", "glass", false);
+  const t = (await tasteForKey(db, key))!;
+  assert.deepEqual([t.look, t.framework, [...t.offLook.keys()], [...t.offLook.get("minimal")!]], ["neo-brutalism", undefined, ["minimal"], ["sonner"]]);
+  const a = await loadAccount(db, "ana");
+  assert.deepEqual([a.look, a.framework, a.offLook], ["neo-brutalism", null, [{ item: "sonner", look: "minimal" }]]);
+  assert.equal((await tasteForUser(db, "bo"))!.look, undefined);
+  await deleteAgentKey(db, "ana");
+  assert.equal(await tasteForKey(db, key), undefined);
+  assert.equal((await loadAccount(db, "ana")).key, null);
 });

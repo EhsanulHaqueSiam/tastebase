@@ -1,6 +1,6 @@
 // Server-only: the registry, the engine and live stats. Islands import only its types; they get props or call /api.
 import { env } from "cloudflare:workers";
-import { jobFramework, pick, plan } from "../../../src/engine.ts";
+import { detectLooks, jobFramework, negations, pick, plan } from "../../../src/engine.ts";
 import { emptySlot, firstStep, formatPlan, formatSite, install, MOBILE } from "../../../src/format.ts";
 import { aesthetics, libraries } from "../../../src/registry/index.ts";
 import { kinds, type Aesthetic, type Framework, type Kind, type Library } from "../../../src/registry/schema.ts";
@@ -108,8 +108,9 @@ export function planJson(libs: Library[], brief: string, look?: string): PlanJso
   };
 }
 
-// Same framework rule and install resolution as the MCP `pick` tool ("Vue bottom sheet" never gets React-only answers).
+// Same framework and look rules and install resolution as the MCP `pick` tool ("Vue bottom sheet" never gets React-only answers).
 export function pickJson(libs: Library[], need: string) {
   const framework = jobFramework(need);
-  return pick(libs, need, { limit: 5, framework }).map((s) => ({ lib: { ...lite(s.lib), install: install(s.lib, framework) }, why: s.why }));
+  const look = detectLooks(aesthetics, negations(need).want)[0];
+  return pick(libs, need, { limit: 5, framework, look }).map((s) => ({ lib: { ...lite(s.lib), install: install(s.lib, framework) }, why: s.why }));
 }

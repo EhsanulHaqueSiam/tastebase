@@ -14,8 +14,10 @@ import Base from "../../layouts/Base.astro";
 import { altSlug, hasAlternatives } from "../../lib/articles.ts";
 import { libraryListing, relatedTo } from "../../lib/listings.ts";
 import { withUtm } from "../../lib/utm.ts";
-import { libraries } from "../../lib/server.ts";
+import { aesthetics, libraries } from "../../lib/server.ts";
 import Adoption from "../../components/Adoption.tsx";
+import { demos } from "../../components/Demos.tsx";
+import PhoneDemo from "../../components/PhoneDemo.tsx";
 import type { Library } from "../../../../src/registry/schema.ts";
 
 // Prerendered: one page per library at build time. Live adoption numbers load in the Adoption island.
@@ -40,6 +42,12 @@ const facts: [string, string][] = [
   ["Price", lib.paid ? `Free core, ${lib.paid.price} for more` : "Free"],
 ];
 const item = libraryListing(lib);
+// The looks that pick it, and for which job: what a person deciding by look needs, and where its full picture is.
+const pickedBy = aesthetics.flatMap((a) => {
+  const k = (Object.keys(a.picks) as (keyof typeof a.picks)[]).find((k) => a.picks[k]?.includes(lib.id));
+  return k ? [{ a, lead: a.picks[k]![0] === lib.id }] : [];
+}).sort((x, y) => Number(y.lead) - Number(x.lead));
+const SHOWN_LOOKS = 12; // shadcn/ui is picked by most looks; the rest are a count
 ---
 
 <Base title={`${lib.name} · tastebase`} description={lib.tagline} shot={item.image} crumbs={[["Libraries", "/browse"], [lib.name, item.href]]}>
@@ -52,6 +60,31 @@ const item = libraryListing(lib);
       <PickToggle client:idle id={lib.id} />
     </div>
     <div class="max-w-[640px]">
+      {
+        demos[lib.id] && (
+          <div class="lg:hidden">
+            <h2 class="mt-8 mb-2 font-mono text-[11px] font-medium tracking-[0.12em] text-fg3 uppercase">Try it</h2>
+            <PhoneDemo client:visible id={lib.id} />
+          </div>
+        )
+      }
+      {
+        pickedBy.length > 0 && (
+          <>
+            <h2 class="mt-8 mb-2 font-mono text-[11px] font-medium tracking-[0.12em] text-fg3 uppercase">Looks that pick it</h2>
+            <div class="flex flex-wrap gap-1.5">
+              {pickedBy.slice(0, SHOWN_LOOKS).map(({ a, lead }) => (
+                <a href={`/looks/${a.id}`} class="press inline-flex items-center gap-2 rounded-lg bg-s2 py-1 pr-2.5 pl-1 text-[13px] hover:bg-s3">
+                  <i class="size-[22px] rounded-md shadow-[inset_0_0_0_1px_var(--color-line2)]" style={`background:${a.swatch.bg}`}><i class="m-[6px] block size-2.5 rounded-full" style={`background:${a.swatch.accent}`}></i></i>
+                  {a.name}
+                  {lead && <span class="text-[11px] text-fg3">first pick</span>}
+                </a>
+              ))}
+              {pickedBy.length > SHOWN_LOOKS && <a href="/looks" class="inline-flex items-center px-2 text-[13px] text-fg3 hover:text-fg">and {pickedBy.length - SHOWN_LOOKS} more</a>}
+            </div>
+          </>
+        )
+      }
       <h2 class="mt-10 mb-2 font-mono text-[11px] font-medium tracking-[0.12em] text-fg3 uppercase">For your agent</h2>
       <h5 class="mt-6 mb-2 text-[13px] font-semibold">Install</h5>
       <div class="flex items-center gap-2 rounded-xl bg-s1 py-1 pr-1 pl-3 shadow-[inset_0_0_0_1px_var(--color-line)]">

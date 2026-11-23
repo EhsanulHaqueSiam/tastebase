@@ -8,7 +8,9 @@ src/registry (data) ──> src/engine.ts (pick, plan) ──> src/format.ts (co
         └── src/trending.ts <── cron (hourly) ──> KV `stats:v1` ──> merged in at request time
 
 browser ──> /api/auth/* (better-auth: GitHub, Google, X) ──┐
-        ──> /api/me, /api/saved, /api/folders ──┴──> D1 (migrations/): user, session, saved, folder
+        ──> /api/me, /api/saved, /api/folders,  ──┴──> D1 (migrations/): user, session, saved, folder,
+            /api/hidden, /api/off-look, /api/prefs,       hidden, off_look, pref, agent_key
+            /api/agent-key, /api/try
         ──> /f/<id> (SSR, a shared folder)
 ```
 
@@ -52,9 +54,10 @@ One Cloudflare Worker (declared in `alchemy.run.ts`) does everything:
   what one account can store; folders are capped at 100 per user. Every write is scoped `where userId = ?`, and a
   folder that is not yours answers 404, never 403, so private ids do not leak.
 - **An agent key carries a user's taste into `/mcp`, nothing else.** Signed in, people hide libraries and tools from
-  their agent and make an agent key (`tb_sk_…`, shown once; D1 keeps its SHA-256 and last 4). A request with the key
+  their agent, set a look and framework, and make an agent key (`tb_sk_…`, shown once; D1 keeps its SHA-256 and last 4). A request with the key
   (Bearer header only: a URL would leave it in logs and history) costs one D1 read: hidden ids leave every answer, hearted libraries get ×1.1 in `pick`
-  (a close call, never a clear one). No key, no read: answers stay the same for everyone. A wrong key gets a 401,
+  (a close call, never a clear one), and the saved look and framework stand in only where the call and the brief name
+  none (a look the brief names always wins, so a saved look never overrides what the user asked for). No key, no read: answers stay the same for everyone. A wrong key gets a 401,
   not a quiet fallback. The `taste` tool writes through the same key: hide a library or one kit part
   (`library/part`, stripped from the kit's parts so pick and plan never install it), heart one, or mark it off-look.
   Off-look is not a dislike: it leaves the item out under that one look only, and its counts across users
@@ -66,6 +69,13 @@ One Cloudflare Worker (declared in `alchemy.run.ts`) does everything:
   ([deploy.md](../operations/deploy.md#sign-in-providers)). better-auth builds the callback from the request host,
   limited to those hosts (`baseURL.allowedHosts`). Each provider is optional on its own keys and the sign-in sheet
   asks `/api/me` which ones to show; without any (CI's `pnpm check`) `/api/auth/*` answers 404 and the site runs signed out.
+- **`/account` is a static shell, and its preview is the agent's own text.** Everything a user controls lives on one
+  page (the avatar's sheet links to it). "Try your agent" posts a brief to `/api/try`, which runs `planAnswer` from
+  `src/mcp.ts` with the user's taste: the exact text the `plan` tool returns, so the site never drifts from the agent.
+- **Each look has a prerendered page (`/looks/<id>`).** Its specimen, a small screen built from its swatch tokens to
+  click and type in, every pick per job with its `useFor`, `avoidWhen` and pairings, and the installs `planJson` gives a
+  page in that look, all at build time. Specimens are HTML strings from `site/src/lib/specimens.ts` with their CSS in
+  `site/src/specimens.css`, shared with `/looks`.
 - **`/f/<id>` renders per request, its cards in the browser** (`client:only`). The server does one D1 read for a
   public folder (for a private one, a session read and a second folder read) and no React render, inside the 10ms CPU budget.
 - **Pages stay static assets; the Markdown copies are static too.** Each page links its `.md` copy as

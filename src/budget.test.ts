@@ -74,6 +74,10 @@ test("tool schemas and typical answers stay within the token budget", async () =
     ...BRIEFS.map(async (brief) => [brief, tokens(await text("plan", { brief }))] as const),
     ...EVERY_LOOK.flatMap((brief) => aesthetics.map(async (a) => [`${brief} (look ${a.id})`, tokens(await text("plan", { brief, look: a.id }))] as const)),
   ]);
+  // A saved look and framework add a few words to the look and framework lines of every plan that names neither.
+  const saved = await connect({ hide: new Set(), like: new Set(), look: "game-ui", framework: "react-native" });
+  plans.push(...(await Promise.all(BRIEFS.map(async (brief) => [`${brief} (saved look)`, tokens(await saved.text("plan", { brief }))] as const))));
+  await saved.client.close();
   const [planBrief, planMost] = worst(plans);
   const used = {
     instructions: tokens(INSTRUCTIONS),
@@ -140,6 +144,30 @@ test("a hidden part leaves its kit's answers; an off-look mark holds under its l
   assert.match(await button.text("get", { id: "shadcn-ui" }), /^install: .*add card input$/m);
   const park = await connect({ hide: new Set(["park-ui/button"]), like: new Set() });
   assert.match(await park.text("get", { id: "park-ui" }), /^install: npx @park-ui\/cli add <part>$/m);
+});
+
+test("a saved look and framework stand in only when the call and the brief name none", async () => {
+  const { text } = await connect({ hide: new Set(), like: new Set(), look: "neo-brutalism", framework: "vue" });
+  assert.match(await text("plan", { brief: "habit tracker" }), /^look: Neo-brutalism \(neo-brutalism.*the user's saved look[^\n]*\nframework: vue \(the user's default\)/);
+  assert.match(await text("plan", { brief: "glassmorphism dashboard in svelte" }), /^look: Glassmorphism \(glassmorphism[^\n]*\nframework: svelte\n/);
+  assert.match(await text("plan", { brief: "habit tracker", look: "apple", framework: "react" }), /^look: [^\n]*\(apple\)\nframework: react\n/);
+  // Pick ranks by the look the job names, else the saved one; Minimal's toast leads either way.
+  const plain = await connect({ hide: new Set(), like: new Set(), look: "minimal" });
+  assert.match(await plain.text("pick", { need: "toast" }), /^look: minimal \(the user's saved look[^\n]*\nsonner:/);
+  assert.match(await (await connect()).text("pick", { need: "minimal design toast" }), /^sonner:/);
+  // The brief rules a saved default out, or names a kit for another framework: the saved one steps aside.
+  const glass = await connect({ hide: new Set(), like: new Set(), look: "glassmorphism", framework: "vue" });
+  assert.doesNotMatch(await glass.text("plan", { brief: "pricing page, no glassmorphism, not vue" }), /^look: Glassmorphism|\nframework: vue/);
+  assert.match(await glass.text("plan", { brief: "dashboard with a data table, we use mantine" }), /\nframework: react[^\n]*\n[\s\S]*mantine/);
+  assert.match(await glass.text("pick", { need: "toast" }), /^look: glassmorphism \(the user's saved look/);
+  assert.doesNotMatch(await glass.text("plan", { brief: "pricing page, without svelte or vue" }), /\nframework: vue/);
+  assert.match(await glass.text("plan", { brief: "settings page, we use headless ui" }), /\nframework: vue \(the user's default\)/);
+  assert.match(await glass.text("plan", { brief: "dashboard, we use chakra" }), /\nframework: react \(assumed/);
+  assert.match(await glass.text("plan", { brief: "settings page, we use shadcn" }), /\nframework: vue \(the user's default\)[\s\S]*shadcn-vue/);
+  assert.match(await glass.text("plan", { brief: "settings page, we use shadcn/ui" }), /\nframework: react[^\n]*\n[\s\S]*-> shadcn-ui/);
+  assert.match(await glass.text("plan", { brief: "settings page, we use element plus" }), /\nframework: vue \(the user's default\)/);
+  const angular = await connect({ hide: new Set(), like: new Set(), framework: "angular" });
+  assert.match(await angular.text("plan", { brief: "settings page, we use shadcn" }), /\nframework: angular \(the user's default\)/);
 });
 
 test("taste saves only valid ids through the key's owner, and says so without a key", async () => {

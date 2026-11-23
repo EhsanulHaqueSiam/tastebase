@@ -29,6 +29,8 @@ const make = () =>
     socialProviders: socialProviders(),
     // Under `pnpm dev` only (false in every build): `pnpm flows` signs up a throwaway user, since OAuth needs a person.
     emailAndPassword: { enabled: import.meta.env.DEV },
+    // The dashboard's Delete account. Without a password, better-auth asks for a session made in the last day.
+    user: { deleteUser: { enabled: true } },
     telemetry: { enabled: false },
   });
 

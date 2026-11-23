@@ -2,12 +2,13 @@
 // follow the looks liked. Like or skip by dragging the card, the ✕ and ♥ buttons, or ← →. The result hearts the
 // libraries liked through the saved store, so they reach an agent key like any other heart.
 import { animate, motion, useMotionValue, useReducedMotion, useTransform, type MotionValue } from "motion/react";
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { haptic } from "../lib/haptics.ts";
 import { shot, thumb } from "../lib/kinds.ts";
-import { saveAll, useAccount } from "../lib/saved.ts";
+import { saveAll, setPrefs, useAccount } from "../lib/saved.ts";
 import { follow, SURVEY_KEY, type SurveyData, type SurveyLib, type SurveyLook } from "../lib/survey.ts";
+import { declarations, FONTS, ink } from "../lib/swatch.ts";
 
 const LIBS = 6;
 let data: Promise<SurveyData> | undefined;
@@ -146,26 +147,6 @@ function Stamps({ x }: { x: MotionValue<number> }) {
   );
 }
 
-const FONTS: Record<SurveyLook["swatch"]["font"], CSSProperties> = {
-  sans: { fontFamily: "var(--font-sans)", fontWeight: 600 },
-  serif: { fontFamily: 'ui-serif, "Iowan Old Style", Palatino, Georgia, serif', fontWeight: 600 },
-  mono: { fontFamily: "var(--font-mono)", fontWeight: 500 },
-  display: { fontFamily: '"Arial Black", "Helvetica Neue", Arial, sans-serif', fontWeight: 900, letterSpacing: "-0.02em" },
-  rounded: { fontFamily: 'ui-rounded, "SF Pro Rounded", "Arial Rounded MT Bold", var(--font-sans)', fontWeight: 700 },
-  pixel: { fontFamily: "Silkscreen, var(--font-mono)" },
-  hand: { fontFamily: 'Caveat, "Bradley Hand", cursive', fontWeight: 600 },
-};
-
-// A swatch's `card` declarations ("border:2px solid #000;box-shadow:...") as a React style.
-const declarations = (css = ""): CSSProperties =>
-  Object.fromEntries(css.split(";").filter((s) => s.includes(":")).map((s) => [s.slice(0, s.indexOf(":")).trim().replace(/-([a-z])/g, (_, c: string) => c.toUpperCase()), s.slice(s.indexOf(":") + 1).trim()]));
-
-// Text on the accent: near-black on light accents, white on dark ones (the threshold /looks uses).
-const ink = (hex: string) => {
-  const [r, g, b] = [1, 3, 5].map((n) => parseInt(hex.slice(n, n + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
-  return 0.2126 * r! + 0.7152 * g! + 0.0722 * b! > 0.19 ? "#111" : "#fff";
-};
-
 /** A small screen in the look: its ground, a panel in its material and radius, its type and its accent. */
 function Specimen({ look: { name, swatch: s } }: { look: SurveyLook }) {
   return (
@@ -184,7 +165,7 @@ function Specimen({ look: { name, swatch: s } }: { look: SurveyLook }) {
 
 /** "Your taste": the looks liked, the libraries liked as chips, and Save to my hearts. */
 function Result({ looks, libs, onAgain, onKey, onSignIn }: { looks: SurveyLook[]; libs: SurveyLib[]; onAgain: () => void; onKey: () => void; onSignIn: () => void }) {
-  const { user } = useAccount();
+  const { user, loading, look } = useAccount();
   const [saved, setSaved] = useState(false);
   const save = () => (saveAll(libs.map((l) => l.id)), setSaved(true), haptic("success"), toast(`${libs.length} saved to your hearts`));
   return (
@@ -192,6 +173,18 @@ function Result({ looks, libs, onAgain, onKey, onSignIn }: { looks: SurveyLook[]
       <div className="rounded-2xl bg-s1 p-3.5 shadow-[inset_0_0_0_1px_var(--color-line2)]">
         <p className="text-[15px] font-semibold">{looks.length ? looks.map((l) => l.name).join(", ") : "No look stood out"}</p>
         <p className="mt-0.5 text-[13px] text-fg2">{libs.length ? `${libs.length} ${libs.length === 1 ? "library" : "libraries"} you liked` : "No libraries liked yet"}</p>
+        {looks.length > 0 && (
+          <div className="mt-2.5">
+            <p className="text-[12.5px] text-fg2">Your agent's look when a brief names none:</p>
+            <div className="mt-1.5 flex flex-wrap gap-1.5">
+              {looks.map((l) => (
+                <button key={l.id} type="button" aria-pressed={look === l.id} disabled={loading} onClick={() => (haptic("selection"), setPrefs({ look: l.id }), toast(`${l.name} is your look`))} className={`press rounded-lg px-2 py-1 text-[12.5px] font-medium ${look === l.id ? "bg-fg text-bg" : "bg-s3 text-fg"}`}>
+                  {look === l.id ? "✓ " : ""}{l.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
         {libs.length > 0 && (
           <ul className="mt-2.5 flex flex-wrap gap-1.5">
             {libs.map((l) => (

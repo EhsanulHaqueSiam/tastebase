@@ -512,12 +512,15 @@ export type PlanItem = {
 export type Plan = {
   look: Aesthetic;
   lookGuessed: boolean;
+  /** The brief named no look and the user's saved one stood in (`prefer`). */
+  lookSaved?: boolean;
   also: Aesthetic[];
   /** What carries the page apart from its look (3D, scroll motion, media): its picks lead their kinds. */
   site?: SiteType;
   items: PlanItem[];
   framework: Framework;
   frameworkGuessed: boolean;
+  frameworkSaved?: boolean;
   /** Kinds the brief ruled out ("no animation"). */
   skipped: Kind[];
   /** A kit the brief names that the registry does not curate ("we use chakra"): the plan keeps it and has no base pick. */
@@ -552,6 +555,28 @@ const rankIn = (ids: string[], id: string) => (ids.includes(id) ? ids.indexOf(id
 export const detectFramework = (brief: string) => FRAMEWORK_WORDS.find(([, re]) => re.test(brief.toLowerCase()))?.[0];
 /** The framework a single job runs on: the one it names, else React, as plans assume ("a Vue bottom sheet" is Vue). */
 export const jobFramework = (need: string): Framework => detectFramework(negations(need).want) ?? "react";
+
+/** The user's saved look and framework, minus what the text rules out ("no glassmorphism", "not vue or angular"). A
+ *  text naming curated kits none of which run on the saved framework ("we use mantine" for a Vue user) drops it.
+ *  Detection in
+ *  the text still wins over both. */
+export function stillWanted(libs: Library[], looks: Aesthetic[], text: string, prefer?: { look?: string; framework?: Framework }) {
+  const { want, not } = negations(text);
+  const no = new Set(detectLooks(looks, not).map((a) => a.id));
+  const look = looks.find((a) => a.id === prefer?.look && !no.has(a.id) && !no.has(a.family ?? ""));
+  const said = words(want);
+  const alias = ELSEWHERE.find(([, re]) => re.test(want))?.[0];
+  // Bare "shadcn" names no framework (it has ports for most), so it does not count here; "shadcn/ui" names the React one.
+  const kits = libs.filter((l) => namesKit(l, said, alias, false));
+  const fw = prefer?.framework;
+  const refused = FRAMEWORK_WORDS.some(([f, re]) => f === fw && re.test(not.toLowerCase()));
+  const framework = fw && !refused && (!kits.length || kits.some((k) => k.frameworks.includes(fw))) ? fw : undefined;
+  return { look, framework };
+}
+
+/** Whether a brief's words name this kit: its id, its name, a popular alias, or (with `ports`) "shadcn" for every shadcn-* port. */
+const namesKit = (l: Library, said: string, alias?: string, ports = true) =>
+  (l.kind === "component-kit" || l.kind === "primitives") && (said.includes(words(l.id)) || said.includes(words(l.name)) || l.id === alias || (ports && l.id.startsWith("shadcn-") && said.includes(" shadcn ")));
 
 // Popular kits by the names people call them ("antd", "chakra"). A curated one is the base; naming one the registry does
 // not curate keeps the project's kit instead of quietly swapping in another.
@@ -632,16 +657,21 @@ export function kitComponents(kit: Library, text: string, items: PlanItem[]): st
 }
 
 /** Picks for a whole app brief: the base kit first, then one per job, ranked to fit that kit and the look. A kind holds
- * several when the brief names several jobs in it ("a carousel and a drawer"). */
-export function plan(libs: Library[], looks: Aesthetic[], brief: string, opts: { framework?: Framework; look?: string; like?: ReadonlySet<string> } = {}): Plan {
+ * several when the brief names several jobs in it ("a carousel and a drawer"). `prefer`: the user's saved look and
+ * framework, used only where neither the call nor the brief names one. */
+export function plan(libs: Library[], looks: Aesthetic[], brief: string, opts: { framework?: Framework; look?: string; like?: ReadonlySet<string>; prefer?: { look?: string; framework?: Framework } } = {}): Plan {
   const { want, not } = negations(brief);
   const found = opts.look ? looks.filter((a) => a.id === opts.look) : detectLooks(looks, want);
   const mobileWords = /\b(mobile|phones?|iphone|android|ios app|pwa|expo|react native)\b/.test(want);
   const fallback = looks.find((a) => a.id === "minimal") ?? looks[0];
   if (!fallback) throw new Error("registry has no aesthetics");
-  const look = found[0] ?? fallback;
+  const prefer = stillWanted(libs, looks, brief, opts.prefer);
+  const saved = found.length ? undefined : prefer.look;
+  const look = found[0] ?? saved ?? fallback;
   const family = look.family ?? look.id;
-  const named = opts.framework ?? detectFramework(want);
+  const detected = opts.framework ?? detectFramework(want);
+  const savedFw = detected ? undefined : prefer.framework;
+  const named = detected ?? savedFw;
   const site = detectSite(want);
   // The site type's picks score as the look's own in its slots, so they are candidates even where the look has none.
   // A style's family words are look words too ("frosted" for visionOS): they ask for the look, not for a library.
@@ -653,8 +683,7 @@ export function plan(libs: Library[], looks: Aesthetic[], brief: string, opts: {
   // A kit the brief names ("we use mantine", "on shadcn") is the base, whatever the look prefers.
   const said = words(want);
   const alias = ELSEWHERE.find(([, re]) => re.test(want))?.[0];
-  const kit = libs.find((l) => (l.kind === "component-kit" || l.kind === "primitives") && l.frameworks.includes(framework) &&
-    (said.includes(words(l.id)) || said.includes(words(l.name)) || l.id === alias || (l.id.startsWith("shadcn-") && said.includes(" shadcn "))));
+  const kit = libs.find((l) => l.frameworks.includes(framework) && namesKit(l, said, alias));
   // Next, a style's own kit (pixel-art's 8bitcn, neo-brutalism's restyled shadcn/ui) beats its family's base layer.
   // Picks a style leaves out are its family's (merged in the registry index), so "own" means different from the family's.
   const fam = looks.find((a) => a.id === look.family);
@@ -790,12 +819,14 @@ export function plan(libs: Library[], looks: Aesthetic[], brief: string, opts: {
   if (baseItem.pick) baseItem = { ...baseItem, components: kitComponents(baseItem.pick.lib, lookless(want, look), items) };
   return {
     look,
-    lookGuessed: !found.length,
+    lookGuessed: !found.length && !saved,
+    ...(saved && { lookSaved: true }),
     also: found.slice(1, 3),
     site,
     items: [baseItem, ...addOn, ...items],
     framework,
     frameworkGuessed: !named,
+    ...(savedFw && { frameworkSaved: true }),
     skipped: [...ruledOut],
     uncurated,
     darkOnLight: /\bdark\b/.test(want) && (luminance(look.swatch.bg) ?? 0) > 0.5,
