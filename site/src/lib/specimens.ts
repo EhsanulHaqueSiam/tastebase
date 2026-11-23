@@ -1,5 +1,5 @@
 // Server-only, build time: the look specimens /looks and /looks/<id> draw from each look's swatch, as HTML strings.
-// Their CSS is site/src/specimens.css, which applies inside a .lk (the /looks page) or .lp (a look's own page).
+// Their CSS is site/src/specimens.css, which applies inside a .lk (the /looks page) or .lkp (a look's own page).
 import type { Aesthetic, Swatch } from "../../../src/registry/schema.ts";
 import { libraries } from "./server.ts";
 

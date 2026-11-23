@@ -2,7 +2,7 @@
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { detectFramework, detectLooks, kitParts, negations, pick, plan, words } from "./engine.ts";
+import { detectFramework, detectLooks, kitParts, negations, pick, plan, stillWanted, words } from "./engine.ts";
 import { formatIntegrations, formatLibrary, formatLook, formatLooks, formatPick, formatPlan, formatResources, formatSite, formatTrending, SITE } from "./format.ts";
 import { siteTypes } from "./registry/index.ts";
 import { agentResourceKinds, isResourceKind, resources } from "./registry/resources.ts";
@@ -127,10 +127,12 @@ export function createServer(all: Library[], looks: Aesthetic[], version: string
       if (id && !lookById.has(id)) return unknownLook(id);
       // The look passed, else the one the job names ("minimal dashboard toast", not "not minimal"), else the user's saved
       // look: it ranks the picks and its off-look marks apply.
-      const look = lookById.get(id ?? detectLooks(looks, negations(need).want)[0]?.id ?? taste?.look ?? "");
+      const named = id ?? detectLooks(looks, negations(need).want)[0]?.id;
+      const saved = stillWanted(all, looks, need, taste);
+      const look = lookById.get(named ?? saved.look?.id ?? "");
       const lookId = look?.id;
       // The job's own framework when none is passed ("a React date picker" never gets Vue-only answers), else the saved one.
-      const fw = framework ?? detectFramework(negations(need).want) ?? taste?.framework ?? "react";
+      const fw = framework ?? detectFramework(negations(need).want) ?? saved.framework ?? "react";
       const off = taste?.offLook?.get(lookId ?? "");
       const pool = off ? without(libs, off) : libs;
       const fits = pick(pool, need, { framework: fw, look, like });
@@ -140,7 +142,8 @@ export function createServer(all: Library[], looks: Aesthetic[], version: string
       const said = words(need);
       const own = parts.find((p) => said.includes(words(p.lib.name)) || said.includes(words(p.lib.id.replace(/-ui$/, ""))));
       const lead = own ? `Your kit ships it: ${own.lib.id} (${own.part}). Use that; the rest only if it falls short.\n` : "";
-      return reply(lead + formatPick(fits, fits.length ? [] : parts, fw), lookId);
+      const mine = !named && look ? `look: ${look.id} (the user's saved look; pass look to change)\n` : "";
+      return reply(mine + lead + formatPick(fits, fits.length ? [] : parts, fw), lookId);
     },
   );
 

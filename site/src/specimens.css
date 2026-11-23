@@ -1,5 +1,5 @@
-/* Look specimens (lib/specimens.ts), on /looks (.lk) and each look's page (.lp). */
-:is(.lk, .lp) {
+/* Look specimens (lib/specimens.ts), on /looks (.lk) and each look's page (.lkp). */
+:is(.lk, .lkp) {
     /* Specimen: one moment of a look drawn from its swatch, sized in cqw so a 170px card, the 440px panel and the tray thumbnail are one crop at different scales. Fonts map to stacks the site already loads, plus two subset faces. */
     .spec { position: relative; display: grid; overflow: hidden; isolation: isolate; container-type: inline-size; }
     .spec > * { min-width: 0; }

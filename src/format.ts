@@ -145,8 +145,8 @@ const DEFAULT_WHY: Partial<Record<Kind, string>> = { motion: "presses, gestures,
 export function formatPlan(p: Plan): string {
   const base = p.items[0]?.pick?.lib;
   const out = [
-    `look: ${lookName(p.look)}${p.lookGuessed ? "; none named in the brief, so defaulted: pass look to change" : p.lookSaved ? "; the user's saved look (the brief named none)" : ""}${p.also.length ? `; also fits: ${p.also.map((a) => a.id).join(", ")}` : ""}`,
-    `framework: ${p.framework}${p.frameworkGuessed ? " (assumed; pass framework)" : p.frameworkSaved ? " (the user's saved default)" : ""}`,
+    `look: ${lookName(p.look)}${p.lookGuessed ? "; none named in the brief, so defaulted: pass look to change" : p.lookSaved ? "; the user's saved look" : ""}${p.also.length ? `; also fits: ${p.also.map((a) => a.id).join(", ")}` : ""}`,
+    `framework: ${p.framework}${p.frameworkGuessed ? " (assumed; pass framework)" : p.frameworkSaved ? " (the user's default)" : ""}`,
     ...(p.skipped.length ? [`left out (brief said no): ${p.skipped.join(", ")}`] : []),
     // Builders read this and still hand-wrote listed parts, "to keep dependencies minimal", because "the project has no
     // shadcn setup", because init "would rewrite the CSS, tsconfig and Vite config", or with "native <details> rather

@@ -165,7 +165,7 @@ function Specimen({ look: { name, swatch: s } }: { look: SurveyLook }) {
 
 /** "Your taste": the looks liked, the libraries liked as chips, and Save to my hearts. */
 function Result({ looks, libs, onAgain, onKey, onSignIn }: { looks: SurveyLook[]; libs: SurveyLib[]; onAgain: () => void; onKey: () => void; onSignIn: () => void }) {
-  const { user, look } = useAccount();
+  const { user, loading, look } = useAccount();
   const [saved, setSaved] = useState(false);
   const save = () => (saveAll(libs.map((l) => l.id)), setSaved(true), haptic("success"), toast(`${libs.length} saved to your hearts`));
   return (
@@ -178,7 +178,7 @@ function Result({ looks, libs, onAgain, onKey, onSignIn }: { looks: SurveyLook[]
             <p className="text-[12.5px] text-fg2">Your agent's look when a brief names none:</p>
             <div className="mt-1.5 flex flex-wrap gap-1.5">
               {looks.map((l) => (
-                <button key={l.id} type="button" aria-pressed={look === l.id} onClick={() => (haptic("selection"), setPrefs({ look: l.id }), toast(`${l.name} is your look`))} className={`press rounded-lg px-2 py-1 text-[12.5px] font-medium ${look === l.id ? "bg-fg text-bg" : "bg-s3 text-fg"}`}>
+                <button key={l.id} type="button" aria-pressed={look === l.id} disabled={loading} onClick={() => (haptic("selection"), setPrefs({ look: l.id }), toast(`${l.name} is your look`))} className={`press rounded-lg px-2 py-1 text-[12.5px] font-medium ${look === l.id ? "bg-fg text-bg" : "bg-s3 text-fg"}`}>
                   {look === l.id ? "✓ " : ""}{l.name}
                 </button>
               ))}

@@ -2,7 +2,7 @@
 // names none), a preview of the plan their agent gets, hearts, what they hid, what they marked wrong for one look, their
 // agent key and its setup, and their data. Reads the account store (lib/saved.ts); the page itself is static.
 import { ArrowUpRight, Check, Download, Search } from "lucide-react";
-import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { toast } from "sonner";
 import { frameworks, type Framework, type Swatch } from "../../../src/registry/schema.ts";
 import { haptic } from "../lib/haptics.ts";
@@ -267,12 +267,15 @@ function TryBrief() {
   const [mine, setMine] = useState(true);
   const [out, setOut] = useState<string>();
   const [busy, setBusy] = useState(false);
+  const last = useRef(0); // the newest request wins, so the plan shown always matches the brief and toggle shown
   const run = async (e?: FormEvent, b = brief, m = mine) => {
     e?.preventDefault();
-    if (!b.trim() || busy) return;
+    if (!b.trim()) return;
+    const n = ++last.current;
     setBusy(true);
     const r = await fetch("/api/try", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ brief: b, mine: m }) }).catch(() => null);
     const j = ((await r?.json().catch(() => null)) ?? {}) as { text?: string; error?: string };
+    if (n !== last.current) return;
     setBusy(false);
     if (!r?.ok || !j.text) return void toast.error(j.error ?? "Couldn't reach the server.");
     setOut(j.text);
@@ -328,13 +331,18 @@ function KeyPanel({ last4 }: { last4: string | null }) {
   const [fresh, setFresh] = useState<string>();
   const [client, setClient] = useState<Client>("Claude Code");
   const [busy, setBusy] = useState(false);
+  const [off, setOff] = useState(false); // "Turn off" asks once: every client using the key stops working
   const make = async () => (setBusy(true), setFresh((await makeAgentKey()) ?? fresh), setBusy(false));
   return (
     <div>
       <Rows>
         <Row title={last4 ? `tb_sk_…${last4}` : "No key"} sub={last4 ? "Only its last 4 characters are kept readable" : "Make one to connect your agent"}>
           <span className="flex gap-1.5">
-            {last4 && <button type="button" onClick={() => (setFresh(undefined), void revokeAgentKey())} className={`${btn} bg-transparent text-fg2 shadow-none`}>Turn off</button>}
+            {last4 && (off ? (
+              <button type="button" onClick={() => (setOff(false), setFresh(undefined), void revokeAgentKey())} className={`${btn} text-[#ff7b7b]`}>Turn off for good</button>
+            ) : (
+              <button type="button" onClick={() => setOff(true)} className={`${btn} bg-transparent text-fg2 shadow-none`}>Turn off</button>
+            ))}
             <button type="button" disabled={busy} onClick={make} className={btn}>{busy ? "Making…" : last4 ? "Make a new key" : "Make a key"}</button>
           </span>
         </Row>
@@ -362,11 +370,22 @@ function KeyPanel({ last4 }: { last4: string | null }) {
 function DeleteAccount() {
   const [sure, setSure] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [stale, setStale] = useState(false);
   const go = async () => {
     setBusy(true);
-    if (await deleteAccount()) toast("Account deleted"), location.assign("/");
+    const r = await deleteAccount();
+    if (r === "done") return toast("Account deleted"), location.assign("/");
     setBusy(false);
+    setStale(r === "stale");
   };
+  // better-auth deletes only from a session made in the last day; signing in again lands back here.
+  if (stale)
+    return (
+      <span className="flex items-center gap-2">
+        <span className="text-[12.5px] text-fg2">Sign in again first</span>
+        <button type="button" onClick={() => signOut().then(askSignIn)} className={btn}>Sign in again</button>
+      </span>
+    );
   return sure ? (
     <span className="flex gap-1.5">
       <button type="button" onClick={() => setSure(false)} className={`${btn} bg-transparent text-fg2 shadow-none`}>Keep it</button>
@@ -381,5 +400,5 @@ function download(a: ReturnType<typeof useAccount>) {
   const data = { name: a.user?.name, look: a.look, framework: a.framework, hearts: a.saved, folders: a.folders, hidden: a.hidden.map((h) => h.id), offLook: a.offLook.map(({ id, look }) => ({ item: id, look })) };
   const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }));
   Object.assign(document.createElement("a"), { href: url, download: "tastebase-account.json" }).click();
-  URL.revokeObjectURL(url);
+  setTimeout(() => URL.revokeObjectURL(url)); // Safari cancels a download whose URL is revoked in the same task
 }

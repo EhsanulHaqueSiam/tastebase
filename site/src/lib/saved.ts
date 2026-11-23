@@ -70,7 +70,11 @@ async function load() {
   const prefs = { look: me.look ?? localLook ?? null, framework: me.framework ?? null };
   set({ user: me.user, loading: false, saved, folders: me.folders ?? [], hidden: me.hidden ?? [], offLook: me.offLook ?? [], key: me.key ?? null, admin: !!me.admin, ...prefs });
   if (local.length && (await api("POST", "/api/saved", { merge: local }).catch(fail))) store.set(KEY, null);
-  if (localLook && (me.look || (await api("POST", "/api/prefs", prefs).catch(fail)))) store.set(LOOK, null);
+  // Saved once, or dropped: a look the account already has wins, and one the server refuses is not asked again.
+  if (localLook) {
+    if (!me.look) await api("POST", "/api/prefs", prefs).catch((e) => (fail(e), set({ look: null })));
+    store.set(LOOK, null);
+  }
 }
 
 /** Reads the account again: the agent's taste tool may have changed it since this page loaded. */
@@ -127,14 +131,25 @@ export function toggleHidden(item: Hidden) {
   api("POST", "/api/hidden", { item: item.id, on }).catch((e) => (fail(e), set({ hidden })));
 }
 
+let prefsSaved = Promise.resolve();
 /** Sets the user's default look or framework for their agent (null: detect, as for everyone). Signed out, only the look,
- *  kept in this browser until the first sign-in. */
+ *  kept in this browser until the first sign-in. Callers wait while the account loads. Writes go one at a time, each
+ *  with the latest choice; a failure undoes it only if nothing changed since. */
 export function setPrefs(p: Partial<Prefs>) {
   const { user, look, framework } = snapshot();
   const next = { look, framework, ...p };
   set(next);
   if (!user) return store.set(LOOK, next.look);
-  api("POST", "/api/prefs", next).catch((e) => (fail(e), set({ look, framework })));
+  prefsSaved = prefsSaved.then(() => {
+    const now = snapshot();
+    return api("POST", "/api/prefs", { look: now.look, framework: now.framework }).then(
+      () => {},
+      (e) => {
+        fail(e);
+        if (snapshot().look === now.look && snapshot().framework === now.framework) set({ look, framework });
+      },
+    );
+  });
 }
 
 /** Leaves an item out under one look only, or brings it back there. */
@@ -152,13 +167,15 @@ export async function revokeAgentKey() {
   if (await api("DELETE", "/api/agent-key").catch(fail)) set({ key: null });
 }
 
-/** Deletes the account and everything in it. Resolves false when the server refused (a session older than a day). */
-export async function deleteAccount() {
-  const ok = await api("POST", "/api/auth/delete-user", {}).catch(fail);
-  if (!ok) return false;
-  store.set(SIGNED_IN, null);
-  set({ ...EMPTY, saved: readLocal() });
-  return true;
+/** Deletes the account and everything in it. Resolves "stale" when the session is over a day old: better-auth wants a
+ *  fresh sign-in first. */
+export async function deleteAccount(): Promise<"done" | "stale" | "failed"> {
+  const r = await api("POST", "/api/auth/delete-user", {}).then(
+    () => "done" as const,
+    (e: Error) => (/expired|re-?authenticate/i.test(e.message) ? ("stale" as const) : (fail(e), "failed" as const)),
+  );
+  if (r === "done") store.set(SIGNED_IN, null), set({ ...EMPTY, saved: readLocal() });
+  return r;
 }
 
 /** A new agent key (the old one stops working). Resolves to the key itself, the only time the browser sees it. */

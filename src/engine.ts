@@ -556,6 +556,18 @@ export const detectFramework = (brief: string) => FRAMEWORK_WORDS.find(([, re]) 
 /** The framework a single job runs on: the one it names, else React, as plans assume ("a Vue bottom sheet" is Vue). */
 export const jobFramework = (need: string): Framework => detectFramework(negations(need).want) ?? "react";
 
+/** The user's saved look and framework, minus what the text rules out ("no glassmorphism", "not vue"). A text that
+ *  names a kit ("we use mantine") drops the framework: the kit's own decides. Detection in the text still wins over both. */
+export function stillWanted(libs: Library[], looks: Aesthetic[], text: string, prefer?: { look?: string; framework?: Framework }) {
+  const { want, not } = negations(text);
+  const no = new Set(detectLooks(looks, not).map((a) => a.id));
+  const look = looks.find((a) => a.id === prefer?.look && !no.has(a.id) && !no.has(a.family ?? ""));
+  const said = words(want);
+  const kit = ELSEWHERE.some(([, re]) => re.test(want)) || libs.some((l) => (l.kind === "component-kit" || l.kind === "primitives") && (said.includes(words(l.id)) || said.includes(words(l.name))));
+  const framework = prefer?.framework && !kit && detectFramework(not) !== prefer.framework ? prefer.framework : undefined;
+  return { look, framework };
+}
+
 // Popular kits by the names people call them ("antd", "chakra"). A curated one is the base; naming one the registry does
 // not curate keeps the project's kit instead of quietly swapping in another.
 const ELSEWHERE: [string, RegExp][] = [
@@ -643,11 +655,12 @@ export function plan(libs: Library[], looks: Aesthetic[], brief: string, opts: {
   const mobileWords = /\b(mobile|phones?|iphone|android|ios app|pwa|expo|react native)\b/.test(want);
   const fallback = looks.find((a) => a.id === "minimal") ?? looks[0];
   if (!fallback) throw new Error("registry has no aesthetics");
-  const saved = found.length ? undefined : looks.find((a) => a.id === opts.prefer?.look);
+  const prefer = stillWanted(libs, looks, brief, opts.prefer);
+  const saved = found.length ? undefined : prefer.look;
   const look = found[0] ?? saved ?? fallback;
   const family = look.family ?? look.id;
   const detected = opts.framework ?? detectFramework(want);
-  const savedFw = detected ? undefined : opts.prefer?.framework;
+  const savedFw = detected ? undefined : prefer.framework;
   const named = detected ?? savedFw;
   const site = detectSite(want);
   // The site type's picks score as the look's own in its slots, so they are candidates even where the look has none.

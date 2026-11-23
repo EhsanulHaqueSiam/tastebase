@@ -1,15 +1,16 @@
 ---
 // /looks/<id>: one look's full picture. Its specimen and a small screen built from its tokens to click and type in, the
-// tokens themselves, every library it picks per job with what each is for and where it goes wrong, the installs an
-// agent runs for a page in it, its rules, the looks it is mistaken for, and its family. Prerendered; the two buttons
-// that write to the account are islands.
+// tokens themselves, every library it picks per job with what each is for and where it goes wrong, the plan an agent
+// reads for a page in it, its rules, the looks it is mistaken for, and its family. Prerendered; the buttons that write
+// to the account are islands.
 import { ArrowUpRight, Check, X } from "lucide-react";
 import { kinds, type Aesthetic, type Library } from "../../../../src/registry/schema.ts";
 import { OffLookToggle, UseLook } from "../../components/LookActions.tsx";
 import { CopyButton } from "../../components/fx.tsx";
 import Base from "../../layouts/Base.astro";
 import { kindMeta, shot, thumb } from "../../lib/kinds.ts";
-import { aesthetics, libraries, planJson } from "../../lib/server.ts";
+import { planAnswer } from "../../../../src/mcp.ts";
+import { aesthetics, libraries } from "../../lib/server.ts";
 import { ink, isDark, specimen } from "../../lib/specimens.ts";
 import "../../specimens.css";
 
@@ -34,9 +35,9 @@ const stack = kinds.flatMap((k) => {
 const inLook = new Set(Object.values(a.picks).flat());
 const pairs = (l: Library) => (l.pairsWith ?? []).filter((id) => inLook.has(id)).flatMap((id) => byId.get(id) ?? []);
 
-// The installs an agent gets for an ordinary page in this look, in order: the same plan the MCP `plan` tool returns.
+// What an agent reads for an ordinary page in this look: the MCP `plan` tool's own text.
 const brief = "landing page with a signup form, a pricing table and toasts";
-const page = planJson(libraries, brief, a.id);
+const page = planAnswer(libraries, aesthetics, { brief, look: a.id });
 const prompt = `Build a ${brief} in the ${a.name} look (tastebase look id: ${a.id}). Plan it with tastebase first.`;
 
 // "Not brutalist: colourful and tidy." -> the look it is mistaken for, and how they differ.
@@ -50,12 +51,12 @@ const tokens: [string, string][] = [
   ["Text", s.text],
   ["Accent", s.accent],
 ];
-const hex = (v: string) => (/^#[0-9a-f]{3,8}$/i.test(v) ? v : "gradient");
+const hex = (v: string) => (v.includes("gradient") ? "gradient" : v);
 const material = s.card?.split(";").filter(Boolean) ?? [];
 ---
 
 <Base title={`${a.name} · Looks · tastebase`} description={a.summary} crumbs={[["Looks", "/looks"], ...(family ? [[family.name, `/looks/${family.id}`] as [string, string]] : []), [a.name, `/looks/${a.id}`]]}>
-  <div class="lp mx-auto max-w-[1120px] px-4 pt-[76px] pb-32 lg:px-6">
+  <div class="lkp mx-auto max-w-[1120px] px-4 pt-[76px] pb-32 lg:px-6">
     <header class="grid items-start gap-6 md:grid-cols-[1fr_minmax(0,440px)]">
       <div class="enter">
         <p class="text-[12.5px] text-fg3"><a href="/looks" class="hover:text-fg">Looks</a>{family && <> / <a href={`/looks/${family.id}`} class="hover:text-fg">{family.name}</a></>}</p>
@@ -84,7 +85,7 @@ const material = s.card?.split(";").filter(Boolean) ?? [];
             <button type="button" class="st-btn st-ghost">Talk to sales</button>
           </div>
         </form>
-        <p class="st-toast" style={s.card} role="status" data-st-toast><Check size={14} aria-hidden="true" /> Trial started</p>
+        <p class="st-toast" style={s.card} role="status" data-st-toast><Check size={14} aria-hidden="true" /><span data-st-msg></span></p>
       </div>
 
       <div class="grid content-start gap-3 rounded-xl bg-s1 p-4 shadow-[inset_0_0_0_1px_var(--color-line2)]">
@@ -115,7 +116,7 @@ const material = s.card?.split(";").filter(Boolean) ?? [];
             <p class="text-[13.5px] text-fg2">No library. This look does it in plain CSS{needed ? ", and every plan in it gets one" : ""}.</p>
           ) : (
             <div class="flex min-w-0 gap-3.5">
-              <a href={`/browse/${lead.id}`} class="shrink-0"><img src={thumb(shot(lead.id))} alt="" loading="lazy" width="96" height="60" class="h-[60px] w-24 rounded-md bg-s3 object-cover object-top shadow-[0_0_0_1px_var(--color-line)]" /></a>
+              <a href={`/browse/${lead.id}`} class="shrink-0 max-sm:hidden"><img src={thumb(shot(lead.id))} alt="" loading="lazy" width="96" height="60" class="h-[60px] w-24 rounded-md bg-s3 object-cover object-top shadow-[0_0_0_1px_var(--color-line)]" /></a>
               <div class="min-w-0 flex-1">
                 <div class="flex flex-wrap items-center gap-x-2.5 gap-y-1">
                   <a href={`/browse/${lead.id}`} class="text-[14.5px] font-semibold hover:underline">{lead.name}</a>
@@ -125,8 +126,9 @@ const material = s.card?.split(";").filter(Boolean) ?? [];
                 {lead.avoidWhen[0] && <p class="mt-0.5 flex gap-1.5 text-[13px] text-fg2"><X size={14} class="mt-[3px] shrink-0 text-amber" aria-hidden="true" />{lead.avoidWhen[0]}</p>}
                 <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12.5px] text-fg3">
                   {pairs(lead).length > 0 && <span>Pairs with {pairs(lead).map((p, i) => <>{i > 0 && ", "}<a href={`/browse/${p.id}`} class="text-fg2 hover:text-fg">{p.name}</a></>)}</span>}
-                  {rest.length > 0 && <span>Else {rest.map((p, i) => <>{i > 0 && ", "}<a href={`/browse/${p.id}`} class="text-fg2 hover:text-fg">{p.name}</a></>)}</span>}
-                  <span class="ml-auto"><OffLookToggle client:visible item={{ id: lead.id, name: lead.name, href: `/browse/${lead.id}`, look: a.id }} /></span>
+                  {rest.length > 0 && <span class="flex flex-wrap items-center gap-x-1">Else {rest.map((p) => <span class="inline-flex items-center"><a href={`/browse/${p.id}`} class="text-fg2 hover:text-fg">{p.name}</a><OffLookToggle client:visible compact item={{ id: p.id, name: p.name, href: `/browse/${p.id}`, look: a.id }} /></span>)}</span>}
+                  <a href={`/browse/${lead.id}`} class="ml-auto text-fg2 hover:text-fg">Try it live</a>
+                  <OffLookToggle client:visible item={{ id: lead.id, name: lead.name, href: `/browse/${lead.id}`, look: a.id }} />
                 </div>
               </div>
             </div>
@@ -135,20 +137,11 @@ const material = s.card?.split(";").filter(Boolean) ?? [];
       ))}
     </ul>
 
-    <h2 class="sect">Installs for a page in this look</h2>
-    <p class="-mt-1 mb-3 text-[13px] text-fg2">What the <code class="font-mono text-[12px]">plan</code> tool hands an agent for “{brief}”, in order.</p>
-    <ol class="grid gap-1.5">
-      {page.first && <li class="inst"><span class="k">first</span><code>{page.first}</code></li>}
-      {page.items.map((it) => it.pick ? (
-        <li class="inst">
-          <span class="k">{kindMeta[it.kind].short}</span>
-          <a href={`/browse/${it.pick.lib.id}`} class="shrink-0 font-medium hover:underline">{it.pick.lib.name}</a>
-          <code>{it.pick.lib.install}</code>
-        </li>
-      ) : (
-        <li class="inst"><span class="k">{kindMeta[it.kind].short}</span><span class="text-fg2">{it.empty}</span></li>
-      ))}
-    </ol>
+    <h2 class="sect">The plan your agent reads</h2>
+    <details class="rounded-xl bg-s1 shadow-[inset_0_0_0_1px_var(--color-line)]">
+      <summary class="cursor-pointer px-4 py-3 text-[13px] text-fg2 hover:text-fg">For “{brief}” in {a.name}: the <code class="font-mono text-[12px]">plan</code> tool's answer, word for word</summary>
+      <pre tabindex="0" class="max-h-[520px] overflow-auto border-t border-line px-4 py-3 font-mono text-[12px] leading-relaxed whitespace-pre-wrap text-fg2">{page}</pre>
+    </details>
 
     <h2 class="sect">Rules</h2>
     <div class="grid gap-3 md:grid-cols-2">
@@ -221,6 +214,8 @@ const material = s.card?.split(";").filter(Boolean) ?? [];
       let t: number | undefined;
       stage.querySelector("[data-st-form]")!.addEventListener("submit", (e) => {
         e.preventDefault();
+        // Filled on submit, so the status region announces it; it starts empty.
+        toast.querySelector("[data-st-msg]")!.textContent = "Trial started";
         toast.dataset.show = "";
         clearTimeout(t);
         t = window.setTimeout(() => delete toast.dataset.show, 1800);
@@ -232,9 +227,6 @@ const material = s.card?.split(";").filter(Boolean) ?? [];
 
 <style>
   .sect { margin: 44px 0 12px; font-size: 13px; font-weight: 600; color: var(--color-fg2); }
-  .inst { display: flex; min-width: 0; align-items: baseline; gap: 12px; border-radius: 10px; background: var(--color-s1); padding: 8px 12px; font-size: 13px; box-shadow: inset 0 0 0 1px var(--color-line); }
-  .inst .k { width: 78px; flex: none; font: 500 11px var(--font-mono); color: var(--color-fg3); }
-  .inst code { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 12px var(--font-mono); color: var(--color-fg2); }
 
   /* The sample screen: every colour, radius and material from the look's swatch (inline custom properties). */
   .stage { position: relative; display: grid; align-content: start; gap: 18px; overflow: hidden; border-radius: 14px; padding: 20px; min-height: 380px; box-shadow: 0 0 0 1px var(--color-line2); }
