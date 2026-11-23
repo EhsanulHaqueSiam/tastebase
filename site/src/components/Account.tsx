@@ -271,7 +271,7 @@ function TryBrief() {
   const run = async (e?: FormEvent, b = brief, m = mine) => {
     e?.preventDefault();
     const n = ++last.current; // even an empty brief cancels the answer still on its way
-    if (!b.trim()) return setBusy(false);
+    if (!b.trim()) return setBusy(false), setOut(undefined);
     setBusy(true);
     if (m) await tasteSaved(); // a choice made just before must be in D1 when the server reads it
     const r = await fetch("/api/try", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ brief: b, mine: m }) }).catch(() => null);
@@ -284,7 +284,7 @@ function TryBrief() {
   return (
     <div>
       <form onSubmit={run} className="flex flex-wrap gap-2">
-        <input value={brief} onChange={(e) => setBrief(e.target.value)} maxLength={300} aria-label="Brief" className="h-9 min-w-0 flex-[1_1_260px] rounded-[9px] bg-s1 px-3 text-[13.5px] shadow-[inset_0_0_0_1px_var(--color-line2)] outline-none focus-visible:shadow-[inset_0_0_0_1px_rgb(91_124_255/0.6)] focus-visible:outline-none" />
+        <input value={brief} onChange={(e) => (setBrief(e.target.value), e.target.value.trim() || run(undefined, ""))} maxLength={300} aria-label="Brief" className="h-9 min-w-0 flex-[1_1_260px] rounded-[9px] bg-s1 px-3 text-[13.5px] shadow-[inset_0_0_0_1px_var(--color-line2)] outline-none focus-visible:shadow-[inset_0_0_0_1px_rgb(91_124_255/0.6)] focus-visible:outline-none" />
         <Seg label="Whose taste">
           <button type="button" aria-pressed={mine} onClick={() => (setMine(true), (out || busy) && run(undefined, brief, true))}>Mine</button>
           <button type="button" aria-pressed={!mine} onClick={() => (setMine(false), (out || busy) && run(undefined, brief, false))}>Everyone's</button>

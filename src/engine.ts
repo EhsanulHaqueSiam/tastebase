@@ -557,8 +557,8 @@ export const detectFramework = (brief: string) => FRAMEWORK_WORDS.find(([, re]) 
 export const jobFramework = (need: string): Framework => detectFramework(negations(need).want) ?? "react";
 
 /** The user's saved look and framework, minus what the text rules out ("no glassmorphism", "not vue or angular"). A
- *  text naming kits none of which run on the saved framework ("we use mantine" for a Vue user), or one the registry does
- *  not curate, drops it. Detection in
+ *  text naming curated kits none of which run on the saved framework ("we use mantine" for a Vue user) drops it.
+ *  Detection in
  *  the text still wins over both. */
 export function stillWanted(libs: Library[], looks: Aesthetic[], text: string, prefer?: { look?: string; framework?: Framework }) {
   const { want, not } = negations(text);
@@ -566,17 +566,17 @@ export function stillWanted(libs: Library[], looks: Aesthetic[], text: string, p
   const look = looks.find((a) => a.id === prefer?.look && !no.has(a.id) && !no.has(a.family ?? ""));
   const said = words(want);
   const alias = ELSEWHERE.find(([, re]) => re.test(want))?.[0];
-  const kits = libs.filter((l) => namesKit(l, said, alias));
+  // Bare "shadcn" names no framework (it has ports for most), so it does not count here; "shadcn/ui" names the React one.
+  const kits = libs.filter((l) => namesKit(l, said, alias, false));
   const fw = prefer?.framework;
   const refused = FRAMEWORK_WORDS.some(([f, re]) => f === fw && re.test(not.toLowerCase()));
-  // A kit the registry does not curate ("we use chakra") has no known frameworks: the brief decides, as for everyone.
-  const framework = fw && !refused && !(alias && !kits.length) && (!kits.length || kits.some((k) => k.frameworks.includes(fw))) ? fw : undefined;
+  const framework = fw && !refused && (!kits.length || kits.some((k) => k.frameworks.includes(fw))) ? fw : undefined;
   return { look, framework };
 }
 
-/** Whether a brief's words name this kit: its id, its name, a popular alias, or "shadcn" for every shadcn port. */
-const namesKit = (l: Library, said: string, alias?: string) =>
-  (l.kind === "component-kit" || l.kind === "primitives") && (said.includes(words(l.id)) || said.includes(words(l.name)) || l.id === alias || (l.id.startsWith("shadcn-") && said.includes(" shadcn ")));
+/** Whether a brief's words name this kit: its id, its name, a popular alias, or (with `ports`) "shadcn" for every shadcn-* port. */
+const namesKit = (l: Library, said: string, alias?: string, ports = true) =>
+  (l.kind === "component-kit" || l.kind === "primitives") && (said.includes(words(l.id)) || said.includes(words(l.name)) || l.id === alias || (ports && l.id.startsWith("shadcn-") && said.includes(" shadcn ")));
 
 // Popular kits by the names people call them ("antd", "chakra"). A curated one is the base; naming one the registry does
 // not curate keeps the project's kit instead of quietly swapping in another.
