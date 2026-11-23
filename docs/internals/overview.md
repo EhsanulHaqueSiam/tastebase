@@ -55,7 +55,11 @@ One Cloudflare Worker (declared in `alchemy.run.ts`) does everything:
   their agent and make an agent key (`tb_sk_…`, shown once; D1 keeps its SHA-256 and last 4). A request with the key
   (Bearer header only: a URL would leave it in logs and history) costs one D1 read: hidden ids leave every answer, hearted libraries get ×1.1 in `pick`
   (a close call, never a clear one). No key, no read: answers stay the same for everyone. A wrong key gets a 401,
-  not a quiet fallback.
+  not a quiet fallback. The `taste` tool writes through the same key: hide a library or one kit part
+  (`library/part`, stripped from the kit's parts so pick and plan never install it), heart one, or mark it off-look.
+  Off-look is not a dislike: it leaves the item out under that one look only, and its counts across users
+  (`/api/off-look`) are how tune-picks learns which look tags are wrong. Free text can still name a hidden library (a
+  note's "use sonner"), so an answer that does ends with a line saying the user hid it.
 - **One OAuth app per provider for every stage.** GitHub's redirect URIs are prod, `*.ehsanulsiam.workers.dev`
   (wildcard, so `pr-<n>` previews sign in too), `localhost:1337` and `127.0.0.1` on any port (GitHub's loopback rule).
   Google and X match URIs exactly, so a preview signs in with them only once its URI is registered

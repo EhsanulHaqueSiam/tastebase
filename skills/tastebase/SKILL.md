@@ -1,11 +1,11 @@
 ---
 name: tastebase
-description: Use before writing any UI (pages, components, animations, icons, backgrounds, charts, sheets, toasts, glass, text effects). Reads the look the user wants, finds proven components for it, installs them and adapts them, instead of building UI from scratch.
+description: Use before writing any UI (pages, components, animations, icons, backgrounds, charts, sheets, toasts, glass, text effects). Reads the look the user wants, finds proven components for it, installs them and adapts them, instead of building UI from scratch. Also when the user rejects a UI library or component ("never recommend X", "X clashes with this look"): saves it to their tastebase account.
 ---
 
 # tastebase
 
-Skill version c8bf88a.
+Skill version 17d4593.
 
 Do not build a UI part from scratch when a proven library already has it. tastebase (MCP server `tastebase`)
 knows which library fits which job and which look.
@@ -85,6 +85,10 @@ with the project's kit named. A vague ask ("more premium", "more playful") moves
 
 For design help that is not installed, `get` a category: `references`, `fonts`, `colour`, `assets`, `agent-tools`
 or `directories`. Ask `trending` when the user wants what is new.
+
+When the user rejects a library or one part of a kit ("never recommend Sonner", "that toast clashes with this
+look"), save it with `taste`, not a memory note: `hide`, or `off-look` with the look id when it only clashes with
+this look. It follows them to every project.
 
 ## Rules
 

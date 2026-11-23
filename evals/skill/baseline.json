@@ -1,17 +1,19 @@
 {
   "model": "claude-haiku-5-5",
   "cases": {
-    "page-plans-first": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Landing page for Acme Mail, an email API for developers. Dev-tool look like Resend, with a shader background behind the hero. React + Vite + Tailwind.","framework":"react"}]],"samples":["f14a5875-1637-4ff9-8ef8-14ebc1ccc529"],"fp":"9a85ba9c3af6","graded":"9c15f555c8ec"},
-    "one-job-picks": {"pass":true,"fails":[],"calls":[["pick",{"need":"toast notification after form save","framework":"react"}]],"samples":["bb37d66d-c726-4b7d-b6e8-39faa4885caf"],"fp":"b66f9fd43a27","graded":"88e284f3b935"},
-    "vue-project": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Command palette opened with cmd+k (ctrl+k), keyboard-driven search over app actions. Nuxt 4 + Vue 3 project, plain CSS.","framework":"vue"}],["pick",{"need":"command palette with keyboard shortcut cmd+k search","framework":"vue"}],["get",{"id":"nuxt-ui"}]],"samples":["5fd3ed21-abf6-4db7-a979-81a7c9db5b76"],"fp":"697e0798ba81","graded":"5a29d455c7bf"},
-    "keeps-project-kit": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Billing page with a plan picker and an invoices table. React 19 + Mantine 8 + Vite + Tailwind 4 project.","framework":"react"}]],"samples":["60a71a68-c19f-4d1f-8fd5-ac177e13723e"],"fp":"f872fe5d0794","graded":"5c299dfbca12"},
-    "nothing-fits": {"pass":true,"fails":[],"calls":[],"samples":["b33f1796-39ae-458c-baa6-eefff6e1ebcc"],"fp":"f09caf41c3e2","graded":"61860807e376"},
-    "trending-when-asked": {"pass":true,"fails":[],"calls":[["trending",{}]],"samples":["ad808340-91ad-4ae9-9144-a6bcfe9bbd32"],"fp":"3a132b4947dc","graded":"63659f390a3b"},
-    "control-typo": {"pass":true,"fails":[],"calls":[],"samples":["a78e108e-9767-4f3d-b693-441079bdf22e"],"fp":"d6d411d55f52","graded":"37369ba99f78"},
-    "control-backend": {"pass":true,"fails":[],"calls":[],"samples":["13cfe7af-0b2c-462b-a362-47d1a3e42bf5"],"fp":"1285075f9d7f","graded":"4501af01283d"},
-    "pnpm-lockfile": {"pass":false,"fails":["opens the tastebase skill","installs with pnpm"],"calls":[],"samples":["21ba0295-cfc7-4006-848a-8e86e78a2cc7"],"fp":"60463baa9366","graded":"66d31abeaa66"},
-    "look-from-project": {"pass":false,"fails":["opens the tastebase skill","tells tastebase \"brutal\""],"calls":[],"samples":["17008ad2-99ec-4d2d-81a1-f1a4aef6064a"],"fp":"2c29eec6858a","graded":"d90a202428b1"},
-    "pauses-shader": {"pass":false,"fails":["opens the tastebase skill"],"calls":[["pick",{"need":"animated shader gradient background","framework":"react"}],["get",{"id":"paper-shaders"}]],"samples":["8be8cb97-ccfd-4df4-aacd-15e36549e4dc"],"fp":"c8497ed7f85c","graded":"deba1e6fe6b0"},
-    "fonts-from-resources": {"pass":false,"fails":["opens the tastebase skill"],"calls":[["get",{"id":"fonts"}]],"samples":["050cac6c-97a9-41b0-b31d-487e446e718f","62f9e958-0fc4-4399-b63e-6b70f5cd93eb","a0cb6e8b-981f-459b-bea0-5fdfe483c3d9"],"fp":"9b7e0ed013e9","graded":"35023ec04577"}
+    "page-plans-first": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Landing page for Acme Mail, an email API for developers. Dev-tool look like Resend (dark, code-forward, minimal). Shader background behind the hero. React + Vite + Tailwind. Single file src/App.tsx.","framework":"react"}]],"samples":["295dcc1d-f676-4f1b-88b1-f764dbb9702b"],"fp":"f2acee9f9123","graded":"8ee2ed5f05e0"},
+    "one-job-picks": {"pass":true,"fails":[],"calls":[["pick",{"need":"toast notification after form save","framework":"react"}]],"samples":["91287dbe-2dba-4fcc-8102-2f3d18e6a765"],"fp":"0372edc31391","graded":"8228268e96f2"},
+    "vue-project": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Command palette opened with cmd+k, Nuxt 4 + Vue 3 app","framework":"vue"}],["get",{"id":"shadcn-vue"}]],"samples":["5252f1d7-6860-4959-8344-7416bf86676f"],"fp":"5d033a4940ef","graded":"21deb58dff6b"},
+    "keeps-project-kit": {"pass":true,"fails":[],"calls":[],"samples":["2b19a894-350b-4cb0-b7c3-e6372ec48dba"],"fp":"fb7ced5ecf4c","graded":"45b7d028532d"},
+    "nothing-fits": {"pass":true,"fails":[],"calls":[],"samples":["9200120d-f813-4b0c-b898-4a31f154abcf"],"fp":"a6ec37c798e1","graded":"fd692fd8baba"},
+    "trending-when-asked": {"pass":true,"fails":[],"calls":[["trending",{}]],"samples":["927f18a2-d227-4ae3-8f1e-d748c4e80979"],"fp":"f5c4e914b111","graded":"693359ddcd64"},
+    "control-typo": {"pass":true,"fails":[],"calls":[],"samples":["3882efcb-2b33-4b9c-a7db-51b059cd1eaf"],"fp":"86a9def6d4d7","graded":"c28e4edaf429"},
+    "control-backend": {"pass":true,"fails":[],"calls":[],"samples":["f62ff29e-8058-4380-855d-bb09236a33c6"],"fp":"c50b4615e889","graded":"32992f859cb0"},
+    "rejection-saves-taste": {"pass":true,"fails":[],"calls":[["taste",{"id":"sonner","action":"hide"}]],"samples":["e08e5c5f-4545-44e9-8ee5-f8bab79be178"],"fp":"cede2a577c12","graded":"1d237b88a636"},
+    "off-look-is-not-a-dislike": {"pass":false,"fails":["calls taste with {\"id\":\"sonner\",\"action\":\"off-look\",\"look\":\"neo-brutalism\"}"],"calls":[["get",{"id":"looks"}],["taste",{"id":"sonner","action":"off-look","look":"neo-brutalism"}]],"samples":["3e0d14e3-0cab-4d17-a037-32608d71a6c4","299209e4-ad6a-4e98-9728-02ab0d63c02e","528298f4-f836-4c0b-a019-cb2de0e9d92b"],"fp":"4f8468a0ce8b","graded":"0ee8ba29f337"},
+    "pnpm-lockfile": {"pass":false,"fails":["opens the tastebase skill","installs with pnpm"],"calls":[],"samples":["b28caea4-5daf-48d5-91f7-10c6ff66873f","5b98eae8-ed0a-4532-a9d8-f2d7c9c4c598","323f5ea4-2a38-45c6-be19-cc329e95889e"],"fp":"921a81d3a2f7","graded":"1bb9bc4846e6"},
+    "look-from-project": {"pass":false,"fails":["opens the tastebase skill","tells tastebase \"brutal\""],"calls":[],"samples":["d0ab3a39-98f0-4ab7-924d-b4e09978c47c"],"fp":"c59f533aa313","graded":"38d5f667e603"},
+    "pauses-shader": {"pass":false,"fails":["opens the tastebase skill"],"calls":[["plan",{"brief":"Animated shader gradient background behind a login/signup form in src/App.tsx, React + Vite","framework":"react"}]],"samples":["da3b5a3f-3908-4ba3-a771-32464403be35"],"fp":"5d8ebe1bee34","graded":"fdec8dc9424a"},
+    "fonts-from-resources": {"pass":false,"fails":["opens the tastebase skill"],"calls":[["get",{"id":"fonts"}]],"samples":["06cc1b43-595c-4f2c-ac98-d927bfbe4da8"],"fp":"b6a8981020f6","graded":"29191f970e97"}
   }
 }

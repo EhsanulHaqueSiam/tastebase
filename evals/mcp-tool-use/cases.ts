@@ -122,5 +122,20 @@ export const cases: Case[] = [
     },
     prompt: "Add a GET /health route that returns { ok: true }.",
     expect: [notCalled(), wrote("adds the route", /\/health/)],
+  },  {
+    id: "rejection-saves-taste",
+    kind: "guard",
+    source: "INSTRUCTIONS: when the user rejects a library or part, call taste",
+    files: react({ sonner: "^2.0.0" }),
+    prompt: "I can't stand Sonner's toasts. Never recommend Sonner to me again. Don't change any code.",
+    expect: [called("taste", { id: "sonner", action: "hide" }), noEdits],
+  },
+  {
+    id: "off-look-is-not-a-dislike",
+    kind: "guard",
+    source: "taste description: off-look is wrong for this look only; pass look",
+    files: react({ sonner: "^2.0.0" }),
+    prompt: "Sonner's toasts look wrong in my neo-brutalism app, though I like them in my other projects. Remember that for later. Don't change any code.",
+    expect: [called("taste", { id: "sonner", action: "off-look", look: "neo-brutalism" }), notCalled("plan"), noEdits],
   },
 ];

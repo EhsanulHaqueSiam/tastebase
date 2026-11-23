@@ -7,6 +7,8 @@ description: Change how tastebase ranks libraries (engine scoring, synonyms, loo
 
 Read [docs/internals/picking.md](../../../docs/internals/picking.md) first.
 
+0. **Look for reports**: `curl -s https://tastebase.ehsanulsiam.workers.dev/api/off-look` lists libraries and parts
+   users' agents marked wrong for a look, most-marked first. Several users on one pair is a wrong pick or tag.
 1. **Reproduce** with the smallest call: `pick(libraries, "<need>")` or `plan(libraries, aesthetics, "<brief>")`
    in a `node --experimental-strip-types` snippet, printing ids and scores.
 2. **Fix the cheapest layer first**, in this order: the entry's `useFor`/`avoidWhen` text, a synonym in `SYN`,

@@ -1,4 +1,6 @@
-// Server-only: hearts, folders, hidden items, agent keys and editor's picks in D1 (tables in migrations/). Plain SQL
+import type { TasteAction } from "../../../src/taste.ts";
+
+// Server-only: hearts, folders, hidden items, off-look marks, agent keys and editor's picks in D1 (tables in migrations/). Plain SQL
 // over the D1 binding so
 // tests can run it on node:sqlite. Every write is scoped to the signed-in user; callers validate lib ids first.
 
@@ -50,17 +52,41 @@ export async function makeAgentKey(db: D1Database, userId: string): Promise<stri
   return key;
 }
 
-/** What an agent key's owner hid and hearted, in one read; undefined for an unknown key. */
-export async function tasteForKey(db: D1Database, key: string): Promise<{ hide: Set<string>; like: Set<string> } | undefined> {
+/** Who owns an agent key and what they hid, hearted and marked off-look (look id -> items), in one read; undefined for
+ *  an unknown key. */
+export async function tasteForKey(db: D1Database, key: string) {
   const row = await db
     .prepare(
-      `select (select group_concat(item, ',') from hidden h where h.userId = k.userId) as hide, (select group_concat(lib, ',') from saved s where s.userId = k.userId) as "like" from agent_key k where k.hash = ?`,
+      `select k.userId, (select group_concat(item, ',') from hidden h where h.userId = k.userId) as hide, (select group_concat(lib, ',') from saved s where s.userId = k.userId) as "like", (select group_concat(look || ' ' || item, ',') from off_look o where o.userId = k.userId) as off from agent_key k where k.hash = ?`,
     )
     .bind(await sha256(key))
-    .first<{ hide: string | null; like: string | null }>();
+    .first<{ userId: string; hide: string | null; like: string | null; off: string | null }>();
   if (!row) return undefined;
   const ids = (v: string | null) => new Set(v ? v.split(",") : []);
-  return { hide: ids(row.hide), like: ids(row.like) };
+  const offLook = new Map<string, Set<string>>();
+  for (const pair of ids(row.off)) {
+    const [look = "", item = ""] = pair.split(" ");
+    offLook.set(look, (offLook.get(look) ?? new Set()).add(item));
+  }
+  return { userId: row.userId, hide: ids(row.hide), like: ids(row.like), offLook };
+}
+
+/** One `taste` tool call for a key's owner; the tool has validated the id and look. Undo clears the item's hide, heart
+ *  and off-look marks. */
+export async function saveTaste(db: D1Database, userId: string, item: string, action: TasteAction, look?: string) {
+  if (action === "like") return setSaved(db, userId, item, true);
+  if (action === "hide") return setHidden(db, userId, item, true);
+  if (action === "off-look") {
+    await db.prepare(`insert or ignore into off_look (userId, item, look, createdAt) values (?, ?, ?, ?)`).bind(userId, item, look ?? "", Date.now()).run();
+    return;
+  }
+  await db.batch(["hidden where userId = ? and item", "off_look where userId = ? and item", "saved where userId = ? and lib"].map((w) => db.prepare(`delete from ${w} = ?`).bind(userId, item)));
+}
+
+/** How many users marked each item off each look, most first: what tune-picks reads. Counts only, never who. */
+export async function offLookCounts(db: D1Database) {
+  const { results } = await db.prepare(`select item, look, count(*) as users from off_look group by item, look order by users desc, item limit 200`).all<{ item: string; look: string; users: number }>();
+  return results;
 }
 
 /** Heart or unheart one library. */
