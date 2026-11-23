@@ -99,8 +99,9 @@ async function load(recover = false) {
   if (imported) return;
   imported = true;
   const localLook = store.get(LOOK);
-  store.set(LOOK, null);
-  if (localLook && !me.look) setPrefs({ look: localLook });
+  // Kept in this browser until the account has it, so a failed write retries on the next page load.
+  if (localLook && !me.look) set({ look: localLook }), write("POST", "/api/prefs", () => ({ look: snapshot().look, framework: snapshot().framework }), () => store.set(LOOK, null));
+  else store.set(LOOK, null);
   if (local.length) write("POST", "/api/saved", () => ({ merge: local }), () => store.set(KEY, null));
 }
 
@@ -133,6 +134,8 @@ export function toggleSaved(id: string) {
   const on = !saved.includes(id);
   set({ saved: on ? [...saved, id] : saved.filter((x) => x !== id) });
   if (!user) return store.set(KEY, JSON.stringify(snapshot().saved));
+  // A heart still waiting in a failed first-sign-in import must not come back with it.
+  if (!on && readLocal().includes(id)) store.set(KEY, JSON.stringify(readLocal().filter((x) => x !== id)));
   write("POST", "/api/saved", () => ({ lib: id, on: snapshot().saved.includes(id) }));
 }
 
