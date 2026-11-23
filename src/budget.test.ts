@@ -160,6 +160,8 @@ test("a saved look and framework stand in only when the call and the brief name 
   assert.doesNotMatch(await glass.text("plan", { brief: "pricing page, no glassmorphism, not vue" }), /^look: Glassmorphism|\nframework: vue/);
   assert.match(await glass.text("plan", { brief: "dashboard with a data table, we use mantine" }), /\nframework: react[^\n]*\n[\s\S]*mantine/);
   assert.match(await glass.text("pick", { need: "toast" }), /^look: glassmorphism \(the user's saved look/);
+  assert.doesNotMatch(await glass.text("plan", { brief: "pricing page, without svelte or vue" }), /\nframework: vue/);
+  assert.match(await glass.text("plan", { brief: "settings page, we use headless ui" }), /\nframework: vue \(the user's default\)/);
 });
 
 test("taste saves only valid ids through the key's owner, and says so without a key", async () => {

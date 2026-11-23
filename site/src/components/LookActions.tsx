@@ -30,13 +30,18 @@ export function OffLookToggle({ item, compact }: { item: OffLook; compact?: bool
     <button
       type="button"
       aria-pressed={on}
-      aria-label={`Leave ${item.name} out under this look`}
+      aria-label={compact ? `Leave ${item.name} out under this look` : undefined}
       title={on ? "Left out under this look. Click to undo" : "Leave out under this look only"}
       onClick={() => (haptic("selection"), toggleOffLook(item))}
       className={`press inline-flex h-7 shrink-0 items-center gap-1 rounded-lg text-[12px] font-medium ${compact ? "w-7 justify-center" : "px-2"} ${on ? "bg-s3 text-fg" : "text-fg3 hover:text-fg"}`}
     >
       <EyeOff size={13} aria-hidden />
-      {!compact && <span aria-hidden>{on ? "Left out · Undo" : "Not for this look"}</span>}
+      {!compact && (
+        <span>
+          {on ? "Left out · Undo" : "Not for this look"}
+          <span className="sr-only">: {item.name}</span>
+        </span>
+      )}
     </button>
   );
 }

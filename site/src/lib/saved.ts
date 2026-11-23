@@ -67,14 +67,11 @@ async function load() {
   const local = readLocal();
   const saved = [...new Set([...(me.saved ?? []), ...local])];
   const localLook = store.get(LOOK);
-  const prefs = { look: me.look ?? localLook ?? null, framework: me.framework ?? null };
-  set({ user: me.user, loading: false, saved, folders: me.folders ?? [], hidden: me.hidden ?? [], offLook: me.offLook ?? [], key: me.key ?? null, admin: !!me.admin, ...prefs });
+  set({ user: me.user, loading: false, saved, folders: me.folders ?? [], hidden: me.hidden ?? [], offLook: me.offLook ?? [], key: me.key ?? null, admin: !!me.admin, look: me.look ?? null, framework: me.framework ?? null });
+  // A look chosen signed out is saved once, through the same queue as later choices; one the account has wins.
+  store.set(LOOK, null);
+  if (localLook && !me.look) setPrefs({ look: localLook });
   if (local.length && (await api("POST", "/api/saved", { merge: local }).catch(fail))) store.set(KEY, null);
-  // Saved once, or dropped: a look the account already has wins, and one the server refuses is not asked again.
-  if (localLook) {
-    if (!me.look) await api("POST", "/api/prefs", prefs).catch((e) => (fail(e), set({ look: null })));
-    store.set(LOOK, null);
-  }
 }
 
 /** Reads the account again: the agent's taste tool may have changed it since this page loaded. */
@@ -152,15 +149,29 @@ export function setPrefs(p: Partial<Prefs>) {
   });
 }
 
-/** Leaves an item out under one look only, or brings it back there. */
+let marksSaved = Promise.resolve();
+/** Leaves an item out under one look only, or brings it back there. Writes go one at a time, each sending the item's
+ *  state when it goes out, so a quick mark and undo cannot land in the wrong order. */
 export function toggleOffLook(item: OffLook) {
   const { user, offLook } = snapshot();
   if (!user) return askSignIn();
   const same = (x: OffLook) => x.id === item.id && x.look === item.look;
   const on = !offLook.some(same);
   set({ offLook: on ? [...offLook, item] : offLook.filter((x) => !same(x)) });
-  api("POST", "/api/off-look", { item: item.id, look: item.look, on }).catch((e) => (fail(e), set({ offLook })));
+  marksSaved = marksSaved.then(() => {
+    const now = snapshot().offLook.some(same);
+    return api("POST", "/api/off-look", { item: item.id, look: item.look, on: now }).then(
+      () => {},
+      (e) => {
+        fail(e);
+        if (snapshot().offLook.some(same) === now) set({ offLook: now ? snapshot().offLook.filter((x) => !same(x)) : [...snapshot().offLook, item] });
+      },
+    );
+  });
 }
+
+/** Resolves once every queued look, framework and off-look write has reached the server: what /api/try then reads. */
+export const tasteSaved = () => Promise.all([prefsSaved, marksSaved]);
 
 /** Turns the agent key off without making a new one. */
 export async function revokeAgentKey() {

@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { frameworks, type Framework, type Swatch } from "../../../src/registry/schema.ts";
 import { haptic } from "../lib/haptics.ts";
 import { shot, thumb } from "../lib/kinds.ts";
-import { askSignIn, deleteAccount, makeAgentKey, refreshAccount, revokeAgentKey, setPrefs, signOut, toggleHidden, toggleOffLook, toggleSaved, useAccount } from "../lib/saved.ts";
+import { askSignIn, deleteAccount, tasteSaved, makeAgentKey, refreshAccount, revokeAgentKey, setPrefs, signOut, toggleHidden, toggleOffLook, toggleSaved, useAccount } from "../lib/saved.ts";
 import { declarations, FONTS } from "../lib/swatch.ts";
 import { Avatar } from "./AccountSheet.tsx";
 import { CopyButton } from "./fx.tsx";
@@ -273,6 +273,7 @@ function TryBrief() {
     if (!b.trim()) return;
     const n = ++last.current;
     setBusy(true);
+    if (m) await tasteSaved(); // a choice made just before must be in D1 when the server reads it
     const r = await fetch("/api/try", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ brief: b, mine: m }) }).catch(() => null);
     const j = ((await r?.json().catch(() => null)) ?? {}) as { text?: string; error?: string };
     if (n !== last.current) return;
@@ -285,8 +286,8 @@ function TryBrief() {
       <form onSubmit={run} className="flex flex-wrap gap-2">
         <input value={brief} onChange={(e) => setBrief(e.target.value)} maxLength={300} aria-label="Brief" className="h-9 min-w-0 flex-[1_1_260px] rounded-[9px] bg-s1 px-3 text-[13.5px] shadow-[inset_0_0_0_1px_var(--color-line2)] outline-none focus-visible:shadow-[inset_0_0_0_1px_rgb(91_124_255/0.6)] focus-visible:outline-none" />
         <Seg label="Whose taste">
-          <button type="button" aria-pressed={mine} onClick={() => (setMine(true), out && run(undefined, brief, true))}>Mine</button>
-          <button type="button" aria-pressed={!mine} onClick={() => (setMine(false), out && run(undefined, brief, false))}>Everyone's</button>
+          <button type="button" aria-pressed={mine} onClick={() => (setMine(true), (out || busy) && run(undefined, brief, true))}>Mine</button>
+          <button type="button" aria-pressed={!mine} onClick={() => (setMine(false), (out || busy) && run(undefined, brief, false))}>Everyone's</button>
         </Seg>
         <button type="submit" disabled={busy} className="press h-9 rounded-[9px] bg-fg px-3.5 text-[13px] font-semibold text-bg disabled:opacity-60">{busy ? "Planning…" : "Plan"}</button>
       </form>
@@ -332,16 +333,18 @@ function KeyPanel({ last4 }: { last4: string | null }) {
   const [client, setClient] = useState<Client>("Claude Code");
   const [busy, setBusy] = useState(false);
   const [off, setOff] = useState(false); // "Turn off" asks once: every client using the key stops working
-  const make = async () => (setBusy(true), setFresh((await makeAgentKey()) ?? fresh), setBusy(false));
+  // One request at a time: a new key landing after "Turn off" would leave a key working.
+  const make = async () => (setBusy(true), setOff(false), setFresh((await makeAgentKey()) ?? fresh), setBusy(false));
+  const turnOff = async () => (setBusy(true), setOff(false), setFresh(undefined), await revokeAgentKey(), setBusy(false));
   return (
     <div>
       <Rows>
         <Row title={last4 ? `tb_sk_…${last4}` : "No key"} sub={last4 ? "Only its last 4 characters are kept readable" : "Make one to connect your agent"}>
           <span className="flex gap-1.5">
             {last4 && (off ? (
-              <button type="button" onClick={() => (setOff(false), setFresh(undefined), void revokeAgentKey())} className={`${btn} text-[#ff7b7b]`}>Turn off for good</button>
+              <button type="button" disabled={busy} onClick={turnOff} className={`${btn} text-[#ff7b7b]`}>Turn off for good</button>
             ) : (
-              <button type="button" onClick={() => setOff(true)} className={`${btn} bg-transparent text-fg2 shadow-none`}>Turn off</button>
+              <button type="button" disabled={busy} onClick={() => setOff(true)} className={`${btn} bg-transparent text-fg2 shadow-none`}>Turn off</button>
             ))}
             <button type="button" disabled={busy} onClick={make} className={btn}>{busy ? "Making…" : last4 ? "Make a new key" : "Make a key"}</button>
           </span>

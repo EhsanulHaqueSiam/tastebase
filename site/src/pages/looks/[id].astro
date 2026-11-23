@@ -116,7 +116,7 @@ const material = s.card?.split(";").filter(Boolean) ?? [];
             <p class="text-[13.5px] text-fg2">No library. This look does it in plain CSS{needed ? ", and every plan in it gets one" : ""}.</p>
           ) : (
             <div class="flex min-w-0 gap-3.5">
-              <a href={`/browse/${lead.id}`} class="shrink-0 max-sm:hidden"><img src={thumb(shot(lead.id))} alt="" loading="lazy" width="96" height="60" class="h-[60px] w-24 rounded-md bg-s3 object-cover object-top shadow-[0_0_0_1px_var(--color-line)]" /></a>
+              <a href={`/browse/${lead.id}`} tabindex="-1" aria-hidden="true" class="shrink-0 max-sm:hidden"><img src={thumb(shot(lead.id))} alt="" loading="lazy" width="96" height="60" class="h-[60px] w-24 rounded-md bg-s3 object-cover object-top shadow-[0_0_0_1px_var(--color-line)]" /></a>
               <div class="min-w-0 flex-1">
                 <div class="flex flex-wrap items-center gap-x-2.5 gap-y-1">
                   <a href={`/browse/${lead.id}`} class="text-[14.5px] font-semibold hover:underline">{lead.name}</a>
