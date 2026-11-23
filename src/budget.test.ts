@@ -31,11 +31,15 @@ const EVERY_LOOK = [
 ];
 
 const BUDGET = {
-  instructions: 325, // sent with every session that connects, whether or not it calls a tool; 25 of it tells agents their skill is stale
+  // sent with every session that connects, whether or not it calls a tool; 25 of it tells agents their skill is stale.
+  // Raised from 325: the line that sends a rejected library or part to taste (37). Shorter, agents wrote a memory note
+  // or only promised in chat (evals rejection-saves-taste, off-look-is-not-a-dislike), so the next project forgot it.
+  instructions: 365,
   // every tool definition together, loaded when an agent first reaches for tastebase. Raised from 700: get's
   // _meta.ui (about 12) points hosts that render MCP Apps at the live library preview. Raised from 715: the get id
   // list names illustrations, a resource category for spot art, and agent tools by its own name (3).
-  schemas: 720,
+  // Raised from 720: the taste tool (140), which keeps a user's hides, likes and off-look marks for later answers.
+  schemas: 865,
   // raised from 800: a site type's build line (3D, motion-led, media-led) adds up to 115; the rules every look shares
   // (brief first, never broken) add 60; the line that says to install the picks first adds 15. Raised from 1010: each
   // specialist pick carries its usage, about 100 tokens each and 630 for this worst case of six, since builders that
@@ -105,4 +109,52 @@ test("a hidden library or resource never reaches that user's agent", async () =>
   assert.match(await text("get", { id: "sonner" }), /^Unknown id/);
   assert.ok(!(await text("get", { id: "icons" })).includes(icons.url));
   assert.match(await (await connect()).text("pick", { need: "toast" }), /\bsonner\b/);
+  // Free text still names it (ding's alternatives); the answer says the user hid it.
+  assert.match(await text("get", { id: "ding" }), /\nthe user hid sonner: never use it$/);
+  // By display name too, and in a site type's picks; a library's features go with it (GSAP SplitText).
+  const shadcnOff = await connect({ hide: new Set(["shadcn-ui", "gsap"]), like: new Set() });
+  assert.match(await shadcnOff.text("get", { id: "spartan-ng" }), /\nthe user hid shadcn-ui: never use it$/);
+  assert.match(await shadcnOff.text("get", { id: "motion-site" }), /\nthe user hid gsap, gsap-splittext: never use them$/);
+  assert.match(await shadcnOff.text("get", { id: "gsap-splittext" }), /^Unknown id/);
+});
+
+test("a hidden part leaves its kit's answers; an off-look mark holds under its look only", async () => {
+  const shadcn = "date picker, we use shadcn";
+  const { text } = await connect({ hide: new Set(["shadcn-ui/date-picker"]), like: new Set(), offLook: new Map([["minimal", new Set(["sonner"])]]) });
+  assert.doesNotMatch(await text("pick", { need: shadcn }), /Your kit ships it: shadcn-ui/);
+  assert.match(await (await connect()).text("pick", { need: shadcn }), /Your kit ships it: shadcn-ui \(Date Picker\)/);
+  assert.match(await text("get", { id: "shadcn-ui" }), /\nthe user hid shadcn-ui\/date-picker: never use it$/);
+  assert.doesNotMatch(await text("pick", { need: "toast", look: "minimal" }), /^sonner:/m);
+  assert.doesNotMatch(await text("pick", { need: "minimal dashboard toast" }), /^sonner:/m);
+  assert.match(await text("pick", { need: "dashboard toast, not minimal" }), /^sonner:/m);
+  assert.match(await text("get", { id: "minimal" }), /\nthe user marked sonner wrong for the minimal look: do not use it here$/);
+  assert.match(await text("pick", { need: "toast", look: "apple" }), /^sonner:/m);
+  assert.doesNotMatch(await text("plan", { brief: "dashboard with toasts", look: "minimal" }), /-> sonner:/);
+  // A hidden part is no kit's answer for its job, nor in the kit's own install and example (Kokonut's is Hold Button).
+  const parts = await connect({ hide: new Set(["coss-ui/chat", "kokonut-ui/hold-button"]), like: new Set() });
+  assert.doesNotMatch(await parts.text("plan", { brief: "dashboard with Chat using coss-ui" }), /agent-ui -> coss-ui: the base kit ships it/);
+  const kokonut = await parts.text("get", { id: "kokonut-ui" });
+  assert.match(kokonut, /^install: npx shadcn@latest add @kokonutui\/<part>$/m);
+  assert.doesNotMatch(kokonut.split("\nnote:")[0]!, /hold-button|HoldButton/);
+  const button = await connect({ hide: new Set(["shadcn-ui/button"]), like: new Set() });
+  assert.match(await button.text("get", { id: "shadcn-ui" }), /^install: .*add card input$/m);
+  const park = await connect({ hide: new Set(["park-ui/button"]), like: new Set() });
+  assert.match(await park.text("get", { id: "park-ui" }), /^install: npx @park-ui\/cli add <part>$/m);
+});
+
+test("taste saves only valid ids through the key's owner, and says so without a key", async () => {
+  const saved: unknown[] = [];
+  const { text } = await connect({ hide: new Set(), like: new Set(), save: async (...a) => void saved.push(a) });
+  assert.match(await text("taste", { id: "kokonut-ui/pull-cord", action: "hide" }), /^Saved: kokonut-ui\/pull-cord is hidden/);
+  assert.match(await text("taste", { id: "sonner", action: "off-look", look: "minimal" }), /^Saved: sonner is left out under minimal only/);
+  assert.match(await text("taste", { id: "sonner", action: "off-look" }), /needs the look id/);
+  assert.match(await text("taste", { id: "kokonut-ui/pull-chord", action: "hide" }), /Did you mean: kokonut-ui\/pull-cord/);
+  assert.match(await text("taste", { id: "kokonut-ui/pull-cord", action: "like" }), /^Only a whole library/);
+  assert.match(await text("taste", { id: "sonner", action: "undo" }), /^Saved: sonner is offered again/);
+  const hidden = await connect({ hide: new Set(["vaul"]), like: new Set(), save: async () => {} });
+  assert.match(await hidden.text("taste", { id: "vaul", action: "off-look", look: "minimal" }), /stays hidden under every look/);
+  assert.deepEqual(saved, [["kokonut-ui/pull-cord", "hide", undefined], ["sonner", "off-look", "minimal"], ["sonner", "undo", undefined]]);
+  const keyless = await connect();
+  assert.match(await keyless.text("taste", { id: "sonner", action: "hide" }), /^Not saved: .*Leave sonner out for the rest of this chat/);
+  assert.doesNotMatch(await keyless.text("taste", { id: "sonner", action: "like" }), /Leave/);
 });

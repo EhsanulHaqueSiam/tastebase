@@ -33,12 +33,14 @@ const client = new Client({ name: "tastebase-probe", version: "0" });
 try {
   await client.connect(new StreamableHTTPClientTransport(new URL("/mcp", base)));
   const { tools } = await client.listTools();
-  check(["get", "pick", "plan", "trending"].every((n) => tools.some((t) => t.name === n)), "MCP tools", `${tools.map((t) => t.name).join(", ")} (~${tokens(JSON.stringify(tools))} tokens of schema)`);
+  check(["get", "pick", "plan", "trending", "taste"].every((n) => tools.some((t) => t.name === n)), "MCP tools", `${tools.map((t) => t.name).join(", ")} (~${tokens(JSON.stringify(tools))} tokens of schema)`);
   const calls: [string, Record<string, unknown>, RegExp][] = [
     ["plan", { brief: "iOS-feel habit tracker with a bottom sheet and animated stats" }, /^interaction (\([^)]*\) )?-> vaul/m],
     ["pick", { need: "copy button that confirms" }, /^torph:/],
     ["get", { id: "sonner" }, /^Sonner \(sonner\)/],
     ["trending", {}, /\S/],
+    // No key here, so nothing is written: the tool says so.
+    ["taste", { id: "sonner", action: "hide" }, /^Not saved: /],
   ];
   for (const [name, args, expect] of calls) {
     const r = await client.callTool({ name, arguments: args });

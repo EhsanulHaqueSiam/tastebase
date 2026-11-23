@@ -1,22 +1,25 @@
-// MCP server: four tools, compact text answers. Text, not JSON, because agents read it and it costs fewer tokens.
+// MCP server: five tools, compact text answers. Text, not JSON, because agents read it and it costs fewer tokens.
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { detectLooks, jobFramework, kitParts, pick, plan, words } from "./engine.ts";
+import { detectLooks, jobFramework, kitParts, negations, pick, plan, words } from "./engine.ts";
 import { formatIntegrations, formatLibrary, formatLook, formatLooks, formatPick, formatPlan, formatResources, formatSite, formatTrending, SITE } from "./format.ts";
 import { siteTypes } from "./registry/index.ts";
-import { agentResourceKinds, isResourceKind } from "./registry/resources.ts";
+import { agentResourceKinds, isResourceKind, resources } from "./registry/resources.ts";
 import { frameworks, kinds, type Aesthetic, type Library } from "./registry/schema.ts";
+import { partOf, partSlug, tasteActions, without, type Taste, type TasteAction } from "./taste.ts";
+
+export type { Taste } from "./taste.ts";
 
 /** Hash of skills/tastebase/SKILL.md, which states it too; src/skill.test.ts says what to set after editing the skill. */
-export const SKILL_VERSION = "c8bf88a";
+export const SKILL_VERSION = "17d4593";
 
 export const INSTRUCTIONS = `tastebase is a curated index of UI libraries with notes on when to use each.
 Before writing UI, do not build parts from scratch: call pick for one specific job (a toast), or plan once with the whole brief. Read the look from the user's words and the project (kit, fonts, colours); get looks lists every look id. For fonts, colour or references, get that category.
 Reference first: before building a screen, name a real one: the user's, else search Mobbin, Refero or Inspo (free) if connected, else the look's refs.
 Build each part a plan lists with its library, from the usage shown. Adapt it to the look's type, colour and motion rules and the project's tokens; set a kit's radius, fonts and neutrals first. Write from scratch only what no library covers.
 Before calling UI done, screenshot it at desktop and ~390px and compare with the reference. Check: one focal point, at most one showpiece effect per page, gaps on a 4/8px scale, hierarchy from weight and colour before size, one accent on tinted neutrals, real content, matching radius, borders and shadows, motion that starts where the user acted. The look's rules win where they differ.
-Call trending when asked what is hot.
+Call trending when asked what is hot. When the user rejects a library or part ("never recommend X", "X clashes with this look"), save it with taste, not a memory note: it follows them to every project.
 Skill version ${SKILL_VERSION}; if yours differs, update it per tastebase.ehsanulsiam.workers.dev/llms.txt.`;
 
 const text = (t: string) => ({ content: [{ type: "text" as const, text: t }] });
@@ -43,13 +46,17 @@ addEventListener("message", (e) => {
 post({ id: 1, method: "ui/initialize", params: { protocolVersion: "2026-01-26", appInfo: { name: "tastebase", version: "1" }, appCapabilities: {} } });
 </script>`;
 
-/** A signed-in asker's taste, from their agent key: library and resource ids they hid (never offered) and libraries they
- *  hearted (a slight lead in plan and pick). */
-export type Taste = { hide: ReadonlySet<string>; like: ReadonlySet<string> };
+const SAVED: Record<TasteAction, (id: string, look?: string) => string> = {
+  hide: (id) => `Saved: ${id} is hidden; plan, pick and get leave it out from the next call.`,
+  like: (id) => `Saved: ${id} is liked; it leads close calls in plan and pick.`,
+  "off-look": (id, look) => `Saved: ${id} is left out under ${look} only and still offered for other looks.`,
+  undo: (id) => `Saved: ${id} is offered again under every look, and no longer liked.`,
+};
+const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 /** `onUse` hears each library an agent reads (`get`) or is offered (`plan`, `pick`); the hosted server counts them. */
 export function createServer(all: Library[], looks: Aesthetic[], version: string, onUse?: (id: string) => void, taste?: Taste): McpServer {
-  const libs = taste?.hide.size ? all.filter((l) => !taste.hide.has(l.id)) : all;
+  const libs = without(all, taste?.hide);
   const like = taste?.like;
   const server = new McpServer({ name: "tastebase", version }, { instructions: INSTRUCTIONS });
   const byId = new Map(libs.map((l) => [l.id, l]));
@@ -61,6 +68,25 @@ export function createServer(all: Library[], looks: Aesthetic[], version: string
     // Looks whose signals the id names ("liquid-glass" -> glass), then ids spelled close to it.
     const close = [...new Set([...detectLooks(looks, id).map((a) => a.id), ...near(id, lookById.keys())])].slice(0, 5);
     return text(`Unknown look "${id}".${close.length ? ` Closest: ${close.join(", ")}.` : ""} get looks lists every id.`);
+  };
+  // Free text can still name what the user hid or marked off this look (a note's "use motion-primitives", a look's
+  // picks, a kit whose part they hid); an answer that names it by id or name says so at the end.
+  const reply = (t: string, look?: string) => {
+    const named = (ids: Iterable<string>) =>
+      [...ids].filter((id) => {
+        const l = all.find((x) => x.id === (partOf(all, id)?.lib.id ?? id));
+        return [l?.id ?? id, l?.name].some((n) => n && new RegExp(`(?<![\\w.-])${esc(n)}(?![\\w-])`).test(t));
+      });
+    const them = (ids: string[]) => (ids.length > 1 ? "them" : "it");
+    const hide = taste?.hide ?? new Set<string>();
+    // A hidden library's features go with it (GSAP's SplitText), as in `without`.
+    const hid = named([...hide, ...all.filter((l) => l.partOf && hide.has(l.partOf)).map((l) => l.id)]);
+    const off = named(taste?.offLook?.get(look ?? "") ?? []).filter((id) => !hid.includes(id));
+    return text(
+      [t, hid.length && `the user hid ${hid.join(", ")}: never use ${them(hid)}`, off.length && `the user marked ${off.join(", ")} wrong for the ${look} look: do not use ${them(off)} here`]
+        .filter(Boolean)
+        .join("\n"),
+    );
   };
 
   server.registerTool(
@@ -76,9 +102,12 @@ export function createServer(all: Library[], looks: Aesthetic[], version: string
     },
     async ({ brief, framework, look }) => {
       if (look && !lookById.has(look)) return unknownLook(look);
-      const p = plan(libs, looks, brief, { framework, look, like });
+      const first = plan(libs, looks, brief, { framework, look, like });
+      // Off-look marks hold only under their look, which the first plan detects.
+      const off = taste?.offLook?.get(first.look.id);
+      const p = off?.size ? plan(without(libs, off), looks, brief, { framework, look, like }) : first;
       p.items.forEach((i) => i.pick && onUse?.(i.pick.lib.id));
-      return text(formatPlan(p));
+      return reply(formatPlan(p), first.look.id);
     },
   );
 
@@ -94,14 +123,18 @@ export function createServer(all: Library[], looks: Aesthetic[], version: string
       const look = id ? lookById.get(id) : undefined;
       // The job's own framework when none is passed ("a React date picker" never gets Vue-only answers).
       const fw = framework ?? jobFramework(need);
-      const fits = pick(libs, need, { framework: fw, look, like });
+      // Off-look marks follow the look passed, else the one the job names ("minimal dashboard toast", not "not minimal").
+      const lookId = look?.id ?? detectLooks(looks, negations(need).want)[0]?.id;
+      const off = taste?.offLook?.get(lookId ?? "");
+      const pool = off ? without(libs, off) : libs;
+      const fits = pick(pool, need, { framework: fw, look, like });
       fits.forEach((s) => onUse?.(s.lib.id));
-      const parts = kitParts(libs, need, { framework: fw, look });
+      const parts = kitParts(pool, need, { framework: fw, look });
       // The project wins: a kit the job names that ships the part ("date picker, we use shadcn") answers first.
       const said = words(need);
       const own = parts.find((p) => said.includes(words(p.lib.name)) || said.includes(words(p.lib.id.replace(/-ui$/, ""))));
       const lead = own ? `Your kit ships it: ${own.lib.id} (${own.part}). Use that; the rest only if it falls short.\n` : "";
-      return text(lead + formatPick(fits, fits.length ? [] : parts, fw));
+      return reply(lead + formatPick(fits, fits.length ? [] : parts, fw), lookId);
     },
   );
 
@@ -115,16 +148,16 @@ export function createServer(all: Library[], looks: Aesthetic[], version: string
     },
     async ({ id }) => {
       const l = byId.get(id);
-      if (l) return onUse?.(l.id), text(formatLibrary(l));
+      if (l) return onUse?.(l.id), reply(formatLibrary(l));
       const site = siteTypes.find((t) => t.id === id);
-      if (site) return text(`${formatSite(site)}\npicks: ${JSON.stringify(site.picks)}`);
+      if (site) return reply(`${formatSite(site)}\npicks: ${JSON.stringify(site.picks)}`);
       if (isResourceKind(id)) return text(formatResources(id, taste?.hide));
       if (id === "integrations") return text(formatIntegrations());
       if (id === "looks") return text(formatLooks(looks));
       const a = lookById.get(id);
-      if (a) return text(formatLook(a));
+      if (a) return reply(formatLook(a), a.id);
       const close = near(id, [...byId.keys(), ...lookById.keys()]);
-      return text(`Unknown id "${id}".${close.length ? ` Did you mean: ${close.join(", ")}?` : ""}`);
+      return reply(`Unknown id "${id}".${close.length ? ` Did you mean: ${close.join(", ")}?` : ""}`);
     },
   );
 
@@ -141,6 +174,39 @@ export function createServer(all: Library[], looks: Aesthetic[], version: string
     },
     async ({ kind, framework }) =>
       text(formatTrending(libs.filter((l) => (!kind || l.kind === kind) && (!framework || l.frameworks.includes(framework))))),
+  );
+
+  server.registerTool(
+    "taste",
+    {
+      description: "Save the user's verdict on a library or kit part (id 'kokonut-ui/pull-cord') to their tastebase account; plan, pick and get follow it in every project. Use it, not a memory note, for 'never recommend X' (hide) or 'X clashes with this look' (off-look, pass look).",
+      inputSchema: { id: z.string(), action: z.enum(tasteActions), look: z.string().optional() },
+    },
+    async ({ id, action, look }) => {
+      const lib = all.find((l) => l.id === id);
+      const part = lib ? undefined : partOf(all, id);
+      const resource = lib || part ? undefined : resources.find((r) => r.id === id);
+      if (!lib && !part && !resource) {
+        const [libId = ""] = id.split("/");
+        const kit = id.includes("/") ? all.find((l) => l.id === libId) : undefined;
+        const close = kit ? near(partSlug(id.slice(libId.length + 1)), [...(kit.parts?.free ?? []), ...(kit.parts?.paid ?? [])].map(partSlug)).map((s) => `${libId}/${s}`) : near(id, all.map((l) => l.id));
+        return text(`Unknown id "${id}".${close.length ? ` Did you mean: ${close.join(", ")}?` : ""} A part is library/part, its name in lowercase with dashes.`);
+      }
+      if (action === "like" && !lib) return text("Only a whole library can be liked; hide works for parts and resources too.");
+      if (action === "off-look") {
+        if (resource) return text("A resource has no look; hide it instead.");
+        if (!look) return text("off-look needs the look id it clashes with; get looks lists them.");
+        if (!lookById.has(look)) return unknownLook(look);
+      }
+      if (!taste?.save) {
+        const now = action === "hide" ? ` Leave ${id} out for the rest of this chat.` : action === "off-look" ? ` Leave ${id} out under ${look} for the rest of this chat.` : "";
+        return text(`Not saved: this connection has no tastebase agent key.${now} To keep it, the user signs in at ${SITE}, makes an agent key in their account and reconnects with it.`);
+      }
+      await taste.save(id, action, action === "off-look" ? look : undefined);
+      // An off-look mark on a hidden item changes nothing yet: it stays hidden everywhere until undone.
+      if (action === "off-look" && taste.hide.has(id)) return text(`Saved: ${id} is marked wrong for ${look}, and stays hidden under every look until undone.`);
+      return text(SAVED[action](id, look));
+    },
   );
 
   return server;

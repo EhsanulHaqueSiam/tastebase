@@ -23,6 +23,7 @@ it, installs them and adapts them, and builds from scratch only what no library 
 | `pick` | one job: "copy button that confirms" | top 3 with reasons and "careful" notes | ~160 tokens |
 | `get` | an id (`vaul`) or a look (`apple`) | usage, agent note, adoption, use/avoid lists, alternatives | ~400 tokens |
 | `trending` | optional kind or framework | libraries gaining the most GitHub stars this week | ~250 tokens |
+| `taste` | an id (`sonner`, or one kit part: `kokonut-ui/pull-cord`) and hide, like, off-look or undo | saves the verdict to your account, through your agent key | ~30 tokens |
 
 77 libraries across 14 kinds of job and 12 looks. Every library belongs to its authors; tastebase writes the notes.
 

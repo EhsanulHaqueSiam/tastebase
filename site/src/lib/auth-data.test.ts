@@ -2,12 +2,12 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
-import { createFolder, deleteFolder, isAdmin, listPicks, loadAccount, makeAgentKey, mergeSaved, readFolder, setHidden, setPick, setSaved, tasteForKey, updateFolder } from "./auth-data.ts";
+import { createFolder, deleteFolder, isAdmin, listPicks, loadAccount, makeAgentKey, mergeSaved, offLookCounts, readFolder, saveTaste, setHidden, setPick, setSaved, tasteForKey, updateFolder } from "./auth-data.ts";
 import { memoryD1 } from "./d1-shim.test-util.ts";
 
 function setup() {
   const d1 = memoryD1();
-  for (const m of ["0001_accounts", "0002_taste", "0003_editor_picks"]) d1.exec(readFileSync(new URL(`../../../migrations/${m}.sql`, import.meta.url), "utf8"));
+  for (const m of ["0001_accounts", "0002_taste", "0003_editor_picks", "0004_off_look"]) d1.exec(readFileSync(new URL(`../../../migrations/${m}.sql`, import.meta.url), "utf8"));
   for (const u of ["ana", "bo"]) d1.exec(`insert into user values ('${u}', '${u}', '${u}@x.dev', 1, null, 0, 0)`);
   return d1 as unknown as D1Database;
 }
@@ -57,6 +57,22 @@ test("an agent key reads its owner's hidden and hearted items, and a new key sto
   await setHidden(db, "ana", "vaul", false);
   assert.deepEqual([...(await tasteForKey(db, key))!.hide], []);
   assert.equal(await tasteForKey(db, "tb_sk_made_up"), undefined);
+});
+
+test("the taste tool's saves reach the key's owner: off-look per look, counted across users; undo clears every mark", async () => {
+  const db = setup();
+  const key = await makeAgentKey(db, "ana");
+  await saveTaste(db, "ana", "kokonut-ui/pull-cord", "hide");
+  await saveTaste(db, "ana", "sonner", "off-look", "minimal");
+  await saveTaste(db, "ana", "sonner", "off-look", "apple");
+  await saveTaste(db, "bo", "sonner", "off-look", "minimal");
+  await saveTaste(db, "ana", "vaul", "like");
+  const t = (await tasteForKey(db, key))!;
+  assert.deepEqual({ userId: t.userId, hide: [...t.hide], like: [...t.like], minimal: [...t.offLook.get("minimal")!] }, { userId: "ana", hide: ["kokonut-ui/pull-cord"], like: ["vaul"], minimal: ["sonner"] });
+  assert.deepEqual((await offLookCounts(db)).map((r) => ({ ...r })), [{ item: "sonner", look: "minimal", users: 2 }, { item: "sonner", look: "apple", users: 1 }]);
+  for (const id of ["sonner", "kokonut-ui/pull-cord", "vaul"]) await saveTaste(db, "ana", id, "undo");
+  const after = (await tasteForKey(db, key))!;
+  assert.deepEqual([after.hide.size, after.offLook.size, after.like.size], [0, 0, 0]);
 });
 
 test("editor's picks list newest first; re-wording keeps a pick's place, unpicking drops it", async () => {

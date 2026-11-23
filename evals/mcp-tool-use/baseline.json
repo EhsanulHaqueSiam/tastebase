@@ -1,13 +1,15 @@
 {
   "model": "claude-haiku-5-5",
   "cases": {
-    "page-plans-first": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Landing page for Acme Mail, an email API for developers. Dev-tool look like Resend, with a shader background behind the hero. Single src/App.tsx. React.","framework":"react"}]],"samples":["1483e65b-346b-4e11-99b0-ad6efee6cb93"],"fp":"a6faa7857f93","graded":"3307d69b6d96"},
-    "one-job-picks": {"pass":true,"fails":[],"calls":[["pick",{"need":"toast notification after form save","framework":"react"}]],"samples":["c1126a15-6558-492b-bf82-d541229ce1c9"],"fp":"f6d50c5cfda3","graded":"639256532ecd"},
-    "vue-project": {"pass":true,"fails":[],"calls":[["pick",{"need":"command palette with cmd+k keyboard shortcut and fuzzy search","framework":"vue"}]],"samples":["3bc21bee-cb3a-4de4-8243-34a11741fea0"],"fp":"7a0cc0816a10","graded":"28bd96b43364"},
-    "keeps-project-kit": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Billing page with a plan picker and an invoices table. Stack: React 19 + Mantine 8 + Vite + TypeScript, Tailwind 4 present.","framework":"react"}]],"samples":["03cffbc2-49c6-4e53-9640-f722c6e2410d"],"fp":"f9e26b0e17db","graded":"39aead02a290"},
-    "nothing-fits": {"pass":true,"fails":[],"calls":[],"samples":["d6c8f133-425f-4876-9aba-a2d70dfb4012"],"fp":"0b9d2ac37a3c","graded":"d5943f2d6e60"},
-    "trending-when-asked": {"pass":true,"fails":[],"calls":[["trending",{}]],"samples":["1ad4b23e-d3f2-4c40-9620-9b827eb99dd3"],"fp":"60114ed16f4a","graded":"3c08e075ad12"},
-    "control-typo": {"pass":true,"fails":[],"calls":[],"samples":["f33917b5-0663-4e66-8800-5ab3cf900233"],"fp":"0033c0262209","graded":"87d112b5841b"},
-    "control-backend": {"pass":true,"fails":[],"calls":[],"samples":["357a7864-b50f-4204-9fcb-8ed27904c3b8"],"fp":"078863c55a84","graded":"7827287d9fc3"}
+    "page-plans-first": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Landing page for Acme Mail, an email API for developers. Dev-tool look like Resend (dark, code-forward, minimal), with a shader background behind the hero. Single file src/App.tsx. React + Tailwind.","framework":"react"}]],"samples":["4ab70a85-55bc-4152-b00e-46ee82d5a94e"],"fp":"39d9d4db4b1d","graded":"f7a862f8ef07"},
+    "one-job-picks": {"pass":true,"fails":[],"calls":[["pick",{"need":"toast notification after form save","framework":"react"}]],"samples":["6c72d4d4-7dbb-4f2d-b512-bd559d14c1cb"],"fp":"0b5e5d22e178","graded":"db204798c4da"},
+    "vue-project": {"pass":true,"fails":[],"calls":[["pick",{"need":"command palette with cmd+k, fuzzy search, keyboard navigation","framework":"vue"}]],"samples":["4b315b2c-ee25-4b47-b69d-33d41d530e85"],"fp":"ec1da6a58f51","graded":"eb263caaca9e"},
+    "keeps-project-kit": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Billing page with a plan picker and an invoices table. React 19 + Mantine 8 + Vite + TypeScript, Tailwind installed. Account screen already uses Mantine AppShell, Stack, Title, Button.","framework":"react"}]],"samples":["5342da69-8820-4728-9c27-a876e409a38a"],"fp":"582e7f156d8f","graded":"45c5830d24b4"},
+    "nothing-fits": {"pass":true,"fails":[],"calls":[],"samples":["3c415159-4dc9-48e9-8bab-36dbf5b91656"],"fp":"e9c1ad47b3e8","graded":"827503cb708a"},
+    "trending-when-asked": {"pass":true,"fails":[],"calls":[["trending",{}]],"samples":["c940e8d9-8633-47b4-bd4e-9af1d31f428a"],"fp":"3dd0a4ce3382","graded":"718792dd4701"},
+    "control-typo": {"pass":true,"fails":[],"calls":[],"samples":["36354b1e-17a8-468b-9e5a-0595cde40ea5"],"fp":"8ba9c1ab2bb9","graded":"d06a2247089e"},
+    "control-backend": {"pass":true,"fails":[],"calls":[],"samples":["0995f4b7-b933-4001-a160-174a9224204b"],"fp":"91d4eb8e448f","graded":"bef0a308b13d"},
+    "rejection-saves-taste": {"pass":true,"fails":[],"calls":[["taste",{"id":"sonner","action":"hide"}]],"samples":["bccc3af2-6437-4921-91db-98619fce32ea"],"fp":"20ca4426ab62","graded":"94c5d24298c2"},
+    "off-look-is-not-a-dislike": {"pass":true,"fails":[],"calls":[["get",{"id":"looks"}],["taste",{"id":"sonner","action":"off-look","look":"neo-brutalism"}]],"samples":["cc9ebad0-7e16-4817-b587-32a2048b5ec7"],"fp":"3396b3eae4f2","graded":"43c56bfbf675"}
   }
 }
