@@ -72,23 +72,33 @@ function write(method: string, url: string, body: () => unknown, done?: () => vo
   queue = queue.then(() =>
     api(method, url, body()).then(
       () => done?.(),
-      (e) => (fail(e), void queue.then(load)),
+      (e) => (fail(e), void queue.then(() => load(true))),
     ),
   );
 }
 /** Resolves once every taste write made so far has reached the server: what /api/try then reads. */
 export const tasteSaved = () => queue;
 
-async function load() {
+let imported = false; // what this browser kept signed out joins the account once per page, even if that write fails
+
+/** Reads the account. `recover`: after a failed write, only the taste fields, only while still signed in, and again
+ *  once newer writes land if one overlapped the read. */
+async function load(recover = false) {
   const at = edits;
   await queue;
-  const me = (await api<{ user: User | null; hidden?: Hidden[]; offLook?: OffLook[]; admin?: boolean } & Partial<Omit<AccountData, "hidden" | "offLook">>>("GET", "/api/me").catch(() => null)) ?? { user: null };
-  if (!me.user) return store.set(SIGNED_IN, null), set({ loading: false });
+  const me = await api<{ user: User | null; hidden?: Hidden[]; offLook?: OffLook[]; admin?: boolean } & Partial<Omit<AccountData, "hidden" | "offLook">>>("GET", "/api/me").catch(() => undefined);
+  // A network or server error keeps what is shown and the signed-in flag; only an answer of "no user" signs out.
+  if (!me) return set({ loading: false });
+  if (recover && !snapshot().user) return;
+  if (!me.user) return store.set(SIGNED_IN, null), set({ ...EMPTY, saved: readLocal(), look: store.get(LOOK) });
+  if (at !== edits && recover) return void queue.then(() => load(true));
   const local = readLocal();
-  const localLook = store.get(LOOK);
   const taste = at === edits ? { saved: [...new Set([...(me.saved ?? []), ...local])], hidden: me.hidden ?? [], offLook: me.offLook ?? [], look: me.look ?? null, framework: me.framework ?? null } : {};
+  if (recover) return set(taste);
   set({ user: me.user, loading: false, folders: me.folders ?? [], key: me.key ?? null, admin: !!me.admin, ...taste });
-  // What this browser kept signed out joins the account once: its hearts, and its look unless the account has one.
+  if (imported) return;
+  imported = true;
+  const localLook = store.get(LOOK);
   store.set(LOOK, null);
   if (localLook && !me.look) setPrefs({ look: localLook });
   if (local.length) write("POST", "/api/saved", () => ({ merge: local }), () => store.set(KEY, null));
