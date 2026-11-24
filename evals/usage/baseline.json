@@ -115,6 +115,7 @@
     "react-symbols": {"pass":true,"fails":[],"calls":[],"samples":["react-symbols","react-symbols"],"fp":"87c8114f234c","graded":"703454885130"},
     "lordicon": {"pass":true,"fails":[],"calls":[],"samples":["lordicon"],"fp":"85aefabd9a56","graded":"703454885130"},
     "react-useanimations": {"pass":true,"fails":[],"calls":[],"samples":["react-useanimations"],"fp":"db85b565dec6","graded":"703454885130"},
+    "animateicons": {"pass":true,"fails":[],"calls":[],"samples":["animateicons"],"fp":"3651c2003f25","graded":"703454885130"},
     "tremor": {"pass":true,"fails":[],"calls":[],"samples":["tremor"],"fp":"1d4137c63b49","graded":"703454885130"},
     "liveline": {"pass":true,"fails":[],"calls":[],"samples":["liveline"],"fp":"266d10a54a5d","graded":"703454885130"},
     "microcharts": {"pass":true,"fails":[],"calls":[],"samples":["microcharts"],"fp":"075ca3b870ee","graded":"703454885130"},
