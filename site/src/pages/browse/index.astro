@@ -1,12 +1,14 @@
 ---
-// /browse: the library directory. Prerendered; the island filters on the client and loads live stats itself.
+// /browse: the library directory. Prerendered; the island filters on the client and loads live stats itself. Each
+// library carries its use cases' words, deduplicated, so a search can name a job ("date picker") and not only a name.
 import Directory from "../../components/Directory.tsx";
 import Base from "../../layouts/Base.astro";
 import { libraries, shelfLib } from "../../lib/server.ts";
+import { stems } from "../../../../src/words.ts";
 
 export const prerender = true;
 ---
 
 <Base title="Libraries · tastebase" description={`${libraries.length} hand-picked UI libraries, by job, framework and price.`}>
-  <Directory client:load libs={libraries.map(shelfLib)} />
+  <Directory client:load libs={libraries.map((l) => ({ ...shelfLib(l), uses: [...new Set(stems(l.useFor.join(" ")))].join(" ") }))} />
 </Base>

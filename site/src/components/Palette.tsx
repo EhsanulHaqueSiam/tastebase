@@ -6,7 +6,7 @@ import { navigate } from "astro:transitions/client";
 import { Command } from "cmdk";
 import { ArrowRight, ArrowUpRight, Search } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { Toaster } from "sonner";
 import { Drawer } from "vaul";
 import { resourceKinds, type ResourceKind } from "../../../src/registry/resources.ts";
@@ -16,11 +16,14 @@ import { kindMeta, thumb } from "../lib/kinds.ts";
 import { liveSponsors, sponsors } from "../lib/sponsors.ts";
 import { withUtm } from "../lib/utm.ts";
 import { useTheme } from "../lib/theme.ts";
+import { ranked } from "../lib/search.ts";
 import { LibMark } from "./LibMark.tsx";
 
 type Row = { id: string; name: string; tagline: string; kind: Kind; search: string };
 type Res = { id: string; name: string; goodFor: string; kind: ResourceKind; href: string };
-type Lists = { libs: Row[]; resources: Res[] };
+type Look = { id: string; name: string; summary: string; accent: string; search: string };
+type Lists = { libs: Row[]; looks: Look[]; resources: Res[] };
+type Section = { id: string; heading: string; cap: number; weight?: number; rows: { id: string; name: string; text: string; sub: string; mark: ReactNode; href: string }[] };
 
 const PHONE = "(max-width: 639px)";
 const onPhoneChange = (fn: () => void) => {
@@ -36,6 +39,8 @@ export default function Palette() {
   const [lists, setLists] = useState<Lists>();
   const [q, setQ] = useState("");
   useEffect(() => void (open || setQ("")), [open]);
+  const list = useRef<HTMLDivElement>(null);
+  useEffect(() => void list.current?.scrollTo(0, 0), [q]); // the best match is first; a scroll left from the last query hides it
 
   // What had focus when the palette opened (its input takes focus as it mounts) gets it back on close, unless a pick
   // started a navigation: the router fires astro:before-preparation inside navigate(), before this cleanup runs.
@@ -84,61 +89,65 @@ export default function Palette() {
 
   // Fetch the list the first time the palette opens, not on every page.
   useEffect(() => {
-    if (open && !lists) fetch("/api/libs").then((r) => r.json() as Promise<Lists>).then(setLists).catch(() => setLists({ libs: [], resources: [] }));
+    if (open && !lists) fetch("/api/libs").then((r) => r.json() as Promise<Lists>).then(setLists).catch(() => setLists({ libs: [], looks: [], resources: [] }));
   }, [open, lists]);
 
+  // The engine's picks for the query and the looks it names (what the home page shows), fetched as you type: a job in
+  // words ("toast that stacks", "glassmorphism card") is something names and descriptions alone cannot rank.
+  const [best, setBest] = useState<{ q: string; libs: string[]; looks: string[] }>();
+  useEffect(() => {
+    const t = q.trim();
+    if (!open || !t) return;
+    const ctl = new AbortController();
+    const wait = setTimeout(() => {
+      fetch(`/api/search?q=${encodeURIComponent(t)}`, { signal: ctl.signal })
+        .then((r) => r.json() as Promise<{ relevant: { id: string }[]; looks: string[] }>)
+        .then((r) => setBest({ q: t, libs: r.relevant.slice(0, 5).map((l) => l.id), looks: r.looks }))
+        .catch(() => {});
+    }, 150);
+    return () => (clearTimeout(wait), ctl.abort());
+  }, [open, q]);
+
   const ads = open ? liveSponsors(sponsors) : []; // read when the palette opens, so an ended sponsor drops out
-  const groups = Object.entries(kindMeta).map(([k, m]) => [m.label, (lists?.libs ?? []).filter((r) => r.kind === k)] as const).filter(([, list]) => list.length);
-  const resGroups = Object.entries(resourceKinds).map(([k, label]) => [label, (lists?.resources ?? []).filter((r) => r.kind === k)] as const).filter(([, list]) => list.length);
+  const go = (href: string) => (setOpen(false), href.startsWith("/") ? navigate(href) : window.open(href, "_blank", "noopener"));
+  const tile = (icon: ReactNode) => <span className="grid size-[26px] flex-none place-items-center rounded-md bg-s2 text-fg3">{icon}</span>;
+  const sections: Section[] = !lists ? [] : [
+    ...(q.trim() ? [] : [{ id: "browse", heading: "Browse", cap: Infinity, rows: [{ slug: "browse", label: "Libraries" }, ...categories].map((c) => ({ id: `browse:${c.slug}`, name: c.label, text: "", sub: "", mark: tile(<ArrowRight size={14} />), href: `/${c.slug}` })) }]),
+    ...(ads.length ? [{ id: "sponsored", heading: "Sponsored", cap: Infinity, rows: ads.map((s) => ({ id: `ad:${s.id}`, name: s.name, text: `${s.description} sponsored`, sub: s.description, mark: <img src={thumb(s.image)} alt="" className="h-[26px] w-[46px] flex-none rounded-md object-cover" />, href: s.url.startsWith("/") ? s.url : withUtm(s.url, "palette") })) }] : []),
+    ...Object.entries(kindMeta).map(([k, m]) => ({ id: k, heading: m.label, cap: 5, rows: lists.libs.filter((l) => l.kind === k).map((l) => ({ id: `lib:${l.id}`, name: l.name, text: `${l.tagline} ${l.search}`, sub: l.tagline, mark: <LibMark lib={l} size={26} />, href: `/browse/${l.id}` })) })),
+    { id: "looks", heading: "Looks", cap: 3, rows: lists.looks.map((a) => ({ id: `look:${a.id}`, name: a.name, text: `${a.summary} ${a.search} look`, sub: a.summary, mark: tile(<span className="size-2.5 rounded-full" style={{ background: a.accent }} />), href: `/looks/${a.id}` })) },
+    // What tastebase reviewed and does not recommend leads only on its name, never over a recommended match.
+    ...Object.entries(resourceKinds).map(([k, label]) => ({ id: `res:${k}`, heading: `Resources · ${label}`, cap: 3, weight: k === "reviewed" ? 0.5 : 1, rows: lists.resources.filter((r) => r.kind === k).map((r) => ({ id: `res:${r.id}`, name: r.name, text: `${r.goodFor} ${label} resource`, sub: r.goodFor, mark: tile(<ArrowUpRight size={14} />), href: r.href })) })),
+  ];
   // With nothing typed, each group shows its first few (the Browse group links to the full lists): mounting all 900+
-  // entries made opening the palette cost ~300ms on a slow phone. Typing renders them all for cmdk to filter.
-  const cap = q.trim() ? undefined : 5;
+  // entries made opening the palette cost ~300ms on a slow phone. Typing ranks them all (lib/search.ts).
+  const rowsById = new Map(sections.flatMap((s) => s.rows.map((r) => [r.id, r] as const)));
+  // Picks for an earlier, shorter query stay up while the next ones load, so the list does not jump on every key.
+  const fresh = best && q.trim().toLowerCase().startsWith(best.q.toLowerCase());
+  const fit = fresh ? [...best.looks.map((id) => `look:${id}`), ...best.libs.map((id) => `lib:${id}`)].flatMap((id) => rowsById.get(id) ?? []) : [];
+  const taken = new Set(fit.map((r) => r.id));
+  const shown = [
+    ...(fit.length ? [{ id: "fit", heading: "Best fit", cap: Infinity, rows: fit }] : []),
+    ...ranked(sections.map((s) => ({ ...s, rows: s.rows.filter((r) => !taken.has(r.id)) })).filter((s) => s.rows.length), q).map((s) => (q.trim() ? s : { ...s, rows: s.rows.slice(0, s.cap) })),
+  ];
+  // cmdk selects the first row as the query changes; Best fit lands above it a moment later, so select its first.
+  const [selected, setSelected] = useState("");
+  const firstFit = fit[0]?.id;
+  useEffect(() => void (firstFit && setSelected(firstFit)), [firstFit]);
   const heading = "[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-[12px] [&_[cmdk-group-heading]]:text-fg3";
 
   const panel = (
-    <Command data-palette label="Search libraries" className={phone ? "flex min-h-0 flex-col" : "overflow-hidden rounded-2xl bg-s1 shadow-[0_0_0_1px_var(--color-line2),0_40px_100px_-20px_rgb(0_0_0/0.9)]"}>
+    <Command data-palette label="Search libraries" shouldFilter={false} value={selected} onValueChange={setSelected} className={phone ? "flex min-h-0 flex-col" : "overflow-hidden rounded-2xl bg-s1 shadow-[0_0_0_1px_var(--color-line2),0_40px_100px_-20px_rgb(0_0_0/0.9)]"}>
       <div className="flex items-center gap-3 border-b border-line px-4"><Search size={16} className="text-fg3" /><Command.Input autoFocus value={q} onValueChange={setQ} placeholder="Search libraries, jobs, looks, resources" className="h-12 flex-1 bg-transparent text-[15px] outline-none placeholder:text-fg3" /><span className="kbd">esc</span></div>
-      <Command.List className="max-h-[360px] overflow-auto p-2">
+      <Command.List ref={list} className="max-h-[360px] overflow-auto p-2">
         {lists ? <Command.Empty className="p-6 text-center text-fg3">Nothing found.</Command.Empty> : <Command.Loading><div className="p-6 text-center text-fg3">Loading</div></Command.Loading>}
-        {lists && !q.trim() && (
-          <Command.Group heading="Browse" className={heading}>
-            {[{ slug: "browse", label: "Libraries" }, ...categories].map((c) => (
-              <Command.Item key={c.slug} value={`browse ${c.label}`} onSelect={() => (setOpen(false), navigate(`/${c.slug}`))} className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 data-[selected=true]:bg-s3">
-                <span className="grid size-[26px] flex-none place-items-center rounded-md bg-s2 text-fg3"><ArrowRight size={14} /></span>
-                <span className="font-medium">{c.label}</span>
-              </Command.Item>
-            ))}
-          </Command.Group>
-        )}
-        {lists && ads.length > 0 && (
-          <Command.Group heading="Sponsored" className={heading}>
-            {ads.map((s) => (
-              <Command.Item key={s.id} value={`${s.name} ${s.description} sponsored`} onSelect={() => (setOpen(false), s.url.startsWith("/") ? navigate(s.url) : window.open(withUtm(s.url, "palette"), "_blank", "noopener"))} className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 data-[selected=true]:bg-s3">
-                <img src={thumb(s.image)} alt="" className="h-[26px] w-[46px] flex-none rounded-md object-cover" />
-                <span className="shrink-0 font-medium">{s.name}</span>
-                <span className="truncate text-[13px] text-fg2">{s.description}</span>
-              </Command.Item>
-            ))}
-          </Command.Group>
-        )}
-        {groups.map(([label, list]) => (
-          <Command.Group key={label} heading={label} className={heading}>
-            {list.slice(0, cap).map((l) => (
-              <Command.Item key={l.id} value={`${l.name} ${l.tagline} ${l.search}`} onSelect={() => (setOpen(false), navigate(`/browse/${l.id}`))} className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 data-[selected=true]:bg-s3">
-                <LibMark lib={l} size={26} />
-                <span className="shrink-0 font-medium">{l.name}</span>
-                <span className="truncate text-[13px] text-fg2">{l.tagline}</span>
-              </Command.Item>
-            ))}
-          </Command.Group>
-        ))}
-        {resGroups.map(([label, list]) => (
-          <Command.Group key={label} heading={`Resources · ${label}`} className={heading}>
-            {list.slice(0, cap && 3).map((r) => (
-              <Command.Item key={r.id} value={`${r.name} ${r.goodFor} ${label} resource`} onSelect={() => (setOpen(false), r.href.startsWith("/") ? navigate(r.href) : window.open(r.href, "_blank", "noopener"))} className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 data-[selected=true]:bg-s3">
-                <span className="grid size-[26px] flex-none place-items-center rounded-md bg-s2 text-fg3"><ArrowUpRight size={14} /></span>
+        {shown.map((s) => (
+          <Command.Group key={s.id} heading={s.heading} className={heading}>
+            {s.rows.map((r) => (
+              <Command.Item key={r.id} value={r.id} onSelect={() => go(r.href)} className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 data-[selected=true]:bg-s3">
+                {r.mark}
                 <span className="shrink-0 font-medium">{r.name}</span>
-                <span className="truncate text-[13px] text-fg2">{r.goodFor}</span>
+                {r.sub && <span className="truncate text-[13px] text-fg2">{r.sub}</span>}
               </Command.Item>
             ))}
           </Command.Group>
