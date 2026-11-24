@@ -54,6 +54,9 @@ export default function Hero({ counts }: { counts: { libs: number; resources: nu
     return () => (clearTimeout(t), ctl.abort());
   }, [q]);
   const clear = () => (setQ(""), input.current?.focus());
+  // The engine picks only libraries: hand the query to the ⌘K palette (Palette.tsx), which also searches looks and
+  // every design resource, the reviewed ones included.
+  const palette = () => window.dispatchEvent(new CustomEvent("tb:search", { detail: q }));
   const active = !!q.trim();
   const other: Tab = tab === "relevant" ? "similar" : "relevant";
 
@@ -166,17 +169,20 @@ export default function Hero({ counts }: { counts: { libs: number; resources: nu
                     </button>
                   ))}
                 </Seg>
-                <button type="button" onClick={clear} data-sound="close" className="press inline-flex h-8 items-center gap-1.5 rounded-lg bg-bg/55 px-2.5 text-[13px] font-semibold text-fg shadow-[inset_0_0_0_1px_var(--color-line2)] backdrop-blur-xl hover:bg-s2">
-                  <X size={14} aria-hidden />
-                  Clear
-                </button>
+                <div className="flex items-center gap-2">
+                  {!res.relevant.length && <button type="button" onClick={palette} data-sound="tap" className="press h-8 text-[13px] text-fg2 hover:text-fg max-sm:hidden">Search looks and resources</button>}
+                  <button type="button" onClick={clear} data-sound="close" className="press inline-flex h-8 items-center gap-1.5 rounded-lg bg-bg/55 px-2.5 text-[13px] font-semibold text-fg shadow-[inset_0_0_0_1px_var(--color-line2)] backdrop-blur-xl hover:bg-s2">
+                    <X size={14} aria-hidden />
+                    Clear
+                  </button>
+                </div>
               </div>
               {list.length ? (
                 <div className="grid grid-cols-2 gap-3 pb-6 sm:gap-5 lg:grid-cols-3">
                   {withSponsors(list, grid).map((slot, i) => ("sponsor" in slot ? <ListingCard key={slot.key} sponsor={slot.sponsor} where="search-results" /> : <ListingCard key={slot.key} item={slot.item} actions eager={i < 3} />))}
                 </div>
               ) : (
-                <Empty title={`No ${tab} results`} body={`Nothing fit closely enough here, but ${res[other].length} ${res[other].length === 1 ? "library was" : "libraries were"} found in the other tab.`}>
+                <Empty title={`No ${tab} results`} body={`Nothing fit closely enough here, but ${res[other].length} ${res[other].length === 1 ? "result was" : "results were"} found in the other tab.`}>
                   <button type="button" onClick={() => setTab(other)} data-sound="tap" className="press group mt-5 inline-flex h-10 items-center gap-2 rounded-xl bg-fg pr-2.5 pl-4 text-[13.5px] font-semibold text-bg hover:opacity-90">
                     View {other} results
                     <span className="flex h-6 items-center gap-1 rounded-lg bg-bg/15 pr-1.5 pl-2 text-[12px] tabular-nums">
@@ -188,8 +194,11 @@ export default function Hero({ counts }: { counts: { libs: number; resources: nu
               )}
             </>
           ) : (
-            <Empty title="No libraries fit that" body="Try the job in other words, like “toast” or “bottom sheet”, or browse every library.">
-              <a href="/browse" className="press mt-5 inline-flex h-10 items-center rounded-xl bg-fg px-4 text-[13.5px] font-semibold text-bg hover:opacity-90">Browse libraries</a>
+            <Empty title="No libraries fit that" body="Try the job in other words, like “toast” or “bottom sheet”. Search also finds looks and design resources by name.">
+              <div className="mt-5 flex flex-wrap justify-center gap-2">
+                <button type="button" onClick={palette} data-sound="tap" className="press inline-flex h-10 items-center rounded-xl bg-fg px-4 text-[13.5px] font-semibold text-bg hover:opacity-90">Search looks and resources</button>
+                <a href="/browse" className="press inline-flex h-10 items-center rounded-xl px-4 text-[13.5px] font-semibold text-fg shadow-[inset_0_0_0_1px_var(--color-line2)] hover:bg-s2">Browse libraries</a>
+              </div>
             </Empty>
           )}
         </div>

@@ -1,5 +1,6 @@
 // /browse: every library, filtered by job (with live counts), price, framework and words; grid or list; saved ones and
-// editor's picks (searching "editor" or "editor's pick" finds those too).
+// editor's picks (searching "editor" or "editor's pick" finds those too). Words match names, taglines, jobs, looks and
+// use cases, so a sentence works ("a date picker for my app"): see wordShare in lib/search.ts.
 // A running sponsor leads the results and follows every 8th (lib/sponsors.ts). On desktop a library opens in a sheet
 // over the results (DetailSheet.tsx), so the job list stays in reach; while it is open the list folds to its icons
 // (html[data-sheet]), each naming its job and count on hover, like the nav rail.
@@ -8,10 +9,12 @@
 import { ArrowUpRight, ChevronDown, Heart, LayoutGrid, List, Search, Star } from "lucide-react";
 import { memo, startTransition, useDeferredValue, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { frameworks, kinds, type Framework, type Kind } from "../../../src/registry/schema.ts";
+import { stems } from "../../../src/words.ts";
 import { kindMeta } from "../lib/kinds.ts";
 import { useLoaded } from "../lib/loaded.ts";
 import { useEditorPicks } from "../lib/picks.ts";
 import { useSaved } from "../lib/saved.ts";
+import { wordShare } from "../lib/search.ts";
 import { useSponsors, withSponsors, type Sponsor } from "../lib/sponsors.ts";
 import { withUtm } from "../lib/utm.ts";
 import type { ShelfLib } from "../lib/server.ts";
@@ -32,9 +35,8 @@ const PRICES = [["any", "Any"], ["free", "Free"], ["paid", "Paid"]] as const;
 const PAGE = 48; // cards per step: enough to fill a large screen several times over
 type Price = (typeof PRICES)[number][0];
 const isJob = (v: string | null): v is Job => v === "all" || v === "saved" || v === "editors" || kinds.some((k) => k === v);
-const words = (s: string) => s.toLowerCase().split(/\s+/).filter(Boolean);
 
-export default function Directory({ libs }: { libs: ShelfLib[] }) {
+export default function Directory({ libs }: { libs: (ShelfLib & { uses: string })[] }) {
   const stats = useStats();
   const saved = useSaved();
   const picks = useEditorPicks();
@@ -104,18 +106,19 @@ export default function Directory({ libs }: { libs: ShelfLib[] }) {
   const pickJob = (j: Job) => (setJob(j), scrollY > 0 && scrollTo({ top: 0, behavior: "instant" }));
 
   // Price, framework and words narrow everything; the job picks within that, so job counts follow the other filters.
-  const narrow = (p: Price, f: Framework | undefined, terms: string[]) =>
+  // A query of only stop words ("ui", "react") narrows nothing: the framework filter covers the latter.
+  const narrow = (p: Price, f: Framework | undefined, text: string) =>
     libs
       .filter((l) => p === "any" || l.paid === (p === "paid"))
       .filter((l) => !f || l.frameworks.includes(f))
-      .filter((l) => terms.every((t) => `${l.name} ${l.tagline} ${kindMeta[l.kind].label} ${l.aesthetic.join(" ")}${picks.has(l.id) ? " editor's pick editors picks" : ""}`.toLowerCase().includes(t)));
+      .filter((l) => !stems(text).length || wordShare(text, `${l.name} ${l.tagline} ${kindMeta[l.kind].label} ${l.aesthetic.join(" ")} ${l.uses}${picks.has(l.id) ? " editor's pick editors picks" : ""}`, true) > 0);
   const inJob = (j: Job) => (l: ShelfLib) => (j === "all" ? true : j === "saved" ? saved.includes(l.id) : j === "editors" ? picks.has(l.id) : l.kind === j);
-  const base = narrow(price, fw, words(q));
+  const base = narrow(price, fw, q);
   const count = (j: Job) => base.filter(inJob(j)).length;
   // The cards follow deferred filters: a tap repaints the controls and counts at once, and the grid re-renders after,
   // in slices a newer tap can interrupt (a phone's filter tap was one ~170ms frame).
   const [dJob, dPrice, dFw, dQ, dSort] = [useDeferredValue(job), useDeferredValue(price), useDeferredValue(fw), useDeferredValue(q), useDeferredValue(sort)];
-  const list = narrow(dPrice, dFw, words(dQ)).filter(inJob(dJob)).sort(sortBy(dSort, stats));
+  const list = narrow(dPrice, dFw, dQ).filter(inJob(dJob)).sort(sortBy(dSort, stats));
   // Keyed cards are reused across filter changes, so switching jobs mounts at most PAGE new ones.
   const visible = list.slice(0, limit);
   const hasMore = list.length > limit;
