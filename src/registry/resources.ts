@@ -5122,16 +5122,6 @@ export const resources: Resource[] = [
     free: true,
   },
   {
-    id: "animmaster-lib",
-    name: "Animmaster Lib",
-    url: "https://animmasterlib.dev",
-    kind: "reviewed",
-    goodFor: "Animated components: Paid zip of 300 animations (scroll, hero, page transitions, WebGL shaders, sliders), 60% plain HTML/CSS/JS, 30% React. Not picked: sold as a Google Drive download with no repo, docs or package, and the effects are 'rebuilt from top-tier websites', so where they come from is unclear; gsap, react-bits and magic-ui cover the same effects in the open.",
-    cost: "PRO $4.99 one-time for all 300; Premium $8 adds updates; no resale or redistribution",
-    free: false,
-    addedAt: "2026-11-25",
-  },
-  {
     id: "crafterui",
     name: "crafterui",
     url: "https://www.crafterui.com",
