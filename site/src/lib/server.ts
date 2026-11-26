@@ -1,6 +1,7 @@
 // Server-only: the registry, the engine and live stats. Islands import only its types; they get props or call /api.
 import { env } from "cloudflare:workers";
-import { detectLooks, jobFramework, negations, pick, plan } from "../../../src/engine.ts";
+import { pick, plan } from "../../../src/engine.ts";
+import { tastedPick, tastedPlan, type Taste } from "../../../src/mcp.ts";
 import { emptySlot, firstStep, formatPlan, formatSite, install, MOBILE } from "../../../src/format.ts";
 import { aesthetics, libraries } from "../../../src/registry/index.ts";
 import { kinds, type Aesthetic, type Framework, type Kind, type Library } from "../../../src/registry/schema.ts";
@@ -91,9 +92,10 @@ export type PlanJson = {
   items: { kind: Kind; pick?: { lib: Lite; why: string; caution?: string }; empty?: string }[];
 };
 
-/** `look` forces a look id instead of detecting one from the brief (the screenshot matcher already knows it). */
-export function planJson(libs: Library[], brief: string, look?: string): PlanJson {
-  const p = plan(libs, aesthetics, brief, { look });
+/** `look` forces a look id instead of detecting one from the brief (the screenshot matcher already knows it). `taste`:
+ *  an agent key's owner's, applied as the MCP `plan` tool applies it. */
+export function planJson(libs: Library[], brief: string, look?: string, taste?: Taste): PlanJson {
+  const p = tastedPlan(libs, aesthetics, { brief, look }, taste);
   const { name, summary, type, colour, motion, avoid } = p.look;
   const base = p.items[0]?.pick?.lib;
   return {
@@ -108,9 +110,8 @@ export function planJson(libs: Library[], brief: string, look?: string): PlanJso
   };
 }
 
-// Same framework and look rules and install resolution as the MCP `pick` tool ("Vue bottom sheet" never gets React-only answers).
-export function pickJson(libs: Library[], need: string) {
-  const framework = jobFramework(need);
-  const look = detectLooks(aesthetics, negations(need).want)[0];
-  return pick(libs, need, { limit: 5, framework, look }).map((s) => ({ lib: { ...lite(s.lib), install: install(s.lib, framework) }, why: s.why }));
+// Same framework, look and taste rules and install resolution as the MCP `pick` tool ("Vue bottom sheet" never gets React-only answers).
+export function pickJson(libs: Library[], need: string, taste?: Taste) {
+  const { fits, framework } = tastedPick(libs, aesthetics, need, { limit: 5 }, taste);
+  return fits.map((s) => ({ lib: { ...lite(s.lib), install: install(s.lib, framework) }, why: s.why }));
 }

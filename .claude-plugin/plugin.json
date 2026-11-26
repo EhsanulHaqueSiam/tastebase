@@ -6,6 +6,6 @@
   "repository": "https://github.com/EhsanulHaqueSiam/tastebase",
   "license": "MIT",
   "mcpServers": {
-    "tastebase": { "type": "http", "url": "https://tastebase.ehsanulsiam.workers.dev/mcp" }
+    "tastebase": { "type": "http", "url": "https://tastebase.ehsanulsiam.workers.dev/mcp", "headersHelper": "sh \"${CLAUDE_PLUGIN_ROOT}/.claude-plugin/key.sh\"" }
   }
 }

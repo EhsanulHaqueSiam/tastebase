@@ -307,7 +307,7 @@ const flows: Record<string, [Size, string, (p: P) => Promise<void>][]> = {
       expect(up === 200, `sign-up answered ${up}`);
       await p.js(`localStorage.setItem("tastebase:account", "1")`); // what signIn() sets before the provider's page
       await p.go("/browse/ark-ui"); // "Try these" cards carry heart, folder and hide
-      await p.until(`!!document.querySelector('button[aria-label^="Account: "]')`, "the account button");
+      await p.until(`!!document.querySelector('[aria-label^="Account: "]')`, "the account button");
       await p.click('button[aria-label^="Save "]');
       await p.until(`fetch("/api/me").then((r) => r.json()).then((m) => m.saved.length > 0)`, "the heart to reach the account");
       await p.click('button[aria-label$=" to a folder"]');
@@ -318,15 +318,13 @@ const flows: Record<string, [Size, string, (p: P) => Promise<void>][]> = {
       await p.until(`!document.querySelector('input[aria-label="New folder name"]')`, "the folder picker to close");
       await p.click('button[aria-label^="Hide "]');
       await p.until(`fetch("/api/me").then((r) => r.json()).then((m) => m.hidden.length > 0)`, "hiding to reach the account");
-      await p.click('button[aria-label^="Account: "]');
-      await p.until(`[...document.querySelectorAll("[role=dialog] button")].some((b) => b.textContent.includes("Agent key"))`, "the account sheet");
-      await p.js(`[...document.querySelectorAll("[role=dialog] button")].find((b) => b.textContent.includes("Agent key")).click()`);
-      await p.until(`[...document.querySelectorAll("[role=dialog] button")].some((b) => b.textContent === "Make a key")`, "the agent key view");
-      await p.js(`[...document.querySelectorAll("[role=dialog] button")].find((b) => b.textContent === "Make a key").click()`);
-      await p.until(`[...document.querySelectorAll("[role=dialog] code")].some((c) => c.textContent.startsWith("tb_sk_"))`, "the new key");
-      const mcp = await p.js<number>(`fetch("/mcp", { method: "POST", headers: { "content-type": "application/json", accept: "application/json, text/event-stream", authorization: "Bearer " + [...document.querySelectorAll("[role=dialog] code")].find((c) => c.textContent.startsWith("tb_sk_")).textContent }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list" }) }).then((r) => r.status)`);
+      await p.go("/account#key");
+      await p.until(`[...document.querySelectorAll("#key button")].some((b) => b.textContent === "Make a key")`, "the connect section");
+      await p.js(`[...document.querySelectorAll("#key button")].find((b) => b.textContent === "Make a key").click()`);
+      await p.until(`[...document.querySelectorAll("#key code")].some((c) => c.textContent.startsWith("tb_sk_"))`, "the new key");
+      const mcp = await p.js<number>(`fetch("/mcp", { method: "POST", headers: { "content-type": "application/json", accept: "application/json, text/event-stream", authorization: "Bearer " + [...document.querySelectorAll("#key code")].find((c) => c.textContent.startsWith("tb_sk_")).textContent }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list" }) }).then((r) => r.status)`);
       expect(mcp === 200, `/mcp answered the new key with ${mcp}`);
-      expect((await me<string | null>("key"))?.length === 4, "the account does not know its key");
+      expect((await me<{ last4: string }[]>("keys")).length === 1, "the account does not list its key");
     }]],
   }),
 };
