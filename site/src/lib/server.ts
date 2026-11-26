@@ -79,6 +79,9 @@ export const lookDetail = ({ name, family, summary, vs, type, colour, motion, av
 });
 export type LookDetail = ReturnType<typeof lookDetail>;
 
+// The text of a JSON answer without its field names, so a field called `motion` never reads as the Motion library.
+const values = (v: unknown) => JSON.stringify(v).replace(/"[\w]+":/g, "");
+
 /** The plan as the site shows it, with the same caveats agents read in `formatPlan`. No `pick`: nothing curated fits. */
 export type PlanJson = {
   look: { name: string; summary: string; type: string; colour: string; motion: string; avoid: string[]; guessed: boolean; also: string[] };
@@ -110,7 +113,7 @@ export function planJson(libs: Library[], brief: string, look?: string, taste?: 
     // The install and empty-slot text agents read in formatPlan: BlockNote on shadcn/ui, Lucide on Vue.
     items: p.items.map(({ kind, pick: s }) => ({ kind, pick: s && { lib: { ...lite(s.lib), install: install(s.lib, p.framework, base) }, why: s.why, caution: s.caution }, empty: s ? undefined : emptySlot(p, kind) })),
   };
-  const notes = taste && tasteNotes(libs, taste, JSON.stringify(out), p.look.id);
+  const notes = taste && tasteNotes(libs, taste, values(out), p.look.id);
   return notes?.length ? { ...out, taste: notes } : out;
 }
 
@@ -120,7 +123,7 @@ export function pickJson(libs: Library[], need: string, taste?: Taste) {
   const { fits, framework, look } = tastedPick(libs, aesthetics, need, { limit: 5 }, taste);
   return fits.map((s) => {
     const out = { lib: { ...lite(s.lib), install: install(s.lib, framework) }, why: s.why };
-    const notes = taste && tasteNotes(libs, taste, JSON.stringify(out), look?.id);
+    const notes = taste && tasteNotes(libs, taste, values(out), look?.id);
     return notes?.length ? { ...out, taste: notes } : out;
   });
 }
