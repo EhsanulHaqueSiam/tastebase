@@ -3,7 +3,7 @@
 // the user's data. Reads the account store (lib/saved.ts); the page itself is static.
 import { ArrowUpRight, Check, Download, FolderPlus, Globe, Link2, Plus, Search } from "lucide-react";
 import { navigate } from "astro:transitions/client";
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { toast } from "sonner";
 import { frameworks, type Framework, type Swatch } from "../../../src/registry/schema.ts";
 import { haptic } from "../lib/haptics.ts";
@@ -32,10 +32,10 @@ const PANELS = [
   ["data", "Data"],
 ] as const;
 type Panel = (typeof PANELS)[number][0];
-const ALIAS: Record<string, Panel> = { key: "connect", hidden: "dislikes", "off-look": "dislikes", try: "look" };
+const ALIAS = new Map<string, Panel>([["key", "connect"], ["hidden", "dislikes"], ["off-look", "dislikes"], ["try", "look"]]);
 const panelOf = (hash: string) => {
   const h = hash.slice(1);
-  return PANELS.find(([id]) => id === h)?.[0] ?? ALIAS[h];
+  return PANELS.find(([id]) => id === h)?.[0] ?? ALIAS.get(h);
 };
 
 /** The hash that picked the open panel (#off-look opens Dislikes on its second tab). Astro's router owns history: it
@@ -50,8 +50,9 @@ function usePanel() {
     const fromUrl = () => show(location.hash);
     const onClick = (e: globalThis.MouseEvent) => {
       const a = e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey ? null : (e.target as Element).closest?.("a[href]");
-      const to = a instanceof HTMLAnchorElement ? new URL(a.href) : undefined;
-      if (to?.pathname === location.pathname && panelOf(to.hash)) haptic("selection"), show(to.hash);
+      // Only this page's own links: a request's link to some other site's /account#data opens in a new tab and stays there.
+      const to = a instanceof HTMLAnchorElement && !a.target ? new URL(a.href) : undefined;
+      if (to?.origin === location.origin && to.pathname === location.pathname && panelOf(to.hash)) haptic("selection"), show(to.hash);
     };
     addEventListener("hashchange", fromUrl);
     addEventListener("popstate", fromUrl);
@@ -366,12 +367,19 @@ function setup(client: Client, key: string) {
 
 const date = (t: number) => new Date(t).toLocaleDateString(undefined, { month: "short", day: "numeric" });
 
+// The key just made, kept for this page view so switching panels while it is on its way (or after) never loses it.
+let made: string | undefined;
+
 function KeyPanel({ keys }: { keys: AgentKey[] }) {
-  const [fresh, setFresh] = useState<string>();
+  const [fresh, setFresh] = useState(made);
   const [client, setClient] = useState<Client>("Terminal");
   const [busy, setBusy] = useState(false);
   const [sure, setSure] = useState<string>(); // signing an agent out asks once: it has no undo
-  const make = async () => (setBusy(true), setFresh((await makeAgentKey()) ?? fresh), setBusy(false));
+  const make = async () => {
+    setBusy(true);
+    made = (await makeAgentKey()) ?? made;
+    setFresh(made), setBusy(false);
+  };
   const ask = `set up tastebase and sign me in: ${location.origin}/llms.txt`;
   return (
     <div>
@@ -390,7 +398,7 @@ function KeyPanel({ keys }: { keys: AgentKey[] }) {
           {keys.map((k) => (
             <Row key={k.id} title={k.name} sub={`tb_sk_…${k.last4} · ${date(k.createdAt)}`}>
               {sure === k.id ? (
-                <button type="button" onClick={() => void revokeAgentKey(k.id).then((ok) => ok && fresh?.endsWith(k.last4) && setFresh(undefined))} className={`${btn} text-[#ff7b7b]`}>Sign out for good</button>
+                <button type="button" onClick={() => void revokeAgentKey(k.id).then((ok) => ok && fresh?.endsWith(k.last4) && ((made = undefined), setFresh(undefined)))} className={`${btn} text-[#ff7b7b]`}>Sign out for good</button>
               ) : (
                 <Undo onClick={() => setSure(k.id)}>Sign out</Undo>
               )}
@@ -627,7 +635,7 @@ function Requests({ hrefs, admin }: { hrefs: Record<string, string>; admin: bool
     setBusy(false);
     if ("error" in r) return setError({ text: r.request ? `${r.error} It is ${STATUS[r.request.status][0].toLowerCase()}.` : r.error, field: r.field });
     haptic("success"), setUrl(""), setNote("");
-    setData((d) => ({ ...d, mine: [r.request, ...(d?.mine ?? [])] }));
+    void reload(); // the user's list and, for an admin, the queue: read after the write, so it can't come back stale
   };
   return (
     <Panel title="Requests" lead="Know a library or design site we should list? Send the link. We try each one by hand.">
@@ -691,6 +699,7 @@ function RequestRow({ r, hrefs, children }: { r: SiteRequest; hrefs: Record<stri
 /** An admin's Mark added (with the registry id it became) or Decline (with a reason), for every request for a link. */
 function Settle({ r, ids, done }: { r: SiteRequest; ids: Record<string, string>; done: () => void }) {
   const [mode, setMode] = useState<"added" | "declined">();
+  const list = useId();
   const [value, setValue] = useState("");
   const go = async (e: FormEvent) => {
     e.preventDefault();
@@ -706,8 +715,8 @@ function Settle({ r, ids, done }: { r: SiteRequest; ids: Record<string, string>;
     );
   return (
     <form onSubmit={go} className="flex basis-full gap-1.5 sm:basis-auto">
-      <input autoFocus value={value} onChange={(e) => setValue(e.target.value)} list={mode === "added" ? "registry-ids" : undefined} required={mode === "added"} maxLength={200} placeholder={mode === "added" ? "Registry id" : "Reason (optional)"} aria-label={mode === "added" ? "Registry id it was added as" : "Why it was declined"} className="h-8 min-w-0 flex-1 rounded-lg bg-s2 px-2.5 text-[13px] shadow-[inset_0_0_0_1px_var(--color-line)] outline-none focus-visible:shadow-[inset_0_0_0_1px_rgb(91_124_255/0.6)] focus-visible:outline-none sm:w-44" />
-      {mode === "added" && <datalist id="registry-ids">{Object.keys(ids).map((id) => <option key={id} value={id} />)}</datalist>}
+      <input autoFocus value={value} onChange={(e) => setValue(e.target.value)} list={mode === "added" ? list : undefined} required={mode === "added"} maxLength={200} placeholder={mode === "added" ? "Registry id" : "Reason (optional)"} aria-label={mode === "added" ? "Registry id it was added as" : "Why it was declined"} className="h-8 min-w-0 flex-1 rounded-lg bg-s2 px-2.5 text-[13px] shadow-[inset_0_0_0_1px_var(--color-line)] outline-none focus-visible:shadow-[inset_0_0_0_1px_rgb(91_124_255/0.6)] focus-visible:outline-none sm:w-44" />
+      {mode === "added" && <datalist id={list}>{Object.keys(ids).map((id) => <option key={id} value={id} />)}</datalist>}
       <button type="button" onClick={() => (setMode(undefined), setValue(""))} className={`${btn} bg-transparent text-fg2 shadow-none`}>Cancel</button>
       <button type="submit" className={btn}>{mode === "added" ? "Added" : "Decline"}</button>
     </form>

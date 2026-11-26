@@ -59,11 +59,11 @@ export default function Form({ form }: { form: FormId }) {
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const id = useId();
-  const { user } = useAccount();
+  const { user, loading } = useAccount();
   const viaAccount = form === "submit" && !!user;
 
   useEffect(() => {
-    if (viaAccount) return; // the account form needs no human check
+    if (viaAccount || loading) return; // signed in, the account form needs no human check; wait until we know
     let gone = false;
     fetch("/api/forms")
       .then((r) => r.json() as Promise<{ sitekey: string; ready: boolean }>)
@@ -80,7 +80,7 @@ export default function Form({ form }: { form: FormId }) {
       gone = true;
       if (widget.current) window.turnstile?.remove(widget.current), (widget.current = undefined);
     };
-  }, [theme, viaAccount]);
+  }, [theme, viaAccount, loading]);
 
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

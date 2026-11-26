@@ -274,11 +274,12 @@ export const MAX_REQUESTS_A_DAY = 5;
 /** A request's link from untrusted input: https only, lowercase host, no hash, no trailing slash. Undefined otherwise. */
 export function siteUrl(v: unknown) {
   const u = typeof v === "string" && URL.canParse(v.trim()) ? new URL(v.trim()) : undefined;
-  if (u?.protocol !== "https:" || !u.hostname.includes(".")) return undefined;
-  u.hash = "";
-  u.hostname = u.hostname.replace(/^www\./, ""); // www.x.dev and x.dev are one site, settled once
-  // Every trailing slash goes, so normalizing a stored link again gives the same link (an admin settles by it).
-  const url = u.href.replace(/\/+$/, "");
+  if (u?.protocol !== "https:") return undefined;
+  u.hostname = u.hostname.replace(/^(www\.)+/, ""); // www.x.dev and x.dev are one site, settled once
+  if (!u.hostname.includes(".")) return undefined;
+  // The path loses its trailing slashes (the query keeps its own), so normalizing a stored link again gives the same
+  // link: an admin settles by it.
+  const url = `${u.origin}${u.pathname.replace(/\/+$/, "")}${u.search}`;
   return url.length <= 500 ? { url, host: u.hostname } : undefined;
 }
 
