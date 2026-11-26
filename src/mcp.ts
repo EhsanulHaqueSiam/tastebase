@@ -54,9 +54,9 @@ const SAVED: Record<TasteAction, (id: string, look?: string) => string> = {
 };
 const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-// Free text can still name what the user hid or marked off this look (a note's "use motion-primitives", a look's picks,
-// a kit whose part they hid); an answer that names it by id or name says so at the end.
-function withTasteNotes(all: Library[], taste: Taste | undefined, t: string, look?: string) {
+/** Free text can still name what the user hid or marked off this look (a note's "use motion-primitives", a look's
+ *  picks, a site type's build rules, a kit whose part they hid): one line for each kind that `t` names by id or name. */
+export function tasteNotes(all: Library[], taste: Taste | undefined, t: string, look?: string) {
   const named = (ids: Iterable<string>) =>
     [...ids].filter((id) => {
       const l = all.find((x) => x.id === (partOf(all, id)?.lib.id ?? id));
@@ -67,10 +67,10 @@ function withTasteNotes(all: Library[], taste: Taste | undefined, t: string, loo
   // A hidden library's features go with it (GSAP's SplitText), as in `without`.
   const hid = named([...hide, ...all.filter((l) => l.partOf && hide.has(l.partOf)).map((l) => l.id)]);
   const off = named(taste?.offLook?.get(look ?? "") ?? []).filter((id) => !hid.includes(id));
-  return [t, hid.length && `the user hid ${hid.join(", ")}: never use ${them(hid)}`, off.length && `the user marked ${off.join(", ")} wrong for the ${look} look: do not use ${them(off)} here`]
-    .filter(Boolean)
-    .join("\n");
+  return [hid.length && `the user hid ${hid.join(", ")}: never use ${them(hid)}`, off.length && `the user marked ${off.join(", ")} wrong for the ${look} look: do not use ${them(off)} here`].filter((l): l is string => !!l);
 }
+
+const withTasteNotes = (all: Library[], taste: Taste | undefined, t: string, look?: string) => [t, ...tasteNotes(all, taste, t, look)].join("\n");
 
 /** A brief's plan under a user's taste: what they hid never appears, what they marked off the plan's look leaves it,
  *  hearts lead close calls, and their saved look and framework stand in where the call and brief name none. `look`

@@ -9,5 +9,5 @@ export const GET: APIRoute = async ({ url, request }) => {
   const taste = await keyTaste(request);
   if (taste === null) return json({ error: "Unknown tastebase agent key." }, 401);
   const body = planJson(await getLibraries(), brief, undefined, taste);
-  return taste ? json(body) : Response.json(body, { headers: { "cache-control": "public, max-age=300" } });
+  return taste ? json(body) : Response.json(body, { headers: { "cache-control": "public, max-age=300", vary: "authorization" } });
 };

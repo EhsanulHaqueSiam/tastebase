@@ -9,4 +9,10 @@ export const POST = signedIn(async (user, b) => {
 });
 
 // DELETE /api/agent-key?id=...: that key stops working; the others keep working.
-export const DELETE = signedIn(async (user, _, { url }) => (await deleteAgentKey(env.DB, user.id, url.searchParams.get("id") ?? ""), json({ ok: true })));
+// No id (a page from before keys had ids) is an error, never a quiet success: the user thinks a key is off.
+export const DELETE = signedIn(async (user, _, { url }) => {
+  const id = url.searchParams.get("id");
+  if (!id) return json({ error: "Reload the page, then sign the key out again." }, 400);
+  await deleteAgentKey(env.DB, user.id, id);
+  return json({ ok: true });
+});

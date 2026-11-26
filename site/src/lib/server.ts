@@ -1,7 +1,7 @@
 // Server-only: the registry, the engine and live stats. Islands import only its types; they get props or call /api.
 import { env } from "cloudflare:workers";
 import { pick, plan } from "../../../src/engine.ts";
-import { tastedPick, tastedPlan, type Taste } from "../../../src/mcp.ts";
+import { tastedPick, tastedPlan, tasteNotes, type Taste } from "../../../src/mcp.ts";
 import { emptySlot, firstStep, formatPlan, formatSite, install, MOBILE } from "../../../src/format.ts";
 import { aesthetics, libraries } from "../../../src/registry/index.ts";
 import { kinds, type Aesthetic, type Framework, type Kind, type Library } from "../../../src/registry/schema.ts";
@@ -90,6 +90,8 @@ export type PlanJson = {
   /** What carries the page (3D, scroll motion, media) and how to build it. */
   site?: string;
   items: { kind: Kind; pick?: { lib: Lite; why: string; caution?: string }; empty?: string }[];
+  /** With an agent key: what the text above names that the user hid or marked off this look, as `plan` says it. */
+  taste?: string[];
 };
 
 /** `look` forces a look id instead of detecting one from the brief (the screenshot matcher already knows it). `taste`:
@@ -98,7 +100,7 @@ export function planJson(libs: Library[], brief: string, look?: string, taste?: 
   const p = tastedPlan(libs, aesthetics, { brief, look }, taste);
   const { name, summary, type, colour, motion, avoid } = p.look;
   const base = p.items[0]?.pick?.lib;
-  return {
+  const out: PlanJson = {
     look: { name, summary, type, colour, motion, avoid, guessed: p.lookGuessed, also: p.also.map((a) => a.name) },
     framework: p.framework,
     frameworkGuessed: p.frameworkGuessed,
@@ -108,6 +110,8 @@ export function planJson(libs: Library[], brief: string, look?: string, taste?: 
     // The install and empty-slot text agents read in formatPlan: BlockNote on shadcn/ui, Lucide on Vue.
     items: p.items.map(({ kind, pick: s }) => ({ kind, pick: s && { lib: { ...lite(s.lib), install: install(s.lib, p.framework, base) }, why: s.why, caution: s.caution }, empty: s ? undefined : emptySlot(p, kind) })),
   };
+  const notes = taste && tasteNotes(libs, taste, JSON.stringify(out), p.look.id);
+  return notes?.length ? { ...out, taste: notes } : out;
 }
 
 // Same framework, look and taste rules and install resolution as the MCP `pick` tool ("Vue bottom sheet" never gets React-only answers).

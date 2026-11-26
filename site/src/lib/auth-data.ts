@@ -85,8 +85,7 @@ export const MAX_KEYS = 20;
 /** A new agent key named `name`, next to the user's others. Only its hash is stored, so `key` is the one time anyone
  *  sees it. Null when the user already has MAX_KEYS. */
 export async function makeAgentKey(db: D1Database, userId: string, name: string): Promise<{ key: string; entry: AgentKey } | null> {
-  const key = `tb_sk_${Array.from(crypto.getRandomValues(new Uint8Array(24)), (b) => ALPHABET[b % 32]).join("")}`;
-  const entry = { id: newId(), name, last4: key.slice(-4), createdAt: Date.now() };
+  const { key, entry } = newKey(name);
   const res = await db
     .prepare(`insert into agent_key (id, userId, name, hash, last4, createdAt) select ?, ?, ?, ?, ?, ? where (select count(*) from agent_key where userId = ?) < ?`)
     .bind(entry.id, userId, name, await sha256(key), entry.last4, entry.createdAt, userId, MAX_KEYS)
@@ -94,20 +93,36 @@ export async function makeAgentKey(db: D1Database, userId: string, name: string)
   return res.meta.changes ? { key, entry } : null;
 }
 
+const newKey = (name: string) => {
+  const key = `tb_sk_${Array.from(crypto.getRandomValues(new Uint8Array(24)), (b) => ALPHABET[b % 32]).join("")}`;
+  return { key, entry: { id: newId(), name, last4: key.slice(-4), createdAt: Date.now() } };
+};
+
 const LOGIN_TTL_MS = 600_000;
 
-/** The signed-in user approves a terminal's code (/connect): the terminal holding its secret may claim a key named
- *  `name` in the next 10 minutes. False when the code is already approved. Clears stale approvals on the way. */
-export async function approveLogin(db: D1Database, userId: string, code: string, name: string) {
+/** The signed-in user approves a terminal's login `id` (/connect): the terminal holding its secret may claim a key named
+ *  `name` in the next 10 minutes. False when it is already approved. Clears stale approvals on the way. */
+export async function approveLogin(db: D1Database, userId: string, id: string, name: string) {
   await db.prepare(`delete from device_login where createdAt < ?`).bind(Date.now() - LOGIN_TTL_MS).run();
-  const res = await db.prepare(`insert or ignore into device_login (code, userId, name, createdAt) values (?, ?, ?, ?)`).bind(code, userId, name, Date.now()).run();
+  const res = await db.prepare(`insert or ignore into device_login (id, userId, name, createdAt) values (?, ?, ?, ?)`).bind(id, userId, name, Date.now()).run();
   return !!res.meta.changes;
 }
 
-/** The terminal's poll: a new key once its code is approved, at most once; undefined while it waits. */
-export async function claimLogin(db: D1Database, code: string) {
-  const row = await db.prepare(`delete from device_login where code = ? and createdAt >= ? returning userId, name`).bind(code, Date.now() - LOGIN_TTL_MS).first<{ userId: string; name: string }>();
-  return row ? ((await makeAgentKey(db, row.userId, row.name)) ?? "full") : undefined;
+/** The terminal's poll, with `id` worked out from its secret: a new key once the user approved it, undefined while it
+ *  waits, "refused" when it was already claimed or the account has MAX_KEYS. Making the key and marking the approval
+ *  claimed is one transaction, so a key is made at most once and an approval is never spent without one. */
+export async function claimLogin(db: D1Database, id: string) {
+  const row = await db.prepare(`select userId, name, claimed from device_login where id = ? and createdAt >= ?`).bind(id, Date.now() - LOGIN_TTL_MS).first<{ userId: string; name: string; claimed: number }>();
+  if (!row) return undefined;
+  const { key, entry } = newKey(row.name);
+  const hash = await sha256(key);
+  await db.batch([
+    db
+      .prepare(`insert into agent_key (id, userId, name, hash, last4, createdAt) select ?, ?, ?, ?, ?, ? where (select claimed from device_login where id = ?) = 0 and (select count(*) from agent_key where userId = ?) < ?`)
+      .bind(entry.id, row.userId, row.name, hash, entry.last4, entry.createdAt, id, row.userId, MAX_KEYS),
+    db.prepare(`update device_login set claimed = 1 where id = ? and exists (select 1 from agent_key where hash = ?)`).bind(id, hash),
+  ]);
+  return (await db.prepare(`select 1 from agent_key where hash = ?`).bind(hash).first()) ? { key, entry } : ("refused" as const);
 }
 
 /** Who holds this key, for `tastebase login --token` to check it. */

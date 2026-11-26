@@ -64,11 +64,12 @@ One Cloudflare Worker (declared in `alchemy.run.ts`) does everything:
   Off-look is not a dislike: it leaves the item out under that one look only, and its counts across users
   (`/api/off-look`) are how tune-picks learns which look tags are wrong. Free text can still name a hidden library (a
   note's "use sonner"), so an answer that does ends with a line saying the user hid it.
-- **`tastebase login` signs a machine in without a key in any config file.** It makes a random secret, shows the code
-  derived from it (8 characters of its SHA-256) and opens `/connect?code=…`; the signed-in user approves the code there,
-  and the CLI's poll (`POST /api/login` with the secret, every 2s for 10 minutes) claims a new key named after the machine.
-  The server only stores approved codes, so the poll can't be answered for a code nobody approved, and a code alone claims
-  nothing. `--token` saves a key made on `/account` instead. The key goes to `~/.config/tastebase/key`: the Claude Code
+- **`tastebase login` signs a machine in without a key in any config file.** It makes a random secret and opens
+  `/connect?id=<its SHA-256>`; the signed-in user checks the short code shown there against the terminal and approves,
+  and the CLI's poll (`POST /api/login` with the secret, every 2s for 10 minutes) claims one new key named after the
+  machine. Only the secret claims, so the link and code are safe to show; the approval stays marked claimed until it
+  expires, so neither a second poll nor a second approval makes another key. Logging in again signs out the key it
+  replaces. `--token` saves a key made on `/account` instead. The key goes to `~/.config/tastebase/key`: the Claude Code
   plugin's `headersHelper` (`.claude-plugin/key.sh`) sends it, and `npx tastebase` relays stdio to the hosted `/mcp` with it
   (signed out, it answers offline from the registry it ships with).
 - **One OAuth app per provider for every stage.** GitHub's redirect URIs are prod, `*.ehsanulsiam.workers.dev`

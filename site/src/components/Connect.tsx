@@ -1,20 +1,21 @@
-// /connect?code=XXXX-XXXX&name=host: where `tastebase login` sends the browser. The signed-in user checks the code
-// against their terminal and approves it; the terminal then claims a key named after its machine.
+// /connect?id=<sha256 of the terminal's secret>&name=host: where `tastebase login` sends the browser. The signed-in user
+// checks the short code against their terminal and approves; the terminal then claims a key named after its machine.
 import { useState } from "react";
-import { codeFrom } from "../../../src/login-code.ts";
+import { idFrom, loginCode } from "../../../src/login-code.ts";
 import { haptic } from "../lib/haptics.ts";
 import { approveLogin, askSignIn, useAccount } from "../lib/saved.ts";
 
 export default function Connect() {
   const a = useAccount();
   const q = new URLSearchParams(location.search);
-  const code = codeFrom(q.get("code"));
+  const id = idFrom(q.get("id"));
+  const code = id && loginCode(id);
   const name = q.get("name")?.trim().slice(0, 40) || "Terminal";
   const [state, setState] = useState<"ask" | "busy" | "done" | "no">("ask");
   const [error, setError] = useState<string>();
   const approve = async () => {
     setState("busy");
-    const e = await approveLogin(code!, name);
+    const e = await approveLogin(id!, name);
     if (!e) haptic("success");
     setError(e);
     setState(e ? "ask" : "done");

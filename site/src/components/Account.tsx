@@ -336,6 +336,7 @@ function KeyPanel({ keys }: { keys: AgentKey[] }) {
   const [fresh, setFresh] = useState<string>();
   const [client, setClient] = useState<Client>("Terminal");
   const [busy, setBusy] = useState(false);
+  const [sure, setSure] = useState<string>(); // signing an agent out asks once: it has no undo
   const make = async () => (setBusy(true), setFresh((await makeAgentKey()) ?? fresh), setBusy(false));
   const ask = `set up tastebase and sign me in: ${location.origin}/llms.txt`;
   return (
@@ -354,7 +355,11 @@ function KeyPanel({ keys }: { keys: AgentKey[] }) {
         <ul className="mt-3 divide-y divide-line rounded-xl shadow-[inset_0_0_0_1px_var(--color-line2)]">
           {keys.map((k) => (
             <Row key={k.id} title={k.name} sub={`tb_sk_…${k.last4} · ${date(k.createdAt)}`}>
-              <Undo onClick={() => void revokeAgentKey(k.id)}>Sign out</Undo>
+              {sure === k.id ? (
+                <button type="button" onClick={() => void revokeAgentKey(k.id)} className={`${btn} text-[#ff7b7b]`}>Sign out for good</button>
+              ) : (
+                <Undo onClick={() => setSure(k.id)}>Sign out</Undo>
+              )}
             </Row>
           ))}
         </ul>

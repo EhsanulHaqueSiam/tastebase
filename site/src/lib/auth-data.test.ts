@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
-import { approveLogin, claimLogin, createFolder, deleteAgentKey, deleteKey, keyOwner, deleteFolder, isAdmin, listPicks, loadAccount, makeAgentKey, mergeSaved, offLookCounts, readFolder, saveTaste, setHidden, setOffLook, setPick, setPrefs, setSaved, tasteForKey, tasteForUser, updateFolder } from "./auth-data.ts";
+import { approveLogin, claimLogin, MAX_KEYS, createFolder, deleteAgentKey, deleteKey, keyOwner, deleteFolder, isAdmin, listPicks, loadAccount, makeAgentKey, mergeSaved, offLookCounts, readFolder, saveTaste, setHidden, setOffLook, setPick, setPrefs, setSaved, tasteForKey, tasteForUser, updateFolder } from "./auth-data.ts";
 import { memoryD1 } from "./d1-shim.test-util.ts";
 
 function setup() {
@@ -63,20 +63,29 @@ test("an agent key reads its owner's hidden and hearted items; each key signs ou
   assert.equal(await tasteForKey(db, "tb_sk_made_up"), undefined);
 });
 
-test("a terminal claims one key after its code is approved, once, and only within 10 minutes", async () => {
+test("a terminal claims one key after its login is approved, once, and only within 10 minutes", async () => {
   const db = setup();
-  assert.equal(await claimLogin(db, "ABCD-EFGH"), undefined); // waiting
-  assert.equal(await approveLogin(db, "ana", "ABCD-EFGH", "omarchy"), true);
-  assert.equal(await approveLogin(db, "bo", "ABCD-EFGH", "theirs"), false); // a code belongs to the first approval
-  const made = await claimLogin(db, "ABCD-EFGH");
-  assert.ok(made && made !== "full");
+  const id = "a".repeat(64);
+  assert.equal(await claimLogin(db, id), undefined); // waiting
+  assert.equal(await approveLogin(db, "ana", id, "omarchy"), true);
+  assert.equal(await approveLogin(db, "bo", id, "theirs"), false); // a login belongs to the first approval
+  const made = await claimLogin(db, id);
+  assert.ok(made && made !== "refused");
   assert.equal((await keyOwner(db, made.key))?.name, "ana");
   assert.equal((await loadAccount(db, "ana")).keys[0]?.name, "omarchy");
-  assert.equal(await claimLogin(db, "ABCD-EFGH"), undefined);
+  assert.equal(await claimLogin(db, id), "refused"); // a second claim makes nothing
+  assert.equal(await approveLogin(db, "ana", id, "again"), false); // nor does approving the used link again
+  assert.equal((await loadAccount(db, "ana")).keys.length, 1);
 
-  await approveLogin(db, "ana", "WXYZ-2345", "old");
-  (db as unknown as { exec: (s: string) => void }).exec(`update device_login set createdAt = 0`);
-  assert.equal(await claimLogin(db, "WXYZ-2345"), undefined);
+  const full = "b".repeat(64);
+  for (let i = 0; i < MAX_KEYS; i++) await makeAgentKey(db, "bo", `k${i}`);
+  await approveLogin(db, "bo", full, "one too many");
+  assert.equal(await claimLogin(db, full), "refused");
+
+  const old = "c".repeat(64);
+  await approveLogin(db, "ana", old, "old");
+  (db as unknown as { exec: (s: string) => void }).exec(`update device_login set createdAt = 0 where id = '${old}'`);
+  assert.equal(await claimLogin(db, old), undefined);
 });
 
 test("the taste tool's saves reach the key's owner: off-look per look, counted across users; undo clears every mark", async () => {

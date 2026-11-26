@@ -1,13 +1,18 @@
-// Shared by `tastebase login` (src/login.ts) and the Worker that checks it (POST /api/login), so it imports nothing.
+// Shared by `tastebase login` (src/login.ts), /connect and the Worker that checks it (POST /api/login), so it imports nothing.
 const CODE = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"; // no 0/O/1/I/L: the code is read off one screen and checked on another
 
-/** The code a person approves in the browser for a terminal's secret: 8 characters of its SHA-256. The server works it
- *  out again from the secret, so a code alone claims nothing. */
-export async function loginCode(secret: string) {
+/** A login attempt's handle: the SHA-256 of the terminal's secret, in hex. The browser approves it, and only the secret
+ *  claims it, so seeing the link or the code claims nothing. */
+export async function loginId(secret: string) {
   const h = new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(secret)));
-  const c = Array.from(h.slice(0, 8), (b) => CODE[b % CODE.length]).join("");
+  return Array.from(h, (b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+/** The short code shown in the terminal and on /connect, for a person to check they match. Display only. */
+export function loginCode(id: string) {
+  const c = Array.from({ length: 8 }, (_, i) => CODE[parseInt(id.slice(i * 2, i * 2 + 2), 16) % CODE.length]).join("");
   return `${c.slice(0, 4)}-${c.slice(4)}`;
 }
 
-/** A code as the browser may send it: XXXX-XXXX in CODE's letters, or undefined. */
-export const codeFrom = (v: unknown) => (typeof v === "string" && new RegExp(`^[${CODE}]{4}-[${CODE}]{4}$`).test(v) ? v : undefined);
+/** A login id from untrusted input (64 hex characters), or undefined. */
+export const idFrom = (v: unknown) => (typeof v === "string" && /^[0-9a-f]{64}$/.test(v) ? v : undefined);

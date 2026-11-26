@@ -207,9 +207,9 @@ export async function makeAgentKey() {
   return r?.key;
 }
 
-/** Approves the terminal showing `code` (`tastebase login`), which then signs in as this user. Resolves to what went
- *  wrong, or undefined. */
-export const approveLogin = (code: string, name: string) => api("POST", "/api/connect", { code, name }).then(() => undefined, (e: Error) => e.message);
+/** Approves a terminal's login `id` (`tastebase login`), which then signs in as this user. Resolves to what went wrong,
+ *  or undefined. */
+export const approveLogin = (id: string, name: string) => api("POST", "/api/connect", { id, name }).then(() => undefined, (e: Error) => e.message);
 
 let offered: Promise<Provider[]> | undefined;
 /** The providers this stage signs in with, asked once when the sign-in sheet first opens. Empty: sign-in is not set up. */

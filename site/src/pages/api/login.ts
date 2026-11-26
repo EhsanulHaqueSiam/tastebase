@@ -1,7 +1,7 @@
 // The terminal's side of `tastebase login` (src/login.ts). No cookies here: the CLI holds a secret or a key, never a session.
 import type { APIRoute } from "astro";
 import { env } from "cloudflare:workers";
-import { loginCode } from "../../../../src/login-code.ts";
+import { loginId } from "../../../../src/login-code.ts";
 import { claimLogin, deleteKey, keyOwner, MAX_KEYS } from "../../lib/auth-data.ts";
 import { bearer, json } from "../../lib/auth.ts";
 
@@ -12,14 +12,14 @@ export const GET: APIRoute = async ({ request }) => {
   return owner ? json(owner) : json({ error: "Unknown tastebase agent key." }, 401);
 };
 
-// POST /api/login {secret} -> {key} once the user approved the code made from `secret`, else {pending: true}. The CLI asks
-// every 2 seconds for up to 10 minutes: one D1 read each.
+// POST /api/login {secret} -> {key} once the user approved the login whose id is sha256(secret), else {pending: true}. The
+// CLI asks every 2 seconds for up to 10 minutes: one D1 read each.
 export const POST: APIRoute = async ({ request }) => {
   const b: unknown = await request.json().catch(() => null);
   const secret = b && typeof b === "object" && "secret" in b && typeof b.secret === "string" && b.secret.length >= 32 && b.secret.length <= 128 ? b.secret : undefined;
   if (!secret) return json({ error: "Send {secret}." }, 400);
-  const made = await claimLogin(env.DB, await loginCode(secret));
-  if (made === "full") return json({ error: `This account has ${MAX_KEYS} keys. Sign one out at /account, then log in again.` }, 409);
+  const made = await claimLogin(env.DB, await loginId(secret));
+  if (made === "refused") return json({ error: `This login was already used, or the account has ${MAX_KEYS} keys (sign one out at /account). Log in again.` }, 409);
   return json(made ? { key: made.key } : { pending: true });
 };
 
