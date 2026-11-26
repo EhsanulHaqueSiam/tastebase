@@ -1,11 +1,13 @@
 // One public form (submit a tool, feedback, sponsor): its fields, a Turnstile check, and POST /api/forms. The sitekey
 // comes from GET /api/forms because pages are prerendered. Field errors from the server land under their field.
-// The loading shimmer runs only until Turnstile renders.
+// The loading shimmer runs only until Turnstile renders. Signed in, "submit a tool" files a request in the account
+// instead (POST /api/requests: no email field, no check), so it shows in the user's Requests with its status.
 import { ArrowRight, Check } from "lucide-react";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { categories } from "../lib/categories.ts";
 import type { FormId } from "../lib/forms.ts";
 import { haptic } from "../lib/haptics.ts";
+import { sendRequest, useAccount } from "../lib/saved.ts";
 import { useTheme } from "../lib/theme.ts";
 
 type Field = { name: string; label: string; type: "text" | "url" | "email" | "textarea" | "select"; placeholder?: string; optional?: boolean; half?: boolean };
@@ -57,6 +59,7 @@ export default function Form({ form }: { form: FormId }) {
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const id = useId();
+  const viaAccount = form === "submit" && !!useAccount().user;
 
   useEffect(() => {
     let gone = false;
@@ -78,9 +81,17 @@ export default function Form({ form }: { form: FormId }) {
 
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const fields = Object.fromEntries([...new FormData(e.currentTarget)].map(([k, v]) => [k, String(v)]));
+    if (viaAccount) {
+      setState("sending"), setError(""), setFieldErrors({});
+      const r = await sendRequest(fields.url ?? "", `${fields.name} (${fields.category}): ${fields.reason}`.slice(0, 500));
+      if ("request" in r && !("error" in r)) return setState("done"), haptic("success");
+      setState("idle");
+      if (r.field) return setFieldErrors({ [r.field]: r.error });
+      return setError(r.request ? `${r.error} See it in your account's Requests.` : r.error);
+    }
     if (!token) return setError("Complete the check below first.");
     setState("sending"), setError(""), setFieldErrors({});
-    const fields = Object.fromEntries([...new FormData(e.currentTarget)].map(([k, v]) => [k, String(v)]));
     const res = await fetch("/api/forms", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ form, token, fields }) }).catch(() => undefined);
     const body = (await res?.json().catch(() => ({}))) as { ok?: boolean; error?: string; fields?: Record<string, string> } | undefined;
     if (res?.ok && body?.ok) {
@@ -99,12 +110,13 @@ export default function Form({ form }: { form: FormId }) {
         <span className="grid size-9 place-items-center rounded-full bg-green/15 text-green"><Check size={18} aria-hidden /></span>
         <p className="mt-4 text-[17px] font-semibold">{DONE[form][0]}</p>
         <p className="mt-1 text-[14px] text-fg2">{DONE[form][1]}</p>
+        {viaAccount && <a href="/account#requests" className="mt-3 inline-block text-[14px] font-medium text-fg underline decoration-fg3 underline-offset-4 hover:decoration-fg">See it in your requests</a>}
       </div>
     );
 
   return (
     <form onSubmit={submit} noValidate={false} className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2">
-      {FIELDS[form].map((f) => (
+      {FIELDS[form].filter((f) => !(viaAccount && f.name === "email")).map((f) => (
         <Label key={f.name} id={`${id}-${f.name}`} label={f.label} optional={f.optional} error={fieldErrors[f.name]} wide={!f.half}>
           {f.type === "textarea" ? (
             <textarea id={`${id}-${f.name}`} name={f.name} aria-invalid={!!fieldErrors[f.name]} aria-describedby={fieldErrors[f.name] ? `${id}-${f.name}-err` : undefined} rows={5} required={!f.optional} maxLength={4000} placeholder={f.placeholder} className={`${field} resize-y py-2.5`} />
@@ -120,10 +132,10 @@ export default function Form({ form }: { form: FormId }) {
         </Label>
       ))}
       <div className="md:col-span-2">
-        <div ref={box} className="min-h-[65px]">{state === "off" ? null : <span className="t-shimmer text-[12px]" data-text="Loading the human check">Loading the human check</span>}</div>
-        {state === "off" && <p className="text-[13.5px] text-fg2">Forms aren't set up on this copy of tastebase yet. <a href="/contribute" className="text-fg underline underline-offset-4">Open an issue on GitHub</a> instead.</p>}
+        <div ref={box} className={viaAccount ? "hidden" : "min-h-[65px]"}>{state === "off" ? null : <span className="t-shimmer text-[12px]" data-text="Loading the human check">Loading the human check</span>}</div>
+        {state === "off" && !viaAccount && <p className="text-[13.5px] text-fg2">Forms aren't set up on this copy of tastebase yet. <a href="/contribute" className="text-fg underline underline-offset-4">Open an issue on GitHub</a> instead.</p>}
         {error && <p role="alert" className="mt-3 rounded-lg bg-[color-mix(in_srgb,var(--color-pink)_12%,transparent)] px-3.5 py-2.5 text-[13.5px] text-pink">{error}</p>}
-        <button type="submit" disabled={state !== "idle"} className="press group mt-4 inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-fg px-5 text-[14px] font-semibold text-bg transition-opacity hover:opacity-90 disabled:opacity-50 md:w-auto">
+        <button type="submit" disabled={viaAccount ? state === "sending" : state !== "idle"} className="press group mt-4 inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-fg px-5 text-[14px] font-semibold text-bg transition-opacity hover:opacity-90 disabled:opacity-50 md:w-auto">
           {state === "sending" ? "Sending" : SUBMIT[form]}
           <ArrowRight size={16} aria-hidden className="transition-transform duration-200 group-hover:translate-x-0.5" />
         </button>

@@ -10,7 +10,8 @@ src/registry (data) ──> src/engine.ts (pick, plan) ──> src/format.ts (co
 browser ──> /api/auth/* (better-auth: GitHub, Google, X) ──┐
         ──> /api/me, /api/saved, /api/folders,  ──┴──> D1 (migrations/): user, session, saved, folder,
             /api/hidden, /api/off-look, /api/prefs,       hidden, off_look, pref, agent_key
-            /api/agent-key, /api/try, /api/connect
+            /api/agent-key, /api/try, /api/connect,       site_request
+            /api/requests
         ──> /f/<id> (SSR, a shared folder)
 CLI (`tastebase login`) ──> /api/login ──> D1: device_login, agent_key
 ```
@@ -72,14 +73,21 @@ One Cloudflare Worker (declared in `alchemy.run.ts`) does everything:
   replaces. `--token` saves a key made on `/account` instead. The key goes to `~/.config/tastebase/key`: the Claude Code
   plugin's `headersHelper` (`.claude-plugin/key.sh`) sends it, and `npx tastebase` relays stdio to the hosted `/mcp` with it
   (signed out, it answers offline from the registry it ships with).
+- **Requests to list a site live in D1, and load only when asked.** Signed in, a request (an https link and a note) goes
+  to `site_request` with its status, capped in the insert itself (10 waiting, 5 a day; KV's 1,000 writes a day would not
+  survive abuse). `/api/requests` answers when the Requests panel opens, never on every page like `/api/me`. An admin
+  settles every request for a link at once, as a registry id or with a reason, and sees requesters' names, never their
+  emails. Signed out, `/submit` still emails the admin and stores nothing.
 - **One OAuth app per provider for every stage.** GitHub's redirect URIs are prod, `*.ehsanulsiam.workers.dev`
   (wildcard, so `pr-<n>` previews sign in too), `localhost:1337` and `127.0.0.1` on any port (GitHub's loopback rule).
   Google and X match URIs exactly, so a preview signs in with them only once its URI is registered
   ([deploy.md](../operations/deploy.md#sign-in-providers)). better-auth builds the callback from the request host,
   limited to those hosts (`baseURL.allowedHosts`). Each provider is optional on its own keys and the sign-in sheet
   asks `/api/me` which ones to show; without any (CI's `pnpm check`) `/api/auth/*` answers 404 and the site runs signed out.
-- **`/account` is a static shell, and its preview is the agent's own text.** Everything a user controls lives on one
-  page (the avatar's sheet links to it). "Try your agent" posts a brief to `/api/try`, which runs `planAnswer` from
+- **`/account` is a static shell, and its preview is the agent's own text.** Everything a user controls lives in one
+  dashboard (the avatar links to it), a panel per job picked by the URL hash: Connect, Look, Dislikes, Hearts, Folders,
+  Requests, Data. Old hashes stay as aliases (the CLI prints `/account#key`), and `/folders` is a static page that sends
+  old links to `#folders`. Sign-in is a native `<dialog>`, not a sheet. "Try your agent" posts a brief to `/api/try`, which runs `planAnswer` from
   `src/mcp.ts` with the user's taste: the exact text the `plan` tool returns, so the site never drifts from the agent.
 - **Each look has a prerendered page (`/looks/<id>`).** Its specimen, a small screen built from its swatch tokens to
   click and type in, every pick per job with its `useFor`, `avoidWhen` and pairings, and the installs `planJson` gives a

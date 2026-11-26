@@ -6,9 +6,9 @@
 import { useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import type { Provider } from "./auth.ts";
-import type { AccountData, AgentKey, Folder, Prefs } from "./auth-data.ts";
+import type { AccountData, AgentKey, Folder, Prefs, SiteRequest } from "./auth-data.ts";
 
-export type { AgentKey, Folder, Prefs, Provider };
+export type { AgentKey, Folder, Prefs, Provider, SiteRequest };
 export type User = { name: string; image: string | null };
 /** Something the user hid from their agent, with the name and page the account sheet lists it by. */
 export type Hidden = { id: string; name: string; href: string };
@@ -220,7 +220,7 @@ export const signInProviders = () => (offered ??= api<{ providers?: Provider[] }
 export async function signIn(provider: Provider) {
   store.set(SIGNED_IN, "1");
   try {
-    const { url } = await api<{ url: string }>("POST", "/api/auth/sign-in/social", { provider, callbackURL: location.pathname + location.search });
+    const { url } = await api<{ url: string }>("POST", "/api/auth/sign-in/social", { provider, callbackURL: location.pathname + location.search + location.hash });
     location.assign(url);
   } catch (e) {
     store.set(SIGNED_IN, null);
@@ -267,5 +267,20 @@ export function deleteFolder(id: string) {
   );
 }
 
-/** Opens the sign-in sheet (AccountButton listens), e.g. when a signed-out visitor reaches for a folder. */
+/** The user's requests to list a site, and an admin's queue. Asked when the Requests panel opens (and for the download). */
+export const loadRequests = () => api<{ mine: SiteRequest[]; open?: SiteRequest[] }>("GET", "/api/requests");
+
+/** Files a request. Resolves to it, or to what went wrong: `field` names the input at fault, `request` is the earlier
+ *  request for the same link. */
+export async function sendRequest(url: string, note: string): Promise<{ request: SiteRequest } | { error: string; field?: string; request?: SiteRequest }> {
+  const r = await fetch("/api/requests", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ url, note }) }).catch(() => undefined);
+  const out = (await r?.json().catch(() => ({}))) as { request?: SiteRequest; error?: string; field?: string };
+  return r?.ok && out.request ? { request: out.request } : { error: out.error ?? "Couldn't send that. Check your connection.", field: out.field, request: out.request };
+}
+
+/** An admin settles every waiting request for a link: added as a registry id, or declined with a reason. */
+export const settleRequest = (url: string, s: { status: "added"; libId: string } | { status: "declined"; reason: string }) =>
+  api<{ settled: number }>("PATCH", "/api/requests", { url, ...s }).then((r) => r.settled, (e) => (fail(e), undefined));
+
+/** Opens the sign-in dialog (AccountButton listens), e.g. when a signed-out visitor reaches for a folder. */
 export const askSignIn = () => dispatchEvent(new Event("tb:signin"));

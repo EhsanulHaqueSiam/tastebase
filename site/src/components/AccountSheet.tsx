@@ -1,16 +1,18 @@
-// The floating sheet the account UI opens in (sign-in, account menu, folder picker): the More sheet's chrome from
+// The floating sheet the folder picker and the taste survey open in: the More sheet's chrome from
 // TabBar.tsx, on every screen size. vaul handles focus (with autoFocus: it is off by default), Escape, drag to dismiss and
 // the scroll lock.
 import { useRef, type ReactNode } from "react";
 import { Drawer } from "vaul";
 import type { User } from "../lib/saved.ts";
 
-export function Sheet({ open, onOpenChange, title, children }: { open: boolean; onOpenChange: (o: boolean) => void; title: string; children: ReactNode }) {
+/** `onClosed`: called once the close animation ends, when the page takes pointer events again (vaul turns them off on
+ *  <body> while it is open), so something opened next can be clicked. */
+export function Sheet({ open, onOpenChange, title, onClosed, children }: { open: boolean; onOpenChange: (o: boolean) => void; title: string; onClosed?: () => void; children: ReactNode }) {
   // Radix returns focus to a Drawer.Trigger, and these open from state (a header button, a card's folder button): put
   // it back on whatever had it when the sheet opened.
   const opener = useRef<HTMLElement>(null);
   return (
-    <Drawer.Root open={open} onOpenChange={onOpenChange} autoFocus>
+    <Drawer.Root open={open} onOpenChange={onOpenChange} onAnimationEnd={(o) => !o && onClosed?.()} autoFocus>
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 z-50 bg-black/50 backdrop-blur-[2px]" />
         <Drawer.Content

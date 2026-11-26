@@ -212,7 +212,7 @@ const flows: Record<string, [Size, string, (p: P) => Promise<void>][]> = {
       await p.go("/browse/ark-ui"); // "Try these" cards carry all three
       await p.until(`!!document.querySelector('${button}')`, `${button} to hydrate`);
       await p.click(button);
-      await p.until(`[...document.querySelectorAll("[role=dialog] h2")].some((h) => h.textContent === "Sign in")`, `${button} to open sign in`);
+      await p.until(`[...document.querySelectorAll("dialog[open] h2")].some((h) => h.textContent === "Sign in")`, `${button} to open sign in`);
       await p.key("Escape");
     }
   }]),
@@ -294,7 +294,7 @@ const flows: Record<string, [Size, string, (p: P) => Promise<void>][]> = {
     await p.until(`!document.querySelector('${SHEET}') && location.pathname === "/browse" && new URL(location.href).searchParams.has("job")`, "Enter on a job to close the sheet and filter");
     await p.js(`document.querySelector('button[aria-label="Sign in"]').focus()`);
     await p.key("Enter");
-    await p.until(`!!document.activeElement?.closest("[role=dialog]")`, "the sign-in sheet to take focus");
+    await p.until(`!!document.activeElement?.closest("dialog[open]")`, "the sign-in dialog to take focus");
     await p.key("Escape");
     await p.until(`document.activeElement?.getAttribute("aria-label") === "Sign in"`, "focus back on Sign in");
   }]],
@@ -319,10 +319,10 @@ const flows: Record<string, [Size, string, (p: P) => Promise<void>][]> = {
       await p.click('button[aria-label^="Hide "]');
       await p.until(`fetch("/api/me").then((r) => r.json()).then((m) => m.hidden.length > 0)`, "hiding to reach the account");
       await p.go("/account#key");
-      await p.until(`[...document.querySelectorAll("#key button")].some((b) => b.textContent === "Make a key")`, "the connect section");
-      await p.js(`[...document.querySelectorAll("#key button")].find((b) => b.textContent === "Make a key").click()`);
-      await p.until(`[...document.querySelectorAll("#key code")].some((c) => c.textContent.startsWith("tb_sk_"))`, "the new key");
-      const mcp = await p.js<number>(`fetch("/mcp", { method: "POST", headers: { "content-type": "application/json", accept: "application/json, text/event-stream", authorization: "Bearer " + [...document.querySelectorAll("#key code")].find((c) => c.textContent.startsWith("tb_sk_")).textContent }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list" }) }).then((r) => r.status)`);
+      await p.until(`[...document.querySelectorAll("main button")].some((b) => b.textContent === "Make a key")`, "the connect section");
+      await p.js(`[...document.querySelectorAll("main button")].find((b) => b.textContent === "Make a key").click()`);
+      await p.until(`[...document.querySelectorAll("main code")].some((c) => c.textContent.startsWith("tb_sk_"))`, "the new key");
+      const mcp = await p.js<number>(`fetch("/mcp", { method: "POST", headers: { "content-type": "application/json", accept: "application/json, text/event-stream", authorization: "Bearer " + [...document.querySelectorAll("main code")].find((c) => c.textContent.startsWith("tb_sk_")).textContent }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list" }) }).then((r) => r.status)`);
       expect(mcp === 200, `/mcp answered the new key with ${mcp}`);
       expect((await me<{ last4: string }[]>("keys")).length === 1, "the account does not list its key");
     }]],

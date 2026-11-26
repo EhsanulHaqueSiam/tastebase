@@ -1,7 +1,7 @@
 import type { Framework } from "../../../src/registry/schema.ts";
 import type { TasteAction } from "../../../src/taste.ts";
 
-// Server-only: hearts, folders, hidden items, off-look marks, agent keys and editor's picks in D1 (tables in migrations/). Plain SQL
+// Server-only: hearts, folders, hidden items, off-look marks, agent keys, site requests and editor's picks in D1 (tables in migrations/). Plain SQL
 // over the D1 binding so
 // tests can run it on node:sqlite. Every write is scoped to the signed-in user; callers validate lib ids first.
 
@@ -263,4 +263,57 @@ export async function setPick(db: D1Database, item: string, reason: string | nul
     ? db.prepare(`delete from editor_pick where item = ?`).bind(item)
     : db.prepare(`insert into editor_pick (item, reason, createdAt) values (?, ?, ?) on conflict (item) do update set reason = excluded.reason`).bind(item, reason, Date.now())
   ).run();
+}
+
+/** One request to list a site. `by`: the requester's name, on the admin's list only (never their email). */
+export type SiteRequest = { id: string; url: string; host: string; note: string; status: "open" | "added" | "declined"; libId: string | null; reason: string | null; createdAt: number; by?: string };
+
+export const MAX_OPEN_REQUESTS = 10;
+export const MAX_REQUESTS_A_DAY = 5;
+
+/** A request's link from untrusted input: https only, lowercase host, no hash, no trailing slash. Undefined otherwise. */
+export function siteUrl(v: unknown) {
+  if (typeof v !== "string" || v.length > 500) return undefined;
+  const u = URL.canParse(v.trim()) ? new URL(v.trim()) : undefined;
+  if (u?.protocol !== "https:" || !u.hostname.includes(".")) return undefined;
+  u.hash = "";
+  return { url: u.href.replace(/\/$/, ""), host: u.hostname.replace(/^www\./, "") };
+}
+
+const REQ_COLS = `r.id, r.url, r.host, r.note, r.status, r.libId, r.reason, r.createdAt`;
+
+/** Files a request, within the caps (MAX_OPEN_REQUESTS waiting, MAX_REQUESTS_A_DAY a day), counted in the insert itself.
+ *  "duplicate" carries the user's earlier request for the same link, whatever became of it. */
+export async function createRequest(db: D1Database, userId: string, { url, host }: { url: string; host: string }, note: string) {
+  const r: SiteRequest = { id: newId(), url, host, note, status: "open", libId: null, reason: null, createdAt: Date.now() };
+  const res = await db
+    .prepare(
+      `insert into site_request (id, userId, url, host, note, createdAt) select ?, ?, ?, ?, ?, ?
+       where (select count(*) from site_request where userId = ? and status = 'open') < ? and (select count(*) from site_request where userId = ? and createdAt > ?) < ?
+       on conflict (userId, url) do nothing`,
+    )
+    .bind(r.id, userId, url, host, note, r.createdAt, userId, MAX_OPEN_REQUESTS, userId, r.createdAt - 86_400_000, MAX_REQUESTS_A_DAY)
+    .run();
+  if (res.meta.changes) return { ok: r } as const;
+  const dup = await db.prepare(`select ${REQ_COLS} from site_request r where userId = ? and url = ?`).bind(userId, url).first<SiteRequest>();
+  return dup ? ({ duplicate: dup } as const) : ({ limit: true } as const);
+}
+
+/** The user's requests, newest first. */
+export async function myRequests(db: D1Database, userId: string) {
+  return (await db.prepare(`select ${REQ_COLS} from site_request r where userId = ? order by createdAt desc, rowid desc`).bind(userId).all<SiteRequest>()).results;
+}
+
+/** Every waiting request with the requester's name, oldest first: the admin's queue. */
+export async function openRequests(db: D1Database) {
+  return (await db.prepare(`select ${REQ_COLS}, u.name as by from site_request r join user u on u.id = r.userId where r.status = 'open' order by r.createdAt, r.rowid limit 200`).all<SiteRequest>()).results;
+}
+
+/** An admin settles every waiting request for one link at once: added as registry id `libId`, or declined with a reason. */
+export async function settleRequests(db: D1Database, url: string, s: { status: "added"; libId: string } | { status: "declined"; reason: string }) {
+  const res = await db
+    .prepare(`update site_request set status = ?, libId = ?, reason = ? where url = ? and status = 'open'`)
+    .bind(s.status, s.status === "added" ? s.libId : null, s.status === "declined" ? s.reason : null, url)
+    .run();
+  return res.meta.changes;
 }

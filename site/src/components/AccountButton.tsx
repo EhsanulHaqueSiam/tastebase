@@ -1,9 +1,9 @@
-// Header account control. Signed out: "Sign in", which opens the sign-in sheet with a button for each provider this
+// Header account control. Signed out: "Sign in", which opens the sign-in dialog with a button for each provider this
 // stage has keys for (GitHub, Google, X; also opened by askSignIn() when a signed-out visitor reaches for a folder).
-// Signed in: the avatar, a link to /account, where everything the user controls lives. The sheet also holds the taste
-// survey (Survey.tsx, loaded on open), which the home banner and the dashboard open with a `tb:survey` event.
-import { ChevronRight, Sparkles } from "lucide-react";
-import { lazy, Suspense, useEffect, useState, type ReactNode } from "react";
+// Signed in: the avatar, a link to /account, where everything the user controls lives. The taste survey (Survey.tsx,
+// loaded on open) opens in a sheet, from the dialog, the home banner or the dashboard (a `tb:survey` event).
+import { ChevronRight, Sparkles, X } from "lucide-react";
+import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from "react";
 import { haptic } from "../lib/haptics.ts";
 import { useIconHover } from "../lib/nav.ts";
 import { signIn, signInProviders, useAccount, type Provider } from "../lib/saved.ts";
@@ -15,21 +15,19 @@ const Survey = lazy(() => import("./Survey.tsx"));
 
 export default function AccountButton() {
   const { user, loading } = useAccount();
-  const [open, setOpen] = useState(false);
-  const [view, setView] = useState<"main" | "survey">("main");
-  const [going, setGoing] = useState<Provider>();
-  const [offered, setOffered] = useState<Provider[]>();
-  useEffect(() => void (open && !user && signInProviders().then(setOffered)), [open, user]);
+  const [dialog, setDialog] = useState(false);
+  const [survey, setSurvey] = useState(false);
+  // The survey's "Sign in" waits for its sheet to finish closing: vaul blocks clicks on the page until then.
+  const next = useRef<"signin">(undefined);
   const { ref, on: hover } = useIconHover();
   useEffect(() => {
-    const show = () => setOpen(true);
-    const survey = () => (setView("survey"), setOpen(true));
+    const show = () => (survey ? ((next.current = "signin"), setSurvey(false)) : setDialog(true));
+    const quiz = () => (setDialog(false), setSurvey(true));
     addEventListener("tb:signin", show);
-    addEventListener("tb:survey", survey);
-    return () => (removeEventListener("tb:signin", show), removeEventListener("tb:survey", survey));
-  }, []);
+    addEventListener("tb:survey", quiz);
+    return () => (removeEventListener("tb:signin", show), removeEventListener("tb:survey", quiz));
+  }, [survey]);
 
-  const toggle = (o: boolean) => (setOpen(o), o ? haptic("light") : setView("main"));
   const shell = "press grid h-[34px] place-items-center rounded-[10px] bg-white/5 shadow-[inset_0_0_0_1px_var(--color-line)] hover:shadow-[inset_0_0_0_1px_var(--color-line2)]";
 
   return (
@@ -39,23 +37,56 @@ export default function AccountButton() {
           <Avatar user={user} size={24} />
         </a>
       ) : (
-        <button type="button" {...hover} onClick={() => toggle(true)} aria-label="Sign in" disabled={loading} className={`${shell} w-9 text-fg2 hover:text-fg disabled:opacity-50 sm:flex sm:w-auto sm:gap-1.5 sm:px-3 sm:text-[13px]`}>
+        <button type="button" {...hover} onClick={() => (haptic("light"), setDialog(true))} aria-label="Sign in" disabled={loading} className={`${shell} w-9 text-fg2 hover:text-fg disabled:opacity-50 sm:flex sm:w-auto sm:gap-1.5 sm:px-3 sm:text-[13px]`}>
           <UserIcon ref={ref} size={15} className="grid place-items-center" />
           <span className="hidden sm:inline">Sign in</span>
         </button>
       )}
 
-      <Sheet open={open} onOpenChange={toggle} title={view === "survey" ? "Find your taste" : user ? user.name : "Sign in"}>
-        {view === "survey" ? (
-          <Suspense fallback={<div className="h-[392px]" aria-busy="true" />}>
-            <Survey onKey={() => (setOpen(false), location.assign("/account#key"))} onSignIn={() => setView("main")} />
-          </Suspense>
-        ) : user ? (
-          <a href="/account" onClick={() => setOpen(false)} className="press flex h-12 items-center justify-center rounded-2xl bg-fg text-[16px] font-semibold text-bg">Open your account</a>
+      <SignInDialog open={dialog} onClose={() => setDialog(false)} onSurvey={() => (setDialog(false), setSurvey(true))} />
+
+      <Sheet open={survey} onOpenChange={setSurvey} title="Find your taste" onClosed={() => next.current && ((next.current = undefined), setDialog(true))}>
+        <Suspense fallback={<div className="h-[392px]" aria-busy="true" />}>
+          <Survey onKey={() => (setSurvey(false), location.assign("/account#key"))} onSignIn={() => ((next.current = "signin"), setSurvey(false))} />
+        </Suspense>
+      </Sheet>
+    </>
+  );
+}
+
+/** Sign in, as a centered native <dialog>: the browser gives it focus, Escape and the top layer; this adds a click on the
+ *  backdrop to close and puts focus back where it was. */
+function SignInDialog({ open, onClose, onSurvey }: { open: boolean; onClose: () => void; onSurvey: () => void }) {
+  const { user } = useAccount();
+  const ref = useRef<HTMLDialogElement>(null);
+  const opener = useRef<HTMLElement | null>(null);
+  const [going, setGoing] = useState<Provider>();
+  const [offered, setOffered] = useState<Provider[]>();
+  useEffect(() => {
+    const d = ref.current;
+    if (!d) return;
+    if (open && !d.open) (opener.current = document.activeElement as HTMLElement | null), d.showModal();
+    if (!open && d.open) d.close();
+  }, [open]);
+  useEffect(() => void (open && !user && signInProviders().then(setOffered)), [open, user]);
+
+  return (
+    <dialog
+      ref={ref}
+      aria-labelledby="signin-title"
+      onClose={() => (onClose(), opener.current?.focus({ preventScroll: true }))}
+      onClick={(e) => e.target === e.currentTarget && ref.current?.close()}
+      className="tb-dialog m-auto w-[min(380px,calc(100%-32px))] overflow-visible rounded-[20px] bg-s2 p-0 text-fg shadow-[0_0_0_1px_var(--color-line2),0_30px_80px_-20px_rgb(0_0_0/0.9)] backdrop:bg-black/60"
+    >
+      <div className="relative p-5">
+        <p className="text-[13px] font-semibold text-fg3">tastebase</p>
+        <h2 id="signin-title" className="mt-2 text-[19px] font-semibold tracking-[-0.02em]">{user ? user.name : "Sign in"}</h2>
+        {user ? (
+          <a href="/account" className="press mt-5 flex h-11 items-center justify-center rounded-xl bg-fg text-[15px] font-semibold text-bg">Open your account</a>
         ) : (
-          <div className="px-2 pb-1">
-            <p className="text-[15px] text-fg2">Keep your saved libraries and folders on every device, and share a folder with a link.</p>
-            <div className="mt-5 grid min-h-12 gap-2">
+          <>
+            <p className="mt-1 pr-8 text-[13.5px] text-fg2">Your agent gets your look, hearts and dislikes in every project. Folders follow you to every device.</p>
+            <div className="mt-5 grid min-h-11 gap-2">
               {offered?.map((p, i) => {
                 const { name, Mark } = PROVIDERS[p];
                 return (
@@ -64,31 +95,35 @@ export default function AccountButton() {
                     type="button"
                     disabled={!!going}
                     onClick={() => (setGoing(p), haptic("light"), signIn(p).finally(() => setGoing(undefined)))}
-                    className={`press flex h-12 w-full items-center justify-center gap-2.5 rounded-2xl text-[16px] font-semibold active:scale-[0.97] disabled:opacity-60 ${i ? "bg-s3 text-fg hover:bg-line2" : "bg-fg text-bg hover:opacity-90"}`}
+                    className={`press flex h-11 w-full items-center justify-center gap-2.5 rounded-xl text-[15px] font-semibold active:scale-[0.98] disabled:opacity-60 ${i ? "bg-s3 text-fg shadow-[inset_0_0_0_1px_var(--color-line2)] hover:bg-line2" : "bg-fg text-bg hover:opacity-90"}`}
                   >
                     <Mark />
                     {going === p ? `Opening ${name}…` : `Continue with ${name}`}
                   </button>
                 );
               })}
-              {offered?.length === 0 && <p className="grid h-12 place-items-center rounded-2xl bg-s3 text-[14px] text-fg2">Sign-in is not set up here.</p>}
+              {offered?.length === 0 && <p className="grid h-11 place-items-center rounded-xl bg-s3 text-[13.5px] text-fg2">Sign-in is not set up here.</p>}
             </div>
-            <p className="mt-3 text-center text-[12.5px] text-fg3">We keep the name, avatar and email your provider shares. Nothing else.</p>
+            <p className="mt-3 text-center text-[12px] text-fg3">We keep the name, avatar and email your provider shares. Nothing else.</p>
             <ul className="mt-4 border-t border-line pt-4">
-              <ViewRow icon={<Sparkles size={20} aria-hidden />} value="30s" onPick={() => setView("survey")}>Find your taste</ViewRow>
+              <ViewRow icon={<Sparkles size={18} aria-hidden />} value="30s" onPick={onSurvey}>Find your taste</ViewRow>
             </ul>
-          </div>
+          </>
         )}
-      </Sheet>
-    </>
+        {/* Last in order, so opening the dialog focuses its first provider rather than Close. */}
+        <button type="button" onClick={() => ref.current?.close()} aria-label="Close" className="absolute top-4 right-4 grid size-8 place-items-center rounded-full bg-s3 text-fg2 transition-transform hover:text-fg active:scale-90">
+          <X size={15} aria-hidden />
+        </button>
+      </div>
+    </dialog>
   );
 }
 
-/** A row that opens another view of the account sheet. */
+/** A row that opens another view: the taste survey. */
 function ViewRow({ icon, value, onPick, children }: { icon: ReactNode; value: string; onPick: () => void; children: ReactNode }) {
   return (
     <li>
-      <button type="button" onClick={() => (haptic("selection"), onPick())} className="flex h-12 w-full items-center gap-[15px] rounded-2xl bg-s3 px-4 text-left text-[17px] font-semibold text-fg transition-transform active:scale-95">
+      <button type="button" onClick={() => (haptic("selection"), onPick())} className="flex h-11 w-full items-center gap-3 rounded-xl bg-s3 px-3.5 text-left text-[15px] font-semibold text-fg transition-transform active:scale-[0.98]">
         {icon}
         <span className="flex-1">{children}</span>
         <span className="font-mono text-[13px] font-medium text-fg3 tabular-nums">{value}</span>
