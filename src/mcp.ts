@@ -55,12 +55,13 @@ const SAVED: Record<TasteAction, (id: string, look?: string) => string> = {
 const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 /** Free text can still name what the user hid or marked off this look (a note's "use motion-primitives", a look's
- *  picks, a site type's build rules, a kit whose part they hid): one line for each kind that `t` names by id or name. */
+ *  picks, a site type's build rules, an install that pulls it in): one line for each kind that `t` names by id, name or
+ *  npm package. */
 export function tasteNotes(all: Library[], taste: Taste | undefined, t: string, look?: string) {
   const named = (ids: Iterable<string>) =>
     [...ids].filter((id) => {
       const l = all.find((x) => x.id === (partOf(all, id)?.lib.id ?? id));
-      return [l?.id ?? id, l?.name].some((n) => n && new RegExp(`(?<![\\w.-])${esc(n)}(?![\\w-])`).test(t));
+      return [l?.id ?? id, l?.name, l?.npm].some((n) => n && new RegExp(`(?<![\\w.-])${esc(n)}(?![\\w-])`).test(t));
     });
   const them = (ids: string[]) => (ids.length > 1 ? "them" : "it");
   const hide = taste?.hide ?? new Set<string>();

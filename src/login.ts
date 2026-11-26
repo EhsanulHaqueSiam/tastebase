@@ -13,7 +13,9 @@ import { loginCode, loginId } from "./login-code.ts";
 const base = () => process.env.TASTEBASE_URL ?? SITE;
 const dir = () => join(process.env.XDG_CONFIG_HOME || join(homedir(), ".config"), "tastebase");
 // Another server (TASTEBASE_URL, for a preview or `pnpm dev`) gets its own file, so its key and the production one never mix.
-const keyFile = () => join(dir(), process.env.TASTEBASE_URL ? `key-${new URL(base()).host.replace(/[^\w.-]/g, "_")}` : "key");
+const keyFile = () => join(dir(), process.env.TASTEBASE_URL ? `key-${new URL(base()).origin.replace(/[^\w.-]/g, "_")}` : "key");
+// TASTEBASE_KEY wins over the saved key everywhere (relay, key.sh), so login and logout say when it is set.
+const envNote = () => process.env.TASTEBASE_KEY && console.log("TASTEBASE_KEY is set and is sent instead of the saved key; unset it to use this one.");
 const fileKey = async () => (await readFile(keyFile(), "utf8").catch(() => "")).trim() || undefined;
 /** The key this machine signed in with: TASTEBASE_KEY, else the saved one. */
 export const savedKey = async () => process.env.TASTEBASE_KEY || (await fileKey());
@@ -38,6 +40,7 @@ export async function login(args: string[]) {
   const off = old && old !== key ? await api("/api/login", { method: "DELETE" }, old).catch(() => undefined) : { ok: true };
   console.log(`Signed in${name ? ` as ${name}` : ""}. Restart your agent: the tastebase plugin and \`npx tastebase\` now send your taste.`);
   if (!off?.ok) console.log(`The key this replaced (…${old!.slice(-4)}) may still work: sign it out at ${base()}/account#key.`);
+  envNote();
 }
 
 async function browserLogin() {
@@ -66,6 +69,7 @@ export async function logout() {
   const r = await api("/api/login", { method: "DELETE" }, key).catch(() => undefined);
   await rm(keyFile(), { force: true });
   console.log(r?.ok ? "Signed out." : `Removed the saved key, but tastebase did not confirm it is off (${r?.status ?? "offline"}). Sign it out at ${base()}/account#key.`);
+  envNote();
 }
 
 /** Signed in, the stdio server relays each message to the hosted one with the key, so answers carry the user's taste

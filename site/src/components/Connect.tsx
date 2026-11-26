@@ -13,19 +13,20 @@ export default function Connect() {
   const name = q.get("name")?.trim().slice(0, 40) || "Terminal";
   const [state, setState] = useState<"ask" | "busy" | "done" | "no">("ask");
   const [error, setError] = useState<string>();
+  const [account, setAccount] = useState<string>();
   const approve = async () => {
     setState("busy");
-    const e = await approveLogin(id!, name);
-    if (!e) haptic("success");
-    setError(e);
-    setState(e ? "ask" : "done");
+    const r = await approveLogin(id!, name);
+    if ("account" in r) haptic("success"), setAccount(r.account);
+    setError("error" in r ? r.error : undefined);
+    setState("error" in r ? "ask" : "done");
   };
 
   const body = !code ? (
     <p className="text-fg2">This link has no sign-in code. Run <code className="font-mono text-[13px] text-fg">npx -y tastebase@latest login</code> again.</p>
   ) : state === "done" ? (
     <>
-      <p className="font-semibold text-green">Signed in</p>
+      <p className="font-semibold text-green">Signed in as {account}</p>
       <p className="mt-1 text-fg2">Go back to your terminal. Your agent now follows your taste.</p>
     </>
   ) : state === "no" ? (

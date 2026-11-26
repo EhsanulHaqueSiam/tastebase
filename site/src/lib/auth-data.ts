@@ -29,7 +29,7 @@ export async function loadAccount(db: D1Database, userId: string): Promise<Accou
     db.prepare(`select ${FOLDER_COLS} from folder f where f.userId = ? order by f.createdAt, f.id`).bind(userId),
     db.prepare(`select item from hidden where userId = ? order by createdAt, rowid`).bind(userId),
     db.prepare(`select item, look from off_look where userId = ? order by createdAt, rowid`).bind(userId),
-    db.prepare(`select id, name, last4, createdAt from agent_key where userId = ? order by createdAt, id`).bind(userId),
+    db.prepare(`select id, name, last4, createdAt from agent_key where userId = ? order by createdAt, rowid`).bind(userId),
     db.prepare(`select look, framework from pref where userId = ?`).bind(userId),
   ]);
   const p = pref!.results[0] as Prefs | undefined;
