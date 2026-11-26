@@ -82,6 +82,16 @@ test("a terminal claims one key after its login is approved, once, and only with
   await approveLogin(db, "bo", full, "one too many");
   assert.equal(await claimLogin(db, full), "refused");
 
+  // An approval that expired and was approved again by someone else makes a key for the one approving now.
+  const reused = "d".repeat(64);
+  await approveLogin(db, "ana", reused, "ana's");
+  (db as unknown as { exec: (s: string) => void }).exec(`update device_login set createdAt = 0 where id = '${reused}'`);
+  assert.equal(await approveLogin(db, "bo", reused, "bo's"), true); // the stale approval was cleared
+  (db as unknown as { exec: (s: string) => void }).exec(`delete from agent_key where userId = 'bo' and name like 'k%'`);
+  const now = await claimLogin(db, reused);
+  assert.ok(now && now !== "refused");
+  assert.deepEqual([(await keyOwner(db, now.key))?.name, now.entry.name], ["bo", "bo's"]);
+
   const old = "c".repeat(64);
   await approveLogin(db, "ana", old, "old");
   (db as unknown as { exec: (s: string) => void }).exec(`update device_login set createdAt = 0 where id = '${old}'`);

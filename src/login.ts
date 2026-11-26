@@ -12,7 +12,8 @@ import { loginCode, loginId } from "./login-code.ts";
 
 const base = () => process.env.TASTEBASE_URL ?? SITE;
 const dir = () => join(process.env.XDG_CONFIG_HOME || join(homedir(), ".config"), "tastebase");
-const keyFile = () => join(dir(), "key");
+// Another server (TASTEBASE_URL, for a preview or `pnpm dev`) gets its own file, so its key and the production one never mix.
+const keyFile = () => join(dir(), process.env.TASTEBASE_URL ? `key-${new URL(base()).host.replace(/[^\w.-]/g, "_")}` : "key");
 const fileKey = async () => (await readFile(keyFile(), "utf8").catch(() => "")).trim() || undefined;
 /** The key this machine signed in with: TASTEBASE_KEY, else the saved one. */
 export const savedKey = async () => process.env.TASTEBASE_KEY || (await fileKey());
@@ -24,16 +25,19 @@ const api = (path: string, init: RequestInit = {}, key?: string) =>
  *  The key it replaces is signed out, so logging in again never piles up keys. */
 export async function login(args: string[]) {
   const at = args.findIndex((a) => a === "--token" || a.startsWith("--token="));
-  const key = at < 0 ? await browserLogin() : args[at]!.includes("=") ? args[at]!.slice(8) : args[at + 1];
-  if (!key) throw new Error("--token needs a key: tastebase login --token tb_sk_...");
-  const who = await api("/api/login", {}, key);
-  if (!who.ok) throw new Error(`That key does not work (${who.status}). Make one at ${base()}/account#key.`);
-  const { name } = (await who.json()) as { name: string };
+  const token = at < 0 ? undefined : args[at]!.includes("=") ? args[at]!.slice(8) : (args[at + 1] ?? "");
+  if (token === "") throw new Error("--token needs a key: tastebase login --token tb_sk_...");
+  const key = token ?? (await browserLogin());
+  const who = await api("/api/login", {}, key).catch(() => undefined);
+  // A pasted key is checked before it replaces anything; a key the browser login just made is saved whatever happens next.
+  if (token && !who?.ok) throw new Error(`That key does not work (${who?.status ?? "offline"}). Make one at ${base()}/account#key.`);
+  const { name } = who?.ok ? ((await who.json().catch(() => ({}))) as { name?: string }) : {};
   const old = await fileKey();
   await mkdir(dir(), { recursive: true, mode: 0o700 });
   await writeFile(keyFile(), key, { mode: 0o600 });
-  if (old && old !== key) await api("/api/login", { method: "DELETE" }, old).catch(() => undefined);
-  console.log(`Signed in as ${name}. Restart your agent: the tastebase plugin and \`npx tastebase\` now send your taste.`);
+  const off = old && old !== key ? await api("/api/login", { method: "DELETE" }, old).catch(() => undefined) : { ok: true };
+  console.log(`Signed in${name ? ` as ${name}` : ""}. Restart your agent: the tastebase plugin and \`npx tastebase\` now send your taste.`);
+  if (!off?.ok) console.log(`The key this replaced (…${old!.slice(-4)}) may still work: sign it out at ${base()}/account#key.`);
 }
 
 async function browserLogin() {
@@ -47,7 +51,7 @@ async function browserLogin() {
   for (const end = Date.now() + 600_000; Date.now() < end; await new Promise((r) => setTimeout(r, 2000))) {
     const r = await api("/api/login", { method: "POST", body: JSON.stringify({ secret }) }).catch(() => undefined);
     if (!r || r.status >= 500) continue; // offline for a moment, or the Worker hiccuped: keep waiting
-    const { key, error } = (await r.json()) as { key?: string; error?: string };
+    const { key, error } = (await r.json().catch(() => ({ error: `tastebase answered ${r.status} without a body. Run tastebase login again.` }))) as { key?: string; error?: string };
     if (error) throw new Error(error);
     if (key) return key;
   }
@@ -58,7 +62,7 @@ async function browserLogin() {
  *  be told, since the key then still works. */
 export async function logout() {
   const key = await fileKey();
-  if (!key) return console.log("Not signed in.");
+  if (!key) return console.log(process.env.TASTEBASE_KEY ? "No saved key here; unset TASTEBASE_KEY to stop sending that one." : "Not signed in.");
   const r = await api("/api/login", { method: "DELETE" }, key).catch(() => undefined);
   await rm(keyFile(), { force: true });
   console.log(r?.ok ? "Signed out." : `Removed the saved key, but tastebase did not confirm it is off (${r?.status ?? "offline"}). Sign it out at ${base()}/account#key.`);

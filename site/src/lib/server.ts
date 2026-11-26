@@ -115,7 +115,12 @@ export function planJson(libs: Library[], brief: string, look?: string, taste?: 
 }
 
 // Same framework, look and taste rules and install resolution as the MCP `pick` tool ("Vue bottom sheet" never gets React-only answers).
+// With an agent key, a pick whose text names something the user hid (an install that pulls it in) carries `taste`, as `pick` says it.
 export function pickJson(libs: Library[], need: string, taste?: Taste) {
-  const { fits, framework } = tastedPick(libs, aesthetics, need, { limit: 5 }, taste);
-  return fits.map((s) => ({ lib: { ...lite(s.lib), install: install(s.lib, framework) }, why: s.why }));
+  const { fits, framework, look } = tastedPick(libs, aesthetics, need, { limit: 5 }, taste);
+  return fits.map((s) => {
+    const out = { lib: { ...lite(s.lib), install: install(s.lib, framework) }, why: s.why };
+    const notes = taste && tasteNotes(libs, taste, JSON.stringify(out), look?.id);
+    return notes?.length ? { ...out, taste: notes } : out;
+  });
 }

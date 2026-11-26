@@ -356,7 +356,7 @@ function KeyPanel({ keys }: { keys: AgentKey[] }) {
           {keys.map((k) => (
             <Row key={k.id} title={k.name} sub={`tb_sk_…${k.last4} · ${date(k.createdAt)}`}>
               {sure === k.id ? (
-                <button type="button" onClick={() => void revokeAgentKey(k.id)} className={`${btn} text-[#ff7b7b]`}>Sign out for good</button>
+                <button type="button" onClick={() => void revokeAgentKey(k.id).then((ok) => ok && fresh?.endsWith(k.last4) && setFresh(undefined))} className={`${btn} text-[#ff7b7b]`}>Sign out for good</button>
               ) : (
                 <Undo onClick={() => setSure(k.id)}>Sign out</Undo>
               )}

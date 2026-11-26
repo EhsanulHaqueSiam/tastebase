@@ -61,7 +61,7 @@ background or with a long timeout, and tell the user the link and code at once. 
 
 Then connect the server so it sends the key, and tell the user to restart you:
 
-- Claude Code plugin: nothing to do; it reads the saved key.
+- Claude Code plugin: update it (\`claude plugin marketplace update tastebase && claude plugin update tastebase@tastebase\`); from then on it reads the saved key.
 - Codex: \`codex mcp remove tastebase; codex mcp add tastebase -- npx -y tastebase@latest\`
 - Cursor and others: run the server as \`npx -y tastebase@latest\` (stdio). Signed in, it relays to ${MCP} with the key.
 

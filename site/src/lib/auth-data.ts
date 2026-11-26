@@ -112,17 +112,19 @@ export async function approveLogin(db: D1Database, userId: string, id: string, n
  *  waits, "refused" when it was already claimed or the account has MAX_KEYS. Making the key and marking the approval
  *  claimed is one transaction, so a key is made at most once and an approval is never spent without one. */
 export async function claimLogin(db: D1Database, id: string) {
-  const row = await db.prepare(`select userId, name, claimed from device_login where id = ? and createdAt >= ?`).bind(id, Date.now() - LOGIN_TTL_MS).first<{ userId: string; name: string; claimed: number }>();
-  if (!row) return undefined;
-  const { key, entry } = newKey(row.name);
+  const since = Date.now() - LOGIN_TTL_MS;
+  if (!(await db.prepare(`select 1 from device_login where id = ? and createdAt >= ?`).bind(id, since).first())) return undefined;
+  const { key, entry } = newKey("");
   const hash = await sha256(key);
+  // The key takes its owner and name from the approval row it consumes, inside the transaction.
   await db.batch([
     db
-      .prepare(`insert into agent_key (id, userId, name, hash, last4, createdAt) select ?, ?, ?, ?, ?, ? where (select claimed from device_login where id = ?) = 0 and (select count(*) from agent_key where userId = ?) < ?`)
-      .bind(entry.id, row.userId, row.name, hash, entry.last4, entry.createdAt, id, row.userId, MAX_KEYS),
+      .prepare(`insert into agent_key (id, userId, name, hash, last4, createdAt) select ?, d.userId, d.name, ?, ?, ? from device_login d where d.id = ? and d.claimed = 0 and d.createdAt >= ? and (select count(*) from agent_key k where k.userId = d.userId) < ?`)
+      .bind(entry.id, hash, entry.last4, entry.createdAt, id, since, MAX_KEYS),
     db.prepare(`update device_login set claimed = 1 where id = ? and exists (select 1 from agent_key where hash = ?)`).bind(id, hash),
   ]);
-  return (await db.prepare(`select 1 from agent_key where hash = ?`).bind(hash).first()) ? { key, entry } : ("refused" as const);
+  const made = await db.prepare(`select name from agent_key where hash = ?`).bind(hash).first<{ name: string }>();
+  return made ? { key, entry: { ...entry, name: made.name } } : ("refused" as const);
 }
 
 /** Who holds this key, for `tastebase login --token` to check it. */
