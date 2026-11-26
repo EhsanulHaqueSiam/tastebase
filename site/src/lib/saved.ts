@@ -6,9 +6,9 @@
 import { useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import type { Provider } from "./auth.ts";
-import type { AccountData, AgentKey, Folder, Prefs } from "./auth-data.ts";
+import type { AccountData, AgentKey, Folder, Prefs, SiteRequest } from "./auth-data.ts";
 
-export type { AgentKey, Folder, Prefs, Provider };
+export type { AgentKey, Folder, Prefs, Provider, SiteRequest };
 export type User = { name: string; image: string | null };
 /** Something the user hid from their agent, with the name and page the account sheet lists it by. */
 export type Hidden = { id: string; name: string; href: string };
@@ -76,6 +76,16 @@ function write(method: string, url: string, body: () => unknown, done?: () => vo
     ),
   );
 }
+// Folder writes go out one at a time, in the order they were made: two quick clicks on Private and Anyone with the link
+// must land in that order, or the folder stays shared while the screen says Private. A failed one reads the account
+// again once the rest have landed, rather than putting back a copy that would undo them.
+let folderWrites: Promise<unknown> = Promise.resolve();
+function folderWrite<T>(f: () => Promise<T>) {
+  const p = folderWrites.then(f);
+  folderWrites = p.catch(() => undefined); // the chain itself never fails: the next write and load() still run
+  return p;
+}
+
 /** Resolves once every taste write made so far has reached the server: what /api/try then reads. */
 export const tasteSaved = () => queue;
 
@@ -85,7 +95,7 @@ let imported = false; // what this browser kept signed out joins the account onc
  *  once newer writes land if one overlapped the read. */
 async function load(recover = false) {
   const at = edits;
-  await queue;
+  await Promise.all([queue, folderWrites]); // a read that overtook a write would show the folders as they were
   const me = await api<{ user: User | null; hidden?: Hidden[]; offLook?: OffLook[]; admin?: boolean } & Partial<Omit<AccountData, "hidden" | "offLook">>>("GET", "/api/me").catch(() => undefined);
   // A network or server error keeps what is shown and the signed-in flag; only an answer of "no user" signs out.
   if (!me) return set({ loading: false });
@@ -220,7 +230,7 @@ export const signInProviders = () => (offered ??= api<{ providers?: Provider[] }
 export async function signIn(provider: Provider) {
   store.set(SIGNED_IN, "1");
   try {
-    const { url } = await api<{ url: string }>("POST", "/api/auth/sign-in/social", { provider, callbackURL: location.pathname + location.search });
+    const { url } = await api<{ url: string }>("POST", "/api/auth/sign-in/social", { provider, callbackURL: location.pathname + location.search + location.hash });
     location.assign(url);
   } catch (e) {
     store.set(SIGNED_IN, null);
@@ -243,29 +253,43 @@ export async function createFolder(name: string, lib?: string) {
   return f?.id;
 }
 
-/** Renames, shares or unshares one of your folders, or files a library in or out of it. Optimistic; undone on failure. */
+/** Renames, shares or unshares one of your folders, or files a library in or out of it. Optimistic; a failure reads the
+ *  account again. */
 export function updateFolder(id: string, p: { name?: string; public?: boolean; add?: string; remove?: string }) {
-  const before = snapshot().folders;
   putFolder(id, (f) => ({
     ...f,
     name: p.name ?? f.name,
     public: p.public ?? f.public,
     libs: p.add ? [...new Set([...f.libs, p.add])] : p.remove ? f.libs.filter((l) => l !== p.remove) : f.libs,
   }));
-  return api("PATCH", `/api/folders/${id}`, p).then(
+  return folderWrite(() => api("PATCH", `/api/folders/${id}`, p)).then(
     () => true,
-    (e) => (fail(e), set({ folders: before }), false),
+    (e) => (fail(e), void folderWrites.then(() => load()), false),
   );
 }
 
 export function deleteFolder(id: string) {
-  const before = snapshot().folders;
   putFolder(id, () => null);
-  return api("DELETE", `/api/folders/${id}`).then(
+  return folderWrite(() => api("DELETE", `/api/folders/${id}`)).then(
     () => true,
-    (e) => (fail(e), set({ folders: before }), false),
+    (e) => (fail(e), void folderWrites.then(() => load()), false),
   );
 }
 
-/** Opens the sign-in sheet (AccountButton listens), e.g. when a signed-out visitor reaches for a folder. */
+/** The user's requests to list a site, and an admin's queue. Asked when the Requests panel opens (and for the download). */
+export const loadRequests = () => api<{ mine: SiteRequest[]; open?: SiteRequest[] }>("GET", "/api/requests");
+
+/** Files a request. Resolves to it, or to what went wrong: `field` names the input at fault, `request` is the earlier
+ *  request for the same link. */
+export async function sendRequest(url: string, note: string): Promise<{ request: SiteRequest } | { error: string; field?: string; request?: SiteRequest }> {
+  const r = await fetch("/api/requests", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ url, note }) }).catch(() => undefined);
+  const out = ((await r?.json().catch(() => ({}))) ?? {}) as { request?: SiteRequest; error?: string; field?: string };
+  return r?.ok && out.request ? { request: out.request } : { error: out.error ?? "Couldn't send that. Check your connection.", field: out.field, request: out.request };
+}
+
+/** An admin settles every waiting request for a link: added as a registry id, or declined with a reason. */
+export const settleRequest = (url: string, s: { status: "added"; libId: string } | { status: "declined"; reason: string }) =>
+  api<{ settled: number }>("PATCH", "/api/requests", { url, ...s }).then((r) => r.settled, (e) => (fail(e), undefined));
+
+/** Opens the sign-in dialog (AccountButton listens), e.g. when a signed-out visitor reaches for a folder. */
 export const askSignIn = () => dispatchEvent(new Event("tb:signin"));

@@ -1,4 +1,4 @@
-// The floating sheet the account UI opens in (sign-in, account menu, folder picker): the More sheet's chrome from
+// The floating sheet the folder picker and the taste survey open in: the More sheet's chrome from
 // TabBar.tsx, on every screen size. vaul handles focus (with autoFocus: it is off by default), Escape, drag to dismiss and
 // the scroll lock.
 import { useRef, type ReactNode } from "react";
