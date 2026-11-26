@@ -275,8 +275,10 @@ export const MAX_REQUESTS_A_DAY = 5;
 export function siteUrl(v: unknown) {
   const u = typeof v === "string" && URL.canParse(v.trim()) ? new URL(v.trim()) : undefined;
   if (u?.protocol !== "https:") return undefined;
-  u.hostname = u.hostname.replace(/^(www\.)+/, ""); // www.x.dev and x.dev are one site, settled once
-  if (!u.hostname.includes(".")) return undefined;
+  const host = u.hostname.replace(/^(www\.)+/, ""); // www.x.dev and x.dev are one site, settled once
+  // Checked as a string: setting an https URL's hostname to "" is silently ignored. "x.dev." would be a second x.dev.
+  if (!host.includes(".") || host.endsWith(".")) return undefined;
+  u.hostname = host;
   // The path loses its trailing slashes (the query keeps its own), so normalizing a stored link again gives the same
   // link: an admin settles by it.
   const url = `${u.origin}${u.pathname.replace(/\/+$/, "")}${u.search}`;

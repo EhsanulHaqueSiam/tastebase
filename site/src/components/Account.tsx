@@ -367,18 +367,21 @@ function setup(client: Client, key: string) {
 
 const date = (t: number) => new Date(t).toLocaleDateString(undefined, { month: "short", day: "numeric" });
 
-// The key just made, kept for this page view so switching panels while it is on its way (or after) never loses it.
+// The key just made, and one on its way, kept while this tab keeps the site's code (soft navigations included), so
+// leaving the Connect panel before or after it arrives never loses it.
 let made: string | undefined;
+let making: Promise<string | undefined> | undefined;
 
 function KeyPanel({ keys }: { keys: AgentKey[] }) {
   const [fresh, setFresh] = useState(made);
+  const [busy, setBusy] = useState(!!making);
+  useEffect(() => void making?.then((k) => (setFresh(k), setBusy(false))), []);
   const [client, setClient] = useState<Client>("Terminal");
-  const [busy, setBusy] = useState(false);
   const [sure, setSure] = useState<string>(); // signing an agent out asks once: it has no undo
   const make = async () => {
     setBusy(true);
-    made = (await makeAgentKey()) ?? made;
-    setFresh(made), setBusy(false);
+    making ??= makeAgentKey().then((k) => ((made = k ?? made), (making = undefined), made));
+    setFresh(await making), setBusy(false);
   };
   const ask = `set up tastebase and sign me in: ${location.origin}/llms.txt`;
   return (
@@ -626,7 +629,12 @@ function Requests({ hrefs, admin }: { hrefs: Record<string, string>; admin: bool
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<{ text: string; field?: string }>();
-  const reload = () => loadRequests().then(setData, (e: Error) => toast.error(e.message));
+  // Only the newest read may land: an older one (the first load, a settle) answering late must not undo a newer list.
+  const asked = useRef(0);
+  const reload = () => {
+    const n = ++asked.current;
+    return loadRequests().then((d) => n === asked.current && setData(d), (e: Error) => toast.error(e.message));
+  };
   useEffect(() => void reload(), []);
   const send = async (e: FormEvent) => {
     e.preventDefault();
