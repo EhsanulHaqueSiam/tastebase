@@ -4,17 +4,20 @@
 import Account, { type LibName, type LookOption } from "../components/Account.tsx";
 import Base from "../layouts/Base.astro";
 import { kindMeta } from "../lib/kinds.ts";
+import { allListings } from "../lib/listings.ts";
 import { aesthetics, libraries } from "../lib/server.ts";
 
 export const prerender = true;
 
 const famName = new Map(aesthetics.map((a) => [a.id, a.name]));
 const looks: LookOption[] = aesthetics.map(({ id, name, family, swatch: { layout: _, ...swatch } }) => ({ id, name, family: famName.get(family ?? id) ?? name, swatch }));
+// Every library and resource id to its page: where an added request links, and the ids an admin can pick.
+const hrefs = Object.fromEntries(allListings.map((l) => [l.id, l.href]));
 const libs: Record<string, LibName> = Object.fromEntries(libraries.map((l) => [l.id, { name: l.name, kind: kindMeta[l.kind].label }]));
 ---
 
 <Base noindex title="Account · tastebase" description="Connect your agent, set your look, manage dislikes, folders and requests.">
-  <Account client:only="react" looks={looks} libs={libs}>
+  <Account client:only="react" looks={looks} libs={libs} hrefs={hrefs}>
     <!-- Same heading and space as the island, so nothing moves when it mounts. -->
     <section slot="fallback" class="mx-auto max-w-[1120px] px-4 pt-[76px] pb-24 lg:px-6">
       <h1 class="text-[18px] font-semibold tracking-[-0.02em]">Account</h1>

@@ -59,32 +59,35 @@ export default function Form({ form }: { form: FormId }) {
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const id = useId();
-  const viaAccount = form === "submit" && !!useAccount().user;
+  const { user } = useAccount();
+  const viaAccount = form === "submit" && !!user;
 
   useEffect(() => {
+    if (viaAccount) return; // the account form needs no human check
     let gone = false;
     fetch("/api/forms")
       .then((r) => r.json() as Promise<{ sitekey: string; ready: boolean }>)
       .then(async ({ sitekey, ready }) => {
+        if (gone) return;
         if (!ready) return setState("off");
         await loadTurnstile();
         if (gone || !box.current || !window.turnstile) return;
         box.current.replaceChildren();
         widget.current = window.turnstile.render(box.current, { sitekey, theme, callback: setToken, "expired-callback": () => setToken("") });
       })
-      .catch(() => setError("The form couldn't load. Refresh to try again."));
+      .catch(() => gone || setError("The form couldn't load. Refresh to try again."));
     return () => {
       gone = true;
       if (widget.current) window.turnstile?.remove(widget.current), (widget.current = undefined);
     };
-  }, [theme]);
+  }, [theme, viaAccount]);
 
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const fields = Object.fromEntries([...new FormData(e.currentTarget)].map(([k, v]) => [k, String(v)]));
     if (viaAccount) {
       setState("sending"), setError(""), setFieldErrors({});
-      const r = await sendRequest(fields.url ?? "", `${fields.name} (${fields.category}): ${fields.reason}`.slice(0, 500));
+      const r = await sendRequest(fields.url ?? "", `${fields.name} (${fields.category}): ${fields.reason}`);
       if ("request" in r && !("error" in r)) return setState("done"), haptic("success");
       setState("idle");
       if (r.field) return setFieldErrors({ [r.field]: r.error });

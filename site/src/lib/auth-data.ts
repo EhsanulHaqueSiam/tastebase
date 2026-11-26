@@ -273,11 +273,13 @@ export const MAX_REQUESTS_A_DAY = 5;
 
 /** A request's link from untrusted input: https only, lowercase host, no hash, no trailing slash. Undefined otherwise. */
 export function siteUrl(v: unknown) {
-  if (typeof v !== "string" || v.length > 500) return undefined;
-  const u = URL.canParse(v.trim()) ? new URL(v.trim()) : undefined;
+  const u = typeof v === "string" && URL.canParse(v.trim()) ? new URL(v.trim()) : undefined;
   if (u?.protocol !== "https:" || !u.hostname.includes(".")) return undefined;
   u.hash = "";
-  return { url: u.href.replace(/\/$/, ""), host: u.hostname.replace(/^www\./, "") };
+  u.hostname = u.hostname.replace(/^www\./, ""); // www.x.dev and x.dev are one site, settled once
+  // Every trailing slash goes, so normalizing a stored link again gives the same link (an admin settles by it).
+  const url = u.href.replace(/\/+$/, "");
+  return url.length <= 500 ? { url, host: u.hostname } : undefined;
 }
 
 const REQ_COLS = `r.id, r.url, r.host, r.note, r.status, r.libId, r.reason, r.createdAt`;

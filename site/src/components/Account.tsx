@@ -2,7 +2,8 @@
 // it uses when a brief names none (with a preview of its plan), dislikes, hearts, folders, requests to list a site, and
 // the user's data. Reads the account store (lib/saved.ts); the page itself is static.
 import { ArrowUpRight, Check, Download, FolderPlus, Globe, Link2, Plus, Search } from "lucide-react";
-import { useEffect, useRef, useState, type FormEvent, type MouseEvent, type ReactNode } from "react";
+import { navigate } from "astro:transitions/client";
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { toast } from "sonner";
 import { frameworks, type Framework, type Swatch } from "../../../src/registry/schema.ts";
 import { haptic } from "../lib/haptics.ts";
@@ -32,40 +33,41 @@ const PANELS = [
 ] as const;
 type Panel = (typeof PANELS)[number][0];
 const ALIAS: Record<string, Panel> = { key: "connect", hidden: "dislikes", "off-look": "dislikes", try: "look" };
-const fromHash = () => {
-  const h = location.hash.slice(1);
+const panelOf = (hash: string) => {
+  const h = hash.slice(1);
   return PANELS.find(([id]) => id === h)?.[0] ?? ALIAS[h];
 };
 
-/** The panel the hash names, and `go` to open one. An empty or unknown hash opens Connect without adding a history
- *  entry. Astro's router takes same-page hash links over with pushState, which fires no hashchange, so panel links call
- *  `go`; back, forward and a hash set from outside (the survey's /account#key) still arrive as popstate or hashchange. */
+/** The hash that picked the open panel (#off-look opens Dislikes on its second tab). Astro's router owns history: it
+ *  handles every same-page hash link itself (pushState, no hashchange) and walks back through them without a reload, as
+ *  long as its own navigate() made the entries. So the dashboard only listens: a click on a link to one of its panels
+ *  (the sidebar, the rail's Folders, a panel's own link), back and forward, and a hash set from outside. */
 function usePanel() {
-  const [panel, setPanel] = useState<Panel>(() => fromHash() ?? "connect");
+  const [hash, setHash] = useState(() => (panelOf(location.hash) ? location.hash : "#connect"));
   useEffect(() => {
-    if (!fromHash()) history.replaceState(history.state, "", "#connect");
-    const on = () => (setPanel(fromHash() ?? "connect"), scrollTo({ top: 0 }));
-    addEventListener("hashchange", on);
-    addEventListener("popstate", on);
-    return () => (removeEventListener("hashchange", on), removeEventListener("popstate", on));
+    if (!panelOf(location.hash)) void navigate("#connect", { history: "replace" });
+    const show = (h: string) => panelOf(h) && (setHash(h), scrollTo({ top: 0 }));
+    const fromUrl = () => show(location.hash);
+    const onClick = (e: globalThis.MouseEvent) => {
+      const a = e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey ? null : (e.target as Element).closest?.("a[href]");
+      const to = a instanceof HTMLAnchorElement ? new URL(a.href) : undefined;
+      if (to?.pathname === location.pathname && panelOf(to.hash)) haptic("selection"), show(to.hash);
+    };
+    addEventListener("hashchange", fromUrl);
+    addEventListener("popstate", fromUrl);
+    document.addEventListener("click", onClick);
+    return () => (removeEventListener("hashchange", fromUrl), removeEventListener("popstate", fromUrl), document.removeEventListener("click", onClick));
   }, []);
-  const go = (p: Panel) => (e: MouseEvent) => {
-    e.preventDefault();
-    haptic("selection");
-    if (p !== fromHash()) history.pushState(history.state, "", `#${p}`);
-    setPanel(p);
-    scrollTo({ top: 0 });
-  };
-  return [panel, go] as const;
+  return [panelOf(hash) ?? "connect", hash] as const;
 }
 
 const FRAMEWORK_NAMES: Record<Framework, string> = { react: "React", vue: "Vue", svelte: "Svelte", solid: "Solid", angular: "Angular", vanilla: "Vanilla JS", "react-native": "React Native" };
 // None names a look, so the saved one shows; a look the brief names would win over it.
 const BRIEFS = ["pricing page with a signup form", "habit tracker with charts and a bottom sheet", "settings page with a data table"];
 
-export default function Account({ looks, libs }: { looks: LookOption[]; libs: Record<string, LibName> }) {
+export default function Account({ looks, libs, hrefs }: { looks: LookOption[]; libs: Record<string, LibName>; hrefs: Record<string, string> }) {
   const a = useAccount();
-  const [panel, go] = usePanel();
+  const [panel, hash] = usePanel();
   const tab = useRef<HTMLAnchorElement>(null);
   // The agent's taste tool may have changed the account since the store loaded on another page.
   useEffect(() => void refreshAccount(), []);
@@ -110,7 +112,6 @@ export default function Account({ looks, libs }: { looks: LookOption[]; libs: Re
               ref={id === panel ? tab : undefined}
               href={`#${id}`}
               aria-current={id === panel ? "page" : undefined}
-              onClick={go(id)}
               className={`flex shrink-0 items-center justify-between gap-3 rounded-lg px-2.5 py-1.5 text-[13px] ${id === "data" ? "lg:mt-2 lg:border-t lg:border-line lg:rounded-t-none lg:pt-2.5" : ""} ${id === panel ? "bg-s2 text-fg shadow-[inset_0_0_0_1px_var(--color-line)]" : "text-fg2 hover:bg-s2 hover:text-fg"}`}
             >
               {label}
@@ -144,7 +145,7 @@ export default function Account({ looks, libs }: { looks: LookOption[]; libs: Re
             </Panel>
           )}
 
-          {panel === "dislikes" && <Dislikes libs={libs} lookName={(id) => lookById.get(id)?.name ?? id} />}
+          {panel === "dislikes" && <Dislikes key={hash} libs={libs} lookName={(id) => lookById.get(id)?.name ?? id} />}
 
           {panel === "hearts" && (
             <Panel title="Hearts" lead="A hearted library wins a close call in your agent's picks. It never beats a clearly better fit.">
@@ -157,7 +158,7 @@ export default function Account({ looks, libs }: { looks: LookOption[]; libs: Re
               </Rows>
               {a.saved.length > 0 && (
                 <p className="mt-3 text-[13px] text-fg2">
-                  <a href="#folders" onClick={go("folders")} className="font-medium text-fg underline decoration-fg3 underline-offset-4 hover:decoration-fg">Group them in folders</a>
+                  <a href="#folders" className="font-medium text-fg underline decoration-fg3 underline-offset-4 hover:decoration-fg">Group them in folders</a>
                 </p>
               )}
             </Panel>
@@ -165,7 +166,7 @@ export default function Account({ looks, libs }: { looks: LookOption[]; libs: Re
 
           {panel === "folders" && <Folders libs={libs} />}
 
-          {panel === "requests" && <Requests libs={libs} admin={a.admin} />}
+          {panel === "requests" && <Requests hrefs={hrefs} admin={a.admin} />}
 
           {panel === "data" && (
             <Panel title="Your data">
@@ -452,7 +453,7 @@ function DeleteAccount() {
 
 async function download(a: ReturnType<typeof useAccount>) {
   const requests = await loadRequests().then((r) => r.mine, () => undefined);
-  if (!requests) return void toast.error("Couldn't read your requests. Try again.");
+  if (!requests) toast.error("Downloaded without your requests: they didn't load. Try again for a full copy.");
   const data = { name: a.user?.name, look: a.look, framework: a.framework, hearts: a.saved, folders: a.folders, hidden: a.hidden.map((h) => h.id), offLook: a.offLook.map(({ id, look }) => ({ item: id, look })), requests };
   const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }));
   Object.assign(document.createElement("a"), { href: url, download: "tastebase-account.json" }).click();
@@ -610,7 +611,8 @@ const STATUS: Record<SiteRequest["status"], [string, string]> = {
 };
 
 /** Requests to list a site: a link and a note in, your requests with their status, and for an admin the queue. */
-function Requests({ libs, admin }: { libs: Record<string, LibName>; admin: boolean }) {
+/** `hrefs`: every library and resource id to its page, for "See it" and the admin's id suggestions. */
+function Requests({ hrefs, admin }: { hrefs: Record<string, string>; admin: boolean }) {
   const [data, setData] = useState<{ mine: SiteRequest[]; open?: SiteRequest[] }>();
   const [url, setUrl] = useState("");
   const [note, setNote] = useState("");
@@ -645,7 +647,7 @@ function Requests({ libs, admin }: { libs: Record<string, LibName>; admin: boole
         {data ? (
           <Rows empty="No requests yet.">
             {data.mine.map((r) => (
-              <RequestRow key={r.id} r={r} libs={libs}>
+              <RequestRow key={r.id} r={r} hrefs={hrefs}>
                 <span className={`shrink-0 rounded-md px-1.5 py-0.5 font-mono text-[11px] ${STATUS[r.status][1]}`}>{STATUS[r.status][0]}</span>
               </RequestRow>
             ))}
@@ -661,8 +663,8 @@ function Requests({ libs, admin }: { libs: Record<string, LibName>; admin: boole
           <p className="mt-0.5 mb-3 text-[13px] text-fg2">Settling a link settles every request for it. Requesters see the outcome in their list.</p>
           <Rows empty="Nothing waiting.">
             {data.open.map((r) => (
-              <RequestRow key={r.id} r={r} libs={libs}>
-                <Settle r={r} libs={libs} done={reload} />
+              <RequestRow key={r.id} r={r} hrefs={hrefs}>
+                <Settle r={r} ids={hrefs} done={reload} />
               </RequestRow>
             ))}
           </Rows>
@@ -672,22 +674,22 @@ function Requests({ libs, admin }: { libs: Record<string, LibName>; admin: boole
   );
 }
 
-function RequestRow({ r, libs, children }: { r: SiteRequest; libs: Record<string, LibName>; children: ReactNode }) {
+function RequestRow({ r, hrefs, children }: { r: SiteRequest; hrefs: Record<string, string>; children: ReactNode }) {
   const sub = [r.by && `from ${r.by}`, date(r.createdAt), r.note && `“${r.note}”`, r.status === "declined" && r.reason].filter(Boolean).join(" · ");
   return (
     <li className="flex min-h-12 flex-wrap items-center gap-x-3 gap-y-1.5 px-3.5 py-2">
       <div className="min-w-0 flex-1">
         <a href={r.url} target="_blank" rel="nofollow noopener noreferrer" className="block truncate text-[14px] font-medium hover:underline">{r.host}</a>
-        <p className="truncate text-[12.5px] text-fg3">{sub}</p>
+        <p title={sub} className="line-clamp-3 text-[12.5px] break-words text-fg3">{sub}</p>
       </div>
-      {r.status === "added" && r.libId && libs[r.libId] && <a href={`/browse/${r.libId}`} className="text-[12.5px] font-medium text-fg2 hover:text-fg">See it</a>}
+      {r.status === "added" && r.libId && hrefs[r.libId] && <a href={hrefs[r.libId]} className="text-[12.5px] font-medium text-fg2 hover:text-fg">See it</a>}
       {children}
     </li>
   );
 }
 
 /** An admin's Mark added (with the registry id it became) or Decline (with a reason), for every request for a link. */
-function Settle({ r, libs, done }: { r: SiteRequest; libs: Record<string, LibName>; done: () => void }) {
+function Settle({ r, ids, done }: { r: SiteRequest; ids: Record<string, string>; done: () => void }) {
   const [mode, setMode] = useState<"added" | "declined">();
   const [value, setValue] = useState("");
   const go = async (e: FormEvent) => {
@@ -705,7 +707,7 @@ function Settle({ r, libs, done }: { r: SiteRequest; libs: Record<string, LibNam
   return (
     <form onSubmit={go} className="flex basis-full gap-1.5 sm:basis-auto">
       <input autoFocus value={value} onChange={(e) => setValue(e.target.value)} list={mode === "added" ? "registry-ids" : undefined} required={mode === "added"} maxLength={200} placeholder={mode === "added" ? "Registry id" : "Reason (optional)"} aria-label={mode === "added" ? "Registry id it was added as" : "Why it was declined"} className="h-8 min-w-0 flex-1 rounded-lg bg-s2 px-2.5 text-[13px] shadow-[inset_0_0_0_1px_var(--color-line)] outline-none focus-visible:shadow-[inset_0_0_0_1px_rgb(91_124_255/0.6)] focus-visible:outline-none sm:w-44" />
-      {mode === "added" && <datalist id="registry-ids">{Object.keys(libs).map((id) => <option key={id} value={id} />)}</datalist>}
+      {mode === "added" && <datalist id="registry-ids">{Object.keys(ids).map((id) => <option key={id} value={id} />)}</datalist>}
       <button type="button" onClick={() => (setMode(undefined), setValue(""))} className={`${btn} bg-transparent text-fg2 shadow-none`}>Cancel</button>
       <button type="submit" className={btn}>{mode === "added" ? "Added" : "Decline"}</button>
     </form>

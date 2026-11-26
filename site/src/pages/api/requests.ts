@@ -19,7 +19,8 @@ const text = (v: unknown, max: number) => (typeof v === "string" ? v.trim().repl
 export const POST = signedIn(async (user, b) => {
   const at = siteUrl(b?.url);
   if (!at) return json({ error: "Enter a link that starts with https://", field: "url" }, 400);
-  const r = await createRequest(env.DB, user.id, at, text(b?.note, 500));
+  // Room for /submit's name, category and its 4,000-character reason, so nothing is cut short.
+  const r = await createRequest(env.DB, user.id, at, text(b?.note, 4200));
   if ("duplicate" in r) return json({ error: "You sent this already.", request: r.duplicate }, 409);
   if ("limit" in r) return json({ error: `That's the limit for now: ${MAX_OPEN_REQUESTS} waiting, ${MAX_REQUESTS_A_DAY} a day.` }, 429);
   // The admin hears about it too, as /submit always did. Best effort: the request is saved either way.

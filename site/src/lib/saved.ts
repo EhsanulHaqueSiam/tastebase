@@ -274,7 +274,7 @@ export const loadRequests = () => api<{ mine: SiteRequest[]; open?: SiteRequest[
  *  request for the same link. */
 export async function sendRequest(url: string, note: string): Promise<{ request: SiteRequest } | { error: string; field?: string; request?: SiteRequest }> {
   const r = await fetch("/api/requests", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ url, note }) }).catch(() => undefined);
-  const out = (await r?.json().catch(() => ({}))) as { request?: SiteRequest; error?: string; field?: string };
+  const out = ((await r?.json().catch(() => ({}))) ?? {}) as { request?: SiteRequest; error?: string; field?: string };
   return r?.ok && out.request ? { request: out.request } : { error: out.error ?? "Couldn't send that. Check your connection.", field: out.field, request: out.request };
 }
 

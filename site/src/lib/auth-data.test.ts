@@ -158,8 +158,12 @@ test("saved defaults and single off-look marks reach the agent key and the accou
 });
 
 test("a site request is https only and normalized, once per user per link, within the open and daily caps", async () => {
-  assert.deepEqual(siteUrl(" https://WWW.MagicUI.design/docs/#top "), { url: "https://www.magicui.design/docs", host: "magicui.design" });
+  assert.deepEqual(siteUrl(" https://WWW.MagicUI.design/docs/#top "), { url: "https://magicui.design/docs", host: "magicui.design" });
   for (const bad of ["http://x.dev", "javascript:alert(1)", "https://localhost", "not a url", 7]) assert.equal(siteUrl(bad), undefined);
+  // Normalizing a stored link again gives it back unchanged: an admin settles by it. www. and the bare host are one site.
+  for (const v of ["https://example.com/docs//", "https://www.x.dev/", "https://x.dev"]) assert.equal(siteUrl(siteUrl(v)!.url)!.url, siteUrl(v)!.url);
+  assert.equal(siteUrl("https://www.x.dev")!.url, siteUrl("https://x.dev")!.url);
+  assert.equal(siteUrl(`https://x.dev/${"é".repeat(200)}`), undefined); // over 500 once encoded
 
   const db = setup();
   const at = (u: string) => siteUrl(u)!;
