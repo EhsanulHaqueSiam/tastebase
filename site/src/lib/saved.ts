@@ -76,6 +76,16 @@ function write(method: string, url: string, body: () => unknown, done?: () => vo
     ),
   );
 }
+// Folder writes go out one at a time, in the order they were made: two quick clicks on Private and Anyone with the link
+// must land in that order, or the folder stays shared while the screen says Private. A failed one reads the account
+// again once the rest have landed, rather than putting back a copy that would undo them.
+let folderWrites: Promise<unknown> = Promise.resolve();
+function folderWrite<T>(f: () => Promise<T>) {
+  const p = folderWrites.then(f);
+  folderWrites = p.catch(() => undefined); // the chain itself never fails: the next write and load() still run
+  return p;
+}
+
 /** Resolves once every taste write made so far has reached the server: what /api/try then reads. */
 export const tasteSaved = () => queue;
 
@@ -85,7 +95,7 @@ let imported = false; // what this browser kept signed out joins the account onc
  *  once newer writes land if one overlapped the read. */
 async function load(recover = false) {
   const at = edits;
-  await queue;
+  await Promise.all([queue, folderWrites]); // a read that overtook a write would show the folders as they were
   const me = await api<{ user: User | null; hidden?: Hidden[]; offLook?: OffLook[]; admin?: boolean } & Partial<Omit<AccountData, "hidden" | "offLook">>>("GET", "/api/me").catch(() => undefined);
   // A network or server error keeps what is shown and the signed-in flag; only an answer of "no user" signs out.
   if (!me) return set({ loading: false });
@@ -234,11 +244,6 @@ export async function signOut() {
   set({ ...EMPTY, saved: readLocal() });
 }
 
-// Folder writes go out one at a time, in the order they were made: two quick clicks on Private and Anyone with the link
-// must land in that order, or the folder stays shared while the screen says Private.
-let folderWrites: Promise<unknown> = Promise.resolve();
-const folderWrite = <T,>(f: () => Promise<T>) => (folderWrites = folderWrites.then(f, f));
-
 const putFolder = (id: string, f: (x: Folder) => Folder | null) => set({ folders: snapshot().folders.flatMap((x) => (x.id === id ? (f(x) ?? []) : [x])) });
 
 /** Makes a folder (with `lib` filed in it, if given). Resolves to its id, or undefined when the server refused. */
@@ -248,9 +253,9 @@ export async function createFolder(name: string, lib?: string) {
   return f?.id;
 }
 
-/** Renames, shares or unshares one of your folders, or files a library in or out of it. Optimistic; undone on failure. */
+/** Renames, shares or unshares one of your folders, or files a library in or out of it. Optimistic; a failure reads the
+ *  account again. */
 export function updateFolder(id: string, p: { name?: string; public?: boolean; add?: string; remove?: string }) {
-  const before = snapshot().folders;
   putFolder(id, (f) => ({
     ...f,
     name: p.name ?? f.name,
@@ -259,16 +264,15 @@ export function updateFolder(id: string, p: { name?: string; public?: boolean; a
   }));
   return folderWrite(() => api("PATCH", `/api/folders/${id}`, p)).then(
     () => true,
-    (e) => (fail(e), set({ folders: before }), false),
+    (e) => (fail(e), void folderWrites.then(() => load()), false),
   );
 }
 
 export function deleteFolder(id: string) {
-  const before = snapshot().folders;
   putFolder(id, () => null);
   return folderWrite(() => api("DELETE", `/api/folders/${id}`)).then(
     () => true,
-    (e) => (fail(e), set({ folders: before }), false),
+    (e) => (fail(e), void folderWrites.then(() => load()), false),
   );
 }
 
