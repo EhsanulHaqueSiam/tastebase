@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { frameworks, type Framework, type Swatch } from "../../../src/registry/schema.ts";
 import { haptic } from "../lib/haptics.ts";
 import { shot, thumb } from "../lib/kinds.ts";
-import { askSignIn, deleteAccount, tasteSaved, makeAgentKey, refreshAccount, revokeAgentKey, setPrefs, signOut, toggleHidden, toggleOffLook, toggleSaved, useAccount } from "../lib/saved.ts";
+import { askSignIn, deleteAccount, tasteSaved, makeAgentKey, type AgentKey, refreshAccount, revokeAgentKey, setPrefs, signOut, toggleHidden, toggleOffLook, toggleSaved, useAccount } from "../lib/saved.ts";
 import { declarations, FONTS } from "../lib/swatch.ts";
 import { Avatar } from "./AccountSheet.tsx";
 import { CopyButton } from "./fx.tsx";
@@ -24,7 +24,7 @@ const SECTIONS = [
   ["hearts", "Hearts"],
   ["hidden", "Hidden"],
   ["off-look", "Wrong for a look"],
-  ["key", "Agent key"],
+  ["key", "Connect your agent"],
   ["data", "Your data"],
 ] as const;
 
@@ -125,8 +125,8 @@ export default function Account({ looks, libs }: { looks: LookOption[]; libs: Re
             </Rows>
           </Section>
 
-          <Section id="key" title="Agent key" lead="Connect your agent with this key and it follows everything above. Without it, your agent gets the same answers as everyone.">
-            <KeyPanel last4={a.key} />
+          <Section id="key" title="Connect your agent" lead="Signed in, your agent follows everything above: it never offers what you hid and builds in your look. Without it, your agent gets the same answers as everyone.">
+            <KeyPanel keys={a.keys} />
           </Section>
 
           <Section id="data" title="Your data">
@@ -137,7 +137,7 @@ export default function Account({ looks, libs }: { looks: LookOption[]; libs: Re
               <Row title="Retake the taste cards" sub="Six looks, then libraries that fit the ones you like">
                 <button type="button" onClick={() => dispatchEvent(new Event("tb:survey"))} className={btn}>Start</button>
               </Row>
-              <Row title="Delete account" sub="Removes your account, agent key and everything above. Shared folder links stop working.">
+              <Row title="Delete account" sub="Removes your account, agent keys and everything above. Shared folder links stop working.">
                 <DeleteAccount />
               </Row>
             </Rows>
@@ -308,7 +308,7 @@ function TryBrief() {
   );
 }
 
-const CLIENTS = ["Claude Code", "Cursor", "Codex", "VS Code"] as const;
+const CLIENTS = ["Terminal", "Claude Code", "Cursor", "Codex", "VS Code"] as const;
 type Client = (typeof CLIENTS)[number];
 
 /** Setup for one client with the key in it. Shown only right after making a key, the one time the browser has it. */
@@ -317,6 +317,8 @@ function setup(client: Client, key: string) {
   const header = `Bearer ${key}`;
   const json = (v: unknown) => JSON.stringify(v, null, 2);
   switch (client) {
+    case "Terminal":
+      return `npx -y tastebase@latest login --token ${key}`;
     case "Claude Code":
       return `claude mcp add --transport http tastebase ${url} --header "Authorization: ${header}"`;
     case "Cursor":
@@ -328,31 +330,47 @@ function setup(client: Client, key: string) {
   }
 }
 
-function KeyPanel({ last4 }: { last4: string | null }) {
+const date = (t: number) => new Date(t).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+
+function KeyPanel({ keys }: { keys: AgentKey[] }) {
   const [fresh, setFresh] = useState<string>();
-  const [client, setClient] = useState<Client>("Claude Code");
-  const [off, setOff] = useState(false); // "Turn off" asks once: every client using the key stops working
-  // One request at a time: a new key landing after "Turn off" would leave a key working.
-  const [busy, setBusyAction] = useState<"make" | "off">();
-  const make = async () => (setBusyAction("make"), setOff(false), setFresh((await makeAgentKey()) ?? fresh), setBusyAction(undefined));
-  const turnOff = async () => (setBusyAction("off"), (await revokeAgentKey()) && setFresh(undefined), setOff(false), setBusyAction(undefined));
+  const [client, setClient] = useState<Client>("Terminal");
+  const [busy, setBusy] = useState(false);
+  const [sure, setSure] = useState<string>(); // signing an agent out asks once: it has no undo
+  const make = async () => (setBusy(true), setFresh((await makeAgentKey()) ?? fresh), setBusy(false));
+  const ask = `set up tastebase and sign me in: ${location.origin}/llms.txt`;
   return (
     <div>
-      <Rows>
-        <Row title={last4 ? `tb_sk_…${last4}` : "No key"} sub={last4 ? "Only its last 4 characters are kept readable" : "Make one to connect your agent"}>
-          <span className="flex gap-1.5">
-            {last4 && (off ? (
-              <button type="button" disabled={!!busy} onClick={turnOff} className={`${btn} text-[#ff7b7b]`}>{busy === "off" ? "Turning off…" : "Turn off for good"}</button>
-            ) : (
-              <button type="button" disabled={!!busy} onClick={() => setOff(true)} className={`${btn} bg-transparent text-fg2 shadow-none`}>Turn off</button>
-            ))}
-            <button type="button" disabled={!!busy} onClick={make} className={btn}>{busy === "make" ? "Making…" : last4 ? "Make a new key" : "Make a key"}</button>
-          </span>
-        </Row>
-      </Rows>
+      <div className="rounded-xl bg-s1 p-3 shadow-[inset_0_0_0_1px_var(--color-line2)]">
+        <p className="text-[13px] font-semibold">In your agent's chat, send</p>
+        <div className="mt-2 flex items-center gap-2">
+          <code className="min-w-0 flex-1 truncate rounded-lg bg-s3 px-2.5 py-2 font-mono text-[12px]">{ask}</code>
+          <CopyButton value={ask} quiet />
+        </div>
+        <p className="mt-2 text-[12.5px] text-fg3">
+          Your agent opens a page here for you to approve. Or in a terminal: <code className="font-mono text-[12px] text-fg2">npx -y tastebase@latest login</code>
+        </p>
+      </div>
+      {keys.length > 0 && (
+        <ul className="mt-3 divide-y divide-line rounded-xl shadow-[inset_0_0_0_1px_var(--color-line2)]">
+          {keys.map((k) => (
+            <Row key={k.id} title={k.name} sub={`tb_sk_…${k.last4} · ${date(k.createdAt)}`}>
+              {sure === k.id ? (
+                <button type="button" onClick={() => void revokeAgentKey(k.id).then((ok) => ok && fresh?.endsWith(k.last4) && setFresh(undefined))} className={`${btn} text-[#ff7b7b]`}>Sign out for good</button>
+              ) : (
+                <Undo onClick={() => setSure(k.id)}>Sign out</Undo>
+              )}
+            </Row>
+          ))}
+        </ul>
+      )}
+      <div className="mt-3 flex items-center justify-between gap-3">
+        <p className="text-[12.5px] text-fg3">Each agent signs in with its own key. Signing one out stops only that one.</p>
+        <button type="button" disabled={busy} onClick={make} className={btn}>{busy ? "Making…" : "Make a key"}</button>
+      </div>
       {fresh && (
         <div className="mt-3 rounded-xl bg-s1 p-3 shadow-[inset_0_0_0_1px_var(--color-line2)]">
-          <p className="text-[13px] font-semibold">Copy it now. We keep only a hash, so it can't be shown again.{last4 ? " The old key has stopped working." : ""}</p>
+          <p className="text-[13px] font-semibold">Copy it now. We keep only a hash, so it can't be shown again.</p>
           <div className="mt-2.5 flex items-center gap-2">
             <code className="min-w-0 flex-1 truncate rounded-lg bg-s3 px-2.5 py-2 font-mono text-[12px]">{fresh}</code>
             <CopyButton value={fresh} quiet />

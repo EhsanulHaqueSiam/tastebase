@@ -10,8 +10,9 @@ src/registry (data) ──> src/engine.ts (pick, plan) ──> src/format.ts (co
 browser ──> /api/auth/* (better-auth: GitHub, Google, X) ──┐
         ──> /api/me, /api/saved, /api/folders,  ──┴──> D1 (migrations/): user, session, saved, folder,
             /api/hidden, /api/off-look, /api/prefs,       hidden, off_look, pref, agent_key
-            /api/agent-key, /api/try
+            /api/agent-key, /api/try, /api/connect
         ──> /f/<id> (SSR, a shared folder)
+CLI (`tastebase login`) ──> /api/login ──> D1: device_login, agent_key
 ```
 
 One Cloudflare Worker (declared in `alchemy.run.ts`) does everything:
@@ -53,8 +54,8 @@ One Cloudflare Worker (declared in `alchemy.run.ts`) does everything:
 - **Hearts and folders hold registry ids only.** The API drops any id the registry does not know, which also bounds
   what one account can store; folders are capped at 100 per user. Every write is scoped `where userId = ?`, and a
   folder that is not yours answers 404, never 403, so private ids do not leak.
-- **An agent key carries a user's taste into `/mcp`, nothing else.** Signed in, people hide libraries and tools from
-  their agent, set a look and framework, and make an agent key (`tb_sk_…`, shown once; D1 keeps its SHA-256 and last 4). A request with the key
+- **An agent key carries a user's taste into `/mcp`, `/api/plan` and `/api/pick`, nothing else.** Signed in, people hide libraries and tools from
+  their agent, set a look and framework, and get agent keys (`tb_sk_…`, one per agent or machine, each signed out on its own; D1 keeps its SHA-256, name and last 4). A request with a key
   (Bearer header only: a URL would leave it in logs and history) costs one D1 read: hidden ids leave every answer, hearted libraries get ×1.1 in `pick`
   (a close call, never a clear one), and the saved look and framework stand in only where the call and the brief name
   none (a look the brief names always wins, so a saved look never overrides what the user asked for). No key, no read: answers stay the same for everyone. A wrong key gets a 401,
@@ -63,6 +64,14 @@ One Cloudflare Worker (declared in `alchemy.run.ts`) does everything:
   Off-look is not a dislike: it leaves the item out under that one look only, and its counts across users
   (`/api/off-look`) are how tune-picks learns which look tags are wrong. Free text can still name a hidden library (a
   note's "use sonner"), so an answer that does ends with a line saying the user hid it.
+- **`tastebase login` signs a machine in without a key in any config file.** It makes a random secret and opens
+  `/connect?id=<its SHA-256>`; the signed-in user checks the short code shown there against the terminal and approves,
+  and the CLI's poll (`POST /api/login` with the secret, every 2s for 10 minutes) claims one new key named after the
+  machine. Only the secret claims, so the link and code are safe to show; the approval stays marked claimed until it
+  expires, so neither a second poll nor a second approval makes another key. Logging in again signs out the key it
+  replaces. `--token` saves a key made on `/account` instead. The key goes to `~/.config/tastebase/key`: the Claude Code
+  plugin's `headersHelper` (`.claude-plugin/key.sh`) sends it, and `npx tastebase` relays stdio to the hosted `/mcp` with it
+  (signed out, it answers offline from the registry it ships with).
 - **One OAuth app per provider for every stage.** GitHub's redirect URIs are prod, `*.ehsanulsiam.workers.dev`
   (wildcard, so `pr-<n>` previews sign in too), `localhost:1337` and `127.0.0.1` on any port (GitHub's loopback rule).
   Google and X match URIs exactly, so a preview signs in with them only once its URI is registered

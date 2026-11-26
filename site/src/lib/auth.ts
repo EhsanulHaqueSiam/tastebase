@@ -6,6 +6,7 @@ import { env } from "cloudflare:workers";
 import { libraries } from "../../../src/registry/index.ts";
 import { resources } from "../../../src/registry/resources.ts";
 import { partOf } from "../../../src/taste.ts";
+import { tasteForKey } from "./auth-data.ts";
 
 /** The providers this stage has keys for (alchemy.run.ts authEnv), in the order the sign-in sheet lists them. */
 const socialProviders = () => ({
@@ -51,11 +52,27 @@ export const itemId = (v: unknown) => (typeof v === "string" && items.has(v) ? v
 /** An item id, or one part of a kit (library/part), from untrusted input: what a user may hide from their agent. */
 export const hideId = (v: unknown) => itemId(v) ?? (typeof v === "string" && partOf(libraries, v) ? v : undefined);
 
+/** An agent key's name from untrusted input: trimmed, 1 to 40 characters. */
+export const keyName = (v: unknown) => {
+  const s = typeof v === "string" ? v.trim().replace(/\s+/g, " ") : "";
+  return s && s.length <= 40 ? s : undefined;
+};
+
 /** A folder name from untrusted input: trimmed, 1 to 60 characters. */
 export const folderName = (v: unknown) => {
   const s = typeof v === "string" ? v.trim().replace(/\s+/g, " ") : "";
   return s && s.length <= 60 ? s : undefined;
 };
+
+/** The agent key a request carries in `Authorization: Bearer`. Never a URL parameter: those land in logs and history. */
+export const bearer = (request: Request) => request.headers.get("authorization")?.match(/^Bearer\s+(\S+)$/i)?.[1];
+
+/** The taste a request's agent key brings (/mcp, /api/plan, /api/pick): undefined without a key, null for a key that
+ *  does not work, which callers answer with a 401 rather than quietly dropping the user's taste. */
+export async function keyTaste(request: Request) {
+  const key = bearer(request);
+  return key ? ((await tasteForKey(env.DB, key)) ?? null) : undefined;
+}
 
 export const json = (body: unknown, status = 200) => Response.json(body, { status, headers: { "cache-control": "private, no-store" } });
 

@@ -23,7 +23,7 @@ export const GET: APIRoute = async () => {
 
   const text = `# tastebase
 
-> Finds proven UI components for the job and the look the user wants, so a coding agent installs and adapts them instead of building UI from scratch. ${libraries.length} libraries, ${aesthetics.length} looks. Free, no account.
+> Finds proven UI components for the job and the look the user wants, so a coding agent installs and adapts them instead of building UI from scratch. ${libraries.length} libraries, ${aesthetics.length} looks. Free; an account only adds the user's taste.
 
 ## Set up
 
@@ -44,6 +44,29 @@ npx -y skills add ${REPO} --skill tastebase --agent codex --global --yes
 Cursor: add \`"tastebase": {"url": "${MCP}"}\` under \`mcpServers\` in \`~/.cursor/mcp.json\`.
 
 Any other agent: add a Streamable HTTP MCP server named \`tastebase\` at ${MCP}, or run it locally over stdio with \`npx -y tastebase@latest\`. Its instructions carry the workflow, so the skill is optional; \`npx -y skills add ${REPO} --skill tastebase\` installs it for most agents.
+
+## Sign in
+
+Do this when the user asked you to sign them in, or wants tastebase to remember what they like. Signed in, plan, pick and get
+leave out what they hid, prefer what they hearted and use their saved look, in every project; \`taste\` saves to their account.
+
+\`\`\`bash
+npx -y tastebase@latest login
+\`\`\`
+
+It prints a link and a code, opens the browser, and waits up to 10 minutes for the user to approve. Run it in the
+background or with a long timeout, and tell the user the link and code at once. If they gave you a key (\`tb_sk_...\`), run
+\`npx -y tastebase@latest login --token <key>\` instead: it needs no browser. Either way the key is saved in
+\`~/.config/tastebase/key\`, never in a config file.
+
+Then connect the server so it sends the key, and tell the user to restart you:
+
+- Claude Code plugin: update it (\`claude plugin marketplace update tastebase && claude plugin update tastebase@tastebase\`); from then on it reads the saved key.
+- Codex: \`codex mcp remove tastebase; codex mcp add tastebase -- npx -y tastebase@latest\`
+- Cursor and others: run the server as \`npx -y tastebase@latest\` (stdio). Signed in, it relays to ${MCP} with the key.
+
+\`npx -y tastebase@latest logout\` signs this machine out. The same key works as \`Authorization: Bearer <key>\` on ${MCP},
+${ORIGIN}/api/plan?brief=... and ${ORIGIN}/api/pick?q=....
 
 ## Update
 

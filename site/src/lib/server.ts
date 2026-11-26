@@ -1,6 +1,7 @@
 // Server-only: the registry, the engine and live stats. Islands import only its types; they get props or call /api.
 import { env } from "cloudflare:workers";
-import { detectLooks, jobFramework, negations, pick, plan } from "../../../src/engine.ts";
+import { pick, plan } from "../../../src/engine.ts";
+import { tastedPick, tastedPlan, tasteNotes, type Taste } from "../../../src/mcp.ts";
 import { emptySlot, firstStep, formatPlan, formatSite, install, MOBILE } from "../../../src/format.ts";
 import { aesthetics, libraries } from "../../../src/registry/index.ts";
 import { kinds, type Aesthetic, type Framework, type Kind, type Library } from "../../../src/registry/schema.ts";
@@ -78,6 +79,9 @@ export const lookDetail = ({ name, family, summary, vs, type, colour, motion, av
 });
 export type LookDetail = ReturnType<typeof lookDetail>;
 
+// The text of a JSON answer without its field names, so a field called `motion` never reads as the Motion library.
+const values = (v: unknown) => JSON.stringify(v).replace(/"[\w]+":/g, "");
+
 /** The plan as the site shows it, with the same caveats agents read in `formatPlan`. No `pick`: nothing curated fits. */
 export type PlanJson = {
   look: { name: string; summary: string; type: string; colour: string; motion: string; avoid: string[]; guessed: boolean; also: string[] };
@@ -89,14 +93,17 @@ export type PlanJson = {
   /** What carries the page (3D, scroll motion, media) and how to build it. */
   site?: string;
   items: { kind: Kind; pick?: { lib: Lite; why: string; caution?: string }; empty?: string }[];
+  /** With an agent key: what the text above names that the user hid or marked off this look, as `plan` says it. */
+  taste?: string[];
 };
 
-/** `look` forces a look id instead of detecting one from the brief (the screenshot matcher already knows it). */
-export function planJson(libs: Library[], brief: string, look?: string): PlanJson {
-  const p = plan(libs, aesthetics, brief, { look });
+/** `look` forces a look id instead of detecting one from the brief (the screenshot matcher already knows it). `taste`:
+ *  an agent key's owner's, applied as the MCP `plan` tool applies it. */
+export function planJson(libs: Library[], brief: string, look?: string, taste?: Taste): PlanJson {
+  const p = tastedPlan(libs, aesthetics, { brief, look }, taste);
   const { name, summary, type, colour, motion, avoid } = p.look;
   const base = p.items[0]?.pick?.lib;
-  return {
+  const out: PlanJson = {
     look: { name, summary, type, colour, motion, avoid, guessed: p.lookGuessed, also: p.also.map((a) => a.name) },
     framework: p.framework,
     frameworkGuessed: p.frameworkGuessed,
@@ -106,11 +113,17 @@ export function planJson(libs: Library[], brief: string, look?: string): PlanJso
     // The install and empty-slot text agents read in formatPlan: BlockNote on shadcn/ui, Lucide on Vue.
     items: p.items.map(({ kind, pick: s }) => ({ kind, pick: s && { lib: { ...lite(s.lib), install: install(s.lib, p.framework, base) }, why: s.why, caution: s.caution }, empty: s ? undefined : emptySlot(p, kind) })),
   };
+  const notes = taste && tasteNotes(libs, taste, values(out), p.look.id);
+  return notes?.length ? { ...out, taste: notes } : out;
 }
 
-// Same framework and look rules and install resolution as the MCP `pick` tool ("Vue bottom sheet" never gets React-only answers).
-export function pickJson(libs: Library[], need: string) {
-  const framework = jobFramework(need);
-  const look = detectLooks(aesthetics, negations(need).want)[0];
-  return pick(libs, need, { limit: 5, framework, look }).map((s) => ({ lib: { ...lite(s.lib), install: install(s.lib, framework) }, why: s.why }));
+// Same framework, look and taste rules and install resolution as the MCP `pick` tool ("Vue bottom sheet" never gets React-only answers).
+// With an agent key, a pick whose text names something the user hid (an install that pulls it in) carries `taste`, as `pick` says it.
+export function pickJson(libs: Library[], need: string, taste?: Taste) {
+  const { fits, framework, look } = tastedPick(libs, aesthetics, need, { limit: 5 }, taste);
+  return fits.map((s) => {
+    const out = { lib: { ...lite(s.lib), install: install(s.lib, framework) }, why: s.why };
+    const notes = taste && tasteNotes(libs, taste, values(out), look?.id);
+    return notes?.length ? { ...out, taste: notes } : out;
+  });
 }
