@@ -594,16 +594,6 @@ export const resources: Resource[] = [
     addedAt: "2026-11-21",
   },
   {
-    id: "prompt-motion",
-    name: "Prompt Motion",
-    url: "https://prompt-motion.com",
-    kind: "references",
-    goodFor: "AI-made motion videos, each with the prompt behind it, to rebuild one",
-    cost: "Free",
-    free: true,
-    addedAt: "2026-11-21",
-  },
-  {
     id: "component-gallery",
     name: "The Component Gallery",
     url: "https://component.gallery",
@@ -2774,6 +2764,16 @@ export const resources: Resource[] = [
     goodFor: "15 design-engineering skills for coding agents: animate, review-animations, pick-ui-library, break-ui, apple-design: npx skills add emilkowalski/skills",
     cost: "Free, MIT",
     free: true,
+  },
+  {
+    id: "prompt-motion",
+    name: "Prompt Motion",
+    url: "https://prompt-motion.com",
+    kind: "agent-tools",
+    goodFor: "240+ agent-made motion pieces (kinetic type, product UI, charts, particles), each with the prompt or skill that made it: made as videos, but the prompts work for motion in sites and apps too",
+    cost: "Free",
+    free: true,
+    addedAt: "2026-11-21",
   },
   {
     id: "typeui",
