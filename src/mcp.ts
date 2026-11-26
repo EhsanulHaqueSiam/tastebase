@@ -52,6 +52,7 @@ const SAVED: Record<TasteAction, (id: string, look?: string) => string> = {
   "off-look": (id, look) => `Saved: ${id} is left out under ${look} only and still offered for other looks.`,
   undo: (id) => `Saved: ${id} is offered again under every look, and no longer liked.`,
 };
+const kindIds = new Set<string>(kinds);
 const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 /** Free text can still name what the user hid or marked off this look (a note's "use motion-primitives", a look's
@@ -63,7 +64,9 @@ export function tasteNotes(all: Library[], taste: Taste | undefined, t: string, 
       const l = all.find((x) => x.id === (partOf(all, id)?.lib.id ?? id));
       // A feature sharing its parent's npm (React's <ViewTransition> is `react`) would flag every answer naming the parent.
       const npm = l?.partOf && [l.partOf, all.find((x) => x.id === l.partOf)?.npm].includes(l.npm) ? undefined : l?.npm;
-      return [l?.id ?? id, l?.name, npm].some((n) => n && new RegExp(`(?<![\\w.-])${esc(n)}(?![\\w-])`).test(t));
+      // shortcut: a term that is also a kind id (Motion's `motion`) would match every motion slot, so Motion is found by
+      // its name only and an install line pulling in `motion` goes unflagged; match install context if that matters.
+      return [l?.id ?? id, l?.name, npm].some((n) => n && !kindIds.has(n) && new RegExp(`(?<![\\w.-])${esc(n)}(?![\\w-])`).test(t));
     });
   const them = (ids: string[]) => (ids.length > 1 ? "them" : "it");
   const hide = taste?.hide ?? new Set<string>();

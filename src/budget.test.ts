@@ -124,6 +124,8 @@ test("a hidden library or resource never reaches that user's agent", async () =>
   assert.deepEqual(tasteNotes(libraries, { hide: new Set(["r3f"]), like: new Set() }, "npm i @shadergradient/react @react-three/fiber three"), ["the user hid r3f: never use it"]);
   // Not by a feature's npm, which is its parent's: hiding React's <ViewTransition> does not flag every React install.
   assert.deepEqual(tasteNotes(libraries, { hide: new Set(["react-view-transition"]), like: new Set() }, "npm i sonner react"), []);
+  // Nor by a library id that is also a kind: hiding Motion does not flag every motion slot.
+  assert.deepEqual(tasteNotes(libraries, { hide: new Set(["motion"]), like: new Set() }, "motion (animations) -> gsap | npm i gsap"), []);
 });
 
 test("a hidden part leaves its kit's answers; an off-look mark holds under its look only", async () => {
