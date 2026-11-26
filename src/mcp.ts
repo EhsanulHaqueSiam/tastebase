@@ -61,7 +61,8 @@ export function tasteNotes(all: Library[], taste: Taste | undefined, t: string, 
   const named = (ids: Iterable<string>) =>
     [...ids].filter((id) => {
       const l = all.find((x) => x.id === (partOf(all, id)?.lib.id ?? id));
-      return [l?.id ?? id, l?.name, l?.npm].some((n) => n && new RegExp(`(?<![\\w.-])${esc(n)}(?![\\w-])`).test(t));
+      // A feature's npm is its parent's (React's <ViewTransition> is `react`): matching it would flag every React answer.
+      return [l?.id ?? id, l?.name, l?.partOf ? undefined : l?.npm].some((n) => n && new RegExp(`(?<![\\w.-])${esc(n)}(?![\\w-])`).test(t));
     });
   const them = (ids: string[]) => (ids.length > 1 ? "them" : "it");
   const hide = taste?.hide ?? new Set<string>();

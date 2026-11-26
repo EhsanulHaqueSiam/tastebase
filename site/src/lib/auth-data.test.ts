@@ -67,27 +67,29 @@ test("a terminal claims one key after its login is approved, once, and only with
   const db = setup();
   const id = "a".repeat(64);
   assert.equal(await claimLogin(db, id), undefined); // waiting
-  assert.equal(await approveLogin(db, "ana", id, "omarchy"), true);
-  assert.equal(await approveLogin(db, "bo", id, "theirs"), false); // a login belongs to the first approval
+  assert.equal(await approveLogin(db, "ana", id, "omarchy"), "ok");
+  assert.equal(await approveLogin(db, "bo", id, "theirs"), "approved"); // a login belongs to the first approval
   const made = await claimLogin(db, id);
   assert.ok(made && made !== "refused");
   assert.equal((await keyOwner(db, made.key))?.name, "ana");
   assert.equal((await loadAccount(db, "ana")).keys[0]?.name, "omarchy");
   assert.equal(await claimLogin(db, id), "refused"); // a second claim makes nothing
-  assert.equal(await approveLogin(db, "ana", id, "again"), false); // nor does approving the used link again
+  assert.equal(await approveLogin(db, "ana", id, "again"), "approved"); // nor does approving the used link again
   assert.equal((await loadAccount(db, "ana")).keys.length, 1);
 
   const full = "b".repeat(64);
-  for (let i = 0; i < MAX_KEYS; i++) await makeAgentKey(db, "bo", `k${i}`);
-  await approveLogin(db, "bo", full, "one too many");
+  for (let i = 0; i < MAX_KEYS - 1; i++) await makeAgentKey(db, "bo", `k${i}`);
+  assert.equal(await approveLogin(db, "bo", full, "the last one"), "ok");
+  await makeAgentKey(db, "bo", "made meanwhile"); // the account fills up between approval and claim
   assert.equal(await claimLogin(db, full), "refused");
+  assert.equal(await approveLogin(db, "bo", "e".repeat(64), "one too many"), "full"); // refused up front, not after
 
   // An approval that expired and was approved again by someone else makes a key for the one approving now.
   const reused = "d".repeat(64);
   await approveLogin(db, "ana", reused, "ana's");
   (db as unknown as { exec: (s: string) => void }).exec(`update device_login set createdAt = 0 where id = '${reused}'`);
-  assert.equal(await approveLogin(db, "bo", reused, "bo's"), true); // the stale approval was cleared
-  (db as unknown as { exec: (s: string) => void }).exec(`delete from agent_key where userId = 'bo' and name like 'k%'`);
+  (db as unknown as { exec: (s: string) => void }).exec(`delete from agent_key where userId = 'bo'`);
+  assert.equal(await approveLogin(db, "bo", reused, "bo's"), "ok"); // the stale approval was cleared
   const now = await claimLogin(db, reused);
   assert.ok(now && now !== "refused");
   assert.deepEqual([(await keyOwner(db, now.key))?.name, now.entry.name], ["bo", "bo's"]);

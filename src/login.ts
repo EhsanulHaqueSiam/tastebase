@@ -13,7 +13,7 @@ import { loginCode, loginId } from "./login-code.ts";
 const base = () => process.env.TASTEBASE_URL ?? SITE;
 const dir = () => join(process.env.XDG_CONFIG_HOME || join(homedir(), ".config"), "tastebase");
 // Another server (TASTEBASE_URL, for a preview or `pnpm dev`) gets its own file, so its key and the production one never mix.
-const keyFile = () => join(dir(), process.env.TASTEBASE_URL ? `key-${new URL(base()).origin.replace(/[^\w.-]/g, "_")}` : "key");
+const keyFile = () => join(dir(), new URL(base()).origin === new URL(SITE).origin ? "key" : `key-${new URL(base()).origin.replace(/[^\w.-]/g, "_")}`);
 // TASTEBASE_KEY wins over the saved key everywhere (relay, key.sh), so login and logout say when it is set.
 const envNote = () => process.env.TASTEBASE_KEY && console.log("TASTEBASE_KEY is set and is sent instead of the saved key; unset it to use this one.");
 const fileKey = async () => (await readFile(keyFile(), "utf8").catch(() => "")).trim() || undefined;

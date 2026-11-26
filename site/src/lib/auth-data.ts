@@ -101,11 +101,16 @@ const newKey = (name: string) => {
 const LOGIN_TTL_MS = 600_000;
 
 /** The signed-in user approves a terminal's login `id` (/connect): the terminal holding its secret may claim a key named
- *  `name` in the next 10 minutes. False when it is already approved. Clears stale approvals on the way. */
+ *  `name` in the next 10 minutes. "approved" when it already is, "full" when the user has MAX_KEYS (so the browser never
+ *  says signed in while the terminal is refused). Clears stale approvals on the way. */
 export async function approveLogin(db: D1Database, userId: string, id: string, name: string) {
   await db.prepare(`delete from device_login where createdAt < ?`).bind(Date.now() - LOGIN_TTL_MS).run();
-  const res = await db.prepare(`insert or ignore into device_login (id, userId, name, createdAt) values (?, ?, ?, ?)`).bind(id, userId, name, Date.now()).run();
-  return !!res.meta.changes;
+  const res = await db
+    .prepare(`insert or ignore into device_login (id, userId, name, createdAt) select ?, ?, ?, ? where (select count(*) from agent_key where userId = ?) < ?`)
+    .bind(id, userId, name, Date.now(), userId, MAX_KEYS)
+    .run();
+  if (res.meta.changes) return "ok" as const;
+  return (await db.prepare(`select 1 from device_login where id = ?`).bind(id).first()) ? ("approved" as const) : ("full" as const);
 }
 
 /** The terminal's poll, with `id` worked out from its secret: a new key once the user approved it, undefined while it

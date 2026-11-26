@@ -122,6 +122,8 @@ test("a hidden library or resource never reaches that user's agent", async () =>
   assert.match(await shadcnOff.text("get", { id: "gsap-splittext" }), /^Unknown id/);
   // And by npm package, in an install that pulls it in (ShaderGradient installs @react-three/fiber).
   assert.deepEqual(tasteNotes(libraries, { hide: new Set(["r3f"]), like: new Set() }, "npm i @shadergradient/react @react-three/fiber three"), ["the user hid r3f: never use it"]);
+  // Not by a feature's npm, which is its parent's: hiding React's <ViewTransition> does not flag every React install.
+  assert.deepEqual(tasteNotes(libraries, { hide: new Set(["react-view-transition"]), like: new Set() }, "npm i sonner react"), []);
 });
 
 test("a hidden part leaves its kit's answers; an off-look mark holds under its look only", async () => {
