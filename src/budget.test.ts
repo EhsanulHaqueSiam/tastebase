@@ -126,6 +126,7 @@ test("a hidden library or resource never reaches that user's agent", async () =>
   assert.deepEqual(tasteNotes(libraries, { hide: new Set(["react-view-transition"]), like: new Set() }, "npm i sonner react"), []);
   // Nor by a library id that is also a kind: hiding Motion does not flag every motion slot.
   assert.deepEqual(tasteNotes(libraries, { hide: new Set(["motion"]), like: new Set() }, "motion (animations) -> gsap | npm i gsap"), []);
+  assert.deepEqual(tasteNotes(libraries, { hide: new Set(["motion"]), like: new Set() }, "install: npm install motion lucide-react"), ["the user hid motion: never use it"]);
 });
 
 test("a hidden part leaves its kit's answers; an off-look mark holds under its look only", async () => {

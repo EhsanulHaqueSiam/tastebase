@@ -59,14 +59,16 @@ const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
  *  picks, a site type's build rules, an install that pulls it in): one line for each kind that `t` names by id, name or
  *  npm package. */
 export function tasteNotes(all: Library[], taste: Taste | undefined, t: string, look?: string) {
+  // Where something is installed or paired, up to the next field (|, a line end, or a JSON quote).
+  const installs = (t.match(/(?:npm i|npm install|pnpm add|yarn add|bun add|pairs with:)[^|\n"]*/g) ?? []).join("\n");
   const named = (ids: Iterable<string>) =>
     [...ids].filter((id) => {
       const l = all.find((x) => x.id === (partOf(all, id)?.lib.id ?? id));
       // A feature sharing its parent's npm (React's <ViewTransition> is `react`) would flag every answer naming the parent.
       const npm = l?.partOf && [l.partOf, all.find((x) => x.id === l.partOf)?.npm].includes(l.npm) ? undefined : l?.npm;
-      // shortcut: a term that is also a kind id (Motion's `motion`) would match every motion slot, so Motion is found by
-      // its name only and an install line pulling in `motion` goes unflagged; match install context if that matters.
-      return [l?.id ?? id, l?.name, npm].some((n) => n && !kindIds.has(n) && new RegExp(`(?<![\\w.-])${esc(n)}(?![\\w-])`).test(t));
+      // A term that is also a kind id (Motion's `motion`) names a slot as often as the library: it counts only where
+      // something is installed or paired.
+      return [l?.id ?? id, l?.name, npm].some((n) => n && new RegExp(`(?<![\\w.-])${esc(n)}(?![\\w-])`).test(kindIds.has(n) ? installs : t));
     });
   const them = (ids: string[]) => (ids.length > 1 ? "them" : "it");
   const hide = taste?.hide ?? new Set<string>();
