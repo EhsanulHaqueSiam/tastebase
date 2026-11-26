@@ -234,6 +234,11 @@ export async function signOut() {
   set({ ...EMPTY, saved: readLocal() });
 }
 
+// Folder writes go out one at a time, in the order they were made: two quick clicks on Private and Anyone with the link
+// must land in that order, or the folder stays shared while the screen says Private.
+let folderWrites: Promise<unknown> = Promise.resolve();
+const folderWrite = <T,>(f: () => Promise<T>) => (folderWrites = folderWrites.then(f, f));
+
 const putFolder = (id: string, f: (x: Folder) => Folder | null) => set({ folders: snapshot().folders.flatMap((x) => (x.id === id ? (f(x) ?? []) : [x])) });
 
 /** Makes a folder (with `lib` filed in it, if given). Resolves to its id, or undefined when the server refused. */
@@ -252,7 +257,7 @@ export function updateFolder(id: string, p: { name?: string; public?: boolean; a
     public: p.public ?? f.public,
     libs: p.add ? [...new Set([...f.libs, p.add])] : p.remove ? f.libs.filter((l) => l !== p.remove) : f.libs,
   }));
-  return api("PATCH", `/api/folders/${id}`, p).then(
+  return folderWrite(() => api("PATCH", `/api/folders/${id}`, p)).then(
     () => true,
     (e) => (fail(e), set({ folders: before }), false),
   );
@@ -261,7 +266,7 @@ export function updateFolder(id: string, p: { name?: string; public?: boolean; a
 export function deleteFolder(id: string) {
   const before = snapshot().folders;
   putFolder(id, () => null);
-  return api("DELETE", `/api/folders/${id}`).then(
+  return folderWrite(() => api("DELETE", `/api/folders/${id}`)).then(
     () => true,
     (e) => (fail(e), set({ folders: before }), false),
   );

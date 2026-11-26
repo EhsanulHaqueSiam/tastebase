@@ -384,6 +384,9 @@ function KeyPanel({ keys }: { keys: AgentKey[] }) {
     setFresh(await making), setBusy(false);
   };
   const ask = `set up tastebase and sign me in: ${location.origin}/llms.txt`;
+  // Shown only while it is one of this account's keys: the tab-wide copy never shows another account's key (signed in
+  // elsewhere meanwhile), nor one signed out since.
+  const shown = fresh && keys.some((k) => fresh.endsWith(k.last4)) ? fresh : undefined;
   return (
     <div>
       <div className="rounded-xl bg-s1 p-3 shadow-[inset_0_0_0_1px_var(--color-line2)]">
@@ -401,7 +404,7 @@ function KeyPanel({ keys }: { keys: AgentKey[] }) {
           {keys.map((k) => (
             <Row key={k.id} title={k.name} sub={`tb_sk_…${k.last4} · ${date(k.createdAt)}`}>
               {sure === k.id ? (
-                <button type="button" onClick={() => void revokeAgentKey(k.id).then((ok) => ok && fresh?.endsWith(k.last4) && ((made = undefined), setFresh(undefined)))} className={`${btn} text-[#ff7b7b]`}>Sign out for good</button>
+                <button type="button" onClick={() => void revokeAgentKey(k.id).then((ok) => ok && made?.endsWith(k.last4) && ((made = undefined), setFresh(undefined)))} className={`${btn} text-[#ff7b7b]`}>Sign out for good</button>
               ) : (
                 <Undo onClick={() => setSure(k.id)}>Sign out</Undo>
               )}
@@ -413,20 +416,20 @@ function KeyPanel({ keys }: { keys: AgentKey[] }) {
         <p className="text-[12.5px] text-fg3">Each agent signs in with its own key. Signing one out stops only that one.</p>
         <button type="button" disabled={busy} onClick={make} className={btn}>{busy ? "Making…" : "Make a key"}</button>
       </div>
-      {fresh && (
+      {shown && (
         <div className="mt-3 rounded-xl bg-s1 p-3 shadow-[inset_0_0_0_1px_var(--color-line2)]">
           <p className="text-[13px] font-semibold">Copy it now. We keep only a hash, so it can't be shown again.</p>
           <div className="mt-2.5 flex items-center gap-2">
-            <code className="min-w-0 flex-1 truncate rounded-lg bg-s3 px-2.5 py-2 font-mono text-[12px]">{fresh}</code>
-            <CopyButton value={fresh} quiet />
+            <code className="min-w-0 flex-1 truncate rounded-lg bg-s3 px-2.5 py-2 font-mono text-[12px]">{shown}</code>
+            <CopyButton value={shown} quiet />
           </div>
           <div className="mt-3 flex items-center gap-1 overflow-x-auto [scrollbar-width:none]">
             <Seg label="Client">
               {CLIENTS.map((c) => <button key={c} type="button" aria-pressed={client === c} onClick={() => setClient(c)}>{c}</button>)}
             </Seg>
-            <span className="ml-auto"><CopyButton value={setup(client, fresh)} quiet /></span>
+            <span className="ml-auto"><CopyButton value={setup(client, shown)} quiet /></span>
           </div>
-          <pre tabIndex={0} className="mt-2 overflow-x-auto rounded-lg bg-s3 p-2.5 font-mono text-[11.5px] leading-relaxed text-fg2">{setup(client, fresh)}</pre>
+          <pre tabIndex={0} className="mt-2 overflow-x-auto rounded-lg bg-s3 p-2.5 font-mono text-[11.5px] leading-relaxed text-fg2">{setup(client, shown)}</pre>
         </div>
       )}
     </div>
