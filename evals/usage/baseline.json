@@ -105,6 +105,7 @@
     "ascii-magic-art": {"pass":true,"fails":[],"calls":[],"samples":["ascii-magic-art"],"fp":"2b8eec527ff2","graded":"703454885130"},
     "piixpal": {"pass":true,"fails":[],"calls":[],"samples":["piixpal"],"fp":"45459b3e1f67","graded":"703454885130"},
     "fluent-icons": {"pass":true,"fails":[],"calls":[],"samples":["fluent-icons"],"fp":"ddb767a6d0e7","graded":"703454885130"},
+    "material-design-icons": {"pass":true,"fails":[],"calls":[],"samples":["material-design-icons"],"fp":"bd3957327c15","graded":"703454885130"},
     "lightweight-charts": {"pass":true,"fails":[],"calls":[],"samples":["lightweight-charts"],"fp":"4cc5e21d5aac","graded":"703454885130"},
     "roughjs": {"pass":true,"fails":[],"calls":[],"samples":["roughjs"],"fp":"9f25c6805b4f","graded":"703454885130"},
     "simple-icons": {"pass":true,"fails":[],"calls":[],"samples":["simple-icons"],"fp":"28371d8c524b","graded":"703454885130"},
