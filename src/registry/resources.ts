@@ -7036,4 +7036,14 @@ export const resources: Resource[] = [
     free: true,
     addedAt: "2026-11-21",
   },
+  {
+    id: "animmaster-lib",
+    name: "Animmaster Lib",
+    url: "https://animmasterlib.dev",
+    kind: "reviewed",
+    goodFor: "Animated components: about 300 scroll, WebGL shader, hero, slider, menu and page-transition effects, mostly plain HTML, CSS and JS, some React. Not picked: paid only, delivered as a Google Drive folder with no package, registry or licence; Aceternity UI and GSAP cover the same effects.",
+    cost: "PRO $4.99 one-time, Premium $8 with updates; no free components",
+    free: false,
+    addedAt: "2026-11-27",
+  },
 ];
