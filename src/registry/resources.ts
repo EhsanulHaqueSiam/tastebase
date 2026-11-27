@@ -6667,6 +6667,16 @@ export const resources: Resource[] = [
     addedAt: "2026-11-21",
   },
   {
+    id: "uilora",
+    name: "Uilora",
+    url: "https://www.uilora.com",
+    kind: "reviewed",
+    goodFor: "Motion collection: 490+ animated copy-paste components for Next.js and React Native from one source, installed with npx uilora. Not picked: free tier is personal and open-source only and needs a login to see source; overlaps Magic UI and Animate UI.",
+    cost: "Free non-commercial; Pro $99 lifetime",
+    free: false,
+    addedAt: "2026-11-27",
+  },
+  {
     id: "sensory-ui",
     name: "sensory-ui",
     url: "https://www.sensory-ui.com",
