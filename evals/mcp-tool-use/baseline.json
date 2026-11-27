@@ -1,15 +1,15 @@
 {
   "model": "claude-haiku-5-5",
   "cases": {
-    "page-plans-first": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Landing page for Acme Mail, an email API for developers. Dev-tool look like Resend, with a shader background behind the hero. Single page in src/App.tsx. React + Vite + Tailwind.","framework":"react"}]],"samples":["32e2aa68-3f64-4af5-a538-416d3ef993d4"],"fp":"eabbeb11a3e5","graded":"34ff8f8b6891"},
-    "one-job-picks": {"pass":true,"fails":[],"calls":[["pick",{"need":"toast notification on form save success","framework":"react"}]],"samples":["467f01fd-1a04-4c59-8757-4c0b2c7a18c5"],"fp":"700604ec2dd8","graded":"693c0cdc9502"},
-    "vue-project": {"pass":true,"fails":[],"calls":[["pick",{"need":"command palette with cmd+k keyboard shortcut, searchable list of actions","framework":"vue"}]],"samples":["e18ee7e3-5e2a-4fa7-b97b-507ab7a9428c"],"fp":"ea4313563abf","graded":"6b2dda1c421a"},
-    "keeps-project-kit": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Billing page with a plan picker and an invoices table, React + TypeScript, src/Billing.tsx","framework":"react"}]],"samples":["e4b269fb-8f47-4959-92d8-f353e83db6fe"],"fp":"4e6c1c79f937","graded":"edafdf62c61a"},
-    "nothing-fits": {"pass":true,"fails":[],"calls":[],"samples":["a1f7f80f-642c-4c8f-8689-f1468776b849"],"fp":"be3c8ca756ea","graded":"bcd20af6b49e"},
-    "trending-when-asked": {"pass":true,"fails":[],"calls":[["trending",{}]],"samples":["c8e53372-9108-4769-a834-9028fafbd5c3"],"fp":"0bbe704f4dc5","graded":"c7823b929a1d"},
-    "control-typo": {"pass":true,"fails":[],"calls":[],"samples":["d5037f80-cedd-44c5-953d-c6250db93a6b"],"fp":"0cbab74b5c86","graded":"ab1d7f687e24"},
-    "control-backend": {"pass":true,"fails":[],"calls":[],"samples":["f4a3b83e-3195-4d60-bc9a-d6744d5a2a69"],"fp":"3b95f3744788","graded":"794d987748ef"},
-    "rejection-saves-taste": {"pass":true,"fails":[],"calls":[["taste",{"id":"sonner","action":"hide"}]],"samples":["8a971065-8827-4d40-90a3-ad217efd6c87"],"fp":"da35d7e2c5af","graded":"822aa44b50de"},
-    "off-look-is-not-a-dislike": {"pass":true,"fails":[],"calls":[["get",{"id":"looks"}],["taste",{"id":"sonner","action":"off-look","look":"neo-brutalism"}]],"samples":["94b9ebfe-504d-4ef8-9157-55a1993f48c0","7e4f7e7e-cc13-4291-828e-143481f87b38","956eb9f5-5ac4-4d94-8cbd-0c70a7ddf96a"],"fp":"4cf109c7e57e","graded":"e1bd9a7baa70"}
+    "page-plans-first": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Landing page for Acme Mail, an email API for developers. Dev-tool look like Resend (dark, code-forward, minimal). Shader background behind the hero. React + Tailwind, single src/App.tsx.","framework":"react"}]],"samples":["a436743e-a74f-47da-a619-027c194ab0fc"],"fp":"93e4760f0043","graded":"7c59803df017"},
+    "one-job-picks": {"pass":true,"fails":[],"calls":[["pick",{"need":"toast notification after form save","framework":"react"}]],"samples":["d84e397a-1d98-4187-b59e-d4ad3b184311"],"fp":"700604ec2dd8","graded":"c575bb41a787"},
+    "vue-project": {"pass":true,"fails":[],"calls":[["pick",{"need":"command palette with cmd+k keyboard shortcut, searchable list of actions","framework":"vue"}]],"samples":["25fa491b-cd31-4817-a9e2-f8cec51eaa13"],"fp":"ea4313563abf","graded":"b2d8ee77dc82"},
+    "keeps-project-kit": {"pass":true,"fails":[],"calls":[["plan",{"brief":"Billing page with a plan picker and an invoices table. React + Vite + TypeScript, Mantine 8 + Tailwind 4","framework":"react"}]],"samples":["e1974e55-8c8f-4324-90f2-2d2ba6f017d5"],"fp":"7361f2a5f896","graded":"aa3ecf2408eb"},
+    "nothing-fits": {"pass":true,"fails":[],"calls":[],"samples":["33f6a927-4ddb-4fae-b516-87986f3ff4de"],"fp":"be3c8ca756ea","graded":"056bb414816c"},
+    "trending-when-asked": {"pass":true,"fails":[],"calls":[["trending",{}]],"samples":["39935dae-4205-43d5-a758-9cac5253aef8"],"fp":"0bbe704f4dc5","graded":"d0e5896f7b31"},
+    "control-typo": {"pass":true,"fails":[],"calls":[],"samples":["5c24c513-d342-4003-9fda-4a9cdb153a64"],"fp":"0cbab74b5c86","graded":"766316603a04"},
+    "control-backend": {"pass":true,"fails":[],"calls":[],"samples":["f5163efc-98c4-42d3-84ff-38d57e893429"],"fp":"3b95f3744788","graded":"7a9afb2b6297"},
+    "rejection-saves-taste": {"pass":true,"fails":[],"calls":[["taste",{"id":"sonner","action":"hide"}]],"samples":["364b3546-2c63-4e1e-985a-fdf05f44d223"],"fp":"da35d7e2c5af","graded":"0d4f8203394c"},
+    "off-look-is-not-a-dislike": {"pass":true,"fails":[],"calls":[["get",{"id":"looks"}],["taste",{"id":"sonner","action":"off-look","look":"neo-brutalism"}]],"samples":["d67cd076-7bc4-427c-b83f-c5c54698b312"],"fp":"4cf109c7e57e","graded":"80e94394492e"}
   }
 }

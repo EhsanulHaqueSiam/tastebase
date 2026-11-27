@@ -1826,6 +1826,43 @@ export default [
     license: "Apache-2.0",
   },
   {
+    id: "material-design-icons",
+    name: "Material Design Icons",
+    tagline: "7,000+ community icons in the Material style from Pictogrammers, as SVG path data, React components or an icon font.",
+    kind: "icons",
+    frameworks: ["vanilla", "react", "vue", "angular"],
+    styling: "css",
+    aesthetic: ["corporate", "technical", "minimal"],
+    useFor: [
+      "icons in a Vuetify app: its default icon set, `mdi-*` names on v-icon",
+      "objects the common sets lack, like smart-home devices, vehicles, sensors and niche brands, in one consistent Material style",
+    ],
+    avoidWhen: [
+      "a shadcn/ui, Apple-like or neutral product: use lucide",
+      "a Material 3 app built on Google's own components: use material-symbols",
+    ],
+    alternatives: ["material-symbols", "iconify", "lucide"],
+    install: "npm i @mdi/js @mdi/react",
+    installFor: { vue: "npm i @mdi/font" },
+    usage:
+      'import Icon from "@mdi/react"\nimport { mdiAccount, mdiThermostat } from "@mdi/js"\n\n<Icon path={mdiThermostat} size={1} title="Thermostat" />\n<Icon path={mdiAccount} size="24px" />',
+    note: "`@mdi/js` exports each icon as a path string named `mdiCamelCase`, so bundlers tree-shake to the icons you import; `size={1}` is 24px. In Vuetify, either load `@mdi/font/css/materialdesignicons.css` and write `<v-icon icon=\"mdi-home\" />`, or use `vuetify/iconsets/mdi-svg` with `@mdi/js` paths to skip the 400 KB font that holds every icon. Without `title` the svg gets role=\"presentation\"; pass `title` when the icon carries meaning. Releases are slow (7.4 since late 2023), so very new brand logos may be missing: use simple-icons for those.",
+    weight: "small",
+    a11y: "ok",
+    maturity: "established",
+    parts: {
+      free: [
+        "Filled", "Outline",
+      ],
+    },
+    url: "https://pictogrammers.com/library/mdi/",
+    repo: "https://github.com/Templarian/MaterialDesign",
+    npm: "@mdi/js",
+    author: "Pictogrammers",
+    license: "Apache-2.0",
+    addedAt: "2026-11-26",
+  },
+  {
     id: "lightweight-charts",
     name: "TradingView Lightweight Charts",
     tagline: "Small, fast canvas charts for financial data: candlesticks, OHLC bars, price lines and volume, from TradingView.",
