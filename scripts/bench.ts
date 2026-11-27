@@ -34,7 +34,7 @@ const pages: { name: string; path: string; live?: boolean; bare?: boolean }[] = 
   { name: "best-detail", path: "/best/best-component-kits" },
   { name: "integrations", path: "/integrations" },
   { name: "match", path: "/match" },
-  { name: "folders", path: "/folders" },
+  { name: "account", path: "/account" },
   { name: "about", path: "/about" },
   { name: "submit", path: "/submit" },
   { name: "contribute", path: "/contribute" },

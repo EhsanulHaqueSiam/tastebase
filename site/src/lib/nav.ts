@@ -30,7 +30,7 @@ export const sections: Section[] = [
   { href: "/components", label: "Components", icon: BlocksIcon, tab: true },
   { href: "/tools", label: "Resources", icon: LayersIcon, also: categories.map((c) => `/${c.slug}`) },
   { href: "/best", label: "Articles", icon: BookTextIcon, also: ["/alternatives"] },
-  { href: "/folders", label: "Folders", icon: FoldersIcon },
+  { href: "/account#folders", label: "Folders", icon: FoldersIcon },
   { href: "/match", label: "Match a screenshot", icon: ScanTextIcon },
   { href: "/looks", label: "Looks", icon: PaletteIcon },
   { href: "/atlas", label: "Atlas", icon: CompassIcon },

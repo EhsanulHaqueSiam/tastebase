@@ -12,7 +12,7 @@ import { partOf, partSlug, tasteActions, without, type Taste, type TasteAction }
 export type { Taste } from "./taste.ts";
 
 /** Hash of skills/tastebase/SKILL.md, which states it too; src/skill.test.ts says what to set after editing the skill. */
-export const SKILL_VERSION = "17d4593";
+export const SKILL_VERSION = "5029b46";
 
 export const INSTRUCTIONS = `tastebase is a curated index of UI libraries with notes on when to use each.
 Before writing UI, do not build parts from scratch: call pick for one specific job (a toast), or plan once with the whole brief. Read the look from the user's words and the project (kit, fonts, colours); get looks lists every look id. For fonts, colour or references, get that category.
@@ -52,42 +52,69 @@ const SAVED: Record<TasteAction, (id: string, look?: string) => string> = {
   "off-look": (id, look) => `Saved: ${id} is left out under ${look} only and still offered for other looks.`,
   undo: (id) => `Saved: ${id} is offered again under every look, and no longer liked.`,
 };
+const kindIds = new Set<string>(kinds);
 const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-// Free text can still name what the user hid or marked off this look (a note's "use motion-primitives", a look's picks,
-// a kit whose part they hid); an answer that names it by id or name says so at the end.
-function withTasteNotes(all: Library[], taste: Taste | undefined, t: string, look?: string) {
+/** Free text can still name what the user hid or marked off this look (a note's "use motion-primitives", a look's
+ *  picks, a site type's build rules, an install that pulls it in): one line for each kind that `t` names by id, name or
+ *  npm package. */
+export function tasteNotes(all: Library[], taste: Taste | undefined, t: string, look?: string) {
+  // Where something is installed or paired, up to the next field (|, a line end, or a JSON quote).
+  const installs = (t.match(/(?:npm i|npm install|pnpm add|yarn add|bun add|pairs with:)[^|\n"]*/g) ?? []).join("\n");
   const named = (ids: Iterable<string>) =>
     [...ids].filter((id) => {
       const l = all.find((x) => x.id === (partOf(all, id)?.lib.id ?? id));
-      return [l?.id ?? id, l?.name].some((n) => n && new RegExp(`(?<![\\w.-])${esc(n)}(?![\\w-])`).test(t));
+      // A feature sharing its parent's npm (React's <ViewTransition> is `react`) would flag every answer naming the parent.
+      const npm = l?.partOf && [l.partOf, all.find((x) => x.id === l.partOf)?.npm].includes(l.npm) ? undefined : l?.npm;
+      // A term that is also a kind id (Motion's `motion`) names a slot as often as the library: it counts only where
+      // something is installed or paired.
+      return [l?.id ?? id, l?.name, npm].some((n) => n && new RegExp(`(?<![\\w.-])${esc(n)}(?![\\w-])`).test(kindIds.has(n) ? installs : t));
     });
   const them = (ids: string[]) => (ids.length > 1 ? "them" : "it");
   const hide = taste?.hide ?? new Set<string>();
   // A hidden library's features go with it (GSAP's SplitText), as in `without`.
   const hid = named([...hide, ...all.filter((l) => l.partOf && hide.has(l.partOf)).map((l) => l.id)]);
   const off = named(taste?.offLook?.get(look ?? "") ?? []).filter((id) => !hid.includes(id));
-  return [t, hid.length && `the user hid ${hid.join(", ")}: never use ${them(hid)}`, off.length && `the user marked ${off.join(", ")} wrong for the ${look} look: do not use ${them(off)} here`]
-    .filter(Boolean)
-    .join("\n");
+  return [hid.length && `the user hid ${hid.join(", ")}: never use ${them(hid)}`, off.length && `the user marked ${off.join(", ")} wrong for the ${look} look: do not use ${them(off)} here`].filter((l): l is string => !!l);
 }
 
-/** The `plan` tool's answer for a brief under a user's taste, as the agent reads it; the site's "try your agent" shows
- *  the same text. `look` must be a known id. `libs`: `all` without what the user hid, when the caller has it already. */
-export function planAnswer(all: Library[], looks: Aesthetic[], args: { brief: string; framework?: Framework; look?: string }, taste?: Taste, onUse?: (id: string) => void, libs = without(all, taste?.hide)) {
+const withTasteNotes = (all: Library[], taste: Taste | undefined, t: string, look?: string) => [t, ...tasteNotes(all, taste, t, look)].join("\n");
+
+/** A brief's plan under a user's taste: what they hid never appears, what they marked off the plan's look leaves it,
+ *  hearts lead close calls, and their saved look and framework stand in where the call and brief name none. `look`
+ *  must be a known id. `libs`: `all` without what the user hid, when the caller has it already. */
+export function tastedPlan(all: Library[], looks: Aesthetic[], args: { brief: string; framework?: Framework; look?: string }, taste?: Taste, libs = without(all, taste?.hide)) {
   const opts = { framework: args.framework, look: args.look, like: taste?.like, prefer: taste };
   const first = plan(libs, looks, args.brief, opts);
   // Off-look marks hold only under their look, which the first plan settles.
   const off = taste?.offLook?.get(first.look.id);
-  const p = off?.size ? plan(without(libs, off), looks, args.brief, opts) : first;
+  return off?.size ? plan(without(libs, off), looks, args.brief, opts) : first;
+}
+
+/** The `plan` tool's answer, as the agent reads it; the site's "try your agent" shows the same text. */
+export function planAnswer(all: Library[], looks: Aesthetic[], args: { brief: string; framework?: Framework; look?: string }, taste?: Taste, onUse?: (id: string) => void, libs = without(all, taste?.hide)) {
+  const p = tastedPlan(all, looks, args, taste, libs);
   p.items.forEach((i) => i.pick && onUse?.(i.pick.lib.id));
-  return withTasteNotes(all, taste, formatPlan(p), first.look.id);
+  return withTasteNotes(all, taste, formatPlan(p), p.look.id);
+}
+
+/** The best libraries for one job under a user's taste. The look passed, else the one the job names ("minimal dashboard
+ *  toast", not "not minimal"), else the user's saved look: it ranks the picks and its off-look marks apply. The
+ *  framework passed, else the job's own ("a React date picker" never gets Vue-only answers), else the saved one.
+ *  `named`: the look came from the call or the job, not the saved look. `pool`: what the picks came from. */
+export function tastedPick(all: Library[], looks: Aesthetic[], need: string, args: { framework?: Framework; look?: string; limit?: number }, taste?: Taste, libs = without(all, taste?.hide)) {
+  const named = args.look ?? detectLooks(looks, negations(need).want)[0]?.id;
+  const saved = stillWanted(all, looks, need, taste);
+  const look = looks.find((a) => a.id === (named ?? saved.look?.id));
+  const framework = args.framework ?? detectFramework(negations(need).want) ?? saved.framework ?? "react";
+  const off = taste?.offLook?.get(look?.id ?? "");
+  const pool = off ? without(libs, off) : libs;
+  return { fits: pick(pool, need, { framework, look, like: taste?.like, limit: args.limit }), pool, look, framework, named: !!named };
 }
 
 /** `onUse` hears each library an agent reads (`get`) or is offered (`plan`, `pick`); the hosted server counts them. */
 export function createServer(all: Library[], looks: Aesthetic[], version: string, onUse?: (id: string) => void, taste?: Taste): McpServer {
   const libs = without(all, taste?.hide);
-  const like = taste?.like;
   const server = new McpServer({ name: "tastebase", version }, { instructions: INSTRUCTIONS });
   const byId = new Map(libs.map((l) => [l.id, l]));
   const lookById = new Map(looks.map((a) => [a.id, a]));
@@ -124,17 +151,8 @@ export function createServer(all: Library[], looks: Aesthetic[], version: string
     },
     async ({ need, framework, look: id }) => {
       if (id && !lookById.has(id)) return unknownLook(id);
-      // The look passed, else the one the job names ("minimal dashboard toast", not "not minimal"), else the user's saved
-      // look: it ranks the picks and its off-look marks apply.
-      const named = id ?? detectLooks(looks, negations(need).want)[0]?.id;
-      const saved = stillWanted(all, looks, need, taste);
-      const look = lookById.get(named ?? saved.look?.id ?? "");
+      const { fits, pool, look, framework: fw, named } = tastedPick(all, looks, need, { framework, look: id }, taste, libs);
       const lookId = look?.id;
-      // The job's own framework when none is passed ("a React date picker" never gets Vue-only answers), else the saved one.
-      const fw = framework ?? detectFramework(negations(need).want) ?? saved.framework ?? "react";
-      const off = taste?.offLook?.get(lookId ?? "");
-      const pool = off ? without(libs, off) : libs;
-      const fits = pick(pool, need, { framework: fw, look, like });
       fits.forEach((s) => onUse?.(s.lib.id));
       const parts = kitParts(pool, need, { framework: fw, look });
       // The project wins: a kit the job names that ships the part ("date picker, we use shadcn") answers first.

@@ -1,21 +1,21 @@
 // Client-side: what this visitor saved, shared by every island on the page. Signed out, hearts live in localStorage
 // (synced across tabs). Signed in, hearts and folders live in the account (D1, via /api/*) and follow them to any
 // device; the first sign-in on a device moves its local hearts (and look) into the account. Signed in only: what they hid
-// from their agent or marked wrong for one look, their default look and framework, and the last 4 characters of their
-// agent key (/mcp reads all of it through the key).
+// from their agent or marked wrong for one look, their default look and framework, and their agent keys, by
+// name and last 4 characters (/mcp reads all of it through a key).
 import { useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import type { Provider } from "./auth.ts";
-import type { AccountData, Folder, Prefs } from "./auth-data.ts";
+import type { AccountData, AgentKey, Folder, Prefs, SiteRequest } from "./auth-data.ts";
 
-export type { Folder, Prefs, Provider };
+export type { AgentKey, Folder, Prefs, Provider, SiteRequest };
 export type User = { name: string; image: string | null };
 /** Something the user hid from their agent, with the name and page the account sheet lists it by. */
 export type Hidden = { id: string; name: string; href: string };
 /** Something left out of the agent's answers under one look only. */
 export type OffLook = Hidden & { look: string };
 /** `loading`: this browser signed in before and /api/me has not answered yet. `admin`: may set editor's picks. */
-type State = { user: User | null; loading: boolean; saved: string[]; folders: Folder[]; hidden: Hidden[]; offLook: OffLook[]; key: string | null; admin: boolean } & Prefs;
+type State = { user: User | null; loading: boolean; saved: string[]; folders: Folder[]; hidden: Hidden[]; offLook: OffLook[]; keys: AgentKey[]; admin: boolean } & Prefs;
 
 const KEY = "tastebase:saved";
 // Set when this browser starts a sign-in, cleared on sign-out. Without it no page asks /api/me, so signed-out visits
@@ -23,7 +23,7 @@ const KEY = "tastebase:saved";
 const SIGNED_IN = "tastebase:account";
 // A look chosen while signed out (the taste survey); the first sign-in saves it when the account has none.
 const LOOK = "tastebase:look";
-const EMPTY: State = { user: null, loading: false, saved: [], folders: [], hidden: [], offLook: [], key: null, admin: false, look: null, framework: null };
+const EMPTY: State = { user: null, loading: false, saved: [], folders: [], hidden: [], offLook: [], keys: [], admin: false, look: null, framework: null };
 const subs = new Set<() => void>();
 let state: State | undefined;
 
@@ -76,6 +76,16 @@ function write(method: string, url: string, body: () => unknown, done?: () => vo
     ),
   );
 }
+// Folder writes go out one at a time, in the order they were made: two quick clicks on Private and Anyone with the link
+// must land in that order, or the folder stays shared while the screen says Private. A failed one reads the account
+// again once the rest have landed, rather than putting back a copy that would undo them.
+let folderWrites: Promise<unknown> = Promise.resolve();
+function folderWrite<T>(f: () => Promise<T>) {
+  const p = folderWrites.then(f);
+  folderWrites = p.catch(() => undefined); // the chain itself never fails: the next write and load() still run
+  return p;
+}
+
 /** Resolves once every taste write made so far has reached the server: what /api/try then reads. */
 export const tasteSaved = () => queue;
 
@@ -85,7 +95,7 @@ let imported = false; // what this browser kept signed out joins the account onc
  *  once newer writes land if one overlapped the read. */
 async function load(recover = false) {
   const at = edits;
-  await queue;
+  await Promise.all([queue, folderWrites]); // a read that overtook a write would show the folders as they were
   const me = await api<{ user: User | null; hidden?: Hidden[]; offLook?: OffLook[]; admin?: boolean } & Partial<Omit<AccountData, "hidden" | "offLook">>>("GET", "/api/me").catch(() => undefined);
   // A network or server error keeps what is shown and the signed-in flag; only an answer of "no user" signs out.
   if (!me) return set({ loading: false });
@@ -95,7 +105,7 @@ async function load(recover = false) {
   const local = readLocal();
   const taste = at === edits ? { saved: [...new Set([...(me.saved ?? []), ...local])], hidden: me.hidden ?? [], offLook: me.offLook ?? [], look: me.look ?? null, framework: me.framework ?? null } : {};
   if (recover) return set(taste);
-  set({ user: me.user, loading: false, folders: me.folders ?? [], key: me.key ?? null, admin: !!me.admin, ...taste });
+  set({ user: me.user, loading: false, folders: me.folders ?? [], keys: me.keys ?? [], admin: !!me.admin, ...taste });
   if (imported) return;
   imported = true;
   const localLook = store.get(LOOK);
@@ -182,10 +192,10 @@ export function toggleOffLook(item: OffLook) {
   write("POST", "/api/off-look", () => ({ item: item.id, look: item.look, on: snapshot().offLook.some(same) }));
 }
 
-/** Turns the agent key off without making a new one. Resolves whether it worked. */
-export async function revokeAgentKey() {
-  const ok = !!(await api("DELETE", "/api/agent-key").catch(fail));
-  if (ok) set({ key: null });
+/** Signs out the agent holding one key; the others keep working. Resolves whether it worked. */
+export async function revokeAgentKey(id: string) {
+  const ok = !!(await api("DELETE", `/api/agent-key?id=${encodeURIComponent(id)}`).catch(fail));
+  if (ok) set({ keys: snapshot().keys.filter((k) => k.id !== id) });
   return ok;
 }
 
@@ -200,12 +210,17 @@ export async function deleteAccount(): Promise<"done" | "stale" | "failed"> {
   return r;
 }
 
-/** A new agent key (the old one stops working). Resolves to the key itself, the only time the browser sees it. */
+/** A new agent key next to the others. Resolves to the key itself, the only time the browser sees it. */
 export async function makeAgentKey() {
-  const r = await api<{ key: string }>("POST", "/api/agent-key", {}).catch(fail);
-  if (r) set({ key: r.key.slice(-4) });
+  const r = await api<{ key: string; entry: AgentKey }>("POST", "/api/agent-key", {}).catch(fail);
+  if (r) set({ keys: [...snapshot().keys, r.entry] });
   return r?.key;
 }
+
+/** Approves a terminal's login `id` (`tastebase login`), which then signs in as this session's user. Resolves to the
+ *  account the server approved for (another tab may have switched it), or to what went wrong. */
+export const approveLogin = (id: string, name: string) =>
+  api<{ account: string }>("POST", "/api/connect", { id, name }).then(({ account }) => ({ account }), (e: Error) => ({ error: e.message }));
 
 let offered: Promise<Provider[]> | undefined;
 /** The providers this stage signs in with, asked once when the sign-in sheet first opens. Empty: sign-in is not set up. */
@@ -215,7 +230,7 @@ export const signInProviders = () => (offered ??= api<{ providers?: Provider[] }
 export async function signIn(provider: Provider) {
   store.set(SIGNED_IN, "1");
   try {
-    const { url } = await api<{ url: string }>("POST", "/api/auth/sign-in/social", { provider, callbackURL: location.pathname + location.search });
+    const { url } = await api<{ url: string }>("POST", "/api/auth/sign-in/social", { provider, callbackURL: location.pathname + location.search + location.hash });
     location.assign(url);
   } catch (e) {
     store.set(SIGNED_IN, null);
@@ -238,29 +253,43 @@ export async function createFolder(name: string, lib?: string) {
   return f?.id;
 }
 
-/** Renames, shares or unshares one of your folders, or files a library in or out of it. Optimistic; undone on failure. */
+/** Renames, shares or unshares one of your folders, or files a library in or out of it. Optimistic; a failure reads the
+ *  account again. */
 export function updateFolder(id: string, p: { name?: string; public?: boolean; add?: string; remove?: string }) {
-  const before = snapshot().folders;
   putFolder(id, (f) => ({
     ...f,
     name: p.name ?? f.name,
     public: p.public ?? f.public,
     libs: p.add ? [...new Set([...f.libs, p.add])] : p.remove ? f.libs.filter((l) => l !== p.remove) : f.libs,
   }));
-  return api("PATCH", `/api/folders/${id}`, p).then(
+  return folderWrite(() => api("PATCH", `/api/folders/${id}`, p)).then(
     () => true,
-    (e) => (fail(e), set({ folders: before }), false),
+    (e) => (fail(e), void folderWrites.then(() => load()), false),
   );
 }
 
 export function deleteFolder(id: string) {
-  const before = snapshot().folders;
   putFolder(id, () => null);
-  return api("DELETE", `/api/folders/${id}`).then(
+  return folderWrite(() => api("DELETE", `/api/folders/${id}`)).then(
     () => true,
-    (e) => (fail(e), set({ folders: before }), false),
+    (e) => (fail(e), void folderWrites.then(() => load()), false),
   );
 }
 
-/** Opens the sign-in sheet (AccountButton listens), e.g. when a signed-out visitor reaches for a folder. */
+/** The user's requests to list a site, and an admin's queue. Asked when the Requests panel opens (and for the download). */
+export const loadRequests = () => api<{ mine: SiteRequest[]; open?: SiteRequest[] }>("GET", "/api/requests");
+
+/** Files a request. Resolves to it, or to what went wrong: `field` names the input at fault, `request` is the earlier
+ *  request for the same link. */
+export async function sendRequest(url: string, note: string): Promise<{ request: SiteRequest } | { error: string; field?: string; request?: SiteRequest }> {
+  const r = await fetch("/api/requests", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ url, note }) }).catch(() => undefined);
+  const out = ((await r?.json().catch(() => ({}))) ?? {}) as { request?: SiteRequest; error?: string; field?: string };
+  return r?.ok && out.request ? { request: out.request } : { error: out.error ?? "Couldn't send that. Check your connection.", field: out.field, request: out.request };
+}
+
+/** An admin settles every waiting request for a link: added as a registry id, or declined with a reason. */
+export const settleRequest = (url: string, s: { status: "added"; libId: string } | { status: "declined"; reason: string }) =>
+  api<{ settled: number }>("PATCH", "/api/requests", { url, ...s }).then((r) => r.settled, (e) => (fail(e), undefined));
+
+/** Opens the sign-in dialog (AccountButton listens), e.g. when a signed-out visitor reaches for a folder. */
 export const askSignIn = () => dispatchEvent(new Event("tb:signin"));

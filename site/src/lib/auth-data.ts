@@ -1,16 +1,18 @@
 import type { Framework } from "../../../src/registry/schema.ts";
 import type { TasteAction } from "../../../src/taste.ts";
 
-// Server-only: hearts, folders, hidden items, off-look marks, agent keys and editor's picks in D1 (tables in migrations/). Plain SQL
+// Server-only: hearts, folders, hidden items, off-look marks, agent keys, site requests and editor's picks in D1 (tables in migrations/). Plain SQL
 // over the D1 binding so
 // tests can run it on node:sqlite. Every write is scoped to the signed-in user; callers validate lib ids first.
 
 export type Folder = { id: string; name: string; public: boolean; libs: string[] };
 /** A user's defaults for their agent when a brief names none; null means detect, as for everyone. */
 export type Prefs = { look: string | null; framework: Framework | null };
-/** What the browser holds for a signed-in user: GET /api/me. `key`: the last 4 characters of their agent key, if any.
- *  `offLook`: items left out under one look only. */
-export type AccountData = { saved: string[]; folders: Folder[]; hidden: string[]; offLook: { item: string; look: string }[]; key: string | null } & Prefs;
+/** One agent key as the account lists it: never the key itself, only its last 4 characters. */
+export type AgentKey = { id: string; name: string; last4: string; createdAt: number };
+/** What the browser holds for a signed-in user: GET /api/me. `keys`: their agent keys, oldest first. `offLook`: items
+ *  left out under one look only. */
+export type AccountData = { saved: string[]; folders: Folder[]; hidden: string[]; offLook: { item: string; look: string }[]; keys: AgentKey[] } & Prefs;
 /** A folder as /f/<id> shows it: whose it is, and whether the viewer may edit it. */
 export type SharedFolder = Folder & { owner: { name: string; image: string | null }; mine: boolean };
 
@@ -22,12 +24,12 @@ const FOLDER_COLS = `f.id, f.name, f.public, (select group_concat(lib, ',') from
 export const MAX_FOLDERS = 100;
 
 export async function loadAccount(db: D1Database, userId: string): Promise<AccountData> {
-  const [saved, folders, hidden, offLook, key, pref] = await db.batch([
+  const [saved, folders, hidden, offLook, keys, pref] = await db.batch([
     db.prepare(`select lib from saved where userId = ? order by createdAt, rowid`).bind(userId),
     db.prepare(`select ${FOLDER_COLS} from folder f where f.userId = ? order by f.createdAt, f.id`).bind(userId),
     db.prepare(`select item from hidden where userId = ? order by createdAt, rowid`).bind(userId),
     db.prepare(`select item, look from off_look where userId = ? order by createdAt, rowid`).bind(userId),
-    db.prepare(`select last4 from agent_key where userId = ?`).bind(userId),
+    db.prepare(`select id, name, last4, createdAt from agent_key where userId = ? order by createdAt, rowid`).bind(userId),
     db.prepare(`select look, framework from pref where userId = ?`).bind(userId),
   ]);
   const p = pref!.results[0] as Prefs | undefined;
@@ -36,7 +38,7 @@ export async function loadAccount(db: D1Database, userId: string): Promise<Accou
     folders: (folders!.results as Row[]).map(toFolder),
     hidden: (hidden!.results as { item: string }[]).map((r) => r.item),
     offLook: (offLook!.results as { item: string; look: string }[]).map(({ item, look }) => ({ item, look })),
-    key: (key!.results[0] as { last4: string } | undefined)?.last4 ?? null,
+    keys: (keys!.results as AgentKey[]).map(({ id, name, last4, createdAt }) => ({ id, name, last4, createdAt })),
     look: p?.look ?? null,
     framework: p?.framework ?? null,
   };
@@ -58,9 +60,14 @@ export async function setOffLook(db: D1Database, userId: string, item: string, l
   ).run();
 }
 
-/** Turns the agent off: the key stops working and no new one is made. */
-export async function deleteAgentKey(db: D1Database, userId: string) {
-  await db.prepare(`delete from agent_key where userId = ?`).bind(userId).run();
+/** Signs one agent out: that key stops working, the user's other keys keep working. */
+export async function deleteAgentKey(db: D1Database, userId: string, id: string) {
+  await db.prepare(`delete from agent_key where userId = ? and id = ?`).bind(userId, id).run();
+}
+
+/** Signs out the agent holding this key (`tastebase logout`). */
+export async function deleteKey(db: D1Database, key: string) {
+  await db.prepare(`delete from agent_key where hash = ?`).bind(await sha256(key)).run();
 }
 
 /** Hide or unhide one library or resource from the user's agent. */
@@ -73,14 +80,61 @@ export async function setHidden(db: D1Database, userId: string, item: string, on
 
 const sha256 = async (s: string) => [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)))].map((b) => b.toString(16).padStart(2, "0")).join("");
 
-/** A new agent key for the user, replacing any old one (which stops working at once). Only its hash is stored. */
-export async function makeAgentKey(db: D1Database, userId: string): Promise<string> {
-  const key = `tb_sk_${Array.from(crypto.getRandomValues(new Uint8Array(24)), (b) => ALPHABET[b % 32]).join("")}`;
-  await db
-    .prepare(`insert into agent_key (userId, hash, last4, createdAt) values (?, ?, ?, ?) on conflict (userId) do update set hash = excluded.hash, last4 = excluded.last4, createdAt = excluded.createdAt`)
-    .bind(userId, await sha256(key), key.slice(-4), Date.now())
+export const MAX_KEYS = 20;
+
+/** A new agent key named `name`, next to the user's others. Only its hash is stored, so `key` is the one time anyone
+ *  sees it. Null when the user already has MAX_KEYS. */
+export async function makeAgentKey(db: D1Database, userId: string, name: string): Promise<{ key: string; entry: AgentKey } | null> {
+  const { key, entry } = newKey(name);
+  const res = await db
+    .prepare(`insert into agent_key (id, userId, name, hash, last4, createdAt) select ?, ?, ?, ?, ?, ? where (select count(*) from agent_key where userId = ?) < ?`)
+    .bind(entry.id, userId, name, await sha256(key), entry.last4, entry.createdAt, userId, MAX_KEYS)
     .run();
-  return key;
+  return res.meta.changes ? { key, entry } : null;
+}
+
+const newKey = (name: string) => {
+  const key = `tb_sk_${Array.from(crypto.getRandomValues(new Uint8Array(24)), (b) => ALPHABET[b % 32]).join("")}`;
+  return { key, entry: { id: newId(), name, last4: key.slice(-4), createdAt: Date.now() } };
+};
+
+const LOGIN_TTL_MS = 600_000;
+
+/** The signed-in user approves a terminal's login `id` (/connect): the terminal holding its secret may claim a key named
+ *  `name` in the next 10 minutes. "approved" when it already is, "full" when the user has MAX_KEYS (so the browser never
+ *  says signed in while the terminal is refused). Clears stale approvals on the way. */
+export async function approveLogin(db: D1Database, userId: string, id: string, name: string) {
+  await db.prepare(`delete from device_login where createdAt < ?`).bind(Date.now() - LOGIN_TTL_MS).run();
+  const res = await db
+    .prepare(`insert or ignore into device_login (id, userId, name, createdAt) select ?, ?, ?, ? where (select count(*) from agent_key where userId = ?) < ?`)
+    .bind(id, userId, name, Date.now(), userId, MAX_KEYS)
+    .run();
+  if (res.meta.changes) return "ok" as const;
+  return (await db.prepare(`select 1 from device_login where id = ?`).bind(id).first()) ? ("approved" as const) : ("full" as const);
+}
+
+/** The terminal's poll, with `id` worked out from its secret: a new key once the user approved it, undefined while it
+ *  waits, "refused" when it was already claimed or the account has MAX_KEYS. Making the key and marking the approval
+ *  claimed is one transaction, so a key is made at most once and an approval is never spent without one. */
+export async function claimLogin(db: D1Database, id: string) {
+  const since = Date.now() - LOGIN_TTL_MS;
+  if (!(await db.prepare(`select 1 from device_login where id = ? and createdAt >= ?`).bind(id, since).first())) return undefined;
+  const { key, entry } = newKey("");
+  const hash = await sha256(key);
+  // The key takes its owner and name from the approval row it consumes, inside the transaction.
+  await db.batch([
+    db
+      .prepare(`insert into agent_key (id, userId, name, hash, last4, createdAt) select ?, d.userId, d.name, ?, ?, ? from device_login d where d.id = ? and d.claimed = 0 and d.createdAt >= ? and (select count(*) from agent_key k where k.userId = d.userId) < ?`)
+      .bind(entry.id, hash, entry.last4, entry.createdAt, id, since, MAX_KEYS),
+    db.prepare(`update device_login set claimed = 1 where id = ? and exists (select 1 from agent_key where hash = ?)`).bind(id, hash),
+  ]);
+  const made = await db.prepare(`select name from agent_key where hash = ?`).bind(hash).first<{ name: string }>();
+  return made ? { key, entry: { ...entry, name: made.name } } : ("refused" as const);
+}
+
+/** Who holds this key, for `tastebase login --token` to check it. */
+export async function keyOwner(db: D1Database, key: string) {
+  return (await db.prepare(`select u.name from agent_key k join user u on u.id = k.userId where k.hash = ?`).bind(await sha256(key)).first<{ name: string }>()) ?? undefined;
 }
 
 // Everything a user's taste holds, for one owner row `o` (with a userId column), in one read.
@@ -209,4 +263,62 @@ export async function setPick(db: D1Database, item: string, reason: string | nul
     ? db.prepare(`delete from editor_pick where item = ?`).bind(item)
     : db.prepare(`insert into editor_pick (item, reason, createdAt) values (?, ?, ?) on conflict (item) do update set reason = excluded.reason`).bind(item, reason, Date.now())
   ).run();
+}
+
+/** One request to list a site. `by`: the requester's name, on the admin's list only (never their email). */
+export type SiteRequest = { id: string; url: string; host: string; note: string; status: "open" | "added" | "declined"; libId: string | null; reason: string | null; createdAt: number; by?: string };
+
+export const MAX_OPEN_REQUESTS = 10;
+export const MAX_REQUESTS_A_DAY = 5;
+
+/** A request's link from untrusted input: https only, lowercase host, no hash, no trailing slash. Undefined otherwise. */
+export function siteUrl(v: unknown) {
+  const u = typeof v === "string" && URL.canParse(v.trim()) ? new URL(v.trim()) : undefined;
+  if (u?.protocol !== "https:") return undefined;
+  const host = u.hostname.replace(/^(www\.)+/, ""); // www.x.dev and x.dev are one site, settled once
+  // Checked as a string: setting an https URL's hostname to "" is silently ignored. "x.dev." would be a second x.dev.
+  if (!host.includes(".") || host.endsWith(".")) return undefined;
+  u.hostname = host;
+  // The path loses its trailing slashes (the query keeps its own), so normalizing a stored link again gives the same
+  // link: an admin settles by it.
+  const url = `${u.origin}${u.pathname.replace(/\/+$/, "")}${u.search}`;
+  return url.length <= 500 ? { url, host: u.hostname } : undefined;
+}
+
+const REQ_COLS = `r.id, r.url, r.host, r.note, r.status, r.libId, r.reason, r.createdAt`;
+
+/** Files a request, within the caps (MAX_OPEN_REQUESTS waiting, MAX_REQUESTS_A_DAY a day), counted in the insert itself.
+ *  "duplicate" carries the user's earlier request for the same link, whatever became of it. */
+export async function createRequest(db: D1Database, userId: string, { url, host }: { url: string; host: string }, note: string) {
+  const r: SiteRequest = { id: newId(), url, host, note, status: "open", libId: null, reason: null, createdAt: Date.now() };
+  const res = await db
+    .prepare(
+      `insert into site_request (id, userId, url, host, note, createdAt) select ?, ?, ?, ?, ?, ?
+       where (select count(*) from site_request where userId = ? and status = 'open') < ? and (select count(*) from site_request where userId = ? and createdAt > ?) < ?
+       on conflict (userId, url) do nothing`,
+    )
+    .bind(r.id, userId, url, host, note, r.createdAt, userId, MAX_OPEN_REQUESTS, userId, r.createdAt - 86_400_000, MAX_REQUESTS_A_DAY)
+    .run();
+  if (res.meta.changes) return { ok: r } as const;
+  const dup = await db.prepare(`select ${REQ_COLS} from site_request r where userId = ? and url = ?`).bind(userId, url).first<SiteRequest>();
+  return dup ? ({ duplicate: dup } as const) : ({ limit: true } as const);
+}
+
+/** The user's requests, newest first. */
+export async function myRequests(db: D1Database, userId: string) {
+  return (await db.prepare(`select ${REQ_COLS} from site_request r where userId = ? order by createdAt desc, rowid desc`).bind(userId).all<SiteRequest>()).results;
+}
+
+/** Every waiting request with the requester's name, oldest first: the admin's queue. */
+export async function openRequests(db: D1Database) {
+  return (await db.prepare(`select ${REQ_COLS}, u.name as by from site_request r join user u on u.id = r.userId where r.status = 'open' order by r.createdAt, r.rowid limit 200`).all<SiteRequest>()).results;
+}
+
+/** An admin settles every waiting request for one link at once: added as registry id `libId`, or declined with a reason. */
+export async function settleRequests(db: D1Database, url: string, s: { status: "added"; libId: string } | { status: "declined"; reason: string }) {
+  const res = await db
+    .prepare(`update site_request set status = ?, libId = ?, reason = ? where url = ? and status = 'open'`)
+    .bind(s.status, s.status === "added" ? s.libId : null, s.status === "declined" ? s.reason : null, url)
+    .run();
+  return res.meta.changes;
 }

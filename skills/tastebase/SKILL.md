@@ -5,7 +5,7 @@ description: Use before writing any UI (pages, components, animations, icons, ba
 
 # tastebase
 
-Skill version 17d4593.
+Skill version 5029b46.
 
 Do not build a UI part from scratch when a proven library already has it. tastebase (MCP server `tastebase`)
 knows which library fits which job and which look.
@@ -19,8 +19,11 @@ knows which library fits which job and which look.
    `get references` (Refero Styles and Devault give a real site's DESIGN.md), and tell the user in one line how to
    connect one: Mobbin (Pro plan): `claude plugin marketplace add mobbin/skills && claude plugin install mobbin@mobbin`;
    Refero (paid MCP; the free Refero Skill: `npx skills add https://github.com/referodesign/refero_skill --skill refero-design`);
-   Inspo (free): `npx -y inspo-mcp install`. Name the references you used and keep their images (videos for
-   motion) for step 8.
+   Inspo (free): `npx -y inspo-mcp install`. For motion in a site, app or video (an animated hero, kinetic
+   type, product UI, a chart that builds), also take a piece from Prompt Motion (https://prompt-motion.com): each
+   comes with the prompt or skill that made it; start from that prompt, build it in the project's motion library
+   and hold it to the look. Name the references you used and keep their
+   images (videos for motion) for step 8.
 2. **Read the look.** Take it from the user's words ("like Linear", "liquid glass", "neo-brutalism") and from the
    project: its component kit, fonts, colours, DESIGN.md. `get looks` lists every look id by family; `get <look>`
    gives its rules, how it differs from look-alikes (`vs`) and its references. If neither says, `plan` picks one;

@@ -1,17 +1,19 @@
 ---
-// /folders: your folders. Prerendered shell; the island reads the account store (lib/saved.ts).
-import FolderList from "../../components/FolderList.tsx";
-import Base from "../../layouts/Base.astro";
-
+// /folders moved into the dashboard. A static page that sends old links there (a meta refresh keeps the #folders hash;
+// no Base layout, so no share card or Markdown copy is written for it).
 export const prerender = true;
 ---
 
-<Base title="Folders · tastebase" description="Your folders of UI libraries, on every device you sign in on.">
-  <FolderList client:only="react">
-    <!-- Same heading and space as the island's signed-out view, so nothing moves when it mounts. -->
-    <section slot="fallback" class="mx-auto max-w-[1440px] px-4 pt-[76px] pb-24 lg:px-6">
-      <h1 class="text-[18px] font-semibold tracking-[-0.02em]">Folders</h1>
-      <div class="mt-16 h-[112px]"></div>
-    </section>
-  </FolderList>
-</Base>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex" />
+    <meta http-equiv="refresh" content="0;url=/account#folders" />
+    <link rel="canonical" href="/account" />
+    <title>Folders · tastebase</title>
+  </head>
+  <body style="background:#000;color:#f5f5f5;font-family:system-ui,sans-serif">
+    <h1 style="font-size:16px;font-weight:500"><a href="/account#folders" style="color:inherit">Your folders are in your account</a></h1>
+  </body>
+</html>
