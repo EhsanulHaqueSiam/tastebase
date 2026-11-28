@@ -6,7 +6,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { chromium } from "../../scripts/chromium.ts";
+import { chromium } from "../../src/chromium.ts";
 import { root } from "../shared/agent.ts";
 import type { Entry } from "../shared/ledger.ts";
 import { browse } from "./browser.ts";

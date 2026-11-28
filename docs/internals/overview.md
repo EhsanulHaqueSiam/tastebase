@@ -73,6 +73,12 @@ One Cloudflare Worker (declared in `alchemy.run.ts`) does everything:
   replaces. `--token` saves a key made on `/account` instead. The key goes to `~/.config/tastebase/key`: the Claude Code
   plugin's `headersHelper` (`.claude-plugin/key.sh`) sends it, and `npx tastebase` relays stdio to the hosted `/mcp` with it
   (signed out, it answers offline from the registry it ships with).
+- **`capture` runs only in `npx tastebase`, in the user's own Chrome.** It reads a live page's tokens (colours by
+  painted area, fonts by visible text, radius, shadows, spacing, a button, `:root` variables) with one in-page script
+  (`src/capture.ts`) and screenshots it. Signed in, the relay answers `capture` locally and adds it to the hosted tool
+  list. It is not on the hosted server: Cloudflare's free Browser Rendering allows a few quick actions a minute for
+  every caller, its `scrape` came back empty in testing, and bot walls and strict CSPs refuse its browser on many of
+  the sites people name as references.
 - **Requests to list a site live in D1, and load only when asked.** Signed in, a request (an https link and a note) goes
   to `site_request` with its status, capped in the insert itself (10 waiting, 5 a day; KV's 1,000 writes a day would not
   survive abuse). `/api/requests` answers when the Requests panel opens, never on every page like `/api/me`. An admin

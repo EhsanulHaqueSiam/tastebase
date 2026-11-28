@@ -1,6 +1,7 @@
-// MCP server: five tools, compact text answers. Text, not JSON, because agents read it and it costs fewer tokens.
+// MCP server: five tools (six with capture), compact text answers. Text, not JSON, because agents read it and it costs fewer tokens.
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { CAPTURE_TOOL, captureAnswer, type CaptureRunner } from "./capture.ts";
 import { z } from "zod";
 import { detectFramework, detectLooks, kitParts, negations, pick, plan, stillWanted, words } from "./engine.ts";
 import { formatIntegrations, formatLibrary, formatLook, formatLooks, formatPick, formatPlan, formatResources, formatSite, formatTrending, SITE } from "./format.ts";
@@ -12,7 +13,7 @@ import { partOf, partSlug, tasteActions, without, type Taste, type TasteAction }
 export type { Taste } from "./taste.ts";
 
 /** Hash of skills/tastebase/SKILL.md, which states it too; src/skill.test.ts says what to set after editing the skill. */
-export const SKILL_VERSION = "5029b46";
+export const SKILL_VERSION = "158b25b";
 
 export const INSTRUCTIONS = `tastebase is a curated index of UI libraries with notes on when to use each.
 Before writing UI, do not build parts from scratch: call pick for one specific job (a toast), or plan once with the whole brief. Read the look from the user's words and the project (kit, fonts, colours); get looks lists every look id. For fonts, colour or references, get that category.
@@ -112,8 +113,10 @@ export function tastedPick(all: Library[], looks: Aesthetic[], need: string, arg
   return { fits: pick(pool, need, { framework, look, like: taste?.like, limit: args.limit }), pool, look, framework, named: !!named };
 }
 
-/** `onUse` hears each library an agent reads (`get`) or is offered (`plan`, `pick`); the hosted server counts them. */
-export function createServer(all: Library[], looks: Aesthetic[], version: string, onUse?: (id: string) => void, taste?: Taste): McpServer {
+/** `onUse` hears each library an agent reads (`get`) or is offered (`plan`, `pick`); the hosted server counts them.
+ *  `capture` runs the browser behind the capture tool (`npx tastebase`: the user's Chrome); without it the tool is not
+ *  offered. */
+export function createServer(all: Library[], looks: Aesthetic[], version: string, onUse?: (id: string) => void, taste?: Taste, capture?: CaptureRunner): McpServer {
   const libs = without(all, taste?.hide);
   const server = new McpServer({ name: "tastebase", version }, { instructions: INSTRUCTIONS });
   const byId = new Map(libs.map((l) => [l.id, l]));
@@ -168,16 +171,19 @@ export function createServer(all: Library[], looks: Aesthetic[], version: string
     "get",
     {
       description: "Full entry for one library id (usage, agent note, alternatives), a look id for its design rules, looks for every look id, a site type (3d-site, motion-site, media-site) for its build rules, or a resource category for linked design resources.",
-      inputSchema: { id: z.string().describe(`Library id ('vaul'), look id ('apple'), looks, or one of ${[...agentResourceKinds, "integrations"].join(", ")}`) },
+      inputSchema: {
+        id: z.string().describe(`Library id ('vaul'), look id ('apple'), looks, or one of ${[...agentResourceKinds, "integrations"].join(", ")}`),
+        query: z.string().optional().describe("Search words within a category ('serif editorial')"),
+      },
       annotations: { readOnlyHint: true },
       _meta: { ui: { resourceUri: VIEW_URI } },
     },
-    async ({ id }) => {
+    async ({ id, query }) => {
       const l = byId.get(id);
       if (l) return onUse?.(l.id), reply(formatLibrary(l));
       const site = siteTypes.find((t) => t.id === id);
       if (site) return reply(`${formatSite(site)}\npicks: ${JSON.stringify(site.picks)}`);
-      if (isResourceKind(id)) return text(formatResources(id, taste?.hide));
+      if (isResourceKind(id)) return text(formatResources(id, taste?.hide, query));
       if (id === "integrations") return text(formatIntegrations());
       if (id === "looks") return text(formatLooks(looks));
       const a = lookById.get(id);
@@ -234,6 +240,17 @@ export function createServer(all: Library[], looks: Aesthetic[], version: string
       return text(SAVED[action](id, look));
     },
   );
+
+  if (capture)
+    server.registerTool(
+      "capture",
+      {
+        description: CAPTURE_TOOL.description,
+        inputSchema: { url: z.string() },
+        annotations: CAPTURE_TOOL.annotations,
+      },
+      async ({ url }) => captureAnswer(capture, url),
+    );
 
   return server;
 }

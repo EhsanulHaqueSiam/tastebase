@@ -1,6 +1,6 @@
 // What a page downloads, grouped and sorted by size: `node --experimental-strip-types scripts/requests.ts <url> [width]`.
 // A quick look behind a heavy result in `pnpm bench`.
-import { withChrome } from "./cdp.ts";
+import { withChrome } from "../src/cdp.ts";
 
 const [url, width = "1440"] = process.argv.slice(2);
 if (!url) throw new Error("usage: requests.ts <url> [width]");

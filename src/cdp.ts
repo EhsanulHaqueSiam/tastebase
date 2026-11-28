@@ -1,4 +1,5 @@
-// A headless Chrome driven over the DevTools protocol with Node built-ins only, for the benchmark (scripts/bench.ts).
+// A headless Chrome driven over the DevTools protocol with Node built-ins only, for the benchmark and other scripts and
+// for `npx tastebase` capture (src/capture-local.ts).
 // evals/design/browser.ts does the same for screenshots; it stays separate because the design eval fingerprints it.
 import { spawn } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
@@ -12,7 +13,7 @@ export type Tab = { send: Send; on: (method: string, fn: (params: Record<string,
 
 /** Starts Chrome, hands `use` a function that opens fresh tabs, and always shuts Chrome down after. */
 export async function withChrome<T>(use: (openTab: () => Promise<Tab>) => Promise<T>): Promise<T> {
-  const profile = mkdtempSync(join(tmpdir(), "tb-bench-"));
+  const profile = mkdtempSync(join(tmpdir(), "tastebase-chrome-"));
   // GPU on, as visitors have it: without it headless Chrome composites in software, and a live, animating preview
   // iframe alone turns 40ms clicks into seconds. TB_CHROME_FLAGS adds flags for other machines.
   const gpu = process.platform === "darwin" ? ["--enable-gpu", "--use-angle=metal"] : ["--enable-gpu"];

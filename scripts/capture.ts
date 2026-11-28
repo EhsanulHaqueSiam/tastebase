@@ -13,7 +13,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { libraries } from "../src/registry/index.ts";
 import { resources } from "../src/registry/resources.ts";
-import { withChrome, type Tab } from "./cdp.ts";
+import { withChrome, type Tab } from "../src/cdp.ts";
 
 const shots = "site/public/shots", marks = "site/public/marks", framesFile = "site/src/lib/unframeable.json";
 mkdirSync(shots, { recursive: true });

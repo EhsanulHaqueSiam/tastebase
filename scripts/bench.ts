@@ -4,7 +4,7 @@
 //   pnpm bench http://localhost:1337 --runs 1 --only atlas,browse-gsap      a subset, fast
 // Writes bench-results/<date>.json and prints a table. Exits 1 when any score is under --min (default 9.5).
 import { mkdirSync, writeFileSync } from "node:fs";
-import { withChrome, type Tab } from "./cdp.ts";
+import { withChrome, type Tab } from "../src/cdp.ts";
 
 const args = process.argv.slice(2);
 const base = (args.find((a) => !a.startsWith("--")) ?? "http://localhost:1337").replace(/\/$/, "");
