@@ -50,12 +50,17 @@ export const SITE = "https://tastebase.ehsanulsiam.workers.dev";
 const RESOURCES_SHOWN = 10;
 
 /** One resource category, for `get <category>`, in registry order (best first; paid ones say so). `hide`: ids the
- *  asker hid from their agent. */
-export const formatResources = (kind: ResourceKind, hide?: ReadonlySet<string>) => {
-  const all = resources.filter((r) => r.kind === kind && !hide?.has(r.id));
+ *  asker hid from their agent. `query`: only entries naming its words, most words matched first. */
+export const formatResources = (kind: ResourceKind, hide?: ReadonlySet<string>, query?: string) => {
+  // shortcut: substring match with a plural trimmed, no synonyms; move to the engine's stems if agents miss entries.
+  const terms = (query?.toLowerCase().match(/[a-z0-9]{2,}/g) ?? []).map((t) => (t.length > 3 ? t.replace(/s$/, "") : t));
+  const score = (r: Resource) => terms.filter((t) => `${r.name} ${r.goodFor} ${r.cost}`.toLowerCase().includes(t)).length;
+  const inKind = resources.filter((r) => r.kind === kind && !hide?.has(r.id));
+  const all = terms.length ? inKind.map((r) => [r, score(r)] as const).filter(([, n]) => n).sort((a, b) => b[1] - a[1]).map(([r]) => r) : inKind;
   const more = all.length - RESOURCES_SHOWN;
+  if (!all.length) return `No ${resourceKinds[kind].toLowerCase()} match "${query}". get ${kind} without a query lists the best.`;
   return (
-    `${resourceKinds[kind]} (linked, not installed):\n` +
+    `${resourceKinds[kind]}${terms.length ? ` matching "${query}"` : ""} (linked, not installed):\n` +
     all
       .slice(0, RESOURCES_SHOWN)
       .map((r) => `${r.name} ${r.url} | ${r.goodFor} | ${r.cost}${r.mcp ? ` | ${r.mcp.name}${r.mcp.needsPaidPlan ? " (paid plan)" : ""}: ${r.mcp.url}` : ""}`)

@@ -7,6 +7,8 @@ import { hostname, homedir } from "node:os";
 import { join } from "node:path";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import type { JSONRPCMessage } from "@modelcontextprotocol/sdk/types.js";
+import { captureLocal } from "./capture-local.ts";
+import { CAPTURE_TOOL, captureAnswer } from "./capture.ts";
 import { SITE } from "./format.ts";
 import { loginCode, loginId } from "./login-code.ts";
 
@@ -73,15 +75,22 @@ export async function logout() {
 }
 
 /** Signed in, the stdio server relays each message to the hosted one with the key, so answers carry the user's taste
- *  and the registry is always current. The hosted server is stateless, so every message is one POST. */
+ *  and the registry is always current. The hosted server is stateless, so every message is one POST. `capture` needs
+ *  a browser, so it stays here: its call is answered locally and its definition joins the hosted tool list. */
 export async function relay(key: string) {
   const t = new StdioServerTransport();
   t.onmessage = async (m: JSONRPCMessage) => {
     const id = "id" in m ? m.id : undefined;
+    const method = "method" in m ? m.method : undefined;
     try {
+      if (id !== undefined && method === "tools/call" && "params" in m && m.params?.name === CAPTURE_TOOL.name) {
+        const { url } = (m.params.arguments ?? {}) as { url?: unknown };
+        return await t.send({ jsonrpc: "2.0", id, result: await captureAnswer(captureLocal, String(url ?? "")) });
+      }
       const r = await fetch(`${base()}/mcp`, { method: "POST", headers: { authorization: `Bearer ${key}`, "content-type": "application/json", accept: "application/json, text/event-stream" }, body: JSON.stringify(m) });
       if (r.status === 202) return; // a notification
       const out = (await r.json()) as JSONRPCMessage;
+      if (method === "tools/list" && "result" in out && Array.isArray(out.result.tools)) out.result.tools.push(CAPTURE_TOOL);
       // A 401 answers with id null; the client waits on its own id.
       await t.send(id !== undefined && "error" in out ? { ...out, id } : out);
     } catch (e) {

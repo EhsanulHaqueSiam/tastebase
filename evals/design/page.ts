@@ -4,7 +4,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
 import { extname, join, normalize } from "node:path";
-import { chromium } from "../../scripts/chromium.ts";
+import { chromium } from "../../src/chromium.ts";
 import { browse } from "./browser.ts";
 
 export type Probe = {

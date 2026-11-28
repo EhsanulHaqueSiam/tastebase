@@ -6,7 +6,7 @@
 // across a deploy. Against `pnpm dev`
 // it also signs up a throwaway user and checks the account (hearts, folders, hiding, the agent key). Each flow runs in a
 // fresh profile. Point it at `pnpm dev` or a preview stage, never prod.
-import { withChrome, type Tab } from "./cdp.ts";
+import { withChrome, type Tab } from "../src/cdp.ts";
 
 const [base, ...only] = process.argv.slice(2);
 if (!base) throw new Error("usage: pnpm flows <url> [flow ...]");

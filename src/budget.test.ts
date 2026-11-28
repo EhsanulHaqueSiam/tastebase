@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
+import { captureAnswer, type Capture } from "./capture.ts";
 import { formatLibrary } from "./format.ts";
 import { createServer, INSTRUCTIONS, tasteNotes, type Taste } from "./mcp.ts";
 import { aesthetics, libraries } from "./registry/index.ts";
@@ -39,7 +40,9 @@ const BUDGET = {
   // _meta.ui (about 12) points hosts that render MCP Apps at the live library preview. Raised from 715: the get id
   // list names illustrations, a resource category for spot art, and agent tools by its own name (3).
   // Raised from 720: the taste tool (140), which keeps a user's hides, likes and off-look marks for later answers.
-  schemas: 865,
+  // Raised from 865: the capture tool (100), which reads a reference site's real tokens instead of an agent guessing
+  // them from a screenshot, and get's query (20), which searches a whole category instead of its first ten.
+  schemas: 995,
   // raised from 800: a site type's build line (3D, motion-led, media-led) adds up to 115; the rules every look shares
   // (brief first, never broken) add 60; the line that says to install the picks first adds 15. Raised from 1010: each
   // specialist pick carries its usage, about 100 tokens each and 630 for this worst case of six, since builders that
@@ -54,9 +57,12 @@ const BUDGET = {
   get: 670,
 };
 
+// Measured with capture on, as the hosted server and `npx tastebase` offer it.
+const capture = async () => ({ error: "no browser in tests" });
+
 async function connect(taste?: Taste) {
   const [a, b] = InMemoryTransport.createLinkedPair();
-  await createServer(libraries, aesthetics, "test", undefined, taste).connect(a);
+  await createServer(libraries, aesthetics, "test", undefined, taste, capture).connect(a);
   const client = new Client({ name: "budget", version: "0" });
   await client.connect(b);
   const text = async (name: string, args: Record<string, unknown>) =>
@@ -89,6 +95,20 @@ test("tool schemas and typical answers stay within the token budget", async () =
   await client.close();
   for (const k of Object.keys(BUDGET) as (keyof typeof BUDGET)[])
     assert.ok(used[k] <= BUDGET[k], `${k}: ${used[k]} tokens > budget ${BUDGET[k]}${k === "get" ? ` (get ${getId})` : k === "plan" ? ` (${planBrief})` : ""}`);
+});
+
+test("get searches inside a category, and capture answers in text with a screenshot", async () => {
+  const { client, text } = await connect();
+  const serif = await text("get", { id: "fonts", query: "serif" });
+  assert.match(serif, /^Fonts matching "serif"/);
+  assert.ok(serif.split("\n").slice(1, 4).every((l) => /serif/i.test(l)), serif);
+  assert.match(await text("get", { id: "fonts", query: "zzqx" }), /^No fonts match/);
+  assert.match(await text("capture", { url: "ftp://example.com" }), /takes an http\(s\) URL/);
+  await client.close();
+  const shot: Capture = { url: "https://a.dev/", title: "A", width: 1440, bg: "#000000", text: "#ffffff", accent: "#5e6ad2", palette: [["#000000", 80]], fonts: [["Inter", 100, [48, 14], [400, 600]]], radii: [["8px", 3]], shadows: [], spacing: [4, 8], sections: 3, headings: [], vars: [] };
+  const r = await captureAnswer(async () => ({ capture: shot, jpeg: "AAAA" }), "https://a.dev");
+  assert.match((r.content[0] as { text: string }).text, /^capture: A https:\/\/a\.dev\/[\s\S]*accent #5e6ad2[\s\S]*Inter 100% \(sizes 48 14; weights 400 600\)/);
+  assert.deepEqual(r.content[1], { type: "image", data: "AAAA", mimeType: "image/jpeg" });
 });
 
 test("an unknown look id is answered with the closest ids", async () => {

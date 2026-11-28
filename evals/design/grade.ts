@@ -7,7 +7,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { aesthetics, libraries } from "../../src/registry/index.ts";
 import { aestheticIds, type AestheticId, type Kind } from "../../src/registry/schema.ts";
-import { chromium } from "../../scripts/chromium.ts";
+import { chromium } from "../../src/chromium.ts";
 import { cache, claude, sources, type Files } from "../shared/agent.ts";
 import { evidence, foundation, offers, used } from "../shared/checks.ts";
 import { Gone, hash, type Entry, type Graded, type TbCall } from "../shared/ledger.ts";
