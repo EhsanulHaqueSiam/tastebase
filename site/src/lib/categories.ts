@@ -14,6 +14,9 @@ export const categories = [
   { slug: "illustrations", label: "Illustrations", blurb: "Illustrations, 3D renders, photos and backgrounds, free or openly licensed.", resources: ["illustrations", "assets"] },
   { slug: "ui", label: "UI", blurb: "Component kits and primitives to build with, galleries of real parts, and directories of community components.", kinds: ["component-kit", "primitives"], resources: ["parts", "directories"] },
   { slug: "inspiration", label: "Inspiration", blurb: "Real shipped sites, apps and motion to study before you design, and the DESIGN.md files behind them.", resources: ["references", "inspiration"] },
+  { slug: "finds", label: "Finds", blurb: "Single pieces of motion and interface work posted by designers and developers, with the technique behind each.", resources: ["finds"] },
+  { slug: "portfolios", label: "Portfolios", blurb: "Designers', design engineers' and studios' own sites, to study for layout, type, motion and case studies.", resources: ["portfolios"] },
+  { slug: "reading", label: "Reading", blurb: "Essays, blogs and books on interface craft, motion and design engineering.", resources: ["reading"] },
 ] as const satisfies readonly Category[];
 
 export type CategorySlug = (typeof categories)[number]["slug"];
