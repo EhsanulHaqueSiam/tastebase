@@ -70,7 +70,9 @@ async function imageShot(url: string, out: string) {
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const src = join(tmpdir(), "tb-src"), tmp = join(tmpdir(), "tb-shot.webp");
   writeFileSync(src, Buffer.from(await res.arrayBuffer()));
-  execFileSync("magick", [src, "-resize", "1200x750^", "-gravity", "center", "-extent", "1200x750", "-quality", "78", tmp]);
+  // The coder is pinned from the URL's extension, so a server cannot have ImageMagick read its answer as SVG or MVG.
+  const coder = url.match(/\.(webp|jpe?g|png)(\?|$)/i)![1]!.toLowerCase().replace("jpg", "jpeg");
+  execFileSync("magick", [`${coder}:${src}`, "-resize", "1200x750^", "-gravity", "center", "-extent", "1200x750", "-quality", "78", tmp]);
   renameSync(tmp, out);
 }
 
