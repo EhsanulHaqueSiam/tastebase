@@ -46,8 +46,9 @@ const refs = (L: Aesthetic) =>
   `refs: name a real one first: the user's, else search ${mcps.slice(0, -1).join(", ")} or ${mcps.at(-1)} if connected, else ${L.references.slice(0, 2).map((r) => `${r.name} ${host(r.url)}`).join(", ")} or a DESIGN.md from ${designMd}, and say how to connect one (get references)`;
 
 export const SITE = "https://tastebase.ehsanulsiam.workers.dev";
-// An agent needs a few good options, not the whole shelf: the first ones (registry order, best first) and where the rest are.
-const RESOURCES_SHOWN = 10;
+// An agent needs a few good options, not the whole shelf: the first ones (registry order, best first) and where the rest
+// are. Up to ten, fewer where entries run long (a find's line carries its technique and palette), to hold the get budget.
+const RESOURCES_SHOWN = 10, RESOURCES_CHARS = 2400;
 
 /** One resource category, for `get <category>`, in registry order (best first; paid ones say so). `hide`: ids the
  *  asker hid from their agent. `query`: only entries naming its words, most words matched first. */
@@ -55,16 +56,17 @@ export const formatResources = (kind: ResourceKind, hide?: ReadonlySet<string>, 
   // shortcut: substring match with a plural trimmed, no synonyms; move to the engine's stems if agents miss entries.
   const terms = (query?.toLowerCase().match(/[a-z0-9]{2,}/g) ?? []).map((t) => (t.length > 3 ? t.replace(/s$/, "") : t));
   const score = (r: Resource) => terms.filter((t) => `${r.name} ${r.goodFor} ${r.cost}`.toLowerCase().includes(t)).length;
-  const inKind = resources.filter((r) => r.kind === kind && !hide?.has(r.id));
+  // A site found down is never offered to an agent; the site still lists it, greyed out.
+  const inKind = resources.filter((r) => r.kind === kind && !r.down && !hide?.has(r.id));
   const all = terms.length ? inKind.map((r) => [r, score(r)] as const).filter(([, n]) => n).sort((a, b) => b[1] - a[1]).map(([r]) => r) : inKind;
-  const more = all.length - RESOURCES_SHOWN;
+  const lines = all.slice(0, RESOURCES_SHOWN).map((r) => `${r.name} ${r.url} | ${r.goodFor} | ${r.cost}${r.caveat ? ` | careful: ${r.caveat}` : ""}${r.mcp ? ` | ${r.mcp.name}${r.mcp.needsPaidPlan ? " (paid plan)" : ""}: ${r.mcp.url}` : ""}`);
+  let shown = 1;
+  for (let len = lines[0]?.length ?? 0; shown < lines.length && (len += lines[shown]!.length + 1) <= RESOURCES_CHARS; ) shown++;
+  const more = all.length - shown;
   if (!all.length) return `No ${resourceKinds[kind].toLowerCase()} match "${query}". get ${kind} without a query lists the best.`;
   return (
     `${resourceKinds[kind]}${terms.length ? ` matching "${query}"` : ""} (linked, not installed):\n` +
-    all
-      .slice(0, RESOURCES_SHOWN)
-      .map((r) => `${r.name} ${r.url} | ${r.goodFor} | ${r.cost}${r.mcp ? ` | ${r.mcp.name}${r.mcp.needsPaidPlan ? " (paid plan)" : ""}: ${r.mcp.url}` : ""}`)
-      .join("\n") +
+    lines.slice(0, shown).join("\n") +
     (more > 0 ? `\n+${more} more: ${SITE}/atlas#resources/${kind}` : "")
   );
 };

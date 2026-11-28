@@ -5,6 +5,7 @@
 // site/public/shots/full/<id>.webp, which the detail panel scrolls through; site/src/lib/fullshots.json lists them
 // with their heights.
 // Both modes refuse to write an error page, bot wall or blank screen; a site that fails keeps its old image and is listed.
+// A resource with `shotFrom` is shot from there instead of its url: a page, or an image fitted to the card.
 // Run: node --experimental-strip-types scripts/capture.ts [--frames | --full] [id ...]   (needs Chromium or Chrome, or
 // $CHROMIUM, and ImageMagick; --frames only re-checks the framing headers)
 import { execFileSync } from "node:child_process";
@@ -21,7 +22,8 @@ mkdirSync(marks, { recursive: true });
 const args = process.argv.slice(2);
 const framesOnly = args.includes("--frames");
 const only = new Set(args.filter((a) => !a.startsWith("--")));
-const sites = [...libraries.map((l) => ({ id: l.id, url: l.url, frame: l.demo, mark: true })), ...resources.filter((r) => r.kind !== "reviewed").map((r) => ({ id: r.id, url: r.url, frame: undefined, mark: false }))];
+const sites = [...libraries.map((l) => ({ id: l.id, url: l.url, frame: l.demo, shot: undefined, mark: true })), ...resources.filter((r) => r.kind !== "reviewed").map((r) => ({ id: r.id, url: r.url, frame: undefined, shot: r.shotFrom, mark: false }))];
+const isImage = (u?: string) => !!u && /\.(webp|jpe?g|png)(\?|$)/i.test(u);
 const UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
 const WIDTH = 1280, MAX_H = 2400; // --full: desktop width, about three screens tall
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -54,7 +56,25 @@ for (const s of todo) {
 }
 writeFileSync(framesFile, JSON.stringify([...unframeable].sort(), null, 1) + "\n");
 // A card that fails keeps its old image; the run lists it.
-if (!framesOnly) report(await shootAll(todo, (tab, s, settle) => pageShot(tab, s.url, settle, join(shots, `${s.id}.webp`), false)));
+if (!framesOnly) {
+  const images = todo.filter((s) => isImage(s.shot));
+  const failed = new Map<string, string>();
+  for (const s of images) await imageShot(s.shot!, join(shots, `${s.id}.webp`)).then(() => console.log("ok", s.id), (e: Error) => failed.set(s.id, e.message));
+  const pages = await shootAll(todo.filter((s) => !isImage(s.shot)), (tab, s, settle) => pageShot(tab, s.shot ?? s.url, settle, join(shots, `${s.id}.webp`), false));
+  report(new Map([...failed, ...pages]));
+}
+
+/** A card from an image (a post's video still): fitted to the 1200x750 card, centre-cropped. */
+async function imageShot(url: string, out: string) {
+  const res = await fetch(url, { headers: { "user-agent": UA }, signal: AbortSignal.timeout(20_000) });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const src = join(tmpdir(), "tb-src"), tmp = join(tmpdir(), "tb-shot.webp");
+  writeFileSync(src, Buffer.from(await res.arrayBuffer()));
+  // The coder is pinned from the URL's extension, so a server cannot have ImageMagick read its answer as SVG or MVG.
+  const coder = url.match(/\.(webp|jpe?g|png)(\?|$)/i)![1]!.toLowerCase().replace("jpg", "jpeg");
+  execFileSync("magick", [`${coder}:${src}`, "-resize", "1200x750^", "-gravity", "center", "-extent", "1200x750", "-quality", "78", tmp]);
+  renameSync(tmp, out);
+}
 
 /** Shoots each site in its own tab, one at a time; failures get one slower retry and are returned with the reason. */
 async function shootAll(todo: typeof sites, shot: (tab: Tab, s: (typeof sites)[number], settle: number) => Promise<void>) {
@@ -88,7 +108,8 @@ function report(failed: Map<string, string>) {
 async function fullPages() {
   const full = join(shots, "full");
   mkdirSync(full, { recursive: true });
-  const failed = await shootAll(sites.filter((s) => unframeable.has(s.id) && (!only.size || only.has(s.id))), (tab, s, settle) => pageShot(tab, s.frame ?? s.url, settle, join(full, `${s.id}.webp`), true));
+  // A card made from an image has no page to scroll through.
+  const failed = await shootAll(sites.filter((s) => unframeable.has(s.id) && !isImage(s.shot) && (!only.size || only.has(s.id))), (tab, s, settle) => pageShot(tab, s.frame ?? s.url, settle, join(full, `${s.id}.webp`), true));
   // id -> height at 1200px wide, so the panel's <img> reserves its space before it loads.
   const have = Object.fromEntries(readdirSync(full).sort().map((f) => [f.replace(/\.webp$/, ""), Number(execFileSync("magick", ["identify", "-format", "%h", join(full, f)], { encoding: "utf8" }))]).filter(([id]) => unframeable.has(id as string)));
   writeFileSync("site/src/lib/fullshots.json", JSON.stringify(have, null, 1) + "\n");

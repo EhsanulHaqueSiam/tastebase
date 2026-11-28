@@ -2,7 +2,8 @@
 // (then scaled down to fit), so it reads as the desktop site at a legible size and stays fully usable (scroll, click,
 // browse). Sites that refuse framing (checked by `pnpm capture`, site/src/lib/unframeable.json) show a full-page
 // screenshot the panel scrolls through (`pnpm capture --full`); sites without one, or that never finish loading, show
-// their card screenshot centred over a blurred copy of itself. Either way with a way out.
+// their card screenshot centred over a blurred copy of itself; a site with a preview clip (from designeer) plays that
+// instead, muted and looping while on screen, never under reduced motion. A site found down says so. Always with a way out.
 // A library with a hand-made demo (Demos.tsx) gets a second tab for it.
 import { ArrowUpRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -14,9 +15,9 @@ const BLEED = 24; // extra width pushes the framed page's scrollbar past the cli
 const GIVE_UP_MS = 12_000;
 
 /** fullHeight: height of /shots/full/<id>.webp at 1200px wide, when it was captured. */
-type Props = { id: string; name: string; url: string; image: string; frameable: boolean; fullHeight?: number };
+type Props = { id: string; name: string; url: string; image: string; frameable: boolean; fullHeight?: number; video?: string; down?: string };
 
-export default function LiveSite({ id, name, url, image, frameable, fullHeight }: Props) {
+export default function LiveSite({ id, name, url, image, frameable, fullHeight, video, down }: Props) {
   const Demo = demos[id];
   const [tab, setTab] = useState<"site" | "demo">("site");
   const host = url.replace(/^https?:\/\//, "");
@@ -42,10 +43,10 @@ export default function LiveSite({ id, name, url, image, frameable, fullHeight }
       <div className="relative min-h-0 flex-1">
         {tab === "demo" && Demo ? (
           <div className="dots grid size-full place-items-center overflow-auto p-6"><Demo /></div>
-        ) : frameable ? (
+        ) : frameable && !down ? (
           <Frame url={url} name={name} image={image} />
         ) : (
-          <Fallback url={url} name={name} image={image} full={fullHeight ? { src: `/shots/full/${id}.webp`, height: fullHeight } : undefined} reason="This site doesn't allow being shown inside another page." />
+          <Fallback url={url} name={name} image={image} video={video} full={fullHeight ? { src: `/shots/full/${id}.webp`, height: fullHeight } : undefined} reason={down ? `This site was down when checked on ${down}.` : "This site doesn't allow being shown inside another page."} />
         )}
       </div>
     </div>
@@ -86,7 +87,7 @@ function Frame({ url, name, image }: { url: string; name: string; image: string 
   );
 }
 
-function Fallback({ url, name, image, full, reason }: { url: string; name: string; image: string; full?: { src: string; height: number }; reason: string }) {
+function Fallback({ url, name, image, video, full, reason }: { url: string; name: string; image: string; video?: string; full?: { src: string; height: number }; reason: string }) {
   return (
     <div className="absolute inset-0 flex flex-col overflow-y-auto overscroll-y-contain bg-s1">
       <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-3 border-b border-line bg-s2/90 px-4 py-2.5 backdrop-blur-md">
@@ -95,7 +96,12 @@ function Fallback({ url, name, image, full, reason }: { url: string; name: strin
           Open in a new tab <ArrowUpRight size={14} aria-hidden />
         </a>
       </div>
-      {full ? (
+      {video ? (
+        <div className="relative grid flex-1 place-items-center overflow-hidden p-6">
+          <img src={image} alt="" aria-hidden className="absolute inset-0 size-full scale-110 object-cover blur-2xl brightness-[0.3]" />
+          <Clip src={video} poster={image} name={name} />
+        </div>
+      ) : full ? (
         <img src={full.src} alt={`${name} website`} width={1200} height={full.height} loading="lazy" decoding="async" className="h-auto w-full" />
       ) : (
         <div className="relative grid flex-1 place-items-center overflow-hidden p-6">
@@ -105,4 +111,17 @@ function Fallback({ url, name, image, full, reason }: { url: string; name: strin
       )}
     </div>
   );
+}
+
+/** A preview clip that plays only while it is on screen, and never under reduced motion (the poster stays). */
+function Clip({ src, poster, name }: { src: string; poster: string; name: string }) {
+  const ref = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    const v = ref.current!;
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const io = new IntersectionObserver(([e]) => (e!.isIntersecting ? v.play().catch(() => {}) : v.pause()));
+    io.observe(v);
+    return () => io.disconnect();
+  }, []);
+  return <video ref={ref} src={src} poster={poster} muted loop playsInline preload="metadata" aria-label={`${name} preview`} className="relative h-auto w-full rounded-lg shadow-[0_0_0_1px_var(--color-line2),0_30px_80px_-30px_rgb(0_0_0/0.9)]" />;
 }

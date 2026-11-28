@@ -3,13 +3,15 @@
 // gets the same card with a brighter ring, ↗ and "Sponsored" beside the name (the screenshot stays clean), linking
 // straight to its site with rel="sponsored". The title's link is stretched over the card, so `pills` (other articles
 // a library is in) can be links of their own, not nested anchors.
-// A screenshot that fails to load is marked by Base.astro's error listener and shows "no preview" instead. `actions`
+// A screenshot that fails to load is marked by Base.astro's error listener and shows "no preview" instead. A design
+// palette shows as a strip under the screenshot; a preview clip loads and plays only while a mouse hovers (never on
+// touch or under reduced motion); a site found down greys its screenshot and wears a "Down" pill. `actions`
 // (islands only: they need hydrating) adds heart, folder, hide and the editor's pick badge over the screenshot
 // (CardActions.tsx), rendered on the client only: server-rendered, each lazy CardActions was a streamed Suspense
 // boundary that inline scripts complete, and a client navigation swaps the page in without running them, so React
 // threw every one away (144 errors on /tools).
 import { ArrowRightLeft, ArrowUpRight, Gift, ListOrdered } from "lucide-react";
-import { lazy, Suspense, useSyncExternalStore } from "react";
+import { lazy, Suspense, useRef, useSyncExternalStore, type PointerEvent } from "react";
 import type { Pill } from "../lib/articles.ts";
 import type { Listing } from "../lib/categories.ts";
 import type { Sponsor } from "../lib/sponsors.ts";
@@ -26,8 +28,18 @@ type Props = { eager?: boolean; late?: boolean; compact?: boolean; where?: strin
 export function ListingCard({ item, sponsor, eager = false, late = false, compact = false, where = "card", pills = [], actions = false }: Props) {
   const c = sponsor ? { href: withUtm(sponsor.url, where), name: sponsor.name, description: sponsor.description, image: sponsor.image } : item;
   const client = useSyncExternalStore(never, () => true, () => false); // false on the server and while hydrating
+  const clip = useRef<HTMLVideoElement>(null);
+  const hover = (e: PointerEvent, on: boolean) => {
+    const v = clip.current;
+    if (!v || e.pointerType !== "mouse") return;
+    if (!on) return v.pause(), (v.currentTime = 0), v.removeAttribute("data-on");
+    if (!matchMedia("(prefers-reduced-motion: reduce)").matches) v.play().catch(() => {});
+  };
   return (
-    <div className={`group @container relative flex h-full flex-col overflow-hidden rounded-xl bg-s1 ${sponsor ? "shadow-[0_0_0_1px_var(--color-line2),0_4px_14px_var(--drop)]" : "shadow-[0_0_0_1px_var(--color-line),0_4px_14px_var(--drop)]"} transition-[translate,box-shadow] duration-200 ease-[var(--ease-out)] has-[h3_a:focus-visible]:outline-2 has-[h3_a:focus-visible]:outline-blue hover:-translate-y-1 hover:shadow-[0_0_0_1px_var(--color-line2),0_18px_40px_-12px_var(--drop-lift)]`}>
+    <div
+      onPointerEnter={item?.video ? (e) => hover(e, true) : undefined}
+      onPointerLeave={item?.video ? (e) => hover(e, false) : undefined}
+      className={`group @container relative flex h-full flex-col overflow-hidden rounded-xl bg-s1 ${sponsor ? "shadow-[0_0_0_1px_var(--color-line2),0_4px_14px_var(--drop)]" : "shadow-[0_0_0_1px_var(--color-line),0_4px_14px_var(--drop)]"} transition-[translate,box-shadow] duration-200 ease-[var(--ease-out)] has-[h3_a:focus-visible]:outline-2 has-[h3_a:focus-visible]:outline-blue hover:-translate-y-1 hover:shadow-[0_0_0_1px_var(--color-line2),0_18px_40px_-12px_var(--drop-lift)]`}>
       {item && actions && client && (
         <Suspense fallback={null}>
           <CardActions id={item.id} name={item.name} href={item.href} />
@@ -47,13 +59,24 @@ export function ListingCard({ item, sponsor, eager = false, late = false, compac
           fetchPriority={eager ? "high" : undefined}
           decoding="async"
           data-fallback
-          className="peer size-full object-cover object-top transition-transform duration-500 ease-[var(--ease-out)] group-hover:scale-[1.04] data-failed:invisible"
+          className={`peer size-full object-cover object-top transition-transform duration-500 ease-[var(--ease-out)] group-hover:scale-[1.04] data-failed:invisible ${item?.down ? "opacity-35 grayscale" : ""}`}
         />
+        {item?.video && client && (
+          <video ref={clip} src={item.video} muted loop playsInline preload="none" aria-hidden onPlaying={(e) => e.currentTarget.setAttribute("data-on", "")} className="absolute inset-0 size-full object-cover object-top opacity-0 transition-opacity duration-200 data-on:opacity-100" />
+        )}
+        {item?.down && <span className="absolute top-2.5 left-2.5 rounded-md bg-bg/80 px-1.5 py-1 font-mono text-[10px] leading-none font-semibold tracking-[0.08em] text-fg uppercase shadow-[inset_0_0_0_1px_var(--color-line2)]">Down</span>}
         <span aria-hidden="true" className="absolute inset-0 hidden place-items-center text-[13px] text-fg3 peer-data-failed:grid">no preview</span>
       </div>
+      {item?.palette && (
+        <div aria-hidden className="flex h-1.5">
+          {item.palette.map((c) => (
+            <i key={c} className="flex-1" style={{ background: c }} />
+          ))}
+        </div>
+      )}
       <div className={`flex flex-1 flex-col gap-1 transition-opacity group-has-[[data-hidden]]:opacity-35 ${compact ? "p-3" : "p-3 sm:gap-1.5 sm:p-4"}`}>
         <h3 className={`${sponsor ? "flex flex-wrap items-baseline gap-x-2" : ""} leading-snug font-semibold tracking-[-0.01em] ${compact ? "text-[14px] sm:text-[15px]" : "text-[14px] sm:text-[17px]"}`}>
-          <a href={c.href} {...(sponsor ? { target: "_blank", rel: "sponsored noopener" } : { "data-sound": "navigate" })} className="outline-none after:absolute after:inset-0 after:content-['']">
+          <a href={c.href} {...(sponsor ? { target: "_blank", rel: "sponsored noopener" } : { "data-sound": "navigate" })} className={`outline-none after:absolute after:inset-0 after:content-[''] ${item?.down ? "text-fg2" : ""}`}>
             {c.name}
             {sponsor && <ArrowUpRight size={14} className="ml-0.5 inline align-[-1px] text-fg3" aria-hidden />}
           </a>

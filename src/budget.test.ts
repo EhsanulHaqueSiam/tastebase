@@ -103,6 +103,9 @@ test("get searches inside a category, and capture answers in text with a screens
   assert.match(serif, /^Fonts matching "serif"/);
   assert.ok(serif.split("\n").slice(1, 4).every((l) => /serif/i.test(l)), serif);
   assert.match(await text("get", { id: "fonts", query: "zzqx" }), /^No fonts match/);
+  // A site found down is never offered; a caveat travels with its entry.
+  assert.match(await text("get", { id: "portfolios", query: "Rawat" }), /^No portfolios match/);
+  assert.match(await text("get", { id: "directories", query: "animata" }), /^Animata .*\| careful: /m);
   assert.match(await text("capture", { url: "ftp://example.com" }), /takes an http\(s\) URL/);
   await client.close();
   const shot: Capture = { url: "https://a.dev/", title: "A", width: 1440, bg: "#000000", text: "#ffffff", accent: "#5e6ad2", palette: [["#000000", 80]], fonts: [["Inter", 100, [48, 14], [400, 600]]], radii: [["8px", 3]], shadows: [], spacing: [4, 8], sections: 3, headings: [], vars: [] };
