@@ -1,0 +1,10318 @@
+{
+ "shadcn-ui": {
+  "page": "https://designeer.xyz/resources/shadcn-ui",
+  "category": "Components",
+  "palette": [
+   "#FCFCFC",
+   "#DADADA",
+   "#989898",
+   "#B9B9BA",
+   "#787878"
+  ],
+  "video": true
+ },
+ "base-ui": {
+  "page": "https://designeer.xyz/resources/base-ui",
+  "category": "Components",
+  "palette": [
+   "#FBFBFB",
+   "#DADADA",
+   "#BABABA",
+   "#898989"
+  ],
+  "video": true
+ },
+ "radix-ui": {
+  "page": "https://designeer.xyz/resources/radix",
+  "category": "Components",
+  "palette": [
+   "#F9F9FC",
+   "#D8D8DB",
+   "#96A9EC",
+   "#8979EC",
+   "#B5B6B9"
+  ],
+  "video": true
+ },
+ "kobra": {
+  "page": "https://designeer.xyz/resources/kobra-react-input-otp-component",
+  "category": "Components",
+  "palette": [
+   "#FAFAFA",
+   "#D8D7D8",
+   "#B6B6B6",
+   "#979797",
+   "#777777"
+  ],
+  "video": true
+ },
+ "coss-ui": {
+  "page": "https://designeer.xyz/resources/coss-ui",
+  "category": "Components",
+  "palette": [
+   "#FAFAFA",
+   "#D9D9D9",
+   "#B9B8B9",
+   "#9C9C9C",
+   "#585858"
+  ],
+  "video": true
+ },
+ "magic-ui": {
+  "page": "https://designeer.xyz/resources/magic-ui",
+  "category": "Components",
+  "palette": [
+   "#FEFEFE",
+   "#8677F8",
+   "#D8D7D8",
+   "#171717",
+   "#888889"
+  ],
+  "video": true
+ },
+ "aceternity-ui": {
+  "page": "https://designeer.xyz/resources/aceternity-ui",
+  "category": "Components",
+  "palette": [
+   "#FCFDFD",
+   "#030303",
+   "#D9DADB",
+   "#BAB9BA",
+   "#676768"
+  ],
+  "video": true
+ },
+ "react-bits": {
+  "page": "https://designeer.xyz/resources/react-bits",
+  "category": "Components",
+  "palette": [
+   "#15111B",
+   "#492A67",
+   "#683895",
+   "#332A3C",
+   "#8649BA"
+  ],
+  "video": true
+ },
+ "motion-primitives": {
+  "page": "https://designeer.xyz/resources/motion-primitives",
+  "category": "Components",
+  "palette": [
+   "#FEFEFE",
+   "#C8C8C8",
+   "#A7A7A7",
+   "#4C4C4E",
+   "#757576"
+  ],
+  "video": true
+ },
+ "animate-ui": {
+  "page": "https://designeer.xyz/resources/animate-ui",
+  "category": "Components",
+  "palette": [
+   "#FEFEFE",
+   "#D9D9D9",
+   "#BBBBBB",
+   "#1A1A1A",
+   "#616161"
+  ],
+  "video": true
+ },
+ "heroui": {
+  "page": "https://designeer.xyz/resources/heroui",
+  "category": "Components",
+  "palette": [
+   "#F6F6F6",
+   "#D7D8D9",
+   "#979797",
+   "#0A88F8",
+   "#A8D3F5"
+  ],
+  "video": true
+ },
+ "daisyui": {
+  "page": "https://designeer.xyz/resources/daisyui",
+  "category": "Components",
+  "palette": [
+   "#FEFEFE",
+   "#D8D8D8",
+   "#959596",
+   "#373739",
+   "#B7B7B8"
+  ],
+  "video": true
+ },
+ "ai-elements": {
+  "page": "https://designeer.xyz/resources/shadcn-ui",
+  "category": "Components",
+  "palette": [
+   "#FCFCFC",
+   "#DADADA",
+   "#989898",
+   "#B9B9BA",
+   "#787878"
+  ],
+  "video": true
+ },
+ "prompt-kit": {
+  "page": "https://designeer.xyz/resources/prompt-kit",
+  "category": "Components",
+  "palette": [
+   "#FEFEFE",
+   "#D7D7D8",
+   "#B7B6B7",
+   "#363638",
+   "#111114"
+  ],
+  "video": true
+ },
+ "termcn": {
+  "page": "https://designeer.xyz/resources/termcn",
+  "category": "Components",
+  "palette": [
+   "#FEFEFE",
+   "#010101",
+   "#A9AAA9",
+   "#848585",
+   "#585858"
+  ],
+  "video": true
+ },
+ "8bitcn": {
+  "page": "https://designeer.xyz/resources/8bitcn",
+  "category": "Components",
+  "palette": [
+   "#FDFDFD",
+   "#C8C8C8",
+   "#A7A7A7",
+   "#282828",
+   "#454545"
+  ],
+  "video": true
+ },
+ "kokonut-ui": {
+  "page": "https://designeer.xyz/resources/kokonut-ui",
+  "category": "Components",
+  "palette": [
+   "#FEFEFE",
+   "#090909",
+   "#FF1E4A",
+   "#FF9CB0",
+   "#B7B7B7"
+  ],
+  "video": true
+ },
+ "cult-ui": {
+  "page": "https://designeer.xyz/resources/cult-ui",
+  "category": "Components",
+  "palette": [
+   "#FEFEFE",
+   "#AEF81E",
+   "#D9D9D9",
+   "#959596",
+   "#B8B8B8"
+  ],
+  "video": true
+ },
+ "opensource-ui": {
+  "page": "https://designeer.xyz/resources/opensource-ui",
+  "category": "Components",
+  "palette": [
+   "#FEFEFE",
+   "#DADBDB",
+   "#393938",
+   "#C6A6A4",
+   "#1B1B1A"
+  ],
+  "video": true
+ },
+ "beui": {
+  "page": "https://designeer.xyz/resources/beui",
+  "category": "Components",
+  "palette": [
+   "#161616",
+   "#363637",
+   "#898988",
+   "#585959",
+   "#A5A7A6"
+  ],
+  "video": true
+ },
+ "boardui": {
+  "page": "https://designeer.xyz/resources/boardui",
+  "category": "Components",
+  "palette": [
+   "#FCFCFC",
+   "#D7D7D7",
+   "#B8B8B9",
+   "#171717",
+   "#96E401"
+  ]
+ },
+ "smoothui": {
+  "page": "https://designeer.xyz/resources/smooth-ui",
+  "category": "Components",
+  "palette": [
+   "#F8F8F8",
+   "#C8C8C8",
+   "#A9A9A9",
+   "#583427",
+   "#95776B"
+  ],
+  "video": true
+ },
+ "appetite-ui": {
+  "page": "https://designeer.xyz/resources/appetite-ui",
+  "category": "Components",
+  "palette": [
+   "#030711",
+   "#252628",
+   "#FAFBFB",
+   "#0568F8",
+   "#479BFA"
+  ]
+ },
+ "libraries-dev": {
+  "page": "https://designeer.xyz/resources/libraries-dev",
+  "category": "Components",
+  "palette": [
+   "#131313",
+   "#383839",
+   "#888888",
+   "#575757",
+   "#2379E3"
+  ],
+  "video": true
+ },
+ "ui-layouts": {
+  "page": "https://designeer.xyz/resources/ui-layouts",
+  "category": "Components",
+  "palette": [
+   "#FEFEFE",
+   "#D9D9D9",
+   "#86A5ED",
+   "#B8B8B7",
+   "#989897"
+  ],
+  "video": true
+ },
+ "fluid-functionalism": {
+  "page": "https://designeer.xyz/resources/fluid-functionalism",
+  "category": "Components",
+  "palette": [
+   "#FAFAFA",
+   "#DBDBDB",
+   "#B9B9B9",
+   "#626262",
+   "#989899"
+  ],
+  "video": true
+ },
+ "flowbite": {
+  "page": "https://designeer.xyz/resources/flowbite",
+  "category": "Components",
+  "palette": [
+   "#FDFEFE",
+   "#D5D7D9",
+   "#3A4757",
+   "#B6B7BB",
+   "#2A5986"
+  ],
+  "video": true
+ },
+ "preline": {
+  "page": "https://designeer.xyz/resources/preline-ui",
+  "category": "Components",
+  "palette": [
+   "#FDFDFD",
+   "#282655",
+   "#D9D8D9",
+   "#BAB8B8",
+   "#030238"
+  ],
+  "video": true
+ },
+ "headless-ui": {
+  "page": "https://designeer.xyz/resources/headless-ui",
+  "category": "Components",
+  "palette": [
+   "#050506",
+   "#272727",
+   "#05598A",
+   "#474878",
+   "#686768"
+  ],
+  "video": true
+ },
+ "kibo-ui": {
+  "page": "https://designeer.xyz/resources/kibo-ui",
+  "category": "Components",
+  "palette": [
+   "#FDFDFD",
+   "#020202",
+   "#D8D8D8",
+   "#88B7FE",
+   "#B8B8B8"
+  ],
+  "video": true
+ },
+ "reui": {
+  "page": "https://designeer.xyz/resources/re-ui",
+  "category": "Components",
+  "palette": [
+   "#FDFDFD",
+   "#C8C7C8",
+   "#A8A9A8",
+   "#8C8C8C",
+   "#333333"
+  ],
+  "video": true
+ },
+ "kumo": {
+  "page": "https://designeer.xyz/resources/kumo",
+  "category": "Components",
+  "palette": [],
+  "video": true
+ },
+ "flyonui": {
+  "page": "https://designeer.xyz/resources/flyonui",
+  "category": "Components",
+  "palette": [
+   "#FFFFFF"
+  ],
+  "video": true
+ },
+ "mcpcn": {
+  "page": "https://designeer.xyz/tools/mcpcn",
+  "category": "AI & Agents",
+  "palette": [
+   "#FEFEFE",
+   "#B8B8B8",
+   "#999999",
+   "#D6D6D6",
+   "#565657"
+  ],
+  "video": true
+ },
+ "excalidraw": {
+  "page": "https://designeer.xyz/tools/excalidraw",
+  "category": "Design & Canvas",
+  "palette": [
+   "#FEFEFE",
+   "#CBC5DC",
+   "#9C9AE7"
+  ],
+  "video": true
+ },
+ "drawably": {
+  "page": "https://designeer.xyz/tools/drawably",
+  "category": "Design & Canvas",
+  "palette": [
+   "#E2E2E0",
+   "#B8B7DB",
+   "#8A88D8",
+   "#DEB9B7",
+   "#489F68"
+  ],
+  "video": true
+ },
+ "motion": {
+  "page": "https://designeer.xyz/resources/motion",
+  "category": "Motion & 3D",
+  "palette": [
+   "#FBD40A",
+   "#080A08",
+   "#38340D",
+   "#655708",
+   "#C6A809"
+  ],
+  "video": true
+ },
+ "gsap": {
+  "page": "https://designeer.xyz/resources/gsap",
+  "category": "Motion & 3D",
+  "palette": [
+   "#0E100F",
+   "#383934",
+   "#979688",
+   "#81C266",
+   "#DAD9C4"
+  ],
+  "video": true
+ },
+ "rive": {
+  "page": "https://designeer.xyz/resources/rive",
+  "category": "Motion & 3D",
+  "palette": [
+   "#010101",
+   "#282728",
+   "#A5D624",
+   "#484747",
+   "#676769"
+  ],
+  "video": true
+ },
+ "dotlottie-react": {
+  "page": "https://designeer.xyz/resources/lottie",
+  "category": "Motion & 3D",
+  "palette": [
+   "#FFFFFF"
+  ],
+  "video": true
+ },
+ "torph": {
+  "page": "https://designeer.xyz/tools/torph",
+  "category": "Development",
+  "palette": [
+   "#010101",
+   "#272727",
+   "#494949"
+  ],
+  "video": true
+ },
+ "number-flow": {
+  "page": "https://designeer.xyz/resources/numberflow",
+  "category": "Components",
+  "palette": [
+   "#FCFCFC",
+   "#DADADA",
+   "#B7B7B8",
+   "#99999A",
+   "#69696A"
+  ],
+  "video": true
+ },
+ "gsap-splittext": {
+  "page": "https://designeer.xyz/resources/gsap",
+  "category": "Motion & 3D",
+  "palette": [
+   "#0E100F",
+   "#383934",
+   "#979688",
+   "#81C266",
+   "#DAD9C4"
+  ],
+  "video": true
+ },
+ "transitions-dev": {
+  "page": "https://designeer.xyz/resources/transitions",
+  "category": "Components",
+  "palette": [
+   "#FCFCFC",
+   "#DCDCDC",
+   "#BBBBBB",
+   "#59595B",
+   "#8E8D90"
+  ],
+  "video": true
+ },
+ "bencho": {
+  "page": "https://designeer.xyz/resources/bencho",
+  "category": "Components",
+  "palette": [
+   "#F7F7F7",
+   "#D9D9D9",
+   "#B7B8B8",
+   "#535355",
+   "#F9ACDC"
+  ],
+  "video": true
+ },
+ "rare-ui": {
+  "page": "https://designeer.xyz/resources/rare-ui",
+  "category": "Components",
+  "palette": [
+   "#151515",
+   "#373737",
+   "#797979",
+   "#565656",
+   "#A7A7A7"
+  ],
+  "video": true
+ },
+ "amicro": {
+  "page": "https://designeer.xyz/resources/amicro",
+  "category": "Components",
+  "palette": [
+   "#131313",
+   "#373737",
+   "#565655",
+   "#E5E5E5",
+   "#C2C2C2"
+  ],
+  "video": true
+ },
+ "dot-matrix": {
+  "page": "https://designeer.xyz/resources/dot-matrix",
+  "category": "Components",
+  "palette": [
+   "#030303",
+   "#272727",
+   "#484848",
+   "#696969",
+   "#C5C5C5"
+  ],
+  "video": true
+ },
+ "fancy-components": {
+  "page": "https://designeer.xyz/resources/fancy-components",
+  "category": "Components",
+  "palette": [
+   "#FEFEFE",
+   "#DADADA",
+   "#AAA9A9",
+   "#6A76F8",
+   "#FAEA79"
+  ],
+  "video": true
+ },
+ "loading-dev": {
+  "page": "https://designeer.xyz/resources/loading-dev",
+  "category": "Components",
+  "palette": [
+   "#FDFDFD",
+   "#D7D7D7",
+   "#BBBABA"
+  ],
+  "video": true
+ },
+ "web-kits-audio": {
+  "page": "https://designeer.xyz/tools/web-kits-audio",
+  "category": "Development",
+  "palette": [
+   "#FBFBFB",
+   "#D8D8D8",
+   "#2B2A29",
+   "#4F4F50",
+   "#9B9B9B"
+  ],
+  "video": true
+ },
+ "cuelume": {
+  "page": "https://designeer.xyz/resources/cuelume",
+  "category": "Components",
+  "palette": [
+   "#FBFAF8",
+   "#BAB9B8",
+   "#D8D6D5",
+   "#999898",
+   "#FAB39E"
+  ],
+  "video": true
+ },
+ "soundcn": {
+  "page": "https://designeer.xyz/resources/soundcn",
+  "category": "Components",
+  "palette": [
+   "#FDFDFD",
+   "#DAD9D9",
+   "#E9AB95",
+   "#D35D31",
+   "#888989"
+  ],
+  "video": true
+ },
+ "slot-text": {
+  "page": "https://designeer.xyz/resources/textmotion",
+  "category": "Motion & 3D",
+  "palette": [
+   "#FBF9F5",
+   "#E3DDD6"
+  ],
+  "video": true
+ },
+ "glimm": {
+  "page": "https://designeer.xyz/resources/glimm",
+  "category": "Motion & 3D",
+  "palette": [
+   "#FDFDFD",
+   "#D9D9DA",
+   "#9A9A9D",
+   "#BDBDBE"
+  ],
+  "video": true
+ },
+ "lucide": {
+  "page": "https://designeer.xyz/resources/lucide",
+  "category": "Icons",
+  "palette": [
+   "#FDFCFD",
+   "#DCDBDD",
+   "#BBBABC",
+   "#F9B5B6",
+   "#F77979"
+  ],
+  "video": true
+ },
+ "phosphor": {
+  "page": "https://designeer.xyz/resources/phosphor",
+  "category": "Icons",
+  "palette": [
+   "#EEE9E3",
+   "#3B3A37",
+   "#A99698",
+   "#B6D64B",
+   "#C9C5BD"
+  ],
+  "video": true
+ },
+ "heroicons": {
+  "page": "https://designeer.xyz/resources/heroicons",
+  "category": "Icons",
+  "palette": [
+   "#FCFCFD",
+   "#A8AAB5",
+   "#D9DAE3"
+  ],
+  "video": true
+ },
+ "tabler-icons": {
+  "page": "https://designeer.xyz/resources/tabler-icons",
+  "category": "Icons",
+  "palette": [
+   "#EAEBED",
+   "#A9B9E2",
+   "#74ACE2",
+   "#005DCC",
+   "#247DC8"
+  ],
+  "video": true
+ },
+ "iconoir": {
+  "page": "https://designeer.xyz/resources/iconoir",
+  "category": "Icons",
+  "palette": [
+   "#FEFEFE",
+   "#D6D8DA",
+   "#B6B8B9",
+   "#86888B",
+   "#64676A"
+  ],
+  "video": true
+ },
+ "hugeicons": {
+  "page": "https://designeer.xyz/resources/hugeicons",
+  "category": "Icons",
+  "palette": [
+   "#7C7C7C",
+   "#FAFBF9",
+   "#050704",
+   "#3B3B3A",
+   "#A7A7A7"
+  ],
+  "video": true
+ },
+ "remixicon": {
+  "page": "https://designeer.xyz/resources/remix-icon",
+  "category": "Icons",
+  "palette": [
+   "#FBFCFD",
+   "#D9DDE4",
+   "#68C5FC",
+   "#52CAC2",
+   "#FFB485"
+  ],
+  "video": true
+ },
+ "iconify": {
+  "page": "https://designeer.xyz/resources/iconify",
+  "category": "Icons",
+  "palette": [
+   "#FEFEFF",
+   "#9CC4D7",
+   "#DCDADB",
+   "#18A2FA",
+   "#1B7BA6"
+  ],
+  "video": true
+ },
+ "lucide-animated": {
+  "page": "https://designeer.xyz/resources/lucide-animated",
+  "category": "Icons",
+  "palette": [
+   "#F7F7F7",
+   "#D8D8D8",
+   "#B7B6B7",
+   "#F17B61",
+   "#F3B8AC"
+  ],
+  "video": true
+ },
+ "morphicons": {
+  "page": "https://designeer.xyz/resources/morphicons",
+  "category": "Motion & 3D",
+  "palette": [
+   "#FAFAFA",
+   "#171717",
+   "#C3C3C3",
+   "#CAE3FB",
+   "#494949"
+  ],
+  "video": true
+ },
+ "paper-shaders": {
+  "page": "https://designeer.xyz/resources/paper-shaders",
+  "category": "Motion & 3D",
+  "palette": [
+   "#FCFCFB",
+   "#D9DAD4",
+   "#B6F69D",
+   "#BBBBB5",
+   "#67A882"
+  ],
+  "video": true
+ },
+ "three": {
+  "page": "https://designeer.xyz/resources/three-js",
+  "category": "Motion & 3D",
+  "palette": [
+   "#FDFDFD",
+   "#050304",
+   "#272727",
+   "#666566",
+   "#474748"
+  ],
+  "video": true
+ },
+ "r3f": {
+  "page": "https://designeer.xyz/resources/react-three-fiber",
+  "category": "Motion & 3D",
+  "palette": [
+   "#F7F8FD",
+   "#E6CA68",
+   "#020305",
+   "#535863",
+   "#FFF6CD"
+  ],
+  "video": true
+ },
+ "drei": {
+  "page": "https://designeer.xyz/resources/drei",
+  "category": "Motion & 3D",
+  "palette": [
+   "#F8F9FD",
+   "#020202",
+   "#29292B",
+   "#858588",
+   "#B7B7BB"
+  ],
+  "video": true
+ },
+ "spline": {
+  "page": "https://designeer.xyz/tools/spline",
+  "category": "Design & Canvas",
+  "palette": [
+   "#010101",
+   "#282828",
+   "#262689",
+   "#191A58",
+   "#484848"
+  ],
+  "video": true
+ },
+ "evilcharts": {
+  "page": "https://designeer.xyz/resources/evil-charts",
+  "category": "Components",
+  "palette": [
+   "#FEFEFE",
+   "#C7C7C7",
+   "#A8A8A8",
+   "#565656"
+  ],
+  "video": true
+ },
+ "canvas-ui": {
+  "page": "https://designeer.xyz/resources/canvas-ui",
+  "category": "Components",
+  "palette": [
+   "#FEFEFE",
+   "#A7A7A7",
+   "#888888",
+   "#C8C8C7",
+   "#3A4936"
+  ],
+  "video": true
+ },
+ "ascii-magic-art": {
+  "page": "https://designeer.xyz/tools/ascii-magic",
+  "category": "",
+  "palette": [
+   "#0E0808",
+   "#122948",
+   "#E6D8B8",
+   "#144875",
+   "#1B6D97"
+  ]
+ },
+ "material-symbols": {
+  "page": "https://designeer.xyz/resources/material-symbols",
+  "category": "Icons",
+  "palette": [
+   "#FBFCFD",
+   "#D9D9DA",
+   "#4882DC",
+   "#B9B9B8",
+   "#AEC7ED"
+  ],
+  "video": true
+ },
+ "simple-icons": {
+  "page": "https://designeer.xyz/resources/simple-icons",
+  "category": "Icons",
+  "palette": [
+   "#FBFBFB",
+   "#D8D8D8",
+   "#BABABA",
+   "#9A9A9B",
+   "#484849"
+  ],
+  "video": true
+ },
+ "devicon": {
+  "page": "https://designeer.xyz/resources/devicon",
+  "category": "Icons",
+  "palette": [
+   "#F6F6F6",
+   "#3D9562",
+   "#C3DBCD",
+   "#6AAD85",
+   "#94C2A7"
+  ],
+  "video": true
+ },
+ "bootstrap-icons": {
+  "page": "https://designeer.xyz/resources/bootstrap-icons",
+  "category": "Icons",
+  "palette": [
+   "#FDFDFE",
+   "#7533F9",
+   "#E0D5F3",
+   "#7703FA",
+   "#C8C9CA"
+  ],
+  "video": true
+ },
+ "ionicons": {
+  "page": "https://designeer.xyz/resources/ionicons",
+  "category": "Icons",
+  "palette": [
+   "#FEFEFE",
+   "#592127",
+   "#D7D7D8",
+   "#141313",
+   "#A7A7AB"
+  ],
+  "video": true
+ },
+ "carbon-icons": {
+  "page": "https://designeer.xyz/resources/carbon-icons",
+  "category": "Icons",
+  "palette": [
+   "#F8F8F9",
+   "#1446A2",
+   "#0F67FF",
+   "#110B00",
+   "#BBCBE6"
+  ],
+  "video": true
+ },
+ "heroicons-animated": {
+  "page": "https://designeer.xyz/resources/heroicons-animated",
+  "category": "Icons",
+  "palette": [
+   "#F8F8F8",
+   "#DADADA",
+   "#B7B7B8",
+   "#C8B4F7",
+   "#AD8BF7"
+  ],
+  "video": true
+ },
+ "tremor": {
+  "page": "https://designeer.xyz/resources/tremor",
+  "category": "Components",
+  "palette": [
+   "#FDFDFD",
+   "#020202",
+   "#696969",
+   "#C7DCFE",
+   "#498BFE"
+  ],
+  "video": true
+ },
+ "liveline": {
+  "page": "https://designeer.xyz/portfolios/benji-taylor",
+  "category": "Founders & Makers",
+  "palette": [
+   "#FDFDFB",
+   "#D8D8D6"
+  ],
+  "video": true
+ },
+ "dither-kit": {
+  "page": "https://designeer.xyz/resources/dither-kit",
+  "category": "Components",
+  "palette": [
+   "#FBFCFC",
+   "#6B6B6C",
+   "#020202",
+   "#CADCF1",
+   "#439A5C"
+  ],
+  "video": true
+ },
+ "mobbin": {
+  "page": "https://designeer.xyz/inspiration/mobbin",
+  "category": "Galleries",
+  "palette": [
+   "#FDFDFD",
+   "#D9D9D9",
+   "#989898",
+   "#B9B9B9",
+   "#7B7B7B"
+  ],
+  "video": true
+ },
+ "recent": {
+  "page": "https://designeer.xyz/inspiration/recent-design",
+  "category": "Galleries",
+  "palette": [
+   "#FCFCFC",
+   "#060607",
+   "#4919F5",
+   "#D8D8D8",
+   "#282627"
+  ],
+  "video": true
+ },
+ "refero-styles": {
+  "page": "https://designeer.xyz/tools/refero",
+  "category": "AI & Agents",
+  "palette": [
+   "#FEFEFE",
+   "#010101",
+   "#D7D7D8",
+   "#94B5D8",
+   "#464547"
+  ],
+  "video": true
+ },
+ "curated": {
+  "page": "https://designeer.xyz/inspiration/curated-design",
+  "category": "Galleries",
+  "palette": [
+   "#FDFDFD",
+   "#040404",
+   "#D9D8D9",
+   "#383737",
+   "#BABABA"
+  ],
+  "video": true
+ },
+ "siteinspire": {
+  "page": "https://designeer.xyz/inspiration/siteinspire",
+  "category": "Galleries",
+  "palette": [
+   "#FCFCFC",
+   "#764B39",
+   "#DBD9D6",
+   "#AAAAA7",
+   "#160B07"
+  ],
+  "video": true
+ },
+ "60fps": {
+  "page": "https://designeer.xyz/inspiration/60fps",
+  "category": "Galleries",
+  "palette": [
+   "#F6F6F6",
+   "#161617",
+   "#D9D8D8",
+   "#373639",
+   "#BBBBBC"
+  ],
+  "video": true
+ },
+ "navbar-gallery": {
+  "page": "https://designeer.xyz/inspiration/navbar-gallery",
+  "category": "Galleries",
+  "palette": [
+   "#121213",
+   "#263A35",
+   "#4BB2FE",
+   "#1041CA",
+   "#1287FC"
+  ],
+  "video": true
+ },
+ "footer-design": {
+  "page": "https://designeer.xyz/inspiration/footer-design",
+  "category": "Galleries",
+  "palette": [
+   "#FEFEFE",
+   "#340AEB",
+   "#6547ED",
+   "#AC9DF0",
+   "#7767CA"
+  ],
+  "video": true
+ },
+ "posts-design": {
+  "page": "https://designeer.xyz/inspiration/posts-design",
+  "category": "Galleries",
+  "palette": [
+   "#F7F7F7",
+   "#030305",
+   "#5266DE",
+   "#0935E9",
+   "#073A18"
+  ],
+  "video": true
+ },
+ "cli-guidelines": {
+  "page": "https://designeer.xyz/tools/vercel",
+  "category": "Development",
+  "palette": [
+   "#FAFAFA",
+   "#D9D9D9",
+   "#AAAAAA",
+   "#010101",
+   "#777777"
+  ],
+  "video": true
+ },
+ "awwwards": {
+  "page": "https://designeer.xyz/inspiration/awwwards",
+  "category": "Galleries",
+  "palette": [
+   "#E9E9E9",
+   "#0C0C0C",
+   "#A5A5A5",
+   "#C8C8C8",
+   "#676767"
+  ],
+  "video": true
+ },
+ "land-book": {
+  "page": "https://designeer.xyz/inspiration/land-book",
+  "category": "Galleries",
+  "palette": [
+   "#FFFFFF",
+   "#CCCBCC"
+  ],
+  "video": true
+ },
+ "saaspo": {
+  "page": "https://designeer.xyz/inspiration/saaspo",
+  "category": "Galleries",
+  "palette": [
+   "#0B0E13",
+   "#F8F7F3",
+   "#2A2C32",
+   "#D7D6D5",
+   "#79797B"
+  ],
+  "video": true
+ },
+ "lapa-ninja": {
+  "page": "https://designeer.xyz/inspiration/lapa-ninja",
+  "category": "Galleries",
+  "palette": [
+   "#FBFCFD",
+   "#DADDE3",
+   "#BABDC2",
+   "#878C94",
+   "#4B83DB"
+  ],
+  "video": true
+ },
+ "seesaw": {
+  "page": "https://designeer.xyz/inspiration/seesaw",
+  "category": "Galleries",
+  "palette": [
+   "#FDFDFD",
+   "#D9D7D8",
+   "#B8B6B6",
+   "#6A6868",
+   "#373947"
+  ],
+  "video": true
+ },
+ "a1-gallery": {
+  "page": "https://designeer.xyz/inspiration/a1",
+  "category": "Galleries",
+  "palette": [
+   "#121413",
+   "#FDFDFD",
+   "#353736",
+   "#F4FDC3",
+   "#676767"
+  ],
+  "video": true
+ },
+ "dark-mode-design": {
+  "page": "https://designeer.xyz/inspiration/dark-mode-design",
+  "category": "Galleries",
+  "palette": [
+   "#020203",
+   "#272628",
+   "#474648",
+   "#696768",
+   "#2A235E"
+  ],
+  "video": true
+ },
+ "design-spells": {
+  "page": "https://designeer.xyz/inspiration/design-spells",
+  "category": "Reading",
+  "palette": [
+   "#FAFAF8",
+   "#020203",
+   "#969696",
+   "#D9D9D7",
+   "#777878"
+  ],
+  "video": true
+ },
+ "desengs": {
+  "page": "https://designeer.xyz/inspiration/desengs-com",
+  "category": "Galleries",
+  "palette": [
+   "#09090B",
+   "#262628",
+   "#686668",
+   "#31528C",
+   "#B2CBA6"
+  ],
+  "video": true
+ },
+ "umanmade": {
+  "page": "https://designeer.xyz/inspiration/umanmade",
+  "category": "Galleries",
+  "palette": [
+   "#010207",
+   "#F4F4F4",
+   "#022556",
+   "#034497",
+   "#055CC5"
+  ],
+  "video": true
+ },
+ "rebrand-gallery": {
+  "page": "https://designeer.xyz/inspiration/rebrand-gallery",
+  "category": "Galleries",
+  "palette": [
+   "#FDFDFD",
+   "#030303",
+   "#C5C6C6",
+   "#A4A4A4",
+   "#272729"
+  ],
+  "video": true
+ },
+ "icon-museum": {
+  "page": "https://designeer.xyz/resources/icon-museum",
+  "category": "Icons",
+  "palette": [
+   "#FEFEFE",
+   "#B7B7B8",
+   "#D8D8D8",
+   "#474747",
+   "#868684"
+  ],
+  "video": true
+ },
+ "macos-icon-gallery": {
+  "page": "https://designeer.xyz/resources/macos-icon-gallery",
+  "category": "Icons",
+  "palette": [],
+  "video": true
+ },
+ "designspiration": {
+  "page": "https://designeer.xyz/inspiration/designspiration",
+  "category": "Galleries",
+  "palette": [
+   "#FEFEFE",
+   "#DAD9D9",
+   "#BAB8BC",
+   "#95A17D",
+   "#C9393B"
+  ],
+  "video": true
+ },
+ "muzli": {
+  "page": "https://designeer.xyz/inspiration/muzli",
+  "category": "Reading",
+  "palette": [
+   "#FEFEFE",
+   "#FBD8CC",
+   "#C6C8C7",
+   "#01D8FC",
+   "#96A8FF"
+  ],
+  "video": true
+ },
+ "cosmos": {
+  "page": "https://designeer.xyz/inspiration/cosmos",
+  "category": "Galleries",
+  "palette": [
+   "#F8F7F6",
+   "#D9D8D6",
+   "#A8A7A6",
+   "#8A8A89",
+   "#385947"
+  ],
+  "video": true
+ },
+ "perfolios": {
+  "page": "https://designeer.xyz/inspiration/perfolios",
+  "category": "Galleries",
+  "palette": [
+   "#0A0B07",
+   "#363A16",
+   "#777A35",
+   "#797975",
+   "#4B4A46"
+  ],
+  "video": true
+ },
+ "vibrant-design": {
+  "page": "https://designeer.xyz/inspiration/vibrant-design",
+  "category": "Galleries",
+  "palette": [
+   "#FBFBFB",
+   "#969698",
+   "#B7B7B8",
+   "#D8D8D8",
+   "#A3BDFB"
+  ],
+  "video": true
+ },
+ "landing-love": {
+  "page": "https://designeer.xyz/inspiration/landing-love",
+  "category": "Galleries",
+  "palette": [
+   "#FEFDFE",
+   "#B49B84",
+   "#1A1A1A",
+   "#C7C7C6",
+   "#676768"
+  ],
+  "video": true
+ },
+ "design-details": {
+  "page": "https://designeer.xyz/inspiration/design-details",
+  "category": "Galleries",
+  "palette": []
+ },
+ "ui-sections": {
+  "page": "https://designeer.xyz/inspiration/ui-sections",
+  "category": "Galleries",
+  "palette": [
+   "#FDFDFD",
+   "#140019",
+   "#D8D9D8",
+   "#979898",
+   "#B8B8B9"
+  ]
+ },
+ "hover-states": {
+  "page": "https://designeer.xyz/inspiration/hover-states",
+  "category": "Galleries",
+  "palette": [
+   "#F1F1F1",
+   "#FCCAAA",
+   "#D7AD92",
+   "#C9C9C9",
+   "#786556"
+  ],
+  "video": true
+ },
+ "loadmo-re": {
+  "page": "https://designeer.xyz/inspiration/loadmo-re",
+  "category": "Galleries",
+  "palette": [
+   "#FAFAFA",
+   "#D8D8D8",
+   "#2900F6",
+   "#030303",
+   "#9A9A9A"
+  ],
+  "video": true
+ },
+ "sections-wtf": {
+  "page": "https://designeer.xyz/inspiration/sections-wtf",
+  "category": "Galleries",
+  "palette": [
+   "#FDFDFC",
+   "#040404",
+   "#FD4D14",
+   "#D7D6D6",
+   "#484848"
+  ],
+  "video": true
+ },
+ "landingfolio": {
+  "page": "https://designeer.xyz/inspiration/landingfolio",
+  "category": "Galleries",
+  "palette": [
+   "#FCFCFC",
+   "#070707",
+   "#D8D7D9",
+   "#292727",
+   "#484847"
+  ],
+  "video": true
+ },
+ "one-page-love": {
+  "page": "https://designeer.xyz/inspiration/one-page-love",
+  "category": "Galleries",
+  "palette": [
+   "#EAE6E4",
+   "#161616",
+   "#CAC7C7",
+   "#AAA7A8",
+   "#544A53"
+  ],
+  "video": true
+ },
+ "liquid-glass-design": {
+  "page": "https://designeer.xyz/inspiration/liquid-glass-design",
+  "category": "Galleries",
+  "palette": [
+   "#171717",
+   "#F4F5F4",
+   "#343636",
+   "#C6C7C9",
+   "#888889"
+  ]
+ },
+ "uibook": {
+  "page": "https://designeer.xyz/inspiration/uibook",
+  "category": "Galleries",
+  "palette": [
+   "#FAFBFD",
+   "#030302",
+   "#D6D7D8",
+   "#B7B7BA",
+   "#360601"
+  ]
+ },
+ "motionimo": {
+  "page": "https://designeer.xyz/inspiration/motionimo",
+  "category": "Galleries",
+  "palette": [
+   "#010101",
+   "#252525",
+   "#634916",
+   "#5B0C08",
+   "#474646"
+  ],
+  "video": true
+ },
+ "deck-gallery": {
+  "page": "https://designeer.xyz/inspiration/deck-gallery",
+  "category": "Galleries",
+  "palette": [
+   "#FFFFFF",
+   "#005ACB",
+   "#FEDD3A",
+   "#D8F782",
+   "#C5B835"
+  ],
+  "video": true
+ },
+ "detail-design": {
+  "page": "https://designeer.xyz/inspiration/detail-design",
+  "category": "Galleries",
+  "palette": [
+   "#FAF9F7",
+   "#151515",
+   "#D9D9D7",
+   "#9B9A99",
+   "#313131"
+  ],
+  "video": true
+ },
+ "what-ships": {
+  "page": "https://designeer.xyz/inspiration/what-ships",
+  "category": "Galleries",
+  "palette": [
+   "#FAFAF9",
+   "#050507",
+   "#B6B7B6",
+   "#262728",
+   "#D9D8D8"
+  ],
+  "video": true
+ },
+ "folios-gallery": {
+  "page": "https://designeer.xyz/inspiration/folios-gallery",
+  "category": "Galleries",
+  "palette": [
+   "#FFFEFF",
+   "#DCA7FD",
+   "#D5D5D6",
+   "#989898",
+   "#AA2AFE"
+  ],
+  "video": true
+ },
+ "wall-of-portfolios": {
+  "page": "https://designeer.xyz/inspiration/wall-of-portfolios",
+  "category": "Galleries",
+  "palette": [
+   "#FDFDFD",
+   "#D7D8D9",
+   "#B6B8BB",
+   "#94969D",
+   "#686A74"
+  ],
+  "video": true
+ },
+ "best-website-gallery": {
+  "page": "https://designeer.xyz/inspiration/best-website-gallery",
+  "category": "Galleries",
+  "palette": [
+   "#F4F4F4",
+   "#A8A8A8",
+   "#C7C8C7",
+   "#454545",
+   "#888888"
+  ],
+  "video": true
+ },
+ "wwwtf-site": {
+  "page": "https://designeer.xyz/inspiration/wwwtf-site",
+  "category": "Galleries",
+  "palette": [
+   "#FEFEFE",
+   "#298CAB",
+   "#0A1B2C",
+   "#0606FD",
+   "#555556"
+  ],
+  "video": true
+ },
+ "browse-cool": {
+  "page": "https://designeer.xyz/inspiration/browse-cool",
+  "category": "Galleries",
+  "palette": [
+   "#FAFAFA",
+   "#6EC3FC",
+   "#24A7FF",
+   "#CCE9FB"
+  ],
+  "video": true
+ },
+ "godly-design": {
+  "page": "https://designeer.xyz/inspiration/godly",
+  "category": "Galleries",
+  "palette": [
+   "#010101",
+   "#F9FAFC",
+   "#242426",
+   "#CBE4FC",
+   "#464649"
+  ]
+ },
+ "pills-design": {
+  "page": "https://designeer.xyz/inspiration/pills-design",
+  "category": "Galleries",
+  "palette": []
+ },
+ "goodest": {
+  "page": "https://designeer.xyz/inspiration/goodest",
+  "category": "Galleries",
+  "palette": [
+   "#FBFBFC",
+   "#D7D7D7",
+   "#A7B5CA",
+   "#969798",
+   "#E8B894"
+  ]
+ },
+ "coolest": {
+  "page": "https://designeer.xyz/inspiration/coolest",
+  "category": "Galleries",
+  "palette": [
+   "#FBFBFB",
+   "#DCDCDD",
+   "#BABDC5"
+  ]
+ },
+ "saas-landing-page": {
+  "page": "https://designeer.xyz/inspiration/saas-landing-page",
+  "category": "Galleries",
+  "palette": [
+   "#FBFBFB",
+   "#020202",
+   "#272729",
+   "#838486",
+   "#D8D8D9"
+  ],
+  "video": true
+ },
+ "appinspo": {
+  "page": "https://designeer.xyz/inspiration/appinspo",
+  "category": "Galleries",
+  "palette": [
+   "#FEFEFE",
+   "#030303",
+   "#272728",
+   "#B7B8B9",
+   "#D6D7D7"
+  ],
+  "video": true
+ },
+ "layers-to": {
+  "page": "https://designeer.xyz/inspiration/layers",
+  "category": "Galleries",
+  "palette": [
+   "#FBFBFB",
+   "#070605",
+   "#D6D6D6",
+   "#999999",
+   "#282727"
+  ],
+  "video": true
+ },
+ "behance": {
+  "page": "https://designeer.xyz/inspiration/behance",
+  "category": "Galleries",
+  "palette": [
+   "#FBFBFE",
+   "#D8D8DA",
+   "#B9B9B9",
+   "#040404",
+   "#FAC526"
+  ],
+  "video": true
+ },
+ "dribbble": {
+  "page": "https://designeer.xyz/inspiration/dribbble",
+  "category": "Galleries",
+  "palette": [
+   "#FDFCFD",
+   "#050505",
+   "#A4A4A7",
+   "#C7C6CA",
+   "#454547"
+  ],
+  "video": true
+ },
+ "are-na": {
+  "page": "https://designeer.xyz/inspiration/are-na",
+  "category": "Galleries",
+  "palette": [
+   "#FEFEFE",
+   "#DAD9DA",
+   "#ABACCA",
+   "#474B8D",
+   "#6E71A5"
+  ],
+  "video": true
+ },
+ "jessy-in-gallery": {
+  "page": "https://designeer.xyz/inspiration/jessy-in-s-gallery",
+  "category": "Galleries",
+  "palette": [
+   "#FDFDFC",
+   "#B6ABA7",
+   "#E5DECA",
+   "#383735",
+   "#857A58"
+  ],
+  "video": true
+ },
+ "inspiration-grid": {
+  "page": "https://designeer.xyz/inspiration/inspiration-grid",
+  "category": "Galleries",
+  "palette": [
+   "#FEFEFE",
+   "#58789B",
+   "#87CAFB",
+   "#F988B5",
+   "#C7C9C6"
+  ],
+  "video": true
+ },
+ "pinterest": {
+  "page": "https://designeer.xyz/inspiration/pinterest",
+  "category": "Galleries",
+  "palette": [
+   "#FCFDFB",
+   "#D9DAD8",
+   "#BABAB8",
+   "#B63803",
+   "#C7C687"
+  ],
+  "video": true
+ },
+ "99designs-discover": {
+  "page": "https://designeer.xyz/inspiration/99designs-discover",
+  "category": "Reading",
+  "palette": [
+   "#FDFDFD",
+   "#D8D7D7",
+   "#030404",
+   "#393939",
+   "#A9AAAA"
+  ],
+  "video": true
+ },
+ "abduzeedo": {
+  "page": "https://designeer.xyz/inspiration/abduzeedo",
+  "category": "Reading",
+  "palette": [
+   "#FEFEFE",
+   "#A8561A",
+   "#030205",
+   "#D5D5D5",
+   "#A8A8AA"
+  ],
+  "video": true
+ },
+ "loader-buttons": {
+  "page": "https://designeer.xyz/inspiration/loader-buttons",
+  "category": "Galleries",
+  "palette": [
+   "#F0F0F0",
+   "#979797",
+   "#C7C7C7",
+   "#757575"
+  ],
+  "video": true
+ },
+ "ui-labs": {
+  "page": "https://designeer.xyz/inspiration/ui-labs",
+  "category": "Galleries",
+  "palette": [
+   "#FAFAFA",
+   "#C8C8C8",
+   "#A6A6A6",
+   "#FDCAE1"
+  ],
+  "video": true
+ },
+ "uiwtf": {
+  "page": "https://designeer.xyz/inspiration/uiwtf",
+  "category": "Galleries",
+  "palette": [
+   "#FEFBFC",
+   "#E7D6DD",
+   "#8D8387",
+   "#AC9EA4",
+   "#696265"
+  ],
+  "video": true
+ },
+ "multi-chain-selector": {
+  "page": "https://designeer.xyz/portfolios/bikash-sahu",
+  "category": "Design Engineering",
+  "palette": [
+   "#F7F7F7",
+   "#D9DAD9",
+   "#B7BAB9",
+   "#EAA7D6",
+   "#8E908F"
+  ]
+ },
+ "watercolor-art-gallery": {
+  "page": "https://designeer.xyz/inspiration/watercolor-art-gallery",
+  "category": "Galleries",
+  "palette": [
+   "#F3F0E8",
+   "#C8D9D7",
+   "#6A7494",
+   "#A8ABA5",
+   "#977A6E"
+  ],
+  "video": true
+ },
+ "great-apps": {
+  "page": "https://designeer.xyz/inspiration/great-apps",
+  "category": "Galleries",
+  "palette": [
+   "#FEFEFE",
+   "#C7C7C6",
+   "#D9D7F6",
+   "#4AB6FD",
+   "#E39F9C"
+  ],
+  "video": true
+ },
+ "backgrounds-supply": {
+  "page": "https://designeer.xyz/inspiration/backgrounds-supply",
+  "category": "Galleries",
+  "palette": [
+   "#040203",
+   "#390618",
+   "#680A37",
+   "#B73787",
+   "#94125B"
+  ],
+  "video": true
+ },
+ "bestdesignsonx": {
+  "page": "https://designeer.xyz/inspiration/bestdesignsonx-com",
+  "category": "Galleries",
+  "palette": [
+   "#F8F8F9",
+   "#2B66F7",
+   "#FE9772",
+   "#766A5A",
+   "#D8DBDC"
+  ],
+  "video": true
+ },
+ "collectui": {
+  "page": "https://designeer.xyz/inspiration/collect-ui",
+  "category": "Galleries",
+  "palette": [
+   "#FEFEFE",
+   "#D8D9DA",
+   "#B6B7BA",
+   "#8B8D93",
+   "#424451"
+  ],
+  "video": true
+ },
+ "inspora": {
+  "page": "https://designeer.xyz/inspiration/inspora-design",
+  "category": "Galleries",
+  "palette": [
+   "#FCFCFD",
+   "#D7D7D7",
+   "#262727",
+   "#B6B6B5",
+   "#696968"
+  ],
+  "video": true
+ },
+ "landdding": {
+  "page": "https://designeer.xyz/inspiration/landdding",
+  "category": "Galleries",
+  "palette": [
+   "#F8F8F7",
+   "#040404",
+   "#D9D9D8",
+   "#252625",
+   "#B7B8B7"
+  ],
+  "video": true
+ },
+ "minimal-gallery": {
+  "page": "https://designeer.xyz/inspiration/minimal-gallery",
+  "category": "Galleries",
+  "palette": [
+   "#020202",
+   "#FBFBFB",
+   "#01FD53",
+   "#272727",
+   "#484848"
+  ],
+  "video": true
+ },
+ "cta-gallery": {
+  "page": "https://designeer.xyz/inspiration/cta-gallery",
+  "category": "Galleries",
+  "palette": [
+   "#0E0F11",
+   "#FEFEFC",
+   "#353537",
+   "#CBC8C6",
+   "#565657"
+  ],
+  "video": true
+ },
+ "designbookmark": {
+  "page": "https://designeer.xyz/inspiration/design-bookmark",
+  "category": "Galleries",
+  "palette": [
+   "#040404",
+   "#262626",
+   "#FBFBFA",
+   "#686767",
+   "#464646"
+  ],
+  "video": true
+ },
+ "designeng": {
+  "page": "https://designeer.xyz/inspiration/designeng-tools",
+  "category": "Galleries",
+  "palette": [
+   "#F6F6F6",
+   "#D9D9D9",
+   "#B9B8B8",
+   "#030203",
+   "#2A2C2D"
+  ],
+  "video": true
+ },
+ "curated-domains": {
+  "page": "https://designeer.xyz/inspiration/curated-domains",
+  "category": "Galleries",
+  "palette": [
+   "#FEFEFE",
+   "#DCDCDB",
+   "#65C0FE",
+   "#ADDFFE"
+  ],
+  "video": true
+ },
+ "early": {
+  "page": "https://designeer.xyz/inspiration/early",
+  "category": "Galleries",
+  "palette": [
+   "#FAFBFA",
+   "#D9D9D9",
+   "#B7B7B7",
+   "#474847",
+   "#2C2B2B"
+  ],
+  "video": true
+ },
+ "openalternative": {
+  "page": "https://designeer.xyz/inspiration/openalternative",
+  "category": "Galleries",
+  "palette": [
+   "#FCFDFC",
+   "#D9DAD9",
+   "#979797",
+   "#BAB9B9",
+   "#CC9885"
+  ],
+  "video": true
+ },
+ "macfolio": {
+  "page": "https://designeer.xyz/inspiration/macfolio",
+  "category": "Galleries",
+  "palette": [
+   "#FEFEFE",
+   "#161817",
+   "#B9B8B7",
+   "#999896",
+   "#353738"
+  ],
+  "video": true
+ },
+ "dotstore": {
+  "page": "https://designeer.xyz/inspiration/dotstore",
+  "category": "Galleries",
+  "palette": [
+   "#09090B",
+   "#132438",
+   "#496888",
+   "#2C4764",
+   "#6587A8"
+  ],
+  "video": true
+ },
+ "swiped": {
+  "page": "https://designeer.xyz/inspiration/swiped",
+  "category": "Galleries",
+  "palette": [
+   "#FDFDFD",
+   "#DCDCDB",
+   "#071947",
+   "#030303",
+   "#474746"
+  ],
+  "video": true
+ },
+ "ux-archive": {
+  "page": "https://designeer.xyz/inspiration/ux-archive",
+  "category": "Galleries",
+  "palette": [
+   "#FEFEFE",
+   "#DADADA"
+  ],
+  "video": true
+ },
+ "designengineer-tools": {
+  "page": "https://designeer.xyz/inspiration/designengineer-tools",
+  "category": "Galleries",
+  "palette": [
+   "#FEFEFE",
+   "#D8D8D7",
+   "#BBBCBD"
+  ],
+  "video": true
+ },
+ "everywhere-tools": {
+  "page": "https://designeer.xyz/inspiration/everywhere-tools",
+  "category": "Galleries",
+  "palette": [
+   "#DBDBDB",
+   "#FAFAFA",
+   "#070706",
+   "#989897",
+   "#B8B8B7"
+  ],
+  "video": true
+ },
+ "mkdir-directory": {
+  "page": "https://designeer.xyz/inspiration/mkdir-curated-design-inspiration-directories",
+  "category": "Galleries",
+  "palette": [
+   "#FAFAFC",
+   "#96979B",
+   "#B6B7BA",
+   "#D7D6D9",
+   "#67686C"
+  ],
+  "video": true
+ },
+ "curations-supply": {
+  "page": "https://designeer.xyz/inspiration/curations",
+  "category": "Galleries",
+  "palette": [
+   "#080708",
+   "#37160A",
+   "#77380B",
+   "#474748",
+   "#866516"
+  ],
+  "video": true
+ },
+ "insposite": {
+  "page": "https://designeer.xyz/inspiration/insposite",
+  "category": "Galleries",
+  "palette": [
+   "#FEFEFE",
+   "#060607",
+   "#D8D9DA",
+   "#767677",
+   "#ABABAB"
+  ],
+  "video": true
+ },
+ "greatstuff": {
+  "page": "https://designeer.xyz/inspiration/greatstuff",
+  "category": "Galleries",
+  "palette": [
+   "#FEFEFE",
+   "#030304",
+   "#D9D9DA",
+   "#282827",
+   "#888888"
+  ],
+  "video": true
+ },
+ "isthereanytool": {
+  "page": "https://designeer.xyz/inspiration/isthereanytool",
+  "category": "Galleries",
+  "palette": [
+   "#08080A",
+   "#282828",
+   "#494846",
+   "#696765",
+   "#272D5F"
+  ],
+  "video": true
+ },
+ "nicelydone": {
+  "page": "https://designeer.xyz/inspiration/nicelydone",
+  "category": "Galleries",
+  "palette": [
+   "#FEFEFE",
+   "#86898B",
+   "#020202",
+   "#D8D8D8",
+   "#B8B7B7"
+  ]
+ },
+ "saasframe": {
+  "page": "https://designeer.xyz/inspiration/saasframe",
+  "category": "Galleries",
+  "palette": [
+   "#FDFDFE",
+   "#A7A7A7",
+   "#C8C8C8",
+   "#878787",
+   "#373837"
+  ],
+  "video": true
+ },
+ "pttrns": {
+  "page": "https://designeer.xyz/inspiration/pttrns",
+  "category": "Galleries",
+  "palette": [
+   "#EDF0FF",
+   "#D7D7D9",
+   "#E64975",
+   "#CC82AE",
+   "#969799"
+  ],
+  "video": true
+ },
+ "best-saas-web-designs": {
+  "page": "https://designeer.xyz/inspiration/best-saas-web-designs",
+  "category": "Galleries",
+  "palette": [
+   "#F7F6F2",
+   "#EBB6A8",
+   "#8A8985",
+   "#B9B9B5",
+   "#6D6C68"
+  ],
+  "video": true
+ },
+ "details-so": {
+  "page": "https://designeer.xyz/inspiration/details",
+  "category": "Galleries",
+  "palette": [
+   "#FDFDFC",
+   "#D7D7D6",
+   "#B7B8B8",
+   "#959595",
+   "#5C575A"
+  ],
+  "video": true
+ },
+ "maxibestof": {
+  "page": "https://designeer.xyz/inspiration/maxibestof",
+  "category": "Galleries",
+  "palette": [
+   "#000000",
+   "#353535",
+   "#565757",
+   "#767777",
+   "#A9A7A6"
+  ]
+ },
+ "good-ui": {
+  "page": "https://designeer.xyz/inspiration/good-ui",
+  "category": "Reading",
+  "palette": [
+   "#F7F7F7",
+   "#3D3D3D",
+   "#666666",
+   "#A7A6A8",
+   "#D9D9D9"
+  ],
+  "video": true
+ },
+ "component-gallery": {
+  "page": "https://designeer.xyz/resources/component-gallery",
+  "category": "Components",
+  "palette": [
+   "#F7F7F3",
+   "#DBD9D7",
+   "#BAB9B7"
+  ],
+  "video": true
+ },
+ "supahero": {
+  "page": "https://designeer.xyz/inspiration/supahero",
+  "category": "Galleries",
+  "palette": [
+   "#FDFDFD",
+   "#0C0C15",
+   "#C8C7C8",
+   "#A7A6A6",
+   "#55555C"
+  ],
+  "video": true
+ },
+ "ogfolio": {
+  "page": "https://designeer.xyz/inspiration/ogfolio",
+  "category": "Galleries",
+  "palette": [
+   "#030303",
+   "#393939",
+   "#381207",
+   "#01163C",
+   "#686867"
+  ],
+  "video": true
+ },
+ "herogrids": {
+  "page": "https://designeer.xyz/inspiration/herogrids",
+  "category": "Galleries",
+  "palette": [
+   "#0A0A0A",
+   "#F4F4F4",
+   "#D2D6DB",
+   "#292929",
+   "#A6A7A7"
+  ]
+ },
+ "navbar-design": {
+  "page": "https://designeer.xyz/inspiration/navbar-design",
+  "category": "Galleries",
+  "palette": [
+   "#FCFCFC",
+   "#031728",
+   "#ABB5B6",
+   "#D8D8D9",
+   "#384856"
+  ],
+  "video": true
+ },
+ "before-click": {
+  "page": "https://designeer.xyz/inspiration/before-click",
+  "category": "Galleries",
+  "palette": [
+   "#FAFAFA",
+   "#D8D8D8",
+   "#B8B8B8",
+   "#1B74B2",
+   "#777776"
+  ],
+  "video": true
+ },
+ "profiles-gallery": {
+  "page": "https://designeer.xyz/inspiration/profiles-gallery",
+  "category": "Galleries",
+  "palette": [
+   "#FEFEFE",
+   "#020303",
+   "#D9D9DA",
+   "#A7A7A8",
+   "#282827"
+  ]
+ },
+ "fontshare": {
+  "page": "https://designeer.xyz/resources/fontshare",
+  "category": "Type & Colour",
+  "palette": [
+   "#FFFFE3",
+   "#ABAB98",
+   "#050504",
+   "#79796B",
+   "#DBDBC4"
+  ],
+  "video": true
+ },
+ "google-fonts": {
+  "page": "https://designeer.xyz/resources/material-symbols",
+  "category": "Icons",
+  "palette": [
+   "#FBFCFD",
+   "#D9D9DA",
+   "#4882DC",
+   "#B9B9B8",
+   "#AEC7ED"
+  ],
+  "video": true
+ },
+ "geist": {
+  "page": "https://designeer.xyz/tools/vercel",
+  "category": "Development",
+  "palette": [
+   "#FAFAFA",
+   "#D9D9D9",
+   "#AAAAAA",
+   "#010101",
+   "#777777"
+  ],
+  "video": true
+ },
+ "fontsource": {
+  "page": "https://designeer.xyz/resources/fontsource",
+  "category": "Type & Colour",
+  "palette": [
+   "#FCFCFD",
+   "#D4D6DB",
+   "#AFACFC"
+  ],
+  "video": true
+ },
+ "velvetyne": {
+  "page": "https://designeer.xyz/resources/velvetyne",
+  "category": "Type & Colour",
+  "palette": [
+   "#E9E9E9",
+   "#C9C9C9",
+   "#888888",
+   "#A7A7A7",
+   "#141414"
+  ],
+  "video": true
+ },
+ "departure-mono": {
+  "page": "https://designeer.xyz/resources/departure-mono",
+  "category": "Type & Colour",
+  "palette": [
+   "#EDEDED",
+   "#464646",
+   "#C9B9A9",
+   "#717171",
+   "#969696"
+  ],
+  "video": true
+ },
+ "typefree": {
+  "page": "https://designeer.xyz/resources/typefree",
+  "category": "Type & Colour",
+  "palette": [],
+  "video": true
+ },
+ "utopia": {
+  "page": "https://designeer.xyz/resources/utopia",
+  "category": "Type & Colour",
+  "palette": [
+   "#FEFEFE",
+   "#062438",
+   "#334C5D",
+   "#DEE2E5",
+   "#B8C1C8"
+  ],
+  "video": true
+ },
+ "wakamai-fondue": {
+  "page": "https://designeer.xyz/resources/wakamai-fondue",
+  "category": "Type & Colour",
+  "palette": [
+   "#DED7B3",
+   "#67463C",
+   "#985846",
+   "#A87B65",
+   "#3B3334"
+  ],
+  "video": true
+ },
+ "typical": {
+  "page": "https://designeer.xyz/tools/typical",
+  "category": "",
+  "palette": [
+   "#FEFEFE",
+   "#888888",
+   "#C7C7C8",
+   "#A7A7A7",
+   "#5A5A5A"
+  ]
+ },
+ "klim": {
+  "page": "https://designeer.xyz/resources/klim",
+  "category": "Type & Colour",
+  "palette": [
+   "#CD3408",
+   "#030703",
+   "#380E02",
+   "#982607",
+   "#691B06"
+  ],
+  "video": true
+ },
+ "oklch-picker": {
+  "page": "https://designeer.xyz/resources/oklch",
+  "category": "Type & Colour",
+  "palette": [
+   "#F9F9FB",
+   "#D28166",
+   "#D8D7D9",
+   "#E1AB98",
+   "#AA9788"
+  ],
+  "video": true
+ },
+ "ramps": {
+  "page": "https://designeer.xyz/resources/ramps",
+  "category": "Type & Colour",
+  "palette": [
+   "#FCFCFB",
+   "#D7D8D8",
+   "#A5C4FC",
+   "#64666C",
+   "#8E6500"
+  ],
+  "video": true
+ },
+ "huetone": {
+  "page": "https://designeer.xyz/resources/huetone",
+  "category": "Type & Colour",
+  "palette": [
+   "#F6F8FC",
+   "#D9D9DB",
+   "#E8C6A7",
+   "#D89958",
+   "#898887"
+  ],
+  "video": true
+ },
+ "color-review": {
+  "page": "https://designeer.xyz/resources/color-review",
+  "category": "Type & Colour",
+  "palette": [
+   "#FEFEFE",
+   "#010207",
+   "#1A2A38",
+   "#C3C7CB",
+   "#A3A7AC"
+  ],
+  "video": true
+ },
+ "apca": {
+  "page": "https://designeer.xyz/resources/apca",
+  "category": "Type & Colour",
+  "palette": [
+   "#FFFFFF"
+  ]
+ },
+ "atmos": {
+  "page": "https://designeer.xyz/resources/atmos",
+  "category": "Type & Colour",
+  "palette": [
+   "#15181C",
+   "#563CF9",
+   "#FDFDFE",
+   "#4734C8",
+   "#392C98"
+  ]
+ },
+ "iro-zukan": {
+  "page": "https://designeer.xyz/resources/iro-zukan",
+  "category": "Type & Colour",
+  "palette": [
+   "#4E4C61",
+   "#767585",
+   "#D7D7DB",
+   "#9A9AA5",
+   "#F4F4F4"
+  ]
+ },
+ "sombra": {
+  "page": "https://designeer.xyz/inspiration/sombra",
+  "category": "Galleries",
+  "palette": [
+   "#FCFCFC",
+   "#014AD7",
+   "#FADA35",
+   "#FDA713",
+   "#FB5628"
+  ],
+  "video": true
+ },
+ "thesvg": {
+  "page": "https://designeer.xyz/resources/thesvg",
+  "category": "Icons",
+  "palette": [
+   "#050505",
+   "#1A2738",
+   "#364456",
+   "#949494",
+   "#6C3707"
+  ],
+  "video": true
+ },
+ "iconsdb": {
+  "page": "https://designeer.xyz/resources/iconsdb",
+  "category": "Icons",
+  "palette": [
+   "#FBFCFC",
+   "#D7D7D8",
+   "#B7B8B9",
+   "#979899",
+   "#1972E8"
+  ]
+ },
+ "icon-foundry": {
+  "page": "https://designeer.xyz/resources/icon-foundry",
+  "category": "Icons",
+  "palette": [
+   "#FCFCFC",
+   "#171717",
+   "#B8B8B9",
+   "#D7D8D8",
+   "#4B4B4B"
+  ],
+  "video": true
+ },
+ "iconsax": {
+  "page": "https://designeer.xyz/resources/iconsax",
+  "category": "Icons",
+  "palette": [
+   "#020202",
+   "#262626",
+   "#999999",
+   "#464646",
+   "#C9C9C9"
+  ],
+  "video": true
+ },
+ "icons-download": {
+  "page": "https://designeer.xyz/resources/icons-download",
+  "category": "Icons",
+  "palette": [
+   "#FEFEFE",
+   "#D7D7D7"
+  ],
+  "video": true
+ },
+ "icoon": {
+  "page": "https://designeer.xyz/tools/icoon",
+  "category": "Capture & Media",
+  "palette": [
+   "#F8F8F8",
+   "#FDDAB6",
+   "#FEA347",
+   "#C9C8C9",
+   "#F9B877"
+  ],
+  "video": true
+ },
+ "nucleo": {
+  "page": "https://designeer.xyz/resources/nucleo-the-ultimate-icon-bundle",
+  "category": "Icons",
+  "palette": [
+   "#FAFAFA",
+   "#C8C8C8",
+   "#989897",
+   "#797978",
+   "#191A1B"
+  ],
+  "video": true
+ },
+ "boxicons": {
+  "page": "https://designeer.xyz/resources/boxicons",
+  "category": "Icons",
+  "palette": [
+   "#FDFDFD",
+   "#131313",
+   "#727272",
+   "#D9D9D9",
+   "#383838"
+  ],
+  "video": true
+ },
+ "reicon": {
+  "page": "https://designeer.xyz/resources/reicon",
+  "category": "Icons",
+  "palette": [
+   "#070709",
+   "#363157",
+   "#242427",
+   "#656566",
+   "#9687E9"
+  ],
+  "video": true
+ },
+ "runeicons": {
+  "page": "https://designeer.xyz/resources/rune-icons",
+  "category": "Icons",
+  "palette": [
+   "#F6F6F5",
+   "#D9D9D9",
+   "#1644D9",
+   "#5978D8",
+   "#ABB9E7"
+  ],
+  "video": true
+ },
+ "feather-icons": {
+  "page": "https://designeer.xyz/resources/feather",
+  "category": "Icons",
+  "palette": [
+   "#FAFAFB",
+   "#D7D8DA",
+   "#0465FE",
+   "#86B6FF",
+   "#A7A8A8"
+  ],
+  "video": true
+ },
+ "mx-icons": {
+  "page": "https://designeer.xyz/resources/mx-icons",
+  "category": "Icons",
+  "palette": [
+   "#FAF9F5",
+   "#D5D3CD",
+   "#5A5648",
+   "#949287",
+   "#E6B7A4"
+  ],
+  "video": true
+ },
+ "eva-icons": {
+  "page": "https://designeer.xyz/resources/eva-icons",
+  "category": "Icons",
+  "palette": [
+   "#FEFEFE",
+   "#88A6FD",
+   "#FFCBD5",
+   "#CEDAFE",
+   "#FF9FAF"
+  ],
+  "video": true
+ },
+ "css-gg": {
+  "page": "https://designeer.xyz/resources/css-gg",
+  "category": "Icons",
+  "palette": [
+   "#631DDD",
+   "#FBFCFC",
+   "#844CE3",
+   "#010002",
+   "#A5A7AD"
+  ],
+  "video": true
+ },
+ "icons0": {
+  "page": "https://designeer.xyz/resources/icons0",
+  "category": "Icons",
+  "palette": [
+   "#0D0D0D",
+   "#3B242A",
+   "#727272"
+  ],
+  "video": true
+ },
+ "illos-dev": {
+  "page": "https://designeer.xyz/resources/illos-dev",
+  "category": "Components",
+  "palette": [
+   "#E4E3DE",
+   "#B7D4CB",
+   "#999793",
+   "#8DC4B8",
+   "#71706C"
+  ]
+ },
+ "inkword": {
+  "page": "https://designeer.xyz/resources/inkword",
+  "category": "Icons",
+  "palette": [
+   "#F2B705",
+   "#191A1A",
+   "#544617",
+   "#AB830C",
+   "#353B4A"
+  ],
+  "video": true
+ },
+ "mascofast": {
+  "page": "https://designeer.xyz/tools/mascofast",
+  "category": "Capture & Media",
+  "palette": [
+   "#062DCC",
+   "#0D3424",
+   "#4966D6",
+   "#052378",
+   "#3A3735"
+  ],
+  "video": true
+ },
+ "fffuel": {
+  "page": "https://designeer.xyz/tools/fffuel",
+  "category": "Capture & Media",
+  "palette": [
+   "#F5F2F8",
+   "#281F33",
+   "#DB8AC5",
+   "#050505",
+   "#D7C9FD"
+  ],
+  "video": true
+ },
+ "lottiefiles-free": {
+  "page": "https://designeer.xyz/resources/lottie",
+  "category": "Motion & 3D",
+  "palette": [
+   "#FFFFFF"
+  ],
+  "video": true
+ },
+ "rive-marketplace": {
+  "page": "https://designeer.xyz/resources/rive",
+  "category": "Motion & 3D",
+  "palette": [
+   "#010101",
+   "#282728",
+   "#A5D624",
+   "#484747",
+   "#676769"
+  ],
+  "video": true
+ },
+ "poly-haven": {
+  "page": "https://designeer.xyz/resources/poly-haven",
+  "category": "Motion & 3D",
+  "palette": [
+   "#393429",
+   "#675539",
+   "#87765A",
+   "#C7A985",
+   "#B5875B"
+  ],
+  "video": true
+ },
+ "sfxmint": {
+  "page": "https://designeer.xyz/tools/sfxmint",
+  "category": "Capture & Media",
+  "palette": [
+   "#F8F8F6",
+   "#0F1B19",
+   "#D6D9D6",
+   "#A8ADAB",
+   "#8C918F"
+  ]
+ },
+ "tabbied": {
+  "page": "https://designeer.xyz/tools/tabbied",
+  "category": "Capture & Media",
+  "palette": [
+   "#0E0E13",
+   "#431D0B",
+   "#883726",
+   "#163535",
+   "#C87B01"
+  ],
+  "video": true
+ },
+ "duskcover": {
+  "page": "https://designeer.xyz/tools/raylight",
+  "category": "Design & Canvas",
+  "palette": [
+   "#151616",
+   "#353536",
+   "#224881",
+   "#858584",
+   "#478BF1"
+  ],
+  "video": true
+ },
+ "wayglim": {
+  "page": "https://designeer.xyz/tools/raylight",
+  "category": "Design & Canvas",
+  "palette": [
+   "#151616",
+   "#353536",
+   "#224881",
+   "#858584",
+   "#478BF1"
+  ],
+  "video": true
+ },
+ "super-visuals": {
+  "page": "https://designeer.xyz/tools/figma",
+  "category": "Design & Canvas",
+  "palette": [
+   "#FEFEFE",
+   "#27C972",
+   "#7CE1AB",
+   "#D8D8D8",
+   "#F4A995"
+  ],
+  "video": true
+ },
+ "particle-logo": {
+  "page": "https://designeer.xyz/tools/particle-logo",
+  "category": "Design & Canvas",
+  "palette": [
+   "#010101",
+   "#58595A",
+   "#262627",
+   "#767778",
+   "#A4A5A7"
+  ]
+ },
+ "asciinator": {
+  "page": "https://designeer.xyz/tools/asciinator",
+  "category": "Capture & Media",
+  "palette": [
+   "#121212",
+   "#323232"
+  ],
+  "video": true
+ },
+ "ascii-studio": {
+  "page": "https://designeer.xyz/tools/ascii-studio",
+  "category": "Capture & Media",
+  "palette": [
+   "#FAFBFC",
+   "#C8DAFD",
+   "#98B9FD",
+   "#C5C7CB",
+   "#A6A8AD"
+  ],
+  "video": true
+ },
+ "kracked-ascii": {
+  "page": "https://designeer.xyz/tools/ascii-kracked-devs",
+  "category": "Capture & Media",
+  "palette": [
+   "#0F1315",
+   "#1E5834",
+   "#989898",
+   "#288649",
+   "#565657"
+  ],
+  "video": true
+ },
+ "dotforge": {
+  "page": "https://designeer.xyz/tools/dotforge",
+  "category": "Capture & Media",
+  "palette": [
+   "#080808",
+   "#FCFCFC",
+   "#252525",
+   "#767676",
+   "#D8D8D8"
+  ],
+  "video": true
+ },
+ "dither-lab": {
+  "page": "https://designeer.xyz/tools/dither-lab",
+  "category": "Capture & Media",
+  "palette": [
+   "#040301",
+   "#332201",
+   "#3A3836"
+  ],
+  "video": true
+ },
+ "tooooools": {
+  "page": "https://designeer.xyz/tools/tooooools",
+  "category": "Capture & Media",
+  "palette": [
+   "#F9F8F4",
+   "#CCCBC7",
+   "#575756",
+   "#777776",
+   "#999896"
+  ],
+  "video": true
+ },
+ "dot-shader": {
+  "page": "https://designeer.xyz/portfolios/noman-ijaz",
+  "category": "Design",
+  "palette": [
+   "#040404",
+   "#97A807",
+   "#273805",
+   "#667A05"
+  ],
+  "video": true
+ },
+ "craftwork": {
+  "page": "https://designeer.xyz/resources/craftwork",
+  "category": "",
+  "palette": [
+   "#FFFFFF",
+   "#767676",
+   "#CCCCCC",
+   "#969696"
+  ]
+ },
+ "venust-backgrounds": {
+  "page": "https://designeer.xyz/inspiration/venust-backgrounds",
+  "category": "Galleries",
+  "palette": [
+   "#070A06",
+   "#361508",
+   "#671706",
+   "#A8270B",
+   "#CA4619"
+  ],
+  "video": true
+ },
+ "imageory": {
+  "page": "https://designeer.xyz/inspiration/imageory",
+  "category": "Galleries",
+  "palette": [
+   "#030203",
+   "#061537",
+   "#010D85",
+   "#0133BA",
+   "#263878"
+  ],
+  "video": true
+ },
+ "emil-skills": {
+  "page": "https://designeer.xyz/portfolios/emil-kowalski",
+  "category": "Founders & Makers",
+  "palette": [
+   "#FDFDFB",
+   "#DFDFDD"
+  ],
+  "video": true
+ },
+ "typeui": {
+  "page": "https://designeer.xyz/tools/typeui-sh",
+  "category": "AI & Agents",
+  "palette": [
+   "#FCFCFC",
+   "#777778",
+   "#C9C9C9",
+   "#999999",
+   "#171719"
+  ],
+  "video": true
+ },
+ "hyperbrowser-design-md": {
+  "page": "https://designeer.xyz/tools/hyperbrowser-design-md",
+  "category": "AI & Agents",
+  "palette": [
+   "#FAFAFA",
+   "#DBDBDB",
+   "#A3A3A3",
+   "#868686",
+   "#5B5B5B"
+  ],
+  "video": true
+ },
+ "designmd": {
+  "page": "https://designeer.xyz/tools/designmd-me",
+  "category": "AI & Agents",
+  "palette": [
+   "#0F1012",
+   "#3B85FC",
+   "#1A2D4B",
+   "#535558",
+   "#659EFD"
+  ],
+  "video": true
+ },
+ "impeccable": {
+  "page": "https://designeer.xyz/tools/impeccable",
+  "category": "AI & Agents",
+  "palette": [
+   "#F7F7F7",
+   "#DBDBDB",
+   "#BBBBBB",
+   "#F3D995",
+   "#EDC148"
+  ],
+  "video": true
+ },
+ "hallmark": {
+  "page": "https://designeer.xyz/tools/hallmark",
+  "category": "Design & Canvas",
+  "palette": [
+   "#F8F5EC",
+   "#BABAB4",
+   "#868785",
+   "#FE9746",
+   "#86CDED"
+  ],
+  "video": true
+ },
+ "getdesign-md": {
+  "page": "https://designeer.xyz/tools/getdesign-md",
+  "category": "AI & Agents",
+  "palette": [
+   "#171719",
+   "#353538",
+   "#FBFBFB",
+   "#855D1D",
+   "#888889"
+  ],
+  "video": true
+ },
+ "agentation": {
+  "page": "https://designeer.xyz/tools/agentation",
+  "category": "AI & Agents",
+  "palette": [
+   "#FCFCFA",
+   "#BCC3DA",
+   "#DC9984",
+   "#252525"
+  ],
+  "video": true
+ },
+ "shadcn-labs-skills": {
+  "page": "https://designeer.xyz/tools/skills",
+  "category": "AI & Agents",
+  "palette": [
+   "#010101",
+   "#252526",
+   "#585557"
+  ],
+  "video": true
+ },
+ "skillbundle": {
+  "page": "https://designeer.xyz/tools/agent-skills-directory-for-claude-code-cursor-an",
+  "category": "Development",
+  "palette": [
+   "#090B0C",
+   "#252729",
+   "#666869",
+   "#235989",
+   "#46484A"
+  ],
+  "video": true
+ },
+ "getlayers": {
+  "page": "https://designeer.xyz/resources/getlayers",
+  "category": "Components",
+  "palette": [
+   "#070709",
+   "#262527",
+   "#464648",
+   "#FCFCFC",
+   "#646468"
+  ],
+  "video": true
+ },
+ "crafio": {
+  "page": "https://designeer.xyz/inspiration/crafio",
+  "category": "Galleries",
+  "palette": [
+   "#FDFBF6",
+   "#0A6C4D",
+   "#EAD5B7",
+   "#A9C8BA",
+   "#B9A588"
+  ],
+  "video": true
+ },
+ "ui-skills": {
+  "page": "https://designeer.xyz/inspiration/ui-skills",
+  "category": "Reading",
+  "palette": [
+   "#FAFAFA",
+   "#DADADA",
+   "#989898",
+   "#7A7A7A",
+   "#BDBEBF"
+  ],
+  "video": true
+ },
+ "designmd-supply": {
+  "page": "https://designeer.xyz/tools/designmd-supply",
+  "category": "AI & Agents",
+  "palette": [
+   "#FBFAF7",
+   "#DAD9D8",
+   "#898787",
+   "#B6B6B5",
+   "#383836"
+  ],
+  "video": true
+ },
+ "agentcn": {
+  "page": "https://designeer.xyz/tools/agentcn",
+  "category": "AI & Agents",
+  "palette": [
+   "#FDFDFD",
+   "#D8D8D8",
+   "#888888",
+   "#B5B5B5",
+   "#373738"
+  ],
+  "video": true
+ },
+ "21st": {
+  "page": "https://designeer.xyz/resources/21st-dev",
+  "category": "Components",
+  "palette": [
+   "#07080A",
+   "#272728",
+   "#464647",
+   "#061448",
+   "#656668"
+  ],
+  "video": true
+ },
+ "shoogle": {
+  "page": "https://designeer.xyz/resources/shoogle",
+  "category": "Components",
+  "palette": [
+   "#F9F9F9",
+   "#A6A6A6",
+   "#D6D6D6"
+  ],
+  "video": true
+ },
+ "cue": {
+  "page": "https://designeer.xyz/tools/cue",
+  "category": "AI & Agents",
+  "palette": [
+   "#0A0A0A",
+   "#080847",
+   "#373737",
+   "#797977",
+   "#999997"
+  ]
+ },
+ "hyperui": {
+  "page": "https://designeer.xyz/resources/hyperui",
+  "category": "Components",
+  "palette": [
+   "#FEFEFE",
+   "#D9D9D9",
+   "#A7A7A7",
+   "#767A84",
+   "#3F4452"
+  ],
+  "video": true
+ },
+ "shadcn-labs": {
+  "page": "https://designeer.xyz/resources/shadcn-labs",
+  "category": "Components",
+  "palette": [
+   "#F5F4EF",
+   "#EDE3B4"
+  ],
+  "video": true
+ },
+ "microinteractions-dev": {
+  "page": "https://designeer.xyz/resources/microinteraction-examples-in-css-javascript",
+  "category": "Motion & 3D",
+  "palette": [
+   "#FEFDFF",
+   "#96979B",
+   "#D6D7D9",
+   "#B5B6B9",
+   "#636669"
+  ]
+ },
+ "meraki-ui": {
+  "page": "https://designeer.xyz/resources/meraki-ui",
+  "category": "Components",
+  "palette": [
+   "#F9FAFC",
+   "#98EAFC",
+   "#C7D9FC",
+   "#97B8FD",
+   "#040306"
+  ],
+  "video": true
+ },
+ "float-ui": {
+  "page": "https://designeer.xyz/resources/float-ui",
+  "category": "Components",
+  "palette": [
+   "#09090B",
+   "#262528",
+   "#5573F9",
+   "#444549",
+   "#66676B"
+  ],
+  "video": true
+ },
+ "tailgrids": {
+  "page": "https://designeer.xyz/resources/tailgrids",
+  "category": "Components",
+  "palette": [
+   "#FDFDFD",
+   "#D4D5D9",
+   "#A8B6FD",
+   "#3B5BF8",
+   "#B4B6BC"
+  ],
+  "video": true
+ },
+ "velora-ui": {
+  "page": "https://designeer.xyz/resources/velora-ui",
+  "category": "Components",
+  "palette": [
+   "#121B27",
+   "#44464A",
+   "#767C84",
+   "#173B74",
+   "#94989E"
+  ],
+  "video": true
+ },
+ "flowbase": {
+  "page": "https://designeer.xyz/inspiration/flowbase",
+  "category": "Galleries",
+  "palette": [
+   "#F6F6FE",
+   "#958AB5",
+   "#CDC9E2",
+   "#746899",
+   "#34255D"
+  ],
+  "video": true
+ },
+ "ui-playbook": {
+  "page": "https://designeer.xyz/inspiration/ui-playbook",
+  "category": "Galleries",
+  "palette": [
+   "#FAFBFE",
+   "#C8C8CA",
+   "#A6A6A9",
+   "#525257",
+   "#717175"
+  ],
+  "video": true
+ },
+ "onepromptdesign": {
+  "page": "https://designeer.xyz/inspiration/onepromptdesign",
+  "category": "Galleries",
+  "palette": [
+   "#060606",
+   "#282829",
+   "#474747",
+   "#0171FD",
+   "#FAF6F2"
+  ],
+  "video": true
+ },
+ "ninna-ui": {
+  "page": "https://designeer.xyz/resources/ninja-ui",
+  "category": "Components",
+  "palette": [
+   "#F5F7FB",
+   "#D4D6DA",
+   "#A989FA",
+   "#A2A3A9",
+   "#8457FD"
+  ],
+  "video": true
+ },
+ "shadcnblocks": {
+  "page": "https://designeer.xyz/resources/shadcnblocks",
+  "category": "Components",
+  "palette": [
+   "#FDFDFD",
+   "#D8D8D8",
+   "#B9B9B9",
+   "#888888",
+   "#222222"
+  ],
+  "video": true
+ },
+ "spaceui": {
+  "page": "https://designeer.xyz/resources/space-ui",
+  "category": "Components",
+  "palette": [
+   "#1A1A1A",
+   "#FDFDFD",
+   "#464648",
+   "#676769",
+   "#B7B7B7"
+  ]
+ },
+ "uiable": {
+  "page": "https://designeer.xyz/resources/uiable",
+  "category": "Components",
+  "palette": [
+   "#D5E9FE",
+   "#B9C9D8",
+   "#79A6FE",
+   "#8A97A6",
+   "#717B83"
+  ]
+ },
+ "23rd": {
+  "page": "https://designeer.xyz/resources/23rd",
+  "category": "Components",
+  "palette": [
+   "#FDFDFD",
+   "#DADADA",
+   "#AAAAAA"
+  ],
+  "video": true
+ },
+ "animata": {
+  "page": "https://designeer.xyz/resources/animata",
+  "category": "Components",
+  "palette": [
+   "#020202",
+   "#282829",
+   "#FBFBFB",
+   "#474747",
+   "#989898"
+  ]
+ },
+ "eldoraui": {
+  "page": "https://designeer.xyz/resources/eldora-ui",
+  "category": "Components",
+  "palette": [
+   "#0A0A0A",
+   "#282828",
+   "#056E82",
+   "#777777",
+   "#464747"
+  ],
+  "video": true
+ },
+ "obsidianui": {
+  "page": "https://designeer.xyz/resources/obsidianui",
+  "category": "Components",
+  "palette": [
+   "#F9FAFB",
+   "#D8D8D9",
+   "#959597",
+   "#B4B5B6",
+   "#77767A"
+  ],
+  "video": true
+ },
+ "paceui": {
+  "page": "https://designeer.xyz/resources/paceui",
+  "category": "Components",
+  "palette": [
+   "#0A0A0A",
+   "#2A2A2A",
+   "#E5E5E5",
+   "#474747",
+   "#686868"
+  ]
+ },
+ "pinui": {
+  "page": "https://designeer.xyz/resources/pin-ui",
+  "category": "Components",
+  "palette": [
+   "#FEFDFD",
+   "#2A8AF7",
+   "#242424",
+   "#979797",
+   "#E60628"
+  ],
+  "video": true
+ },
+ "reverseui": {
+  "page": "https://designeer.xyz/resources/reverse-ui",
+  "category": "Components",
+  "palette": [
+   "#FAFAFA",
+   "#DADAD9",
+   "#B8B8B8",
+   "#676767",
+   "#888888"
+  ],
+  "video": true
+ },
+ "skiper-ui": {
+  "page": "https://designeer.xyz/resources/skiper-ui",
+  "category": "Components",
+  "palette": [
+   "#FFFFFF",
+   "#D9D9D8",
+   "#999999",
+   "#BABABA",
+   "#787878"
+  ],
+  "video": true
+ },
+ "sonaui": {
+  "page": "https://designeer.xyz/resources/sona-ui",
+  "category": "Components",
+  "palette": [
+   "#F8F8F8",
+   "#DADADA",
+   "#B8B8B8",
+   "#787878",
+   "#989898"
+  ],
+  "video": true
+ },
+ "beautifului": {
+  "page": "https://designeer.xyz/resources/beautiful-ui",
+  "category": "Components",
+  "palette": [
+   "#1B1C1E",
+   "#47484A"
+  ],
+  "video": true
+ },
+ "nexvyn-ui": {
+  "page": "https://designeer.xyz/resources/nexvyn-ui",
+  "category": "Components",
+  "palette": [
+   "#FFFFFF",
+   "#D9D9D9",
+   "#888888",
+   "#B8B8B8",
+   "#040404"
+  ]
+ },
+ "spell-ui": {
+  "page": "https://designeer.xyz/resources/spell-ui",
+  "category": "Components",
+  "palette": [
+   "#050505",
+   "#262626",
+   "#474747",
+   "#495878",
+   "#193779"
+  ],
+  "video": true
+ },
+ "evil-buttons": {
+  "page": "https://designeer.xyz/resources/evil-buttons",
+  "category": "Components",
+  "palette": [
+   "#FEFEFE",
+   "#C7C7C7",
+   "#FBD7D7",
+   "#2A2928",
+   "#888888"
+  ],
+  "video": true
+ },
+ "hextaui": {
+  "page": "https://designeer.xyz/resources/hexter-ui",
+  "category": "Components",
+  "palette": [
+   "#0A0A0A",
+   "#292929",
+   "#474747",
+   "#686868",
+   "#A7A7A7"
+  ]
+ },
+ "koira-template": {
+  "page": "https://designeer.xyz/resources/koira-template",
+  "category": "Components",
+  "palette": [
+   "#FDFCFD",
+   "#A8A8A8",
+   "#D8D8D8",
+   "#898989",
+   "#FE805D"
+  ]
+ },
+ "forgeui": {
+  "page": "https://designeer.xyz/resources/forgeui",
+  "category": "Components",
+  "palette": [
+   "#000000",
+   "#262626",
+   "#676767",
+   "#494949",
+   "#A7A7A7"
+  ],
+  "video": true
+ },
+ "spectrum-ui": {
+  "page": "https://designeer.xyz/resources/spectrum-ui",
+  "category": "Components",
+  "palette": [
+   "#FEFEFE",
+   "#D9D9DA",
+   "#BAB9BA",
+   "#969696",
+   "#777777"
+  ],
+  "video": true
+ },
+ "painterly": {
+  "page": "https://designeer.xyz/resources/painterly",
+  "category": "Components",
+  "palette": [
+   "#F7F4ED",
+   "#D8D5C6",
+   "#AABBA8",
+   "#7697B7",
+   "#E6A7B9"
+  ],
+  "video": true
+ },
+ "blocks-so": {
+  "page": "https://designeer.xyz/resources/blocks-so",
+  "category": "Components",
+  "palette": [
+   "#FDFDFD",
+   "#D8D8D8",
+   "#898989",
+   "#B7B7B7",
+   "#5B5B5B"
+  ],
+  "video": true
+ },
+ "shadercn": {
+  "page": "https://designeer.xyz/resources/shadercn",
+  "category": "Motion & 3D",
+  "palette": [
+   "#FEFEFE",
+   "#777676",
+   "#D7D7D6",
+   "#939393",
+   "#B6B6B6"
+  ],
+  "video": true
+ },
+ "orbkit": {
+  "page": "https://designeer.xyz/resources/orbkit",
+  "category": "Motion & 3D",
+  "palette": [
+   "#010101",
+   "#282828",
+   "#656666",
+   "#3A75AA",
+   "#954839"
+  ],
+  "video": true
+ },
+ "basecn": {
+  "page": "https://designeer.xyz/resources/base-cn",
+  "category": "Components",
+  "palette": [
+   "#FEFEFE",
+   "#D9D9D9",
+   "#888888",
+   "#A5A5A5",
+   "#696969"
+  ],
+  "video": true
+ },
+ "lightswind": {
+  "page": "https://designeer.xyz/resources/lightswind",
+  "category": "Components",
+  "palette": [
+   "#999A9E",
+   "#FDFDFD",
+   "#020307",
+   "#053999",
+   "#010968"
+  ],
+  "video": true
+ },
+ "tailark": {
+  "page": "https://designeer.xyz/resources/tailark",
+  "category": "Components",
+  "palette": [
+   "#070709",
+   "#F8F8F8",
+   "#242426",
+   "#C8C8C8",
+   "#585859"
+  ],
+  "video": true
+ },
+ "sera-ui": {
+  "page": "https://designeer.xyz/resources/sera-ui",
+  "category": "Components",
+  "palette": [
+   "#080809",
+   "#242327",
+   "#575758",
+   "#79787A",
+   "#A4A4A6"
+  ],
+  "video": true
+ },
+ "syntax-ui": {
+  "page": "https://designeer.xyz/resources/syntax-ui",
+  "category": "Components",
+  "palette": [
+   "#FDFDFE",
+   "#999899",
+   "#BABABA",
+   "#D8D8D9",
+   "#FC5877"
+  ],
+  "video": true
+ },
+ "shadcn-cssinjs": {
+  "page": "https://designeer.xyz/resources/shadcn-cssinjs",
+  "category": "Components",
+  "palette": [
+   "#FCFCFC",
+   "#D8D8D9",
+   "#B9B9B9",
+   "#4A4949",
+   "#7A7A7A"
+  ],
+  "video": true
+ },
+ "oneko": {
+  "page": "https://designeer.xyz/resources/oneko",
+  "category": "Components",
+  "palette": [
+   "#FEFEFE",
+   "#E7E1DC",
+   "#C9BDAA",
+   "#BA926B",
+   "#8D8C81"
+  ],
+  "video": true
+ },
+ "rolling-number": {
+  "page": "https://designeer.xyz/resources/rolling-number",
+  "category": "Components",
+  "palette": [
+   "#0D0E10",
+   "#363739",
+   "#555657",
+   "#7B7C7D"
+  ],
+  "video": true
+ },
+ "annnimate": {
+  "page": "https://designeer.xyz/resources/annnimate",
+  "category": "Components",
+  "palette": [
+   "#141414",
+   "#363636",
+   "#FBFBFB",
+   "#5A5A5A",
+   "#828282"
+  ],
+  "video": true
+ },
+ "scritto": {
+  "page": "https://designeer.xyz/resources/scritto",
+  "category": "Components",
+  "palette": [
+   "#F7F6F2",
+   "#DFD9D4"
+  ],
+  "video": true
+ },
+ "ogimagecn": {
+  "page": "https://designeer.xyz/resources/ogimagecn",
+  "category": "Components",
+  "palette": [
+   "#FEFEFE",
+   "#060607",
+   "#868587",
+   "#474849",
+   "#242427"
+  ],
+  "video": true
+ },
+ "shieldcn": {
+  "page": "https://designeer.xyz/resources/shieldcn",
+  "category": "Components",
+  "palette": [
+   "#FAFBFB",
+   "#D8D8D8",
+   "#B7B7B7",
+   "#595959",
+   "#979797"
+  ],
+  "video": true
+ },
+ "unlumen-ui": {
+  "page": "https://designeer.xyz/resources/unlumen-ui",
+  "category": "Components",
+  "palette": [
+   "#FFFFFF",
+   "#C5C5C5"
+  ],
+  "video": true
+ },
+ "bearnie": {
+  "page": "https://designeer.xyz/resources/bearnie",
+  "category": "Components",
+  "palette": [
+   "#FFFFFF",
+   "#CBCBCB",
+   "#419DFE",
+   "#A8D2FF"
+  ],
+  "video": true
+ },
+ "framecn": {
+  "page": "https://designeer.xyz/resources/framecn",
+  "category": "Components",
+  "palette": [
+   "#FEFEFE",
+   "#050506",
+   "#989898",
+   "#646465",
+   "#2A2A2A"
+  ],
+  "video": true
+ },
+ "startercn": {
+  "page": "https://designeer.xyz/resources/startercn",
+  "category": "Components",
+  "palette": [
+   "#FEFEFE",
+   "#B7B7B7",
+   "#959595",
+   "#757575",
+   "#DDDDDD"
+  ],
+  "video": true
+ },
+ "pdfcn": {
+  "page": "https://designeer.xyz/resources/pdfcn",
+  "category": "Components",
+  "palette": [
+   "#FEFEFE",
+   "#D8D8D8",
+   "#888888",
+   "#A6A6A6",
+   "#262525"
+  ],
+  "video": true
+ },
+ "editorcn": {
+  "page": "https://designeer.xyz/resources/editorcn",
+  "category": "Components",
+  "palette": [
+   "#FDFDFD",
+   "#DADADA",
+   "#888888",
+   "#B7B7B7",
+   "#E3E374"
+  ],
+  "video": true
+ },
+ "frameblox": {
+  "page": "https://designeer.xyz/resources/frameblox",
+  "category": "Components",
+  "palette": [
+   "#FEFEFE",
+   "#D7D7D8",
+   "#76777A",
+   "#A4A4A6",
+   "#05070C"
+  ]
+ },
+ "gradient-spin": {
+  "page": "https://designeer.xyz/resources/gradient-spin",
+  "category": "Components",
+  "palette": [
+   "#FFFFFF",
+   "#DBDBDB",
+   "#0A5A85",
+   "#4FBADC",
+   "#465EB0"
+  ]
+ },
+ "colorion-text-effects": {
+  "page": "https://designeer.xyz/resources/colorion-text-effects",
+  "category": "Components",
+  "palette": [
+   "#08070E",
+   "#272434",
+   "#4C4B55",
+   "#5AA8C4",
+   "#73727B"
+  ],
+  "video": true
+ },
+ "interior-dev": {
+  "page": "https://designeer.xyz/resources/interior-dev",
+  "category": "Components",
+  "palette": [
+   "#FEFEFE",
+   "#D8D9D9",
+   "#A9A9A9",
+   "#8C8C8C",
+   "#5D5D5E"
+  ],
+  "video": true
+ },
+ "odyssey-ui": {
+  "page": "https://designeer.xyz/resources/odyssey-ui",
+  "category": "Components",
+  "palette": [
+   "#06070B",
+   "#3B4655",
+   "#242629",
+   "#B4B7BC",
+   "#5C626B"
+  ],
+  "video": true
+ },
+ "devl": {
+  "page": "https://designeer.xyz/resources/devl",
+  "category": "Components",
+  "palette": [
+   "#FCFCFC",
+   "#DBDBDB",
+   "#BABABA",
+   "#555555"
+  ],
+  "video": true
+ },
+ "vengeance-ui": {
+  "page": "https://designeer.xyz/resources/vengeance-ui",
+  "category": "Components",
+  "palette": [
+   "#FAF9FA",
+   "#060609",
+   "#D9D9DA",
+   "#B9B7B8",
+   "#25262A"
+  ],
+  "video": true
+ },
+ "sensory-ui": {
+  "page": "https://designeer.xyz/resources/sensory-ui",
+  "category": "Components",
+  "palette": [
+   "#FCFCFC",
+   "#D8D8D8",
+   "#B8B8B7",
+   "#999998",
+   "#F7A4A9"
+  ],
+  "video": true
+ },
+ "amacro": {
+  "page": "https://designeer.xyz/resources/amacro",
+  "category": "Components",
+  "palette": [
+   "#FAF9F6",
+   "#DBD4E3",
+   "#A696C3",
+   "#745AA4",
+   "#7A3A35"
+  ],
+  "video": true
+ },
+ "componentry": {
+  "page": "https://designeer.xyz/resources/componentry",
+  "category": "Components",
+  "palette": [
+   "#0A0A0B",
+   "#343435",
+   "#EB0CCA",
+   "#767779",
+   "#973AEB"
+  ],
+  "video": true
+ },
+ "great-ui": {
+  "page": "https://designeer.xyz/resources/great-ui",
+  "category": "Components",
+  "palette": [
+   "#0A0A0A",
+   "#272727",
+   "#484849",
+   "#E7E7E7",
+   "#878787"
+  ],
+  "video": true
+ },
+ "ruru-ui": {
+  "page": "https://designeer.xyz/resources/ruru-ui",
+  "category": "Components",
+  "palette": [
+   "#070707",
+   "#575757",
+   "#262626",
+   "#787878",
+   "#B8B8B8"
+  ],
+  "video": true
+ },
+ "shadcn-studio": {
+  "page": "https://designeer.xyz/resources/shadcn-studio",
+  "category": "Components",
+  "palette": [
+   "#FEFEFE",
+   "#3B3B3A",
+   "#1A1A1A",
+   "#989898",
+   "#B6B6B6"
+  ],
+  "video": true
+ },
+ "animated-shadcn": {
+  "page": "https://designeer.xyz/resources/animated-shadcn-ui",
+  "category": "Components",
+  "palette": [
+   "#FDFDFD",
+   "#D9D8D9",
+   "#8A8A8A",
+   "#BBBBBB",
+   "#569CE3"
+  ],
+  "video": true
+ },
+ "uicapsule": {
+  "page": "https://designeer.xyz/resources/uicapsule",
+  "category": "Components",
+  "palette": [
+   "#09090A",
+   "#26262A",
+   "#FDFDFC",
+   "#353786",
+   "#575759"
+  ]
+ },
+ "bezel-ui": {
+  "page": "https://designeer.xyz/resources/bezel",
+  "category": "Motion & 3D",
+  "palette": [
+   "#0C0B0E",
+   "#FAFAFA",
+   "#29292A",
+   "#464648",
+   "#656566"
+  ]
+ },
+ "cubby-ui": {
+  "page": "https://designeer.xyz/resources/cubby-ui",
+  "category": "Components",
+  "palette": [
+   "#09090B",
+   "#28282A",
+   "#59595B",
+   "#787778",
+   "#A1A0A3"
+  ],
+  "video": true
+ },
+ "soralabs-ui": {
+  "page": "https://designeer.xyz/resources/soralabs-ui",
+  "category": "Components",
+  "palette": [
+   "#111111",
+   "#393939",
+   "#585858",
+   "#777777",
+   "#A3A3A3"
+  ],
+  "video": true
+ },
+ "atelier-ui": {
+  "page": "https://designeer.xyz/resources/atelier-ui",
+  "category": "Components",
+  "palette": [
+   "#FEFEFE",
+   "#848484",
+   "#D9D9D9",
+   "#030303",
+   "#B8B8B8"
+  ],
+  "video": true
+ },
+ "planes-ui": {
+  "page": "https://designeer.xyz/resources/planes",
+  "category": "Components",
+  "palette": [
+   "#F8F8F9",
+   "#D9D8D9",
+   "#878787",
+   "#B8B7B8",
+   "#363735"
+  ],
+  "video": true
+ },
+ "glassy-ui": {
+  "page": "https://designeer.xyz/resources/glassy-ui",
+  "category": "Components",
+  "palette": [],
+  "video": true
+ },
+ "creative-ui": {
+  "page": "https://designeer.xyz/resources/creative-ui",
+  "category": "Components",
+  "palette": [
+   "#F4F2EE",
+   "#397477",
+   "#B8CAC8",
+   "#C9B796",
+   "#4D4C48"
+  ]
+ },
+ "caret-ui": {
+  "page": "https://designeer.xyz/resources/caret",
+  "category": "Components",
+  "palette": [
+   "#F5F3EE",
+   "#C9C8C6",
+   "#969898",
+   "#767779",
+   "#34373E"
+  ]
+ },
+ "boseui": {
+  "page": "https://designeer.xyz/resources/boseui",
+  "category": "Components",
+  "palette": [
+   "#020202",
+   "#252525",
+   "#474747",
+   "#D9D9D9",
+   "#898989"
+  ],
+  "video": true
+ },
+ "srcl": {
+  "page": "https://designeer.xyz/resources/srcl",
+  "category": "Components",
+  "palette": [
+   "#FEFEFE",
+   "#C8C8C8"
+  ],
+  "video": true
+ },
+ "easy-ui": {
+  "page": "https://designeer.xyz/resources/easy-ui",
+  "category": "Components",
+  "palette": [
+   "#FEFEFE",
+   "#B776F2",
+   "#D6D7D8",
+   "#A6A7A8",
+   "#878887"
+  ],
+  "video": true
+ },
+ "emailcn": {
+  "page": "https://designeer.xyz/resources/emailcn",
+  "category": "Components",
+  "palette": [
+   "#FDFDFD",
+   "#D7D8D9",
+   "#B5B4B4",
+   "#868685",
+   "#8EB0FC"
+  ],
+  "video": true
+ },
+ "paper-plane-send": {
+  "page": "https://designeer.xyz/resources/paper-plane-send",
+  "category": "Components",
+  "palette": [
+   "#F9F8F2",
+   "#C9C8C6",
+   "#A6A49E",
+   "#848484"
+  ]
+ },
+ "ui-camera": {
+  "page": "https://designeer.xyz/tools/ui-camera",
+  "category": "Capture & Media",
+  "palette": [
+   "#FAFBFC",
+   "#D8D8D7",
+   "#7B7B7C",
+   "#2D2D32",
+   "#A7A7A7"
+  ],
+  "video": true
+ },
+ "postspark": {
+  "page": "https://designeer.xyz/tools/postspark",
+  "category": "Capture & Media",
+  "palette": [
+   "#FDFDFD",
+   "#D9DADB",
+   "#5CA7D4",
+   "#1D8ECC",
+   "#060829"
+  ],
+  "video": true
+ },
+ "screenshot-studio": {
+  "page": "https://designeer.xyz/tools/screenshot-studio",
+  "category": "Capture & Media",
+  "palette": [
+   "#09090A",
+   "#272728",
+   "#E92629",
+   "#962427",
+   "#464647"
+  ],
+  "video": true
+ },
+ "tokokino": {
+  "page": "https://designeer.xyz/tools/tokokino",
+  "category": "Capture & Media",
+  "palette": [
+   "#0D0D0D",
+   "#363636",
+   "#777777",
+   "#575859",
+   "#2755A4"
+  ],
+  "video": true
+ },
+ "mockshot": {
+  "page": "https://designeer.xyz/tools/mockshot",
+  "category": "Capture & Media",
+  "palette": [
+   "#161616",
+   "#363636",
+   "#585758",
+   "#777777",
+   "#A6A6A6"
+  ]
+ },
+ "noicess": {
+  "page": "https://designeer.xyz/resources/noicess",
+  "category": "Components",
+  "palette": [
+   "#17171A",
+   "#29CA29",
+   "#373777",
+   "#3855A7",
+   "#1B9719"
+  ]
+ },
+ "slant-it": {
+  "page": "https://designeer.xyz/tools/slant-it",
+  "category": "Capture & Media",
+  "palette": [
+   "#0C0C14",
+   "#E6E6E6",
+   "#282933",
+   "#85868A",
+   "#4A494B"
+  ],
+  "video": true
+ },
+ "screan": {
+  "page": "https://designeer.xyz/tools/screan",
+  "category": "Capture & Media",
+  "palette": [
+   "#F3F3F3",
+   "#969797",
+   "#CBCBCB",
+   "#FBD4CB"
+  ],
+  "video": true
+ },
+ "launch-shots": {
+  "page": "https://designeer.xyz/tools/launch-shots",
+  "category": "Development",
+  "palette": [
+   "#FEFEFE",
+   "#D6D8DA",
+   "#B5B7BC",
+   "#444A59",
+   "#232A3B"
+  ]
+ },
+ "figma": {
+  "page": "https://designeer.xyz/tools/figma",
+  "category": "Design & Canvas",
+  "palette": [
+   "#FEFEFE",
+   "#27C972",
+   "#7CE1AB",
+   "#D8D8D8",
+   "#F4A995"
+  ],
+  "video": true
+ },
+ "penpot": {
+  "page": "https://designeer.xyz/tools/penpot",
+  "category": "Design & Canvas",
+  "palette": [
+   "#F4F8FB",
+   "#171719",
+   "#B9C8C9",
+   "#363738",
+   "#555758"
+  ],
+  "video": true
+ },
+ "framer": {
+  "page": "https://designeer.xyz/tools/framer",
+  "category": "Design & Canvas",
+  "palette": [
+   "#010101",
+   "#1D1E4B",
+   "#051679",
+   "#585858",
+   "#162CA5"
+  ],
+  "video": true
+ },
+ "vite": {
+  "page": "https://designeer.xyz/tools/vite",
+  "category": "Development",
+  "palette": [
+   "#16171C",
+   "#35363A",
+   "#55555A",
+   "#76767A",
+   "#31165E"
+  ],
+  "video": true
+ },
+ "biome": {
+  "page": "https://designeer.xyz/tools/biome",
+  "category": "Development",
+  "palette": [
+   "#FCFDFE",
+   "#0053D7",
+   "#4A91E4",
+   "#87B5ED",
+   "#98989B"
+  ],
+  "video": true
+ },
+ "playwright": {
+  "page": "https://designeer.xyz/tools/playwright",
+  "category": "Development",
+  "palette": [
+   "#FAFBFB",
+   "#242C2B",
+   "#79807C",
+   "#D6D6D7",
+   "#43484D"
+  ],
+  "video": true
+ },
+ "nuqs": {
+  "page": "https://designeer.xyz/tools/nuqs",
+  "category": "Development",
+  "palette": [
+   "#FEFEFE",
+   "#C9C9CA",
+   "#9B9B9B",
+   "#686869",
+   "#39393B"
+  ],
+  "video": true
+ },
+ "better-t-stack": {
+  "page": "https://designeer.xyz/tools/better-t-stack",
+  "category": "Development",
+  "palette": [
+   "#F5F5F5",
+   "#030304",
+   "#D8D8D8",
+   "#37373B",
+   "#848484"
+  ],
+  "video": true
+ },
+ "nue": {
+  "page": "https://designeer.xyz/tools/nue",
+  "category": "Development",
+  "palette": [
+   "#121212",
+   "#363637",
+   "#787878",
+   "#575859",
+   "#4D97FD"
+  ],
+  "video": true
+ },
+ "vinext": {
+  "page": "https://designeer.xyz/tools/vinext",
+  "category": "Development",
+  "palette": [
+   "#FBFBFB",
+   "#C8C7C8",
+   "#A9A9A9",
+   "#2681FF",
+   "#BED8FD"
+  ],
+  "video": true
+ },
+ "remotion": {
+  "page": "https://designeer.xyz/tools/remotion",
+  "category": "Capture & Media",
+  "palette": [
+   "#FEFEFE",
+   "#D9D9D9",
+   "#384556",
+   "#969595",
+   "#B7B7B7"
+  ],
+  "video": true
+ },
+ "remocn": {
+  "page": "https://designeer.xyz/tools/remocn",
+  "category": "Capture & Media",
+  "palette": [
+   "#090809",
+   "#FDF9FE",
+   "#F9C8F8",
+   "#948794",
+   "#D7D9D8"
+  ],
+  "video": true
+ },
+ "genmotion": {
+  "page": "https://designeer.xyz/tools/genmotion",
+  "category": "Capture & Media",
+  "palette": [
+   "#070708",
+   "#FEFDFE",
+   "#253815",
+   "#276737",
+   "#464649"
+  ]
+ },
+ "dialkit": {
+  "page": "https://designeer.xyz/tools/dialkit",
+  "category": "Development",
+  "palette": [
+   "#111111",
+   "#787878",
+   "#585858",
+   "#383838",
+   "#979797"
+  ],
+  "video": true
+ },
+ "mesurer": {
+  "page": "https://designeer.xyz/tools/mesurer",
+  "category": "Design & Canvas",
+  "palette": [
+   "#FDFDFD",
+   "#DEDDDE",
+   "#66BDFE",
+   "#FFAFAF",
+   "#B3DEFE"
+  ],
+  "video": true
+ },
+ "feega": {
+  "page": "https://designeer.xyz/tools/feega",
+  "category": "",
+  "palette": [
+   "#020202",
+   "#282727",
+   "#464645",
+   "#696867",
+   "#FCFAF8"
+  ]
+ },
+ "efecto": {
+  "page": "https://designeer.xyz/tools/efecto",
+  "category": "AI & Agents",
+  "palette": [
+   "#55A9A6",
+   "#FDFDFD",
+   "#88C5C4",
+   "#B8DBDB",
+   "#C8B798"
+  ],
+  "video": true
+ },
+ "exodeui": {
+  "page": "https://designeer.xyz/tools/exodeui",
+  "category": "Design & Canvas",
+  "palette": [
+   "#FCFAF7",
+   "#FBD8C9",
+   "#FC8767",
+   "#FCB499",
+   "#B7B7B4"
+  ]
+ },
+ "kombai": {
+  "page": "https://designeer.xyz/tools/kombai",
+  "category": "AI & Agents",
+  "palette": [
+   "#020B15",
+   "#272727",
+   "#444444",
+   "#37A975",
+   "#777979"
+  ],
+  "video": true
+ },
+ "make-design": {
+  "page": "https://designeer.xyz/tools/make-design",
+  "category": "Design & Canvas",
+  "palette": [
+   "#2598E9",
+   "#0379D5",
+   "#F6F9FD",
+   "#57A7E6",
+   "#677607"
+  ],
+  "video": true
+ },
+ "design-dev": {
+  "page": "https://designeer.xyz/tools/design-dev",
+  "category": "Design & Canvas",
+  "palette": [
+   "#FDFEFE",
+   "#070808",
+   "#333434",
+   "#949496",
+   "#BCBDBE"
+  ],
+  "video": true
+ },
+ "convergence-ui": {
+  "page": "https://designeer.xyz/tools/convergence-ui",
+  "category": "Design & Canvas",
+  "palette": [
+   "#FAFAFA",
+   "#C7C7C7",
+   "#949494",
+   "#181818",
+   "#696969"
+  ],
+  "video": true
+ },
+ "woblo": {
+  "page": "https://designeer.xyz/tools/woblo",
+  "category": "Design & Canvas",
+  "palette": [
+   "#F7F8FB",
+   "#C8DAF6",
+   "#77A8F3",
+   "#0191AE",
+   "#020100"
+  ]
+ },
+ "design-toolkit": {
+  "page": "https://designeer.xyz/tools/design-toolkit",
+  "category": "Design & Canvas",
+  "palette": [
+   "#FAF8F4",
+   "#D9D7D4",
+   "#797879",
+   "#DAA3EA",
+   "#58565A"
+  ]
+ },
+ "vessa": {
+  "page": "https://designeer.xyz/tools/vessa",
+  "category": "Design & Canvas",
+  "palette": [
+   "#EFF0F4",
+   "#4B56E9",
+   "#1927E6",
+   "#A6ACED",
+   "#C6C7CA"
+  ],
+  "video": true
+ },
+ "design-minis": {
+  "page": "https://designeer.xyz/tools/design-minis",
+  "category": "Design & Canvas",
+  "palette": [
+   "#FCFCFD",
+   "#161618",
+   "#A7A8A9",
+   "#3B3837",
+   "#C5C6C8"
+  ],
+  "video": true
+ },
+ "uwarp": {
+  "page": "https://designeer.xyz/tools/uwarp",
+  "category": "Productivity & Desktop",
+  "palette": [
+   "#FAF4E4",
+   "#D9D5C9",
+   "#9796C9",
+   "#393936",
+   "#595854"
+  ]
+ },
+ "easing-wizard": {
+  "page": "https://designeer.xyz/resources/easing-wizard",
+  "category": "Motion & 3D",
+  "palette": [
+   "#09090B",
+   "#6419FE",
+   "#210E4E",
+   "#777677",
+   "#1B332D"
+  ],
+  "video": true
+ },
+ "morphrig": {
+  "page": "https://designeer.xyz/resources/morphrig",
+  "category": "Motion & 3D",
+  "palette": [
+   "#111113",
+   "#342C35",
+   "#545456"
+  ],
+  "video": true
+ },
+ "devouring-details": {
+  "page": "https://designeer.xyz/resources/devouring-details",
+  "category": "Motion & 3D",
+  "palette": [
+   "#ECECEC",
+   "#B9B9B9",
+   "#868686",
+   "#F3C5AC",
+   "#F99F70"
+  ],
+  "video": true
+ },
+ "lotiqlab": {
+  "page": "https://designeer.xyz/resources/lotiqlab",
+  "category": "Motion & 3D",
+  "palette": [
+   "#FCFCFC",
+   "#11B981",
+   "#D7D7D8",
+   "#6659FE",
+   "#958BFD"
+  ],
+  "video": true
+ },
+ "anim8": {
+  "page": "https://designeer.xyz/tools/anim8",
+  "category": "Capture & Media",
+  "palette": [
+   "#F2F2F2",
+   "#C4C4C5",
+   "#19191B",
+   "#787878",
+   "#979797"
+  ],
+  "video": true
+ },
+ "toolcraft": {
+  "page": "https://designeer.xyz/resources/toolcraft",
+  "category": "Components",
+  "palette": [
+   "#090909",
+   "#FCFCFC",
+   "#868686",
+   "#292929",
+   "#A7A7A7"
+  ]
+ },
+ "uiuno": {
+  "page": "https://designeer.xyz/resources/uiuno",
+  "category": "Components",
+  "palette": [
+   "#FCFCFA",
+   "#DCDBDA",
+   "#EACAA9",
+   "#DBB95B",
+   "#3C3D3B"
+  ],
+  "video": true
+ },
+ "kvish": {
+  "page": "https://designeer.xyz/tools/kvish",
+  "category": "Design & Canvas",
+  "palette": []
+ },
+ "render-labs": {
+  "page": "https://designeer.xyz/tools/render-labs",
+  "category": "Capture & Media",
+  "palette": [
+   "#FFFFFF"
+  ]
+ },
+ "rynix-studio": {
+  "page": "https://designeer.xyz/tools/rynix-studio",
+  "category": "Capture & Media",
+  "palette": [
+   "#646464",
+   "#19191C",
+   "#373738",
+   "#B2BAA8",
+   "#868C7F"
+  ],
+  "video": true
+ },
+ "squoosh": {
+  "page": "https://designeer.xyz/tools/squoosh",
+  "category": "Capture & Media",
+  "palette": [
+   "#0198FF",
+   "#F9F9F9",
+   "#FC3B88",
+   "#34ADFE",
+   "#78C8FD"
+  ],
+  "video": true
+ },
+ "svgomg": {
+  "page": "https://designeer.xyz/tools/svgomg",
+  "category": "Development",
+  "palette": [
+   "#ECECEC",
+   "#6672B6",
+   "#EC2619",
+   "#3A4DB8",
+   "#780404"
+  ],
+  "video": true
+ },
+ "ray-so": {
+  "page": "https://designeer.xyz/tools/ray-so",
+  "category": "Capture & Media",
+  "palette": [
+   "#0D0D0D",
+   "#2C2637",
+   "#665577",
+   "#C6A6FD",
+   "#7A68A7"
+  ],
+  "video": true
+ },
+ "transform-tools": {
+  "page": "https://designeer.xyz/tools/transform",
+  "category": "Development",
+  "palette": [
+   "#FEFEFD",
+   "#0075CC",
+   "#AFD4EF",
+   "#E7E7D8",
+   "#3792D6"
+  ],
+  "video": true
+ },
+ "pic2svg": {
+  "page": "https://designeer.xyz/tools/pic2svg",
+  "category": "Design & Canvas",
+  "palette": [
+   "#FCFCF9",
+   "#161716",
+   "#373737",
+   "#686967",
+   "#A9AAA7"
+  ]
+ },
+ "vecsnap": {
+  "page": "https://designeer.xyz/tools/vecsnap",
+  "category": "Design & Canvas",
+  "palette": [
+   "#F2F1F6",
+   "#B6B6BC",
+   "#D5D4D9",
+   "#93949A",
+   "#6C6D73"
+  ]
+ },
+ "gifski": {
+  "page": "https://designeer.xyz/tools/gifski",
+  "category": "Capture & Media",
+  "palette": [
+   "#252528",
+   "#D71498",
+   "#EC7635",
+   "#F2B833",
+   "#484749"
+  ],
+  "video": true
+ },
+ "enhance-place": {
+  "page": "https://designeer.xyz/tools/enhance-place",
+  "category": "Capture & Media",
+  "palette": [
+   "#484647",
+   "#292828",
+   "#080807",
+   "#6B96C4",
+   "#5A6677"
+  ]
+ },
+ "picontap": {
+  "page": "https://designeer.xyz/tools/picontap",
+  "category": "",
+  "palette": [
+   "#F6F6F4",
+   "#DADAD8",
+   "#B9B8B8",
+   "#878787",
+   "#4C4A46"
+  ]
+ },
+ "emojsi": {
+  "page": "https://designeer.xyz/tools/emoj-si",
+  "category": "Design & Canvas",
+  "palette": [
+   "#F9F9FB",
+   "#F6B527",
+   "#F9E6CA",
+   "#B7B6B9",
+   "#FBDB89"
+  ]
+ },
+ "becharts": {
+  "page": "https://designeer.xyz/tools/becharts",
+  "category": "Productivity & Desktop",
+  "palette": [
+   "#F9FBFC",
+   "#10B982",
+   "#3C82F5",
+   "#D3D8DC",
+   "#969BA4"
+  ]
+ },
+ "playgrnd": {
+  "page": "https://designeer.xyz/tools/playgrnd",
+  "category": "Capture & Media",
+  "palette": [
+   "#EBECE7",
+   "#E4D7B8",
+   "#D8B46C",
+   "#B9BAB7",
+   "#767677"
+  ],
+  "video": true
+ },
+ "blender": {
+  "page": "https://designeer.xyz/resources/blender",
+  "category": "Motion & 3D",
+  "palette": [
+   "#020201",
+   "#F7F7F6",
+   "#282727",
+   "#636363",
+   "#484746"
+  ],
+  "video": true
+ },
+ "gltf-report": {
+  "page": "https://designeer.xyz/resources/gltf-report",
+  "category": "Motion & 3D",
+  "palette": [
+   "#EEEEEE"
+  ],
+  "video": true
+ },
+ "book-of-shaders": {
+  "page": "https://designeer.xyz/resources/book-of-shaders",
+  "category": "Motion & 3D",
+  "palette": [
+   "#FEFEFE",
+   "#D7D6D7",
+   "#B9B9BA",
+   "#E4C377"
+  ],
+  "video": true
+ },
+ "compute-toys": {
+  "page": "https://designeer.xyz/resources/compute-toys",
+  "category": "Motion & 3D",
+  "palette": [
+   "#040506",
+   "#26282A",
+   "#973959",
+   "#9DA4A8",
+   "#4B565C"
+  ],
+  "video": true
+ },
+ "shaderfrog": {
+  "page": "https://designeer.xyz/resources/shaderfrog",
+  "category": "Motion & 3D",
+  "palette": [
+   "#010101",
+   "#262924",
+   "#9A937A",
+   "#465769",
+   "#4A4839"
+  ],
+  "video": true
+ },
+ "screen-studio": {
+  "page": "https://designeer.xyz/tools/screen-studio",
+  "category": "Capture & Media",
+  "palette": [
+   "#030304",
+   "#959596",
+   "#262627",
+   "#474748",
+   "#777878"
+  ],
+  "video": true
+ },
+ "cleanshot-x": {
+  "page": "https://designeer.xyz/tools/cleanshot-x",
+  "category": "Productivity & Desktop",
+  "palette": [
+   "#FAFCFE",
+   "#0D1E33",
+   "#D2DCE7",
+   "#ACB8C6",
+   "#757B83"
+  ],
+  "video": true
+ },
+ "bettershot": {
+  "page": "https://designeer.xyz/tools/bettershot",
+  "category": "Capture & Media",
+  "palette": [
+   "#FEFEFE",
+   "#D8D8D8",
+   "#B7B8B8",
+   "#86838A",
+   "#54565C"
+  ],
+  "video": true
+ },
+ "recordly": {
+  "page": "https://designeer.xyz/tools/recordly",
+  "category": "Capture & Media",
+  "palette": [
+   "#0A0907",
+   "#FAFAFB",
+   "#C7D9F7",
+   "#446D9B",
+   "#444442"
+  ],
+  "video": true
+ },
+ "cursorful": {
+  "page": "https://designeer.xyz/tools/cursorful",
+  "category": "Capture & Media",
+  "palette": [
+   "#FBFDFC",
+   "#3935BB",
+   "#D8DAE5",
+   "#341686",
+   "#1A57D3"
+  ],
+  "video": true
+ },
+ "prequel": {
+  "page": "https://designeer.xyz/tools/prequel",
+  "category": "Capture & Media",
+  "palette": [
+   "#FEFEFE",
+   "#D3C6F7",
+   "#242528",
+   "#7827BD",
+   "#4A4A58"
+  ]
+ },
+ "recast": {
+  "page": "https://designeer.xyz/tools/record-polish-share",
+  "category": "Productivity & Desktop",
+  "palette": [],
+  "video": true
+ },
+ "descript": {
+  "page": "https://designeer.xyz/tools/descript",
+  "category": "Capture & Media",
+  "palette": [
+   "#390A1A",
+   "#FBFAF9",
+   "#886C75",
+   "#542B38",
+   "#BDA7AD"
+  ],
+  "video": true
+ },
+ "davinci-resolve": {
+  "page": "https://designeer.xyz/tools/davinci-resolve",
+  "category": "Capture & Media",
+  "palette": [
+   "#E9E9E9",
+   "#020202",
+   "#67452B",
+   "#A99776",
+   "#282828"
+  ],
+  "video": true
+ },
+ "moody": {
+  "page": "https://designeer.xyz/tools/moody",
+  "category": "Productivity & Desktop",
+  "palette": [
+   "#FDFDFD",
+   "#D7D7D9",
+   "#64666A",
+   "#1957E9",
+   "#A7A8AA"
+  ],
+  "video": true
+ },
+ "linger": {
+  "page": "https://designeer.xyz/tools/linger",
+  "category": "",
+  "palette": [
+   "#FBFBFA",
+   "#DADAD7",
+   "#8A8986",
+   "#A7A8A4",
+   "#4C7999"
+  ]
+ },
+ "causal": {
+  "page": "https://designeer.xyz/tools/causal",
+  "category": "AI & Agents",
+  "palette": [
+   "#F9F9F9",
+   "#377588",
+   "#2A5564",
+   "#D8D9D9",
+   "#999999"
+  ],
+  "video": true
+ },
+ "lafys": {
+  "page": "https://designeer.xyz/tools/lafys",
+  "category": "AI & Agents",
+  "palette": [
+   "#FCFCFC",
+   "#040404",
+   "#E9E5D7",
+   "#999695",
+   "#ABB5BB"
+  ],
+  "video": true
+ },
+ "bolt-new": {
+  "page": "https://designeer.xyz/tools/bolt-new",
+  "category": "Development",
+  "palette": [
+   "#0259C8",
+   "#054498",
+   "#082958",
+   "#141416",
+   "#0397EC"
+  ],
+  "video": true
+ },
+ "capacity": {
+  "page": "https://designeer.xyz/tools/capacity",
+  "category": "AI & Agents",
+  "palette": [
+   "#0A0A0A",
+   "#B86846",
+   "#00DD98",
+   "#371D14",
+   "#784A34"
+  ],
+  "video": true
+ },
+ "claude-code": {
+  "page": "https://designeer.xyz/tools/claude-code",
+  "category": "Development",
+  "palette": [
+   "#FAF9F6",
+   "#DADAD8",
+   "#696966",
+   "#ABAAA7",
+   "#474744"
+  ],
+  "video": true
+ },
+ "cursor": {
+  "page": "https://designeer.xyz/tools/cursor",
+  "category": "Development",
+  "palette": [
+   "#F7F8F3",
+   "#DBD9D6",
+   "#999BA4",
+   "#BAB8BB",
+   "#7A6A5C"
+  ],
+  "video": true
+ },
+ "zed": {
+  "page": "https://designeer.xyz/tools/zed",
+  "category": "Development",
+  "palette": [
+   "#F3F3F2",
+   "#C5C5C6",
+   "#6889E6"
+  ],
+  "video": true
+ },
+ "opencode": {
+  "page": "https://designeer.xyz/tools/opencode",
+  "category": "AI & Agents",
+  "palette": [
+   "#FBFBFB",
+   "#070707",
+   "#232323",
+   "#B8B8B8",
+   "#DBDBDB"
+  ],
+  "video": true
+ },
+ "fx-sh": {
+  "page": "https://designeer.xyz/tools/fx",
+  "category": "AI & Agents",
+  "palette": [
+   "#FEFEFE",
+   "#DBDBDB"
+  ],
+  "video": true
+ },
+ "ghostty": {
+  "page": "https://designeer.xyz/tools/ghostty",
+  "category": "Productivity & Desktop",
+  "palette": [
+   "#0F0F11",
+   "#49484A",
+   "#492B1D"
+  ],
+  "video": true
+ },
+ "warp": {
+  "page": "https://designeer.xyz/tools/warp",
+  "category": "Productivity & Desktop",
+  "palette": [
+   "#FCFCFD",
+   "#D7D6D8",
+   "#B7B6BA",
+   "#2C2935",
+   "#4B4852"
+  ],
+  "video": true
+ },
+ "canario": {
+  "page": "https://designeer.xyz/tools/canario",
+  "category": "Productivity & Desktop",
+  "palette": [
+   "#1A1A1D",
+   "#D6A392",
+   "#B66D71",
+   "#483938",
+   "#5A5A5B"
+  ],
+  "video": true
+ },
+ "raycast": {
+  "page": "https://designeer.xyz/tools/raycast",
+  "category": "Productivity & Desktop",
+  "palette": [
+   "#07080A",
+   "#DA2439",
+   "#E77786",
+   "#A91827",
+   "#580D13"
+  ],
+  "video": true
+ },
+ "zen-browser": {
+  "page": "https://designeer.xyz/tools/zen-browser",
+  "category": "Productivity & Desktop",
+  "palette": [
+   "#F3F1E4",
+   "#79747B",
+   "#12110F",
+   "#58443A",
+   "#B7B5AB"
+  ],
+  "video": true
+ },
+ "cloudflare-workers": {
+  "page": "https://designeer.xyz/tools/cloudflare",
+  "category": "Development",
+  "palette": [
+   "#FBFBFB",
+   "#DBDBDB",
+   "#FF7A44",
+   "#BCBABC",
+   "#FFA785"
+  ],
+  "video": true
+ },
+ "netlify": {
+  "page": "https://designeer.xyz/tools/netlify",
+  "category": "Development",
+  "palette": [
+   "#121921",
+   "#FCFCFC",
+   "#353C43",
+   "#CACBCD",
+   "#97999A"
+  ],
+  "video": true
+ },
+ "railway": {
+  "page": "https://designeer.xyz/tools/railway",
+  "category": "Development",
+  "palette": [
+   "#08070C",
+   "#1A2735",
+   "#67484D",
+   "#354552",
+   "#646A75"
+  ],
+  "video": true
+ },
+ "fly-io": {
+  "page": "https://designeer.xyz/tools/fly-io",
+  "category": "Development",
+  "palette": [
+   "#F5D2DA",
+   "#FDFDFE",
+   "#C9E3FC",
+   "#9A86FA",
+   "#AAA8B6"
+  ],
+  "video": true
+ },
+ "umami": {
+  "page": "https://designeer.xyz/tools/umami",
+  "category": "Development",
+  "palette": [
+   "#FAFAFA",
+   "#B9D4F5",
+   "#C8C8C8",
+   "#878787",
+   "#65A1FD"
+  ],
+  "video": true
+ },
+ "tracwell": {
+  "page": "https://designeer.xyz/tools/tracwell",
+  "category": "Development",
+  "palette": [
+   "#F8FBFD",
+   "#D6D8D9",
+   "#B6B8BA",
+   "#4C8CFE",
+   "#77797A"
+  ],
+  "video": true
+ },
+ "replay": {
+  "page": "https://designeer.xyz/tools/replay",
+  "category": "Development",
+  "palette": [
+   "#09090A",
+   "#262627",
+   "#FCFCFC",
+   "#87888A",
+   "#C5C6C7"
+  ],
+  "video": true
+ },
+ "evlog": {
+  "page": "https://designeer.xyz/tools/evlog",
+  "category": "Development",
+  "palette": [
+   "#09090B",
+   "#474748",
+   "#263FA5",
+   "#3654D8",
+   "#121C47"
+  ],
+  "video": true
+ },
+ "foglamp": {
+  "page": "https://designeer.xyz/tools/foglamp",
+  "category": "AI & Agents",
+  "palette": [
+   "#161616",
+   "#353535",
+   "#696969",
+   "#D6D4D3",
+   "#A4A4A4"
+  ],
+  "video": true
+ },
+ "vercel-doctor": {
+  "page": "https://designeer.xyz/tools/vercel-doctor",
+  "category": "Development",
+  "palette": [
+   "#FEFEFE",
+   "#010101",
+   "#D9D9D9",
+   "#434343",
+   "#B8B8B8"
+  ],
+  "video": true
+ },
+ "alumnium": {
+  "page": "https://designeer.xyz/tools/alumnium",
+  "category": "Development",
+  "palette": [
+   "#040179",
+   "#282896",
+   "#4C49A2",
+   "#3E74D3"
+  ],
+  "video": true
+ },
+ "is-agentic": {
+  "page": "https://designeer.xyz/tools/is-agentic-com",
+  "category": "AI & Agents",
+  "palette": [
+   "#FEFEFE",
+   "#D9D9D9",
+   "#BABABA",
+   "#9A9A9A",
+   "#222223"
+  ],
+  "video": true
+ },
+ "webclaw": {
+  "page": "https://designeer.xyz/tools/webclaw",
+  "category": "AI & Agents",
+  "palette": [
+   "#110D08",
+   "#472A17",
+   "#885938",
+   "#F9A76A",
+   "#7A746B"
+  ],
+  "video": true
+ },
+ "integrations-sh": {
+  "page": "https://designeer.xyz/tools/integrations-sh",
+  "category": "AI & Agents",
+  "palette": [
+   "#FEFEFE",
+   "#C7C7C7",
+   "#AAAAAA",
+   "#FFDAD0",
+   "#D4DFFA"
+  ],
+  "video": true
+ },
+ "handoff": {
+  "page": "https://designeer.xyz/tools/handoff",
+  "category": "AI & Agents",
+  "palette": [
+   "#0D0D0D",
+   "#383838",
+   "#686868",
+   "#6A4A0A",
+   "#8B8B8B"
+  ]
+ },
+ "soubi": {
+  "page": "https://designeer.xyz/tools/soubi",
+  "category": "AI & Agents",
+  "palette": [
+   "#FEFEFE",
+   "#D6D6D6",
+   "#B7B7B7",
+   "#8A8A8A"
+  ],
+  "video": true
+ },
+ "skillsync": {
+  "page": "https://designeer.xyz/tools/skillsync",
+  "category": "AI & Agents",
+  "palette": [
+   "#0B0A08",
+   "#272624",
+   "#484745",
+   "#A8A7A5",
+   "#676664"
+  ],
+  "video": true
+ },
+ "dray": {
+  "page": "https://designeer.xyz/tools/dray",
+  "category": "AI & Agents",
+  "palette": [
+   "#0A0A0A",
+   "#150C75",
+   "#292B34",
+   "#2A3769",
+   "#465AA8"
+  ],
+  "video": true
+ },
+ "ghostex": {
+  "page": "https://designeer.xyz/tools/ghostex",
+  "category": "AI & Agents",
+  "palette": [
+   "#050406",
+   "#262526",
+   "#0A2467",
+   "#4A5999",
+   "#363C54"
+  ],
+  "video": true
+ },
+ "herdr": {
+  "page": "https://designeer.xyz/tools/herdr",
+  "category": "AI & Agents",
+  "palette": [
+   "#171719",
+   "#353538",
+   "#B9B6BC",
+   "#97959A",
+   "#757478"
+  ],
+  "video": true
+ },
+ "bb": {
+  "page": "https://designeer.xyz/tools/bb",
+  "category": "AI & Agents",
+  "palette": [
+   "#FEFEFE",
+   "#D9D9D9",
+   "#494949",
+   "#A9A9A9",
+   "#696969"
+  ],
+  "video": true
+ },
+ "scira": {
+  "page": "https://designeer.xyz/tools/scira",
+  "category": "AI & Agents",
+  "palette": [
+   "#F8F8F8",
+   "#D8D9D8",
+   "#5C3E34",
+   "#ABA19D",
+   "#676767"
+  ],
+  "video": true
+ },
+ "ai-stack": {
+  "page": "https://designeer.xyz/tools/ai-stack",
+  "category": "Development",
+  "palette": [
+   "#FBFBFC",
+   "#6B6B6C",
+   "#020202",
+   "#D7DDE3",
+   "#439B5B"
+  ],
+  "video": true
+ },
+ "buildertools": {
+  "page": "https://designeer.xyz/tools/buildertools",
+  "category": "Development",
+  "palette": [
+   "#FEFEFE",
+   "#2A2A2A",
+   "#B7B7B7",
+   "#767676",
+   "#DADADA"
+  ],
+  "video": true
+ },
+ "usefulshelf": {
+  "page": "https://designeer.xyz/resources/discover-useful-apps-ai-tools-websites",
+  "category": "Components",
+  "palette": [
+   "#FCFCFC",
+   "#D7D7D8",
+   "#B9B9B9",
+   "#D8E77E",
+   "#B8C85D"
+  ],
+  "video": true
+ },
+ "oss-perks": {
+  "page": "https://designeer.xyz/tools/oss-perks",
+  "category": "Development",
+  "palette": [
+   "#FEFEFE",
+   "#DADADA",
+   "#DF977C",
+   "#A7A7A7",
+   "#D25425"
+  ],
+  "video": true
+ },
+ "open-source-together": {
+  "page": "https://designeer.xyz/tools/open-source-together",
+  "category": "Development",
+  "palette": [
+   "#FEFEFE",
+   "#D8D8D8",
+   "#B8B8B8",
+   "#7C7C7C",
+   "#454443"
+  ],
+  "video": true
+ },
+ "unrust": {
+  "page": "https://designeer.xyz/tools/unrust",
+  "category": "Development",
+  "palette": [
+   "#141E24",
+   "#3C93C6",
+   "#576469",
+   "#89969B",
+   "#39464C"
+  ]
+ },
+ "linear": {
+  "page": "https://designeer.xyz/tools/linear",
+  "category": "Productivity & Desktop",
+  "palette": [
+   "#08090B",
+   "#242527",
+   "#434446",
+   "#777879",
+   "#ACACAB"
+  ],
+  "video": true
+ },
+ "granola": {
+  "page": "https://designeer.xyz/tools/granola",
+  "category": "Productivity & Desktop",
+  "palette": [
+   "#FBFCFA",
+   "#D8D8D7",
+   "#B7B7B7",
+   "#C2CE48",
+   "#D9DF9D"
+  ],
+  "video": true
+ },
+ "distill": {
+  "page": "https://designeer.xyz/tools/distill",
+  "category": "AI & Agents",
+  "palette": [
+   "#FDFDFD",
+   "#DADADA",
+   "#BBBAB8",
+   "#252425",
+   "#8ABAEC"
+  ],
+  "video": true
+ },
+ "shiori": {
+  "page": "https://designeer.xyz/tools/shiori",
+  "category": "Productivity & Desktop",
+  "palette": [
+   "#FCF9F3",
+   "#E4DCD4",
+   "#ACA7A3",
+   "#483C35",
+   "#FF6F00"
+  ],
+  "video": true
+ },
+ "nute": {
+  "page": "https://designeer.xyz/tools/nute",
+  "category": "Productivity & Desktop",
+  "palette": [
+   "#18171A",
+   "#33323C"
+  ]
+ },
+ "schedual": {
+  "page": "https://designeer.xyz/tools/schedual",
+  "category": "Productivity & Desktop",
+  "palette": [
+   "#FFFFFF",
+   "#D8D8DC",
+   "#BCBBC0"
+  ]
+ },
+ "localeditor": {
+  "page": "https://designeer.xyz/tools/localeditor",
+  "category": "Productivity & Desktop",
+  "palette": [
+   "#181818",
+   "#455A3C",
+   "#799566",
+   "#A5BA86",
+   "#C8D59A"
+  ],
+  "video": true
+ },
+ "novastart": {
+  "page": "https://designeer.xyz/tools/novastart",
+  "category": "Productivity & Desktop",
+  "palette": [
+   "#FEFEFE",
+   "#C8C9C8",
+   "#A9A9A9",
+   "#868686",
+   "#686868"
+  ]
+ },
+ "supaste": {
+  "page": "https://designeer.xyz/tools/supaste",
+  "category": "Productivity & Desktop",
+  "palette": [
+   "#3AA6FF",
+   "#98DBFE",
+   "#0C85FD",
+   "#67C7FF",
+   "#0A53DA"
+  ],
+  "video": true
+ },
+ "cooldock": {
+  "page": "https://designeer.xyz/tools/cooldock",
+  "category": "Productivity & Desktop",
+  "palette": [
+   "#ECEBE8",
+   "#383836",
+   "#C9C8C5",
+   "#A9A9A6",
+   "#585955"
+  ],
+  "video": true
+ },
+ "localsend": {
+  "page": "https://designeer.xyz/tools/localsend",
+  "category": "Productivity & Desktop",
+  "palette": [
+   "#F5FBF9",
+   "#161819",
+   "#34373A",
+   "#D4DEDB",
+   "#788987"
+  ],
+  "video": true
+ },
+ "space-bin": {
+  "page": "https://designeer.xyz/tools/space-bin",
+  "category": "Productivity & Desktop",
+  "palette": [
+   "#FEFEFE",
+   "#020202",
+   "#C8C7C6",
+   "#888888",
+   "#575757"
+  ]
+ },
+ "rexa-db": {
+  "page": "https://designeer.xyz/tools/rexa-db",
+  "category": "Productivity & Desktop",
+  "palette": [
+   "#121214",
+   "#2C333B",
+   "#555658",
+   "#999999",
+   "#B7B8B8"
+  ],
+  "video": true
+ },
+ "runey": {
+  "page": "https://designeer.xyz/tools/runey",
+  "category": "Productivity & Desktop",
+  "palette": [
+   "#FCFCFC",
+   "#181818",
+   "#68A527",
+   "#D8D8D8",
+   "#525252"
+  ],
+  "video": true
+ },
+ "revone": {
+  "page": "https://designeer.xyz/tools/revone",
+  "category": "Productivity & Desktop",
+  "palette": [
+   "#000001",
+   "#383788",
+   "#14142A",
+   "#686868",
+   "#262559"
+  ],
+  "video": true
+ },
+ "iota": {
+  "page": "https://designeer.xyz/inspiration/iota",
+  "category": "",
+  "palette": [
+   "#FFFFFF",
+   "#C8DCFF",
+   "#9ABBFC",
+   "#6FA0FD",
+   "#3279FD"
+  ]
+ },
+ "petals": {
+  "page": "https://designeer.xyz/inspiration/petals",
+  "category": "Galleries",
+  "palette": [
+   "#060205",
+   "#EB65C3",
+   "#2A1824",
+   "#B895AF",
+   "#827E83"
+  ]
+ },
+ "stamp": {
+  "page": "https://designeer.xyz/portfolios/bikash-sahu",
+  "category": "Design Engineering",
+  "palette": [
+   "#F7F7F7",
+   "#D9DAD9",
+   "#B7BAB9",
+   "#EAA7D6",
+   "#8E908F"
+  ]
+ },
+ "designmodo": {
+  "page": "https://designeer.xyz/inspiration/designmodo",
+  "category": "Reading",
+  "palette": [
+   "#0E231C",
+   "#FAFBFA",
+   "#30433C",
+   "#606E6A",
+   "#B5BCBA"
+  ],
+  "video": true
+ },
+ "hue-tf": {
+  "page": "https://designeer.xyz/tools/hue-tf",
+  "category": "Design & Canvas",
+  "palette": [
+   "#FFFFFF",
+   "#DAD7E6",
+   "#B99B18",
+   "#9BCB48",
+   "#FEE7AE"
+  ]
+ },
+ "pantograph": {
+  "page": "https://designeer.xyz/tools/pantograph",
+  "category": "Design & Canvas",
+  "palette": [
+   "#EBB8B8",
+   "#F89A86",
+   "#1C1C1A",
+   "#F988C7",
+   "#463B36"
+  ]
+ },
+ "xshots": {
+  "page": "https://designeer.xyz/tools/xshots",
+  "category": "Design & Canvas",
+  "palette": [
+   "#FEFEFE",
+   "#D7D7D8",
+   "#979797",
+   "#B8B8B8",
+   "#7B7B7B"
+  ]
+ },
+ "one-design": {
+  "page": "https://designeer.xyz/tools/one-design",
+  "category": "Design & Canvas",
+  "palette": [
+   "#060605",
+   "#381507",
+   "#663719",
+   "#C57649",
+   "#975738"
+  ]
+ },
+ "vanta-supply": {
+  "page": "https://designeer.xyz/tools/vanta-supply",
+  "category": "Design & Canvas",
+  "palette": [
+   "#0C0A08",
+   "#472517",
+   "#894424",
+   "#4B4743",
+   "#D4F6EA"
+  ]
+ },
+ "tldraw-whiteboard": {
+  "page": "https://designeer.xyz/tools/tldraw",
+  "category": "Design & Canvas",
+  "palette": [
+   "#F9FAFC",
+   "#67A3F2",
+   "#C7C8C9",
+   "#B2CEF5"
+  ],
+  "video": true
+ },
+ "obsidian": {
+  "page": "https://designeer.xyz/tools/obsidian",
+  "category": "Productivity & Desktop",
+  "palette": [
+   "#0E0E0E",
+   "#343434",
+   "#5D36A1",
+   "#575757",
+   "#767676"
+  ],
+  "video": true
+ },
+ "aura": {
+  "page": "https://designeer.xyz/tools/aura",
+  "category": "AI & Agents",
+  "palette": [
+   "#FEFEFE",
+   "#DADAD9",
+   "#8795A9",
+   "#382B34",
+   "#040304"
+  ],
+  "video": true
+ },
+ "neuform": {
+  "page": "https://designeer.xyz/tools/neuform",
+  "category": "AI & Agents",
+  "palette": [
+   "#040509",
+   "#272729",
+   "#48484A",
+   "#969491",
+   "#FDFDFC"
+  ],
+  "video": true
+ },
+ "open-design": {
+  "page": "https://designeer.xyz/tools/open-design",
+  "category": "AI & Agents",
+  "palette": [
+   "#F7F7F6",
+   "#B9B8B8",
+   "#D8D8D8",
+   "#D7FFB2",
+   "#051B45"
+  ],
+  "video": true
+ },
+ "v0-templates": {
+  "page": "https://designeer.xyz/tools/v0",
+  "category": "Development",
+  "palette": [
+   "#FAFAFA",
+   "#050505",
+   "#B8B8B8",
+   "#D9D9D8",
+   "#888888"
+  ],
+  "video": true
+ },
+ "tactile-ui": {
+  "page": "https://designeer.xyz/tools/tactile-ui",
+  "category": "Design & Canvas",
+  "palette": [
+   "#0E1011",
+   "#797977",
+   "#E7E5E1",
+   "#989896",
+   "#363737"
+  ]
+ },
+ "dashboardblocks": {
+  "page": "https://designeer.xyz/tools/dashboardblocks",
+  "category": "Development",
+  "palette": [
+   "#FEFEFE",
+   "#D9D9D9",
+   "#767676",
+   "#989898",
+   "#B9B9B9"
+  ]
+ },
+ "vector-ui": {
+  "page": "https://designeer.xyz/tools/vector-ui",
+  "category": "Design & Canvas",
+  "palette": [
+   "#FFFEFE",
+   "#D7D7D7",
+   "#FD9297",
+   "#B5B5B5",
+   "#8A8A8A"
+  ]
+ },
+ "nyx-ui": {
+  "page": "https://designeer.xyz/tools/nyx-ui",
+  "category": "Development",
+  "palette": [
+   "#050505",
+   "#272727",
+   "#FDFCF5",
+   "#464646",
+   "#7A7978"
+  ]
+ },
+ "theatre-js": {
+  "page": "https://designeer.xyz/resources/theatre-js",
+  "category": "Motion & 3D",
+  "palette": [
+   "#14171C",
+   "#373B44",
+   "#C9C6C7",
+   "#696666",
+   "#988A86"
+  ],
+  "video": true
+ },
+ "openshaders": {
+  "page": "https://designeer.xyz/resources/openshaders",
+  "category": "Motion & 3D",
+  "palette": [
+   "#FCFBFD",
+   "#C8E8F3",
+   "#C788E5",
+   "#F4C8F3",
+   "#99D7EA"
+  ],
+  "video": true
+ },
+ "lisse": {
+  "page": "https://designeer.xyz/tools/corne",
+  "category": "Development",
+  "palette": [
+   "#F7F6F2",
+   "#D6DACC"
+  ],
+  "video": true
+ },
+ "grok-bot": {
+  "page": "https://designeer.xyz/tools/x-ai-bot",
+  "category": "Development",
+  "palette": [
+   "#FDFDFD",
+   "#D9D9D9",
+   "#A6A6A6",
+   "#474745",
+   "#676767"
+  ],
+  "video": true
+ },
+ "fetchrly": {
+  "page": "https://designeer.xyz/tools/fetchrly",
+  "category": "Development",
+  "palette": [
+   "#FAF6EE",
+   "#080909",
+   "#78B5E1",
+   "#263917",
+   "#5897C7"
+  ]
+ },
+ "butterfly-so": {
+  "page": "https://designeer.xyz/tools/butterfly",
+  "category": "Productivity & Desktop",
+  "palette": [
+   "#F5F9FA",
+   "#253B35",
+   "#E4D8D6",
+   "#596D18",
+   "#7F2323"
+  ],
+  "video": true
+ },
+ "norval": {
+  "page": "https://designeer.xyz/tools/norval",
+  "category": "Development",
+  "palette": [
+   "#FEFDFD",
+   "#D8D8D9",
+   "#959596",
+   "#676869",
+   "#B5B5B5"
+  ]
+ },
+ "rap-with-ai": {
+  "page": "https://designeer.xyz/tools/rap-with-ai",
+  "category": "Capture & Media",
+  "palette": [
+   "#000000",
+   "#374E12",
+   "#5A5A5A",
+   "#868686",
+   "#B8B8B8"
+  ]
+ },
+ "trueproxies": {
+  "page": "https://designeer.xyz/tools/trueproxies",
+  "category": "Development",
+  "palette": [
+   "#FFFFFF",
+   "#0339E8",
+   "#C8D9FA",
+   "#C6C8CB",
+   "#565B64"
+  ]
+ },
+ "face-swap-ai": {
+  "page": "https://designeer.xyz/tools/face-swap-ai",
+  "category": "Capture & Media",
+  "palette": [
+   "#B5C6E6",
+   "#E7C7B9",
+   "#976749",
+   "#96A6C9",
+   "#C89B88"
+  ]
+ },
+ "deep-swap-ai": {
+  "page": "https://designeer.xyz/tools/deep-swap-ai",
+  "category": "Capture & Media",
+  "palette": [
+   "#D6DCE3",
+   "#261B17",
+   "#88BADC",
+   "#563828",
+   "#C79579"
+  ]
+ },
+ "regexr": {
+  "page": "https://designeer.xyz/tools/regexr",
+  "category": "Development",
+  "palette": [
+   "#E7E8EA",
+   "#3A3E41",
+   "#BCC0C5",
+   "#73B3E4",
+   "#0B0A0A"
+  ],
+  "video": true
+ },
+ "arc-labs": {
+  "page": "https://designeer.xyz/tools/arc-labs",
+  "category": "AI & Agents",
+  "palette": [
+   "#0A0A0A",
+   "#262626",
+   "#454545",
+   "#9B85E3",
+   "#D4DCE9"
+  ],
+  "video": true
+ },
+ "ciele": {
+  "page": "https://designeer.xyz/tools/ciele",
+  "category": "AI & Agents",
+  "palette": [
+   "#C7E5FA",
+   "#F4F5F5",
+   "#090909",
+   "#596D7C",
+   "#C8C8C8"
+  ],
+  "video": true
+ },
+ "linkstore": {
+  "page": "https://designeer.xyz/tools/linkstore-the-app-store-for-the-web",
+  "category": "Productivity & Desktop",
+  "palette": [
+   "#FBFBFB",
+   "#D7D7D8",
+   "#131313",
+   "#B7B7B7",
+   "#5B5B5B"
+  ],
+  "video": true
+ },
+ "inclusive-components": {
+  "page": "https://designeer.xyz/inspiration/inclusive-components",
+  "category": "Reading",
+  "palette": [
+   "#232323",
+   "#FDFDFD",
+   "#484748",
+   "#D8D8D8",
+   "#969696"
+  ],
+  "video": true
+ },
+ "josh-comeau": {
+  "page": "https://designeer.xyz/inspiration/josh-comeau",
+  "category": "Reading",
+  "palette": [
+   "#FEFEFE",
+   "#9CD2ED",
+   "#DBDADB",
+   "#B888C4",
+   "#75A5DC"
+  ],
+  "video": true
+ },
+ "refactoring-ui": {
+  "page": "https://designeer.xyz/inspiration/refactoring-ui",
+  "category": "Reading",
+  "palette": [
+   "#0E1825",
+   "#293546",
+   "#495767",
+   "#64B3DC",
+   "#776787"
+  ],
+  "video": true
+ },
+ "web-dev": {
+  "page": "https://designeer.xyz/inspiration/web-dev",
+  "category": "Reading",
+  "palette": [
+   "#FCFDFE",
+   "#AACAF6",
+   "#0365E8",
+   "#FFB601",
+   "#DBDBDC"
+  ],
+  "video": true
+ },
+ "learn-ui": {
+  "page": "https://designeer.xyz/inspiration/learn-ui",
+  "category": "Reading",
+  "palette": [
+   "#FDFDFD",
+   "#1A1A1A",
+   "#777777",
+   "#A6A6A6",
+   "#464646"
+  ],
+  "video": true
+ },
+ "user-interface-wiki": {
+  "page": "https://designeer.xyz/inspiration/user-interface-wiki",
+  "category": "Reading",
+  "palette": [
+   "#F9F9F9",
+   "#AAAAAA",
+   "#121212",
+   "#DBDBDB"
+  ],
+  "video": true
+ },
+ "practical-typography": {
+  "page": "https://designeer.xyz/inspiration/practical-typography",
+  "category": "Reading",
+  "palette": [
+   "#FEFEFE",
+   "#DADADA",
+   "#BABABA",
+   "#8F8B81"
+  ],
+  "video": true
+ },
+ "codrops": {
+  "page": "https://designeer.xyz/inspiration/codrops",
+  "category": "Reading",
+  "palette": [
+   "#F8F8F7",
+   "#D8D8D8",
+   "#020305",
+   "#BABABA",
+   "#363839"
+  ],
+  "video": true
+ },
+ "the-shape-of-ai": {
+  "page": "https://designeer.xyz/inspiration/the-shape-of-ai",
+  "category": "Reading",
+  "palette": [
+   "#FCFCFD",
+   "#D8D7D8",
+   "#B9BABA",
+   "#A79797",
+   "#4A382A"
+  ],
+  "video": true
+ },
+ "smashing-magazine": {
+  "page": "https://designeer.xyz/inspiration/smashing-magazine",
+  "category": "Reading",
+  "palette": [
+   "#FEFDFD",
+   "#F9D8D7",
+   "#DC665C",
+   "#C8C7C8",
+   "#D2382A"
+  ],
+  "video": true
+ },
+ "laws-of-ux": {
+  "page": "https://designeer.xyz/inspiration/laws-of-ux",
+  "category": "Reading",
+  "palette": [
+   "#D6D6CC",
+   "#475875",
+   "#CC4537",
+   "#EFF0EB",
+   "#952A73"
+  ],
+  "video": true
+ },
+ "animations-dev": {
+  "page": "https://designeer.xyz/inspiration/animations-dev",
+  "category": "Reading",
+  "palette": [
+   "#FDFDFB",
+   "#D9D8D7",
+   "#BBB9B9",
+   "#999899",
+   "#ECC45B"
+  ],
+  "video": true
+ },
+ "interface-craft": {
+  "page": "https://designeer.xyz/inspiration/interface-craft",
+  "category": "Reading",
+  "palette": [
+   "#FFFFFF",
+   "#1999D7",
+   "#1D1A19",
+   "#EA6828",
+   "#54F59A"
+  ],
+  "video": true
+ },
+ "design-system-checklist": {
+  "page": "https://designeer.xyz/inspiration/design-system-checklist",
+  "category": "Reading",
+  "palette": [
+   "#FCFCF4",
+   "#DBDBD5"
+  ],
+  "video": true
+ },
+ "svg-guide": {
+  "page": "https://designeer.xyz/inspiration/svg-guide",
+  "category": "Reading",
+  "palette": [
+   "#F2F2F2",
+   "#A7A7A7",
+   "#898989",
+   "#C6C6C6",
+   "#676767"
+  ],
+  "video": true
+ },
+ "ai-for-ui": {
+  "page": "https://designeer.xyz/inspiration/ai-for-ui",
+  "category": "Reading",
+  "palette": [
+   "#FDFDFB",
+   "#D9D9D8",
+   "#A9A9A8",
+   "#99CBFB",
+   "#61B1FA"
+  ],
+  "video": true
+ },
+ "making-software": {
+  "page": "https://designeer.xyz/inspiration/making-software",
+  "category": "Reading",
+  "palette": [
+   "#FAFAFB",
+   "#CAD4FB",
+   "#95AAFE",
+   "#BCBDBD"
+  ],
+  "video": true
+ },
+ "visual-rambling": {
+  "page": "https://designeer.xyz/inspiration/visual-rambling",
+  "category": "Reading",
+  "palette": [
+   "#FEFEFE",
+   "#FF725C",
+   "#2C9EF3",
+   "#777777",
+   "#373737"
+  ],
+  "video": true
+ },
+ "ux-collective": {
+  "page": "https://designeer.xyz/inspiration/ux-collective",
+  "category": "Reading",
+  "palette": [
+   "#FEFEFE",
+   "#010101",
+   "#9E9E9E",
+   "#DCDBDB",
+   "#363636"
+  ],
+  "video": true
+ },
+ "boxes-and-arrows": {
+  "page": "https://designeer.xyz/inspiration/boxes-and-arrows",
+  "category": "Reading",
+  "palette": [
+   "#F8F8F8",
+   "#898685",
+   "#5A5857",
+   "#DAD9DA",
+   "#A8A6A5"
+  ],
+  "video": true
+ },
+ "ui-land": {
+  "page": "https://designeer.xyz/inspiration/ui-land",
+  "category": "Reading",
+  "palette": [
+   "#FDFDFB",
+   "#CBCBC9",
+   "#ABABA9",
+   "#FCF3C5",
+   "#FAC8AB"
+  ],
+  "video": true
+ },
+ "design-books": {
+  "page": "https://designeer.xyz/inspiration/design-books",
+  "category": "Reading",
+  "palette": [
+   "#F8F8F8",
+   "#DCDBDC",
+   "#B80709",
+   "#DD9A9C",
+   "#EAD9A7"
+  ],
+  "video": true
+ },
+ "degreeless-design": {
+  "page": "https://designeer.xyz/inspiration/degreeless-design",
+  "category": "Reading",
+  "palette": [
+   "#151515",
+   "#5917FE",
+   "#575757",
+   "#790179",
+   "#2928FE"
+  ],
+  "video": true
+ },
+ "web-designer-depot": {
+  "page": "https://designeer.xyz/inspiration/web-designer-depot",
+  "category": "Reading",
+  "palette": [
+   "#090A0A",
+   "#292929",
+   "#D8D5D9",
+   "#C5DB51",
+   "#C56B97"
+  ],
+  "video": true
+ },
+ "interfaces": {
+  "page": "https://designeer.xyz/inspiration/interfaces",
+  "category": "Reading",
+  "palette": [
+   "#FCFCFC",
+   "#D8D8D8",
+   "#AAB3B7",
+   "#55CAFB",
+   "#04AEF8"
+  ],
+  "video": true
+ },
+ "learn-kernels": {
+  "page": "https://designeer.xyz/inspiration/learn-kernels",
+  "category": "Reading",
+  "palette": [
+   "#FEFEFE",
+   "#157793",
+   "#6BA9BA",
+   "#9BC5D1",
+   "#3C8EA5"
+  ],
+  "video": true
+ },
+ "bookcrumbs": {
+  "page": "https://designeer.xyz/inspiration/bookcrumbs",
+  "category": "Reading",
+  "palette": [
+   "#E9D8C5",
+   "#BA9A84",
+   "#D3BAA5",
+   "#9D735A"
+  ]
+ },
+ "keshav-calendar-drag-time-guide": {
+  "page": "https://designeer.xyz/finds/kshvbgde-2122238931731448041",
+  "category": "Motion",
+  "palette": [
+   "#FEFEFE",
+   "#212326",
+   "#C8C9C9",
+   "#969697",
+   "#454548"
+  ],
+  "video": true
+ },
+ "sanyam-folder-upload-states": {
+  "page": "https://designeer.xyz/finds/sanyampunia-2111045581410046405",
+  "category": "Motion",
+  "palette": [
+   "#F6F6F7",
+   "#5483EB",
+   "#D9D9DB",
+   "#3863CE",
+   "#ACBCE1"
+  ],
+  "video": true
+ },
+ "daniel-krea-permission-segmented-control": {
+  "page": "https://designeer.xyz/finds/nonzeroexitcode-2111100136713793619",
+  "category": "Motion",
+  "palette": [
+   "#FFFFFF",
+   "#C9C9C9",
+   "#A9A9A9",
+   "#8C8C8C",
+   "#3F3F3F"
+  ],
+  "video": true
+ },
+ "dev-add-to-bag-checkout": {
+  "page": "https://designeer.xyz/finds/imsethidev-2120515267436638701",
+  "category": "Interface, Motion",
+  "palette": [
+   "#F3F3F3",
+   "#B5B5B5",
+   "#09090B",
+   "#878686",
+   "#666568"
+  ],
+  "video": true
+ },
+ "withanimation-avatar-status-picker": {
+  "page": "https://designeer.xyz/finds/withanimationui-2111345464079790223",
+  "category": "Motion",
+  "palette": [
+   "#F6F6F6",
+   "#2EBE4E",
+   "#2C2629",
+   "#96A555",
+   "#678757"
+  ],
+  "video": true
+ },
+ "juliette-gesture-velocity-comparison": {
+  "page": "https://designeer.xyz/finds/shedsgns-2112046080510591293",
+  "category": "Motion",
+  "palette": [
+   "#141414",
+   "#333333"
+  ],
+  "video": true
+ },
+ "nitish-backup-progress-button": {
+  "page": "https://designeer.xyz/finds/nitishkmrk-2118623968630620318",
+  "category": "Motion",
+  "palette": [
+   "#EFF2EF",
+   "#666568",
+   "#C7C7C9",
+   "#828383",
+   "#49494A"
+  ],
+  "video": true
+ },
+ "phil-pitus-merge-conflict-timeline": {
+  "page": "https://designeer.xyz/finds/pitus-2111519352503873866",
+  "category": "Interface, Motion, Generative",
+  "palette": [
+   "#FEFEFE",
+   "#D9D9D9",
+   "#3F7BE9",
+   "#6F9DEF",
+   "#9BB8EE"
+  ],
+  "video": true
+ },
+ "shaahid-voice-permission-glow": {
+  "page": "https://designeer.xyz/finds/shaah1d-2124483932624457902",
+  "category": "Interface, Motion",
+  "palette": [
+   "#171717",
+   "#363536",
+   "#634D47"
+  ],
+  "video": true
+ },
+ "sucodee-thinking-status-chip": {
+  "page": "https://designeer.xyz/finds/sucodeee-2111410340995199367",
+  "category": "Motion",
+  "palette": [
+   "#F0F1EC",
+   "#C9CAC5",
+   "#787974",
+   "#979893"
+  ],
+  "video": true
+ },
+ "keshav-storage-scan-grid": {
+  "page": "https://designeer.xyz/finds/kshvbgde-2120782192385355974",
+  "category": "Motion",
+  "palette": [
+   "#FFFFFF",
+   "#181A1B",
+   "#464749",
+   "#DFE2E2",
+   "#762A29"
+  ],
+  "video": true
+ },
+ "ayodele-scratch-gift-card": {
+  "page": "https://designeer.xyz/finds/pixelbyayo-2114636755483918658",
+  "category": "Interface, Motion",
+  "palette": [
+   "#D7CEC8",
+   "#E2432A",
+   "#DC968A",
+   "#DA7364",
+   "#9E948E"
+  ],
+  "video": true
+ },
+ "nitish-microphone-waveform-ring": {
+  "page": "https://designeer.xyz/finds/nitishkmrk-2111345464075231241",
+  "category": "Motion",
+  "palette": [
+   "#F1F1F1",
+   "#F6384A",
+   "#F5808B",
+   "#F4C9CD",
+   "#575757"
+  ],
+  "video": true
+ },
+ "david-stacked-wallet-cards": {
+  "page": "https://designeer.xyz/finds/david-visuals-2111096871506591835",
+  "category": "Interface, Motion",
+  "palette": [
+   "#EDF7FD",
+   "#3D9DD6",
+   "#ABEC88",
+   "#626EDC",
+   "#68B4DE"
+  ],
+  "video": true
+ },
+ "raw-staggered-weather-widget": {
+  "page": "https://designeer.xyz/finds/bedirhandogn-2112119016235893096",
+  "category": "Motion",
+  "palette": [
+   "#F7F7F7",
+   "#D5D7DA",
+   "#B8B9BB",
+   "#94989E"
+  ],
+  "video": true
+ },
+ "urvish-flag-carousel": {
+  "page": "https://designeer.xyz/finds/0xurvish-2111837715549610398",
+  "category": "Motion",
+  "palette": [
+   "#F9F9F9",
+   "#03359A",
+   "#CA1321",
+   "#056848",
+   "#BC4A58"
+  ],
+  "video": true
+ },
+ "lumosous-ripple-image-carousel": {
+  "page": "https://designeer.xyz/finds/lumosous-2114610123297665271",
+  "category": "Motion",
+  "palette": [
+   "#EBEBEC",
+   "#02150A",
+   "#164825",
+   "#978755",
+   "#C6CCC4"
+  ],
+  "video": true
+ },
+ "amelia-embossed-paper-button-states": {
+  "page": "https://designeer.xyz/finds/ameliascomputer-2111515301594419598",
+  "category": "Motion, Prototype",
+  "palette": [
+   "#E0E0E0",
+   "#A6A5A6"
+  ],
+  "video": true
+ },
+ "ashish-shader-flood-feature-grid": {
+  "page": "https://designeer.xyz/finds/ashishgogula-2111150387227156670",
+  "category": "Interface, 3D, Icons",
+  "palette": [
+   "#FCFCFC",
+   "#3489C6",
+   "#879496",
+   "#B6B9B8",
+   "#072628"
+  ],
+  "video": true
+ },
+ "finn-branching-file-browser": {
+  "page": "https://designeer.xyz/finds/finnotaylor-2112286571999428676",
+  "category": "Motion",
+  "palette": [
+   "#FDFDFD",
+   "#DAD9D7",
+   "#BAB5A5",
+   "#A6C643",
+   "#8B9141"
+  ],
+  "video": true
+ },
+ "emil-sheet-keyframe-visualization": {
+  "page": "https://designeer.xyz/finds/emilkowalski-2112146246299259017",
+  "category": "Motion",
+  "palette": [
+   "#10110C",
+   "#182C49",
+   "#6A6660",
+   "#464642"
+  ],
+  "video": true
+ },
+ "ciprian-thermal-receipt-printer": {
+  "page": "https://designeer.xyz/finds/psyccotoxicc-2122329705432879374",
+  "category": "Motion",
+  "palette": [
+   "#0B0E0D",
+   "#EAE7DD",
+   "#35373A",
+   "#C8C6BB",
+   "#555759"
+  ],
+  "video": true
+ },
+ "damir-ember-dashboard-redesign": {
+  "page": "https://designeer.xyz/finds/heydamir-2115063463063998736",
+  "category": "Motion, Dashboard",
+  "palette": [
+   "#11082F",
+   "#271B68",
+   "#5627A9",
+   "#7B63E8",
+   "#BA75F8"
+  ],
+  "video": true
+ },
+ "diar-orbiting-integrations": {
+  "page": "https://designeer.xyz/finds/diarmuradi-2115299880382108145",
+  "category": "Motion",
+  "palette": [
+   "#FCFBFC",
+   "#C7C7C7",
+   "#A8A8A8",
+   "#FACCC4",
+   "#828282"
+  ],
+  "video": true
+ },
+ "diar-globe-testimonials": {
+  "page": "https://designeer.xyz/finds/diarmuradi-2114760491524321546",
+  "category": "Motion",
+  "palette": [
+   "#FCFBFC",
+   "#D7D7D7",
+   "#B9B9B9",
+   "#0FAA38",
+   "#0E9285"
+  ],
+  "video": true
+ },
+ "keshav-omnitrix-404": {
+  "page": "https://designeer.xyz/finds/kshvbgde-2116148492259451028",
+  "category": "Interface, Motion",
+  "palette": [
+   "#FFFFFF",
+   "#24272B",
+   "#D7D8D9",
+   "#577625",
+   "#434849"
+  ],
+  "video": true
+ },
+ "noclipepe-brick-wall-loader": {
+  "page": "https://designeer.xyz/finds/noclipepe-2119881447687569842",
+  "category": "Motion",
+  "palette": [
+   "#C3B9AB",
+   "#E3D5C4",
+   "#7874B4",
+   "#68ABE8",
+   "#A79687"
+  ],
+  "video": true
+ },
+ "keshav-account-deletion-burn": {
+  "page": "https://designeer.xyz/finds/kshvbgde-2117502283894362219",
+  "category": "Motion",
+  "palette": [
+   "#FFFFFF",
+   "#D8D7D9",
+   "#989898",
+   "#98260C",
+   "#232325"
+  ],
+  "video": true
+ },
+ "afnizar-promo-card-dismissal": {
+  "page": "https://designeer.xyz/finds/afnizarnur-2110895505480061153",
+  "category": "Motion",
+  "palette": [
+   "#F3F6F2",
+   "#D8D8D8",
+   "#4BDD99",
+   "#C6F896",
+   "#A5A5A5"
+  ],
+  "video": true
+ },
+ "lorenzo-crumpled-receipt-bin": {
+  "page": "https://designeer.xyz/finds/cabralorenzo-2114427621434081629",
+  "category": "Motion",
+  "palette": [
+   "#161616",
+   "#FCFCFC",
+   "#D8D8D8",
+   "#A8A8A8",
+   "#585858"
+  ],
+  "video": true
+ },
+ "sven-pointer-texture-swatches": {
+  "page": "https://designeer.xyz/finds/svenma3-2115838026094186572",
+  "category": "Motion",
+  "palette": [
+   "#EEF1EE",
+   "#DEB60E",
+   "#F5E07A",
+   "#F9F1BF",
+   "#AEB1AE"
+  ],
+  "video": true
+ },
+ "prasenjit-self-healing-sand-type": {
+  "page": "https://designeer.xyz/finds/prasenx-2111057980796133671",
+  "category": "Interface, Motion",
+  "palette": [
+   "#F0EADC",
+   "#C3AB83",
+   "#D6CAB5",
+   "#9B8563"
+  ],
+  "video": true
+ },
+ "adi-portrait-age-scrubber": {
+  "page": "https://designeer.xyz/finds/adityasur11-2111389253913506294",
+  "category": "Motion",
+  "palette": [
+   "#FFFFFF",
+   "#171717",
+   "#777777",
+   "#969696",
+   "#D9D9D9"
+  ],
+  "video": true
+ },
+ "ramin-hamster-cookie-settings": {
+  "page": "https://designeer.xyz/finds/raminnasibov-2112210954616295547",
+  "category": "Motion",
+  "palette": [
+   "#EDEDED",
+   "#DCA258",
+   "#B9B9B9",
+   "#F3DABB",
+   "#999999"
+  ],
+  "video": true
+ },
+ "manik-css-glass-control-center": {
+  "page": "https://designeer.xyz/finds/manikmkr-2117283570859528363",
+  "category": "Motion",
+  "palette": [
+   "#070C1B",
+   "#0537A7",
+   "#032466",
+   "#323745",
+   "#1473E9"
+  ],
+  "video": true
+ },
+ "cristian-liquid-bubble-controls": {
+  "page": "https://designeer.xyz/finds/crisjav-2115341231400083510",
+  "category": "Motion",
+  "palette": [
+   "#000000",
+   "#32BA54",
+   "#1A1A23",
+   "#3A393B",
+   "#26743A"
+  ],
+  "video": true
+ },
+ "juliette-autosave-switch-history": {
+  "page": "https://designeer.xyz/finds/shedsgns-2117602706613587995",
+  "category": "Motion",
+  "palette": [
+   "#F6F6F6",
+   "#DADADA",
+   "#B7B7B7",
+   "#979797",
+   "#777777"
+  ],
+  "video": true
+ },
+ "muddasir-moving-coastline-footer": {
+  "page": "https://designeer.xyz/finds/hussain-mu20778-2118589523240366163",
+  "category": "Motion",
+  "palette": [
+   "#FEFEFE",
+   "#5A96CA",
+   "#356BA8",
+   "#48ABF4",
+   "#C5DAEB"
+  ],
+  "video": true
+ },
+ "soumyadip-security-shield-states": {
+  "page": "https://designeer.xyz/finds/soumyadipdzign-2111794942528147542",
+  "category": "Interface, Motion",
+  "palette": [
+   "#1E1B1E",
+   "#47444A",
+   "#9777AA",
+   "#7B6289",
+   "#B68CCD"
+  ],
+  "video": true
+ },
+ "dash-iconmcp-library-monitor": {
+  "page": "https://designeer.xyz/finds/creativedash-2117800127675109468",
+  "category": "Motion, Illustration, Icons",
+  "palette": [
+   "#FBFAFB",
+   "#D9D9DA",
+   "#B8B8B9",
+   "#565656",
+   "#78797D"
+  ],
+  "video": true
+ },
+ "dash-iconmcp-agent-map": {
+  "page": "https://designeer.xyz/finds/creativedash-2117949663420764380",
+  "category": "Motion",
+  "palette": [
+   "#FBFAFB",
+   "#A8B8E7",
+   "#D6DAE6",
+   "#B8B8B9",
+   "#848486"
+  ],
+  "video": true
+ },
+ "adi-japanese-id-card-tilt": {
+  "page": "https://designeer.xyz/finds/adityasur11-2111313755112137098",
+  "category": "Interface, Motion",
+  "palette": [
+   "#ECECEC",
+   "#C8C7C5",
+   "#373737",
+   "#AAA9A7",
+   "#575656"
+  ],
+  "video": true
+ },
+ "basit-glass-gradient-metric-cards": {
+  "page": "https://designeer.xyz/finds/basit-designs-2111783629336785222",
+  "category": "Motion",
+  "palette": [
+   "#E3E6E9",
+   "#C7D6A9",
+   "#56BBA8",
+   "#88CC98",
+   "#A8A6F6"
+  ],
+  "video": true
+ },
+ "shivani-travel-sketchbook": {
+  "page": "https://designeer.xyz/finds/shivanimatla-2115108611869573161",
+  "category": "Motion",
+  "palette": [
+   "#F4F2F0",
+   "#E6681A",
+   "#E78E5B",
+   "#B64C1A",
+   "#EDC3A8"
+  ],
+  "video": true
+ },
+ "nexvyn-tiny-swords-portfolio": {
+  "page": "https://designeer.xyz/finds/nexvyn-2111089312674832603",
+  "category": "Motion, Landing page, Game UI",
+  "palette": [
+   "#FFFFFF",
+   "#D7D7D7",
+   "#B8B8B8"
+  ],
+  "video": true
+ },
+ "bogdan-aureon-renaissance-hero": {
+  "page": "https://designeer.xyz/finds/bogdan-qclay-2122244915946225682",
+  "category": "Motion",
+  "palette": [
+   "#EEEEEE",
+   "#392B25",
+   "#C9C9C8",
+   "#998879",
+   "#776B64"
+  ],
+  "video": true
+ },
+ "sucodee-samurai-landscape-hero": {
+  "page": "https://designeer.xyz/finds/sucodeee-2111851097551782252",
+  "category": "Motion, Landing page",
+  "palette": [
+   "#97C7E8",
+   "#777825",
+   "#C8D9E7",
+   "#4C5517",
+   "#59180A"
+  ],
+  "video": true
+ },
+ "ajay-kernel-oil-pastel-hero": {
+  "page": "https://designeer.xyz/finds/theajdesign-2111792591549460610",
+  "category": "",
+  "palette": [
+   "#F5F3EF",
+   "#27CA56",
+   "#2987E5",
+   "#69DA8B",
+   "#8BBBEB"
+  ]
+ },
+ "sarthak-coastline-homepage": {
+  "page": "https://designeer.xyz/finds/msarthak29-2122150994897518721",
+  "category": "Motion",
+  "palette": [
+   "#FCF4EE"
+  ],
+  "video": true
+ },
+ "ann-nguyen-pixel-flower-portfolio": {
+  "page": "https://designeer.xyz/finds/ann-nnng-2114717745443127698",
+  "category": "Motion, Landing page",
+  "palette": [
+   "#FEFEFE",
+   "#49B6F9",
+   "#256739",
+   "#559A55",
+   "#E88796"
+  ],
+  "video": true
+ },
+ "james-clements-scalloped-stamp-homepage": {
+  "page": "https://designeer.xyz/finds/jamesvclements-2112283119915004156",
+  "category": "Motion, Landing page",
+  "palette": [
+   "#FBFAFB",
+   "#B9B9B9",
+   "#ED7D85",
+   "#F04958",
+   "#4A7CEE"
+  ],
+  "video": true
+ },
+ "bimanshu-postcard-portfolio": {
+  "page": "https://designeer.xyz/finds/vatsabimanshu-2122314190933377467",
+  "category": "Motion, Landing page",
+  "palette": [
+   "#FCFEFE",
+   "#FF4200",
+   "#FA7C4E",
+   "#ABE8FD",
+   "#D7D9D9"
+  ],
+  "video": true
+ },
+ "aarzoo-staggered-editorial-gallery": {
+  "page": "https://designeer.xyz/finds/aarzooaly-2111503257722089973",
+  "category": "",
+  "palette": [
+   "#F1F0EC",
+   "#CBCAC7",
+   "#AAA9A6",
+   "#373A15",
+   "#565834"
+  ]
+ },
+ "stacked-ascii-shark-composer": {
+  "page": "https://designeer.xyz/finds/stackedlol-2112257760628986188",
+  "category": "Motion",
+  "palette": [
+   "#FBFBFB",
+   "#C8C9C7",
+   "#A9A9A9",
+   "#8E8C88",
+   "#696A61"
+  ],
+  "video": true
+ },
+ "roshan-rive-privacy-spot": {
+  "page": "https://designeer.xyz/finds/rolledpipe-2114439853777748178",
+  "category": "Motion, Illustration, Mobile app",
+  "palette": [
+   "#F7F8F6",
+   "#D7D9D7",
+   "#B6B9B6",
+   "#020402",
+   "#767876"
+  ],
+  "video": true
+ },
+ "aditya-cloud-rider-loader": {
+  "page": "https://designeer.xyz/finds/adityawaslost-2112398872303821005",
+  "category": "Motion",
+  "palette": [
+   "#FFFFFF",
+   "#E2BB4D",
+   "#DFC77F",
+   "#7D6A63",
+   "#ECE0BD"
+  ],
+  "video": true
+ },
+ "deanmaj-animated-reaction-icons": {
+  "page": "https://designeer.xyz/finds/dean-maj-2114643203341058093",
+  "category": "Motion",
+  "palette": [
+   "#FFEFEB",
+   "#FC3E12",
+   "#F96A47",
+   "#290906",
+   "#F9B9A8"
+  ],
+  "video": true
+ },
+ "raf-mini-tool-wordmark-system": {
+  "page": "https://designeer.xyz/finds/rafcespedes-2112156979062079848",
+  "category": "Motion, Logo",
+  "palette": [
+   "#1D59FD"
+  ],
+  "video": true
+ },
+ "steve-tracelight-product-showreel": {
+  "page": "https://designeer.xyz/finds/stevelauda-2111337729338507526",
+  "category": "Motion",
+  "palette": [
+   "#FEFEFE",
+   "#082716",
+   "#274232",
+   "#D5DAD7",
+   "#8C9B93"
+  ],
+  "video": true
+ },
+ "kris-shadowfax-tile-reveal": {
+  "page": "https://designeer.xyz/finds/krispuckett-2114706628146852259",
+  "category": "Motion",
+  "palette": [
+   "#0A0A0A",
+   "#292826",
+   "#534D47",
+   "#766A5A",
+   "#AA9985"
+  ],
+  "video": true
+ },
+ "ann-nguyen-illustrated-holiday-cards": {
+  "page": "https://designeer.xyz/finds/ann-nnng-2122283549000712249",
+  "category": "Motion",
+  "palette": [
+   "#FEFEFE",
+   "#E9DCDA",
+   "#EAA694",
+   "#687486",
+   "#BAABA5"
+  ],
+  "video": true
+ },
+ "burak-moss-growing-card": {
+  "page": "https://designeer.xyz/finds/burakaslan-2118755268502896747",
+  "category": "Interface, Motion",
+  "palette": [
+   "#FFFFFF",
+   "#C6C3BB",
+   "#A9AB89",
+   "#E5E4DA",
+   "#685A22"
+  ],
+  "video": true
+ },
+ "aftermagics-glass-icon-reveal": {
+  "page": "https://designeer.xyz/finds/aftermagics-2116369795750994172",
+  "category": "Motion, Logo",
+  "palette": [
+   "#DDDDDE"
+  ],
+  "video": true
+ },
+ "sam-olivir-running-mark": {
+  "page": "https://designeer.xyz/finds/samstooff-2111067381992964345",
+  "category": "Motion",
+  "palette": [
+   "#491804",
+   "#EFE9DD",
+   "#CE7326",
+   "#76270C",
+   "#D6C6B8"
+  ],
+  "video": true
+ },
+ "rebrand-xsolla-brand-moodboard": {
+  "page": "https://designeer.xyz/finds/rebrandgallery-2111079923980931526",
+  "category": "Motion",
+  "palette": [
+   "#F9FAF9",
+   "#172323",
+   "#CACAC8",
+   "#2D4449",
+   "#4D8691"
+  ],
+  "video": true
+ },
+ "yashi-kernel-seahorse-branding": {
+  "page": "https://designeer.xyz/finds/yashisinghh-2111366605443854378",
+  "category": "Branding",
+  "palette": [
+   "#F5F3EF",
+   "#26CA56",
+   "#2987E5",
+   "#8BBCEB",
+   "#6ADA8B"
+  ]
+ },
+ "kraig-logo-cover-stack": {
+  "page": "https://designeer.xyz/finds/kraigdesigns-2111041965101830591",
+  "category": "Motion, Logo",
+  "palette": [
+   "#0D0D0D",
+   "#686956",
+   "#353737",
+   "#8C9393",
+   "#C8C9C6"
+  ],
+  "video": true
+ },
+ "motionimo-clim-manifesto-teaser": {
+  "page": "https://designeer.xyz/finds/motionimo-2111125731350614248",
+  "category": "Motion",
+  "palette": [
+   "#E5E5E5",
+   "#030204",
+   "#FC03F5",
+   "#38D8E1",
+   "#F577EB"
+  ],
+  "video": true
+ },
+ "piyush-cloud-mascot-landscape": {
+  "page": "https://designeer.xyz/finds/piyushxpj-2112103352482041922",
+  "category": "Motion",
+  "palette": [
+   "#95CAD4",
+   "#46694A",
+   "#449ABB",
+   "#C7DCD6",
+   "#F8E1CD"
+  ],
+  "video": true
+ },
+ "siddharth-ascii-portrait-study": {
+  "page": "https://designeer.xyz/finds/buildwithsid-2111785463396839782",
+  "category": "",
+  "palette": [
+   "#193CFB",
+   "#4763F2",
+   "#768BF6"
+  ]
+ },
+ "oriku-dithered-animal-diagram": {
+  "page": "https://designeer.xyz/finds/oriku175-2114696044478902462",
+  "category": "Motion",
+  "palette": [
+   "#E8E8E8",
+   "#C8C8C8",
+   "#A7A7A7",
+   "#0656F3",
+   "#888888"
+  ],
+  "video": true
+ },
+ "hugo-pixel-lightning-strike": {
+  "page": "https://designeer.xyz/finds/hugoduprez-2115845461604999212",
+  "category": "Motion",
+  "palette": [
+   "#2D2D47",
+   "#3D4276",
+   "#4D56A4",
+   "#6378E4",
+   "#93A8E5"
+  ],
+  "video": true
+ },
+ "harsha-colored-ascii-shark-field": {
+  "page": "https://designeer.xyz/finds/beyondv0id-2112824750557032667",
+  "category": "Motion",
+  "palette": [
+   "#020202",
+   "#1C3648",
+   "#77522B",
+   "#487698",
+   "#2C2218"
+  ],
+  "video": true
+ },
+ "alien-raw-coffee-pouch-study": {
+  "page": "https://designeer.xyz/finds/alien69-2114688653595209733",
+  "category": "Motion",
+  "palette": [
+   "#F3F3F3",
+   "#C9C8C8",
+   "#4B4745",
+   "#A9A9A9",
+   "#676666"
+  ],
+  "video": true
+ },
+ "dailyui-floral-postage-stamp": {
+  "page": "https://designeer.xyz/finds/dailyui-2111566998190858465",
+  "category": "Motion",
+  "palette": [
+   "#3A5B7D",
+   "#36434D",
+   "#B5A489",
+   "#685749",
+   "#677686"
+  ],
+  "video": true
+ },
+ "soumik-pixel-daisy-grid": {
+  "page": "https://designeer.xyz/finds/soumikkhalder-2121560981382000744",
+  "category": "Motion",
+  "palette": [
+   "#FDFDFD",
+   "#D6C5F7",
+   "#AA88ED",
+   "#8CC195",
+   "#379246"
+  ],
+  "video": true
+ },
+ "raunak-ascii-butterfly-studies": {
+  "page": "https://designeer.xyz/finds/skirook-2121958017327591908",
+  "category": "Motion",
+  "palette": [
+   "#060508",
+   "#262936",
+   "#585659",
+   "#B2ABAD",
+   "#8A8687"
+  ],
+  "video": true
+ },
+ "anushka-sarvam-dotted-motifs": {
+  "page": "https://designeer.xyz/finds/anushka-dzn-2115406152167297211",
+  "category": "Motion",
+  "palette": [
+   "#010101",
+   "#381718",
+   "#344A16",
+   "#424848",
+   "#6E2630"
+  ],
+  "video": true
+ },
+ "kitasenju-wireframe-clock": {
+  "page": "https://designeer.xyz/finds/kitasenjudesign-2114683411260694530",
+  "category": "Motion",
+  "palette": [
+   "#0F0F0F",
+   "#393735",
+   "#595753"
+  ],
+  "video": true
+ },
+ "dmitry-embossed-holo-artwork": {
+  "page": "https://designeer.xyz/finds/dmitrykurash-2119523315207352663",
+  "category": "Motion",
+  "palette": [
+   "#050605",
+   "#693517",
+   "#361D17",
+   "#984827",
+   "#5D3747"
+  ],
+  "video": true
+ },
+ "andreas-matcha-sachet": {
+  "page": "https://designeer.xyz/finds/andreaskruszaki-2115308820687950002",
+  "category": "Motion",
+  "palette": [
+   "#E9EDEA",
+   "#02541C",
+   "#177A35",
+   "#379953",
+   "#6C8A75"
+  ],
+  "video": true
+ },
+ "shiv-radial-scribble-studies": {
+  "page": "https://designeer.xyz/finds/shiv-visual-2115566065388597351",
+  "category": "Motion",
+  "palette": [
+   "#FEFEFE",
+   "#9A9787",
+   "#252628",
+   "#B7B5A8",
+   "#652A1E"
+  ],
+  "video": true
+ },
+ "bakers-ascii-pixel-crush": {
+  "page": "https://designeer.xyz/finds/studiobakers-2111049527797186726",
+  "category": "",
+  "palette": [
+   "#242515",
+   "#484B33",
+   "#A69C94",
+   "#1C3C59",
+   "#2987B5"
+  ]
+ },
+ "cem-fall-particle-landscape": {
+  "page": "https://designeer.xyz/finds/cemhah-2111916410746052795",
+  "category": "Motion",
+  "palette": [
+   "#040409",
+   "#241B27",
+   "#D54635",
+   "#483846",
+   "#AB2A78"
+  ],
+  "video": true
+ },
+ "shawn-juggler-miniature-scene": {
+  "page": "https://designeer.xyz/finds/zzzzshawn-2111545791819194865",
+  "category": "Motion",
+  "palette": [
+   "#FFFFFF",
+   "#A9B85C",
+   "#BBB59B",
+   "#E7EBD8",
+   "#9B9584"
+  ],
+  "video": true
+ },
+ "dhruv-fushimi-inari-pixels": {
+  "page": "https://designeer.xyz/finds/dhruvtwt-2116932748250321023",
+  "category": "Motion",
+  "palette": [
+   "#343B14",
+   "#0A4646",
+   "#56180B",
+   "#767977",
+   "#140E06"
+  ],
+  "video": true
+ },
+ "dhruv-monochrome-steamboat": {
+  "page": "https://designeer.xyz/finds/dhruvtwt-2116776573596794977",
+  "category": "Motion, Illustration",
+  "palette": [
+   "#FAFCFC",
+   "#040404",
+   "#C5C7C7",
+   "#363636",
+   "#767777"
+  ],
+  "video": true
+ },
+ "jaz-brutalist-boxing-figures": {
+  "page": "https://designeer.xyz/finds/jazlynnkurni-2119631213493354882",
+  "category": "Motion",
+  "palette": [
+   "#E9E8E6",
+   "#CDC8C8",
+   "#494446",
+   "#7B7677",
+   "#9A9495"
+  ],
+  "video": true
+ },
+ "dhruv-watcher-particle-eye": {
+  "page": "https://designeer.xyz/finds/dhruvtwt-2120002227150713163",
+  "category": "Motion",
+  "palette": [
+   "#0C0306",
+   "#57150A",
+   "#861E0A",
+   "#D9A6AA",
+   "#A64C28"
+  ],
+  "video": true
+ },
+ "jack-swarm-manifestation": {
+  "page": "https://designeer.xyz/finds/jckhlry-2118765357079138810",
+  "category": "Motion",
+  "palette": [
+   "#FDFDFD",
+   "#1B1C1A",
+   "#494947",
+   "#D9D9D8",
+   "#747574"
+  ],
+  "video": true
+ },
+ "harshit-8000-particle-celebration": {
+  "page": "https://designeer.xyz/finds/oiharshit-2118763860345987498",
+  "category": "Motion",
+  "palette": [
+   "#FEFEFE",
+   "#CCE429",
+   "#9375FC",
+   "#EA8BBA",
+   "#FD862C"
+  ],
+  "video": true
+ },
+ "flo-agent-inbox-board": {
+  "page": "https://designeer.xyz/finds/flohoeller-2110693194384163100",
+  "category": "Interface, Motion",
+  "palette": [
+   "#F9F9F9",
+   "#D8D8D8",
+   "#BCBCBC"
+  ],
+  "video": true
+ },
+ "sucodee-verification-code-pill": {
+  "page": "https://designeer.xyz/finds/sucodeee-2111152947077742891",
+  "category": "Interface, Motion",
+  "palette": [
+   "#F6F4F0"
+  ],
+  "video": true
+ },
+ "elia-share-recipient-flow": {
+  "page": "https://designeer.xyz/finds/eliakuratli-2107743325294068148",
+  "category": "Motion",
+  "palette": [
+   "#FFFFFF",
+   "#5A5A5A",
+   "#767676",
+   "#D8D8D8",
+   "#333333"
+  ],
+  "video": true
+ },
+ "sucodee-share-access-panel": {
+  "page": "https://designeer.xyz/finds/sucodeee-2111061993599713612",
+  "category": "Motion",
+  "palette": [
+   "#F8F6F3",
+   "#DAD9D4",
+   "#B7B6B5",
+   "#9B9996"
+  ],
+  "video": true
+ },
+ "shawn-inline-formatting-toolbar": {
+  "page": "https://designeer.xyz/finds/zzzzshawn-2110676622290624760",
+  "category": "Motion",
+  "palette": [
+   "#FCFCFC",
+   "#DBDBDB",
+   "#BABABA",
+   "#5B03ED",
+   "#0957DE"
+  ],
+  "video": true
+ },
+ "lorenzo-traffic-stacked-bars": {
+  "page": "https://designeer.xyz/finds/cabralorenzo-2111060860508483671",
+  "category": "Motion",
+  "palette": [
+   "#EBEBED",
+   "#A8A8A8",
+   "#A284F2",
+   "#E4767A",
+   "#B8CCF3"
+  ],
+  "video": true
+ },
+ "nick-squish-segmented-controls": {
+  "page": "https://designeer.xyz/finds/nickbakeddesign-2107357079812112876",
+  "category": "Motion",
+  "palette": [
+   "#161617",
+   "#373737",
+   "#517EC3",
+   "#585255",
+   "#D984AC"
+  ],
+  "video": true
+ },
+ "rachit-type-magnifier": {
+  "page": "https://designeer.xyz/finds/rachitthakur146-2111108434225701146",
+  "category": "Interface, Motion",
+  "palette": [
+   "#0A0A0A",
+   "#E9E7D5",
+   "#67645D",
+   "#848279",
+   "#373734"
+  ],
+  "video": true
+ },
+ "shawn-tapered-reader-scroll": {
+  "page": "https://designeer.xyz/finds/zzzzshawn-2111001941677617197",
+  "category": "Motion",
+  "palette": [
+   "#EFEFEF",
+   "#C7C7C7",
+   "#A7A7A7",
+   "#454545",
+   "#656565"
+  ],
+  "video": true
+ },
+ "elia-electricity-waffle-chart": {
+  "page": "https://designeer.xyz/finds/eliakuratli-2103604478796800245",
+  "category": "Motion",
+  "palette": [
+   "#FCFCFD",
+   "#4985E3",
+   "#B5B6B6",
+   "#D8D8D8",
+   "#8AB1EB"
+  ],
+  "video": true
+ },
+ "spencer-portfolio-hover-previews": {
+  "page": "https://designeer.xyz/finds/spenceramarsh-2106075554264797619",
+  "category": "Motion, Landing page",
+  "palette": [
+   "#FEFEFE",
+   "#132A0D",
+   "#E3C599",
+   "#667559",
+   "#344A26"
+  ],
+  "video": true
+ },
+ "ramin-basketball-dropzone": {
+  "page": "https://designeer.xyz/finds/raminnasibov-2109179709703504284",
+  "category": "Motion",
+  "palette": [
+   "#FDFDFD",
+   "#D8D8D9",
+   "#7989E2",
+   "#ADB6EB",
+   "#354BB8"
+  ],
+  "video": true
+ },
+ "hayriye-hanging-team-badges": {
+  "page": "https://designeer.xyz/finds/hayriyeakguller-2109612639231856876",
+  "category": "Interface, Motion, Prototype",
+  "palette": [
+   "#FDFDFD",
+   "#E8BD76",
+   "#DCD7EA",
+   "#B7B6B8",
+   "#886D68"
+  ],
+  "video": true
+ },
+ "irfan-stepped-espresso-explainer": {
+  "page": "https://designeer.xyz/finds/irfannnnali-2109792475241972179",
+  "category": "Motion",
+  "palette": [
+   "#F9F9F9",
+   "#D7D7D7",
+   "#5A351F",
+   "#A4A4A4",
+   "#252525"
+  ],
+  "video": true
+ },
+ "swami-chat-bubble-faq": {
+  "page": "https://designeer.xyz/finds/swamimalode-2108919433087557657",
+  "category": "Motion",
+  "palette": [
+   "#E7E7E7",
+   "#F5541C",
+   "#C6C5CA",
+   "#ED7142",
+   "#ED9072"
+  ],
+  "video": true
+ },
+ "cole-button-era-scrubber": {
+  "page": "https://designeer.xyz/finds/colderoshay-2101679582734872751",
+  "category": "Motion",
+  "palette": [
+   "#FFFFFF",
+   "#6A6A6A",
+   "#CBCBCB",
+   "#959595",
+   "#464646"
+  ],
+  "video": true
+ },
+ "david-react-bits-holo-card": {
+  "page": "https://designeer.xyz/finds/davidhaz-2108164973960847672",
+  "category": "Interface, Motion",
+  "palette": [
+   "#FDFDFD",
+   "#D9D8DA",
+   "#F7E78A",
+   "#DBC867",
+   "#B7B8B7"
+  ],
+  "video": true
+ },
+ "sanyam-dot-matrix-recording-island": {
+  "page": "https://designeer.xyz/finds/sanyampunia-2109917817554575744",
+  "category": "Motion",
+  "palette": [
+   "#F2F2F2",
+   "#161616",
+   "#353535",
+   "#B6B6B7",
+   "#8F8F91"
+  ],
+  "video": true
+ },
+ "malay-qr-boarding-pass": {
+  "page": "https://designeer.xyz/finds/pmalay694-2110641044597665909",
+  "category": "Motion",
+  "palette": [
+   "#090909",
+   "#2C2C2C",
+   "#595959",
+   "#757575",
+   "#B5B5B5"
+  ],
+  "video": true
+ },
+ "juls-audiobook-draft-toggle": {
+  "page": "https://designeer.xyz/finds/designedforfun-2108922344152428589",
+  "category": "Motion, Landing page",
+  "palette": [
+   "#F6F6F6",
+   "#B5B5B5",
+   "#D8D8D8",
+   "#D2B43F",
+   "#785A4A"
+  ],
+  "video": true
+ },
+ "damir-breakable-cookie-banner": {
+  "page": "https://designeer.xyz/finds/heydamir-2108903875906609495",
+  "category": "Motion",
+  "palette": [
+   "#E9E5DF",
+   "#CBC8C2",
+   "#D69B55",
+   "#E7B778",
+   "#989897"
+  ],
+  "video": true
+ },
+ "shawn-orca-social-post-card": {
+  "page": "https://designeer.xyz/finds/zzzzshawn-2109648259644014721",
+  "category": "Motion",
+  "palette": [
+   "#FEFEFE",
+   "#0E62C5",
+   "#C4D8ED",
+   "#3A81CE",
+   "#232324"
+  ],
+  "video": true
+ },
+ "michael-creative-app-home": {
+  "page": "https://designeer.xyz/finds/mnowakdesign-2111064396575457639",
+  "category": "Motion, Mobile app",
+  "palette": [
+   "#FBFAFB",
+   "#D8D9DC",
+   "#8B8D92",
+   "#B9BCC2",
+   "#5A5636"
+  ],
+  "video": true
+ },
+ "tenor-dotted-checking-state": {
+  "page": "https://designeer.xyz/finds/tenordesign-2108631946985386115",
+  "category": "Motion, Landing page",
+  "palette": [
+   "#F8F8F8",
+   "#DADADA",
+   "#B8B8B8"
+  ],
+  "video": true
+ },
+ "lochie-graphical-inline-hero": {
+  "page": "https://designeer.xyz/finds/lochieaxon-2107673625696641174",
+  "category": "Motion, Landing page",
+  "palette": [
+   "#FFFFFE",
+   "#969695",
+   "#B7B7B6",
+   "#777777",
+   "#D8D8D7"
+  ],
+  "video": true
+ },
+ "noman-steel-stacked-footer": {
+  "page": "https://designeer.xyz/finds/nomandsign-2108599546100273247",
+  "category": "Motion, Landing page",
+  "palette": [
+   "#079406",
+   "#111212",
+   "#00B67D",
+   "#FFFFFF",
+   "#8C929A"
+  ],
+  "video": true
+ },
+ "negativ-see-prompt-first-hero": {
+  "page": "https://designeer.xyz/finds/rohitmehta-twt-2107468418190324131",
+  "category": "Motion, Landing page",
+  "palette": [
+   "#141414",
+   "#383838",
+   "#767676",
+   "#595959",
+   "#A38CEA"
+  ],
+  "video": true
+ },
+ "vighnesh-posse-split-hero": {
+  "page": "https://designeer.xyz/finds/eagledev-2108790453080625313",
+  "category": "Motion",
+  "palette": [
+   "#7C3325",
+   "#F6EEE8",
+   "#9F6A5F",
+   "#D4CCC5",
+   "#BF9C93"
+  ],
+  "video": true
+ },
+ "keshav-linkstore-icon-reveal": {
+  "page": "https://designeer.xyz/finds/kshvbgde-2106735661923574123",
+  "category": "Motion, Mobile app",
+  "palette": [
+   "#FEFEFE"
+  ],
+  "video": true
+ },
+ "navneet-lavender-feature-grid": {
+  "page": "https://designeer.xyz/finds/sterlynavneet-2106376221592326256",
+  "category": "Motion",
+  "palette": [
+   "#FBFAFC",
+   "#DDC4FB",
+   "#C8C6C9",
+   "#A8A8A8",
+   "#B782F6"
+  ],
+  "video": true
+ },
+ "dan-desktop-folder-portfolio": {
+  "page": "https://designeer.xyz/finds/designerdaniyel-2108100551892414535",
+  "category": "Motion, Landing page",
+  "palette": [
+   "#F4F6FA",
+   "#C5CBD8",
+   "#E8DA84",
+   "#79AADA",
+   "#AAC29B"
+  ],
+  "video": true
+ },
+ "basit-quiet-mobile-layouts": {
+  "page": "https://designeer.xyz/finds/basit-designs-2108867100395843811",
+  "category": "Motion",
+  "palette": [
+   "#FBFCFB",
+   "#C9B69D",
+   "#372714",
+   "#685353",
+   "#DADAD8"
+  ],
+  "video": true
+ },
+ "alim-qed-engraved-landing": {
+  "page": "https://designeer.xyz/finds/alimdesigner-2107101222662750621",
+  "category": "Motion",
+  "palette": [
+   "#F5F4ED"
+  ],
+  "video": true
+ },
+ "jhey-knockout-conference-pass": {
+  "page": "https://designeer.xyz/finds/jh3yy-2108593170569175495",
+  "category": "Motion",
+  "palette": [
+   "#2E3034",
+   "#050505",
+   "#787878",
+   "#979797",
+   "#7A4607"
+  ],
+  "video": true
+ },
+ "ann-glow-friends-holo-cards": {
+  "page": "https://designeer.xyz/finds/ann-nnng-2108122086569136417",
+  "category": "Interface, Motion",
+  "palette": [
+   "#FFFFFF",
+   "#080808",
+   "#CCCDCD",
+   "#272727",
+   "#797979"
+  ],
+  "video": true
+ },
+ "venom-prediction-market-ticket": {
+  "page": "https://designeer.xyz/finds/adampolify-2109606471289778596",
+  "category": "Motion",
+  "palette": [
+   "#9B5DF5",
+   "#7B46CC",
+   "#E8DBFD",
+   "#B687F4",
+   "#9E8DB5"
+  ],
+  "video": true
+ },
+ "sanyam-hover-count-abacus": {
+  "page": "https://designeer.xyz/finds/sanyampunia-2107751843409580105",
+  "category": "Motion",
+  "palette": [
+   "#F9F9F9",
+   "#DCDCDC"
+  ],
+  "video": true
+ },
+ "shahid-self-typing-wireframe-laptop": {
+  "page": "https://designeer.xyz/finds/shahidux-2107353315973665239",
+  "category": "Motion, Illustration",
+  "palette": [
+   "#FEFEFE",
+   "#C8C8C8"
+  ],
+  "video": true
+ },
+ "manu-exploded-keyboard-anatomy": {
+  "page": "https://designeer.xyz/finds/quantapar-2109748221459546529",
+  "category": "Motion",
+  "palette": [
+   "#F3EFEE",
+   "#D3CBC9",
+   "#CB8893"
+  ],
+  "video": true
+ },
+ "vighnesh-isometric-conveyor-machine": {
+  "page": "https://designeer.xyz/finds/eagledev-2106620003835605477",
+  "category": "Motion",
+  "palette": [
+   "#FDFEFD",
+   "#D8DADA",
+   "#BBBBBB",
+   "#484746",
+   "#1E1C1A"
+  ],
+  "video": true
+ },
+ "ryan-isometric-scan-map": {
+  "page": "https://designeer.xyz/finds/itsnotryan-2107013497813172593",
+  "category": "Motion",
+  "palette": [
+   "#FCFCFC",
+   "#121212",
+   "#3D3D3D",
+   "#A9A9A9",
+   "#F2D7DA"
+  ],
+  "video": true
+ },
+ "sahil-isometric-control-plane": {
+  "page": "https://designeer.xyz/finds/sahildabasss-2108882510298189827",
+  "category": "Motion",
+  "palette": [
+   "#0D0D0D",
+   "#373737",
+   "#585857"
+  ],
+  "video": true
+ },
+ "hosein-drone-docking-simulation": {
+  "page": "https://designeer.xyz/finds/hoseinbagh3ri-2107761492292477428",
+  "category": "Motion",
+  "palette": [
+   "#1A191E",
+   "#3C3A42"
+  ],
+  "video": true
+ },
+ "sucodee-wireframe-jet-model": {
+  "page": "https://designeer.xyz/finds/sucodeee-2109243748823535973",
+  "category": "Motion",
+  "palette": [
+   "#1A1A1A",
+   "#484848",
+   "#696969",
+   "#8F4945",
+   "#417A50"
+  ],
+  "video": true
+ },
+ "abhi-wireframe-slot-machine-404": {
+  "page": "https://designeer.xyz/finds/akshatbuilds-2107756389150175317",
+  "category": "Interface, Motion",
+  "palette": [
+   "#0D0D0D",
+   "#353534"
+  ],
+  "video": true
+ },
+ "dhruv-arcade-cabinet-404": {
+  "page": "https://designeer.xyz/finds/dhruvtwt-2108468660788691370",
+  "category": "Interface, Motion",
+  "palette": [
+   "#121212",
+   "#343435",
+   "#4A88E9",
+   "#255DB7",
+   "#666665"
+  ],
+  "video": true
+ },
+ "aniket-film-sequence-404": {
+  "page": "https://designeer.xyz/finds/alaymanguy-2108897388635242916",
+  "category": "Interface, Motion",
+  "palette": [
+   "#0A0A0A",
+   "#272727",
+   "#585858"
+  ],
+  "video": true
+ },
+ "grace-sleeping-mascot-footer": {
+  "page": "https://designeer.xyz/finds/gracewangdesign-2108256110536732684",
+  "category": "Motion, Landing page",
+  "palette": [
+   "#E8E9E9",
+   "#B9BABA",
+   "#858584",
+   "#555555",
+   "#333431"
+  ],
+  "video": true
+ },
+ "anish-axolotl-pond": {
+  "page": "https://designeer.xyz/finds/anishfn-2107555250085507200",
+  "category": "Motion, Landing page",
+  "palette": [
+   "#FFFFFF",
+   "#2A4526",
+   "#48663B",
+   "#688758",
+   "#89A677"
+  ],
+  "video": true
+ },
+ "tolis-boat-barrel-hero": {
+  "page": "https://designeer.xyz/finds/tol-is-2107562578096398338",
+  "category": "Motion, Illustration, Landing page",
+  "palette": [
+   "#F9F9FB",
+   "#B7B7B8",
+   "#979797",
+   "#D6D6D9",
+   "#353436"
+  ],
+  "video": true
+ },
+ "andreas-pixel-cloud-portfolio": {
+  "page": "https://designeer.xyz/finds/andreaskruszaki-2110707763743703458",
+  "category": "Motion, Landing page",
+  "palette": [
+   "#01A9FD",
+   "#3AB9F4",
+   "#77CAFD",
+   "#FEFEFF",
+   "#B9E3F3"
+  ],
+  "video": true
+ },
+ "aditya-chibi-art-viewer": {
+  "page": "https://designeer.xyz/finds/adityawaslost-2109997202546495815",
+  "category": "Motion",
+  "palette": [
+   "#FEFEFE",
+   "#75C6F3",
+   "#F4D7DA",
+   "#C8C6E8",
+   "#FADA3A"
+  ],
+  "video": true
+ },
+ "alien-app-icon-cloud": {
+  "page": "https://designeer.xyz/finds/alien69-2108573207657652629",
+  "category": "Motion",
+  "palette": [
+   "#FEFEFE",
+   "#5B5B5B",
+   "#C8C7C7",
+   "#A6A5A6",
+   "#272627"
+  ],
+  "video": true
+ },
+ "andreas-storm-yosemite-icon-reel": {
+  "page": "https://designeer.xyz/finds/avstorm-2110999434112692677",
+  "category": "Motion",
+  "palette": [
+   "#FFFFFF",
+   "#FEC02A",
+   "#FE5E54",
+   "#16CC37",
+   "#F1D798"
+  ],
+  "video": true
+ },
+ "dom-ocelli-icon-materials": {
+  "page": "https://designeer.xyz/finds/dominikmartn-2109991597228359867",
+  "category": "Motion, Mobile app, Icons",
+  "palette": [
+   "#F9FBF8",
+   "#0138F9",
+   "#3746F9",
+   "#6677F7",
+   "#B5B8F8"
+  ],
+  "video": true
+ },
+ "alex-perforated-stamp-mascot": {
+  "page": "https://designeer.xyz/finds/socoloffalex-2111101944303329732",
+  "category": "Motion",
+  "palette": [
+   "#F2F1EA",
+   "#72B23E",
+   "#D4D8C8",
+   "#95B775",
+   "#B6CB99"
+  ],
+  "video": true
+ },
+ "navneet-presorted-technical-cards": {
+  "page": "https://designeer.xyz/finds/sterlynavneet-2110083150244393340",
+  "category": "Interface, Motion",
+  "palette": [
+   "#DDDDDD",
+   "#232324",
+   "#2222F5",
+   "#454649",
+   "#B8B8B8"
+  ],
+  "video": true
+ },
+ "ayush-maple-ascii-cards": {
+  "page": "https://designeer.xyz/finds/ayushsoni-io-2109879028983501259",
+  "category": "Motion",
+  "palette": [
+   "#E6E6E6",
+   "#0249FC",
+   "#020202",
+   "#2766E7",
+   "#181926"
+  ],
+  "video": true
+ },
+ "ayush-type-halftone-poster": {
+  "page": "https://designeer.xyz/finds/ayushsoni-io-2110950332847276193",
+  "category": "Typography",
+  "palette": [
+   "#0157FE",
+   "#2B72F4",
+   "#538CF9",
+   "#83ADF8",
+   "#F3F7FC"
+  ]
+ },
+ "corca-monospace-math-specimen": {
+  "page": "https://designeer.xyz/finds/corca-math-2111149658294951962",
+  "category": "Motion, Typography",
+  "palette": [
+   "#000000",
+   "#262527",
+   "#444444",
+   "#383A86",
+   "#563814"
+  ],
+  "video": true
+ },
+ "oliver-paper-mono-posters": {
+  "page": "https://designeer.xyz/finds/oliverhamrin-2108595561846722574",
+  "category": "Motion",
+  "palette": [
+   "#E7E6E9",
+   "#F3A8F7",
+   "#2B2626",
+   "#BCD4F7",
+   "#A7B6CB"
+  ],
+  "video": true
+ },
+ "jake-increase-kinetic-type": {
+  "page": "https://designeer.xyz/finds/designbyjake-2108909572861612099",
+  "category": "Motion, Typography",
+  "palette": [
+   "#0A0A0A",
+   "#E93939",
+   "#481919",
+   "#992A2A",
+   "#C65867"
+  ],
+  "video": true
+ },
+ "ayush-grafana-graphic-system": {
+  "page": "https://designeer.xyz/finds/ayushsoni-io-2109992023390638527",
+  "category": "Motion",
+  "palette": [
+   "#141414",
+   "#FED304",
+   "#FD5301",
+   "#FEBAFC",
+   "#888888"
+  ],
+  "video": true
+ },
+ "agu-type-construction-workbench": {
+  "page": "https://designeer.xyz/finds/agusegui-2106459249773547798",
+  "category": "Motion",
+  "palette": [
+   "#F6F7F3",
+   "#D8D9D6",
+   "#B7BAB8",
+   "#A9C6EA",
+   "#71726D"
+  ],
+  "video": true
+ },
+ "daksh-replay-illustrated-cover": {
+  "page": "https://designeer.xyz/finds/dakshpixelup-2109618280013152512",
+  "category": "Motion",
+  "palette": [
+   "#F4F4F4",
+   "#C7C7C7",
+   "#595959",
+   "#A8A8A8",
+   "#767676"
+  ],
+  "video": true
+ },
+ "rajz-talent-search-promo": {
+  "page": "https://designeer.xyz/finds/rajzmotion-2110781436915863932",
+  "category": "Motion",
+  "palette": [
+   "#EFEFEF",
+   "#A9A9A9",
+   "#C8C8C8"
+  ],
+  "video": true
+ },
+ "spoony-ownit-glitch-reveal": {
+  "page": "https://designeer.xyz/finds/spoonyvu-2108868124430987472",
+  "category": "Motion",
+  "palette": [
+   "#040405",
+   "#2142AB",
+   "#0D173A",
+   "#172C77",
+   "#474747"
+  ],
+  "video": true
+ },
+ "jesse-orange-construction-grid": {
+  "page": "https://designeer.xyz/finds/jesse-vermeulen-2107840950009815234",
+  "category": "",
+  "palette": [
+   "#F34509",
+   "#F96633",
+   "#F88A63"
+  ]
+ },
+ "areeba-isometric-excavation-display": {
+  "page": "https://designeer.xyz/finds/areebadesigns-2107784426893767090",
+  "category": "Motion, Illustration",
+  "palette": [
+   "#121212",
+   "#363634"
+  ],
+  "video": true
+ },
+ "vansh-wireframe-desktop-computer": {
+  "page": "https://designeer.xyz/finds/vansh1029-2109271885708161101",
+  "category": "Motion",
+  "palette": [
+   "#09090A",
+   "#431F13"
+  ],
+  "video": true
+ },
+ "vighnesh-exploded-gears": {
+  "page": "https://designeer.xyz/finds/eagledev-2108923791544123441",
+  "category": "Motion",
+  "palette": [
+   "#FEFEFE"
+  ],
+  "video": true
+ },
+ "damir-desktop-paper-shredder": {
+  "page": "https://designeer.xyz/finds/heydamir-2109679416494391746",
+  "category": "Motion",
+  "palette": [
+   "#E6DFD4",
+   "#29292B",
+   "#969291",
+   "#786656",
+   "#B7B2AE"
+  ],
+  "video": true
+ },
+ "lagan-digital-watercolor-study": {
+  "page": "https://designeer.xyz/finds/lifeoflagan-2111120481801662675",
+  "category": "Motion",
+  "palette": [
+   "#F9F8F4",
+   "#B8C7EB",
+   "#6B85DA",
+   "#3B53C7",
+   "#182897"
+  ],
+  "video": true
+ },
+ "sebastian-fomo-glass-orbs": {
+  "page": "https://designeer.xyz/finds/sevas-ae-2108643079016091753",
+  "category": "Motion",
+  "palette": [
+   "#959BF9",
+   "#E4EAFD",
+   "#BDC4FC",
+   "#3633F5",
+   "#5D5CE4"
+  ],
+  "video": true
+ },
+ "marterium-liquify-glass-study": {
+  "page": "https://designeer.xyz/finds/marteriumx-2111165545353728226",
+  "category": "Motion",
+  "palette": [
+   "#C4DCD4",
+   "#98B7B9",
+   "#7A96A4",
+   "#F7FDF8",
+   "#E8A995"
+  ],
+  "video": true
+ },
+ "ayush-distorted-orbital-study": {
+  "page": "https://designeer.xyz/finds/ayushsoni-io-2110962923007033373",
+  "category": "Motion",
+  "palette": [
+   "#B6C4B2",
+   "#E5EEE4",
+   "#E4AA7A",
+   "#E37EA5",
+   "#E38AD8"
+  ],
+  "video": true
+ },
+ "ty-particle-cloud-outline": {
+  "page": "https://designeer.xyz/finds/tjcages-2108598351101120670",
+  "category": "Motion",
+  "palette": [
+   "#FE5201",
+   "#F87C25",
+   "#F59B52",
+   "#B8642A"
+  ],
+  "video": true
+ },
+ "raf-rueca-brand-system": {
+  "page": "https://designeer.xyz/finds/rafcespedes-2111237256875020482",
+  "category": "Motion",
+  "palette": [
+   "#FBFAFA",
+   "#EDA6FD",
+   "#B1006C",
+   "#F4551B",
+   "#6D183A"
+  ],
+  "video": true
+ },
+ "roktimm-tessel-textured-mark": {
+  "page": "https://designeer.xyz/finds/roktim-2111141670549143748",
+  "category": "Motion",
+  "palette": [
+   "#E0E0E0",
+   "#6C6865",
+   "#BBBAB8",
+   "#DE88B5",
+   "#999896"
+  ],
+  "video": true
+ },
+ "sanni-systemic-control-strip": {
+  "page": "https://designeer.xyz/finds/ametusanni-2111094270388211787",
+  "category": "",
+  "palette": [
+   "#C0D7FF",
+   "#75A6F3",
+   "#081932",
+   "#1C5EC9",
+   "#123978"
+  ]
+ },
+ "oleksandr-interlocking-mark-grid": {
+  "page": "https://designeer.xyz/finds/oleksnd10-2107136779312914686",
+  "category": "Motion, Branding, Logo",
+  "palette": [
+   "#FAFAFA",
+   "#B7B7B7",
+   "#040404",
+   "#D8D8D8",
+   "#989898"
+  ],
+  "video": true
+ },
+ "sam-sixfold-light-trails": {
+  "page": "https://designeer.xyz/finds/secondeight-2107103092768444879",
+  "category": "Motion, Logo",
+  "palette": [
+   "#020204",
+   "#76A8E9",
+   "#062746",
+   "#1A4878",
+   "#3669A9"
+  ],
+  "video": true
+ },
+ "szymon-polygon-logo-construction": {
+  "page": "https://designeer.xyz/finds/aecyydesign-2106765574437015559",
+  "category": "Logo",
+  "palette": [
+   "#FFFFFF",
+   "#DBDBDB"
+  ]
+ },
+ "alexander-color-logofolio": {
+  "page": "https://designeer.xyz/finds/ivanovsky-alex-2108905398610604436",
+  "category": "Motion",
+  "palette": [
+   "#FFFFFF",
+   "#FD0201",
+   "#F83938",
+   "#F77777",
+   "#F8B7B5"
+  ],
+  "video": true
+ },
+ "oriku-chromatic-slash-mark": {
+  "page": "https://designeer.xyz/finds/oriku175-2110709775792996517",
+  "category": "",
+  "palette": [
+   "#010101",
+   "#FB9898",
+   "#FDD9D9",
+   "#17273B",
+   "#A4C9F9"
+  ]
+ },
+ "oriku-digital-bloom-poster": {
+  "page": "https://designeer.xyz/finds/oriku175-2107824032339157422",
+  "category": "Motion",
+  "palette": [
+   "#0430D3",
+   "#375AD7",
+   "#97788B",
+   "#A6B7EA",
+   "#8B3697"
+  ],
+  "video": true
+ },
+ "oriku-neon-rose-poster": {
+  "page": "https://designeer.xyz/finds/oriku175-2108917217085870142",
+  "category": "Motion",
+  "palette": [
+   "#7954F5",
+   "#FCFCFF",
+   "#ED1667",
+   "#4946F5",
+   "#F3885A"
+  ],
+  "video": true
+ },
+ "oriku-gecko-scan-poster": {
+  "page": "https://designeer.xyz/finds/oriku175-2109991291220005086",
+  "category": "",
+  "palette": [
+   "#FDFBF3",
+   "#F9E8B7",
+   "#C8E889",
+   "#C9C9C3",
+   "#97DB68"
+  ]
+ },
+ "rahul-architectural-type-poster": {
+  "page": "https://designeer.xyz/finds/rahulbhadoriiya-2107775943779446851",
+  "category": "Branding",
+  "palette": [
+   "#D4D4D2",
+   "#AAABA8",
+   "#5A5A5A",
+   "#787877",
+   "#3C3C3C"
+  ]
+ },
+ "kasun-follower-orbit-counter": {
+  "page": "https://designeer.xyz/finds/kasuncfdo-2106804627778027903",
+  "category": "Motion",
+  "palette": [
+   "#080A0C"
+  ],
+  "video": true
+ },
+ "david-wall-cutout-collage": {
+  "page": "https://designeer.xyz/finds/davidhaz-2107108417806684553",
+  "category": "Motion",
+  "palette": [
+   "#F1F0EC",
+   "#9A4527",
+   "#262625",
+   "#595A56",
+   "#797876"
+  ],
+  "video": true
+ },
+ "xchyler-aikido-diagram-campaign": {
+  "page": "https://designeer.xyz/finds/xchylerdrenth-2111127771649016253",
+  "category": "",
+  "palette": [
+   "#262A29",
+   "#F2ECE7",
+   "#1D5DFC",
+   "#DC9AFC",
+   "#194BC7"
+  ]
+ },
+ "lab01": {
+  "page": "https://designeer.xyz/inspiration/lab01",
+  "category": "Galleries",
+  "palette": [
+   "#0C0C0C",
+   "#F7F8FB",
+   "#373737",
+   "#545455",
+   "#ACADB2"
+  ],
+  "video": true
+ },
+ "gaki": {
+  "page": "https://designeer.xyz/inspiration/gaki",
+  "category": "",
+  "palette": [
+   "#F7F7F5",
+   "#C9C9C7",
+   "#9A9A98",
+   "#6A6A69",
+   "#363636"
+  ]
+ },
+ "siddharth-chudasama": {
+  "page": "https://designeer.xyz/inspiration/everyday-life-in-ascii",
+  "category": "",
+  "palette": [
+   "#0A0A0A",
+   "#373734",
+   "#6C6B67",
+   "#888782",
+   "#632712"
+  ]
+ },
+ "nyx-studio": {
+  "page": "https://designeer.xyz/inspiration/nyx-studio",
+  "category": "Galleries",
+  "palette": [
+   "#F5F3F1",
+   "#C9C8C6",
+   "#A9A8A6",
+   "#272727",
+   "#4A4A49"
+  ]
+ },
+ "betwn-studios": {
+  "page": "https://designeer.xyz/inspiration/betwn-studios",
+  "category": "Galleries",
+  "palette": [
+   "#141618",
+   "#343639",
+   "#878787",
+   "#FBF9F9",
+   "#55585B"
+  ],
+  "video": true
+ },
+ "fahmi-auliya": {
+  "page": "https://designeer.xyz/inspiration/fahmi-auliya",
+  "category": "Galleries",
+  "palette": []
+ },
+ "rauno-freiberg": {
+  "page": "https://designeer.xyz/portfolios/rauno-freiberg",
+  "category": "Design",
+  "palette": [
+   "#EDEDED",
+   "#FEFE01",
+   "#999999",
+   "#020202",
+   "#CACACA"
+  ],
+  "video": true
+ },
+ "jhey-tompkins": {
+  "page": "https://designeer.xyz/portfolios/jhey-tompkins",
+  "category": "Creative Development",
+  "palette": [
+   "#FEFEFE",
+   "#C8C8C8",
+   "#A9A9A9"
+  ],
+  "video": true
+ },
+ "dominik-kandravy": {
+  "page": "https://designeer.xyz/portfolios/dominik-kandrav",
+  "category": "Founders & Makers",
+  "palette": [
+   "#F9F9F9",
+   "#C9C8C6",
+   "#878887",
+   "#8A7558",
+   "#4A4748"
+  ],
+  "video": true
+ },
+ "lynn-fisher": {
+  "page": "https://designeer.xyz/portfolios/lynn-fisher",
+  "category": "Design",
+  "palette": [
+   "#E2DDD2",
+   "#C2BDB4",
+   "#8B8982"
+  ],
+  "video": true
+ },
+ "bakemono": {
+  "page": "https://designeer.xyz/portfolios/bakemono",
+  "category": "Design Engineering",
+  "palette": [
+   "#0C0C0C",
+   "#494949",
+   "#511D25",
+   "#656B81",
+   "#C9B1BE"
+  ],
+  "video": true
+ },
+ "marijana-pavlinic": {
+  "page": "https://designeer.xyz/portfolios/marijana-pavlini",
+  "category": "Design",
+  "palette": [
+   "#F8F8F8",
+   "#040807",
+   "#C8C9C9",
+   "#A6A7A7",
+   "#574839"
+  ],
+  "video": true
+ },
+ "offgrid-studio": {
+  "page": "https://designeer.xyz/portfolios/offgrid",
+  "category": "Studios",
+  "palette": [
+   "#040404",
+   "#272727",
+   "#FBFCFC",
+   "#585856",
+   "#989897"
+  ],
+  "video": true
+ },
+ "nick-jones": {
+  "page": "https://designeer.xyz/portfolios/nick-jones",
+  "category": "Design",
+  "palette": [
+   "#F4F3F5",
+   "#D8D6D8",
+   "#EE9699",
+   "#E83639",
+   "#A7A6A9"
+  ],
+  "video": true
+ },
+ "daniel-white": {
+  "page": "https://designeer.xyz/portfolios/daniel-white",
+  "category": "Design Engineering",
+  "palette": [
+   "#FBFAF8",
+   "#DADAD9",
+   "#000001",
+   "#B7B7B9",
+   "#373634"
+  ],
+  "video": true
+ },
+ "fara-yan": {
+  "page": "https://designeer.xyz/portfolios/fara-yan",
+  "category": "Design",
+  "palette": [
+   "#F1F0EE",
+   "#B8D1B7",
+   "#8DB59A",
+   "#6C9A81"
+  ],
+  "video": true
+ },
+ "paco-coursey": {
+  "page": "https://designeer.xyz/portfolios/paco-coursey",
+  "category": "Founders & Makers",
+  "palette": [
+   "#FEFEFE",
+   "#DDDDDD"
+  ],
+  "video": true
+ },
+ "shawn-dsilva": {
+  "page": "https://designeer.xyz/portfolios/shawn-dsilva",
+  "category": "Design Engineering",
+  "palette": [
+   "#FBFBFB",
+   "#36563A",
+   "#658A67",
+   "#16291A",
+   "#D6DBD6"
+  ],
+  "video": true
+ },
+ "maze-remvze": {
+  "page": "https://designeer.xyz/portfolios/maze",
+  "category": "Design Engineering",
+  "palette": [
+   "#0B0B09",
+   "#292827",
+   "#474746"
+  ],
+  "video": true
+ },
+ "lyle-klyne": {
+  "page": "https://designeer.xyz/portfolios/lyle-klyne",
+  "category": "Design",
+  "palette": [
+   "#FBF4EC",
+   "#B8D3E2",
+   "#88B7D6",
+   "#4E9DD1"
+  ],
+  "video": true
+ },
+ "prasanjit-dey": {
+  "page": "https://designeer.xyz/portfolios/prasanjit-dey",
+  "category": "Design Engineering",
+  "palette": [
+   "#FEFEFE",
+   "#D9DADA",
+   "#9C9C9B",
+   "#B9BAB8",
+   "#282726"
+  ],
+  "video": true
+ },
+ "sasha-balandina": {
+  "page": "https://designeer.xyz/portfolios/sasha-balandina",
+  "category": "Design",
+  "palette": [
+   "#FAF9F5",
+   "#282829",
+   "#CAAAE5",
+   "#463556",
+   "#6D4A93"
+  ],
+  "video": true
+ },
+ "michelle-liu": {
+  "page": "https://designeer.xyz/portfolios/michelle-liu",
+  "category": "Design",
+  "palette": [
+   "#FDFDFD",
+   "#E6D8E6",
+   "#2B3448",
+   "#2B3988",
+   "#5A86E6"
+  ],
+  "video": true
+ },
+ "kai-nair": {
+  "page": "https://designeer.xyz/portfolios/kai-nair",
+  "category": "Creative Development",
+  "palette": [
+   "#0F0F0F",
+   "#DADADB",
+   "#A7A7A7",
+   "#272445",
+   "#878386"
+  ],
+  "video": true
+ },
+ "michael-alexander-mek": {
+  "page": "https://designeer.xyz/portfolios/michael-alexander",
+  "category": "Design",
+  "palette": [
+   "#030304",
+   "#ECE6DA",
+   "#3437B7",
+   "#49372D",
+   "#0001FB"
+  ],
+  "video": true
+ },
+ "flora-guo": {
+  "page": "https://designeer.xyz/portfolios/flora-guo",
+  "category": "Design",
+  "palette": [
+   "#F4F4F4",
+   "#E8CCCF",
+   "#A81F2F",
+   "#BEBBBC"
+  ],
+  "video": true
+ },
+ "adam-argyle": {
+  "page": "https://designeer.xyz/portfolios/adam-argyle",
+  "category": "Founders & Makers",
+  "palette": [
+   "#E8ECEF",
+   "#C9CDD2",
+   "#979A9D"
+  ],
+  "video": true
+ },
+ "jakub-krehel": {
+  "page": "https://designeer.xyz/portfolios/jakub-krehel",
+  "category": "Design Engineering",
+  "palette": [
+   "#FBFBFB",
+   "#DCDCDC",
+   "#B7B7B8"
+  ],
+  "video": true
+ },
+ "gavin-nelson": {
+  "page": "https://designeer.xyz/portfolios/gavin-nelson",
+  "category": "Design",
+  "palette": [
+   "#FFFFFF",
+   "#E0C5AE",
+   "#DDDDDD"
+  ],
+  "video": true
+ },
+ "ashish-gogula": {
+  "page": "https://designeer.xyz/portfolios/ashish-gogula",
+  "category": "Design Engineering",
+  "palette": [
+   "#F3F2EE",
+   "#040404",
+   "#C9C9C7",
+   "#F7C6B5",
+   "#F49877"
+  ],
+  "video": true
+ },
+ "dhruv-suthar": {
+  "page": "https://designeer.xyz/portfolios/dhruv-suthar",
+  "category": "Design Engineering",
+  "palette": [
+   "#F9F8F6",
+   "#D7D6D5"
+  ],
+  "video": true
+ },
+ "hardik-pandya": {
+  "page": "https://designeer.xyz/portfolios/hardik-pandya",
+  "category": "Founders & Makers",
+  "palette": [
+   "#FEFEFE",
+   "#DBDBDB",
+   "#A9A7A7",
+   "#050307",
+   "#847967"
+  ],
+  "video": true
+ },
+ "grizz": {
+  "page": "https://designeer.xyz/portfolios/grizz",
+  "category": "Design",
+  "palette": [
+   "#FFFFFF",
+   "#FF6327",
+   "#FFCAB6",
+   "#DEDEDE",
+   "#FD865B"
+  ],
+  "video": true
+ },
+ "fabian-arbor": {
+  "page": "https://designeer.xyz/portfolios/fabian-arbor",
+  "category": "Design",
+  "palette": [
+   "#010101",
+   "#D59DFD",
+   "#69010A",
+   "#27343B",
+   "#320105"
+  ],
+  "video": true
+ },
+ "sophie-manalo": {
+  "page": "https://designeer.xyz/portfolios/sophie-manalo",
+  "category": "Creative Development",
+  "palette": [
+   "#F3F3F1",
+   "#C2ED85",
+   "#4998C5",
+   "#CCCCCC",
+   "#96BCD9"
+  ],
+  "video": true
+ },
+ "syed-subhan": {
+  "page": "https://designeer.xyz/portfolios/syed-subhan",
+  "category": "Creative Development",
+  "palette": [
+   "#000000",
+   "#262626",
+   "#4A4A4A"
+  ],
+  "video": true
+ },
+ "jay-radiumcoders": {
+  "page": "https://designeer.xyz/portfolios/jay",
+  "category": "Design Engineering",
+  "palette": [
+   "#FEF9FB",
+   "#F9C8DA",
+   "#D5ACBA",
+   "#C4D5E7"
+  ],
+  "video": true
+ },
+ "julien-thibeaut": {
+  "page": "https://designeer.xyz/portfolios/julien-thibeaut",
+  "category": "Design",
+  "palette": [
+   "#FEFEFE",
+   "#DBDBDB",
+   "#35373A",
+   "#A8A7A6",
+   "#7A7A75"
+  ],
+  "video": true
+ },
+ "aniket-pawar": {
+  "page": "https://designeer.xyz/portfolios/aniket-pawar",
+  "category": "Development",
+  "palette": [
+   "#FEFEFE",
+   "#DAD9D9",
+   "#585858",
+   "#B8B8B9",
+   "#764221"
+  ],
+  "video": true
+ },
+ "aaron-mahlke": {
+  "page": "https://designeer.xyz/portfolios/aaron-mahlke",
+  "category": "Design Engineering",
+  "palette": [
+   "#F7F7F7",
+   "#D9D9D9",
+   "#AAAAAA",
+   "#595959"
+  ],
+  "video": true
+ },
+ "harsh-singh": {
+  "page": "https://designeer.xyz/portfolios/harsh-singh",
+  "category": "Development",
+  "palette": [
+   "#F6F6F6",
+   "#030303",
+   "#A6A6A6",
+   "#686867",
+   "#C8C8C8"
+  ],
+  "video": true
+ },
+ "emmanuel-hong": {
+  "page": "https://designeer.xyz/portfolios/emmanuel-hong",
+  "category": "Design",
+  "palette": [
+   "#FFFFFF",
+   "#DEDEE1",
+   "#74C8EC",
+   "#A8A089",
+   "#161515"
+  ],
+  "video": true
+ },
+ "sarah-drasner": {
+  "page": "https://designeer.xyz/portfolios/sarah-drasner",
+  "category": "Development",
+  "palette": [
+   "#FFFFFF"
+  ]
+ },
+ "yuhang-lu": {
+  "page": "https://designeer.xyz/portfolios/yuhang-lu",
+  "category": "Design",
+  "palette": [
+   "#FEFEFE",
+   "#DDDEDD"
+  ],
+  "video": true
+ },
+ "praveen-juge": {
+  "page": "https://designeer.xyz/portfolios/praveen-juge",
+  "category": "Design Engineering",
+  "palette": [
+   "#FDFDFD",
+   "#080808",
+   "#DBDBDC",
+   "#252829",
+   "#474748"
+  ],
+  "video": true
+ },
+ "ashish-kashyap": {
+  "page": "https://designeer.xyz/portfolios/ashish-kashyap",
+  "category": "Design",
+  "palette": [
+   "#FAFAFA",
+   "#DCDCDC"
+  ],
+  "video": true
+ },
+ "preet-suthar": {
+  "page": "https://designeer.xyz/portfolios/preet-suthar",
+  "category": "Design Engineering",
+  "palette": [
+   "#FFFFFF",
+   "#DCDCDC",
+   "#787979",
+   "#A6A6A5"
+  ],
+  "video": true
+ },
+ "palak-sharma": {
+  "page": "https://designeer.xyz/portfolios/palak-sharma",
+  "category": "Creative Development",
+  "palette": [
+   "#FDFAFA",
+   "#D9D8DA",
+   "#C7ABA7",
+   "#7B6469",
+   "#B68887"
+  ],
+  "video": true
+ },
+ "janina-parker": {
+  "page": "https://designeer.xyz/portfolios/janina",
+  "category": "Design",
+  "palette": [
+   "#287658",
+   "#58965A",
+   "#89B567",
+   "#164938",
+   "#85AC97"
+  ],
+  "video": true
+ },
+ "unlimited-studio": {
+  "page": "https://designeer.xyz/portfolios/unlimited-studio",
+  "category": "Studios",
+  "palette": [
+   "#020101",
+   "#952A16",
+   "#C93C23",
+   "#242424",
+   "#49130A"
+  ],
+  "video": true
+ },
+ "stuart-regan": {
+  "page": "https://designeer.xyz/portfolios/stuart-regan",
+  "category": "Design",
+  "palette": [
+   "#FFFFFF",
+   "#060407",
+   "#D8D8D8",
+   "#460509",
+   "#59272A"
+  ],
+  "video": true
+ },
+ "paolo-nessim": {
+  "page": "https://designeer.xyz/portfolios/paolo-nessim",
+  "category": "Development",
+  "palette": [
+   "#F9FAFC",
+   "#D8D9DB",
+   "#B8BABC",
+   "#949597"
+  ],
+  "video": true
+ },
+ "rahul-bhadoriya": {
+  "page": "https://designeer.xyz/portfolios/rahul-singh-bhadoriya",
+  "category": "Design",
+  "palette": [
+   "#FCFCFC",
+   "#B8B8B8",
+   "#0E0E0E",
+   "#D9D8D9",
+   "#686868"
+  ],
+  "video": true
+ },
+ "nexvyn": {
+  "page": "https://designeer.xyz/portfolios/nexvyn",
+  "category": "Design Engineering",
+  "palette": [
+   "#0A0A0A",
+   "#FBFCFC",
+   "#BCBBBB",
+   "#9B9B9B",
+   "#323232"
+  ],
+  "video": true
+ },
+ "yogesh-arc": {
+  "page": "https://designeer.xyz/portfolios/yogesh",
+  "category": "Founders & Makers",
+  "palette": [
+   "#FAF9FA",
+   "#E4DADA"
+  ],
+  "video": true
+ },
+ "david-umoru": {
+  "page": "https://designeer.xyz/portfolios/david-umoru",
+  "category": "Creative Development",
+  "palette": [
+   "#FAFAFA",
+   "#D7D7D7",
+   "#030000",
+   "#BCBBBA",
+   "#774727"
+  ],
+  "video": true
+ },
+ "vijay-verma": {
+  "page": "https://designeer.xyz/portfolios/vijay-verma",
+  "category": "Creative Development",
+  "palette": [
+   "#FDFDFD",
+   "#EAC349",
+   "#343BFF",
+   "#E4883A",
+   "#3E2718"
+  ],
+  "video": true
+ },
+ "shadcn-portfolio": {
+  "page": "https://designeer.xyz/portfolios/shadcn",
+  "category": "Founders & Makers",
+  "palette": [
+   "#FFFFFF",
+   "#D9D9D9",
+   "#B6B6B6",
+   "#7A7A7A"
+  ],
+  "video": true
+ },
+ "ali-aaali": {
+  "page": "https://designeer.xyz/portfolios/li",
+  "category": "Design",
+  "palette": [
+   "#FBFBFB",
+   "#F8E475",
+   "#F4ECC6",
+   "#CCC7C7",
+   "#D8C85E"
+  ],
+  "video": true
+ },
+ "arlan-marat": {
+  "page": "https://designeer.xyz/portfolios/arlan-marat",
+  "category": "Design Engineering",
+  "palette": [
+   "#FCFCFC",
+   "#DBDBDB"
+  ],
+  "video": true
+ },
+ "glenn-hitchcock": {
+  "page": "https://designeer.xyz/portfolios/glenn-hitchcock",
+  "category": "Founders & Makers",
+  "palette": [
+   "#D4D5D9"
+  ],
+  "video": true
+ },
+ "jia-chen": {
+  "page": "https://designeer.xyz/portfolios/jia-chen",
+  "category": "Creative Development",
+  "palette": [
+   "#486584",
+   "#050504",
+   "#353919",
+   "#676837",
+   "#79838B"
+  ],
+  "video": true
+ },
+ "marcelo-chaman-mallqui": {
+  "page": "https://designeer.xyz/portfolios/marcelo-chaman-mallqui",
+  "category": "Design Engineering",
+  "palette": [
+   "#FCFCFC",
+   "#C8DAFC"
+  ],
+  "video": true
+ },
+ "ruru": {
+  "page": "https://designeer.xyz/portfolios/ruru",
+  "category": "Design Engineering",
+  "palette": [
+   "#FEFEFE",
+   "#D9D9DA",
+   "#A4A4A4"
+  ],
+  "video": true
+ },
+ "aaryan-blurpyx": {
+  "page": "https://designeer.xyz/portfolios/aaryan",
+  "category": "Founders & Makers",
+  "palette": [
+   "#FFFFFF",
+   "#B7B7B7",
+   "#D8D8D8"
+  ],
+  "video": true
+ },
+ "gurbinder-legionwebdev": {
+  "page": "https://designeer.xyz/portfolios/gurbinder",
+  "category": "Design Engineering",
+  "palette": [
+   "#0C0D0F",
+   "#373838",
+   "#5A5A5B"
+  ],
+  "video": true
+ },
+ "chidambaram-arunachalam": {
+  "page": "https://designeer.xyz/portfolios/chidu",
+  "category": "Design",
+  "palette": [
+   "#FEFEFE",
+   "#DCDCDD"
+  ],
+  "video": true
+ },
+ "ishaan-dey": {
+  "page": "https://designeer.xyz/portfolios/ishaan-dey",
+  "category": "Design Engineering",
+  "palette": [
+   "#090A0A",
+   "#371715",
+   "#FCFCFC",
+   "#ABABAB",
+   "#484848"
+  ],
+  "video": true
+ },
+ "shivraj-roy": {
+  "page": "https://designeer.xyz/portfolios/shivraj-roy",
+  "category": "Development",
+  "palette": [
+   "#FEFDFD",
+   "#FAD5CD",
+   "#C6C6C6",
+   "#745A3A",
+   "#6A756B"
+  ],
+  "video": true
+ },
+ "harsh-jadhav": {
+  "page": "https://designeer.xyz/portfolios/harsh-jadhav",
+  "category": "Design Engineering",
+  "palette": [
+   "#FDFDFB",
+   "#DBDBD9"
+  ],
+  "video": true
+ },
+ "pratham": {
+  "page": "https://designeer.xyz/portfolios/pratham",
+  "category": "Design",
+  "palette": [
+   "#F7F7F8",
+   "#0B0B0B",
+   "#292929",
+   "#B9B9BB",
+   "#DAD9DC"
+  ],
+  "video": true
+ },
+ "lokendra-kushwah": {
+  "page": "https://designeer.xyz/portfolios/lokendra-kushwah",
+  "category": "Development",
+  "palette": [
+   "#0D0D0B",
+   "#322E17",
+   "#BEB034",
+   "#958A2B",
+   "#57511E"
+  ],
+  "video": true
+ },
+ "manu-arora": {
+  "page": "https://designeer.xyz/portfolios/manu-arora",
+  "category": "Development",
+  "palette": [
+   "#FAFAF8",
+   "#D9D9D7",
+   "#E6BA4C",
+   "#FDB278",
+   "#CC97F8"
+  ],
+  "video": true
+ },
+ "tushaar-mehta": {
+  "page": "https://designeer.xyz/portfolios/tushaar-mehta",
+  "category": "Design",
+  "palette": [
+   "#FCFCFC",
+   "#D8D8D8",
+   "#373737",
+   "#B7B7B7",
+   "#979797"
+  ],
+  "video": true
+ },
+ "abhinav-kale": {
+  "page": "https://designeer.xyz/portfolios/abhinav-kale",
+  "category": "Design Engineering",
+  "palette": [
+   "#FEFEFE",
+   "#030303",
+   "#D7D7D8",
+   "#B5B5B6",
+   "#8D7366"
+  ],
+  "video": true
+ },
+ "victor-chukwudi-williams": {
+  "page": "https://designeer.xyz/portfolios/victor-williams",
+  "category": "Design Engineering",
+  "palette": [
+   "#F9FBFA",
+   "#D9DBDA",
+   "#243B46",
+   "#020202",
+   "#6AA9C6"
+  ],
+  "video": true
+ },
+ "aman-shakya": {
+  "page": "https://designeer.xyz/portfolios/aman-shakya",
+  "category": "Design Engineering",
+  "palette": [
+   "#0A0A0A",
+   "#262627",
+   "#464646",
+   "#666666",
+   "#9FA8B5"
+  ],
+  "video": true
+ },
+ "vansh-nagar": {
+  "page": "https://designeer.xyz/portfolios/vansh-nagar",
+  "category": "Development",
+  "palette": [
+   "#FEFEFE",
+   "#DAD9DA",
+   "#484848",
+   "#8CABD5",
+   "#9B9A99"
+  ],
+  "video": true
+ },
+ "ashutoshx7": {
+  "page": "https://designeer.xyz/portfolios/ashutosh-singh",
+  "category": "Development",
+  "palette": [
+   "#FEFEFE",
+   "#D9D9D9",
+   "#7A9DC7",
+   "#557CA9",
+   "#9B9B9A"
+  ],
+  "video": true
+ },
+ "mihir-aman-raj": {
+  "page": "https://designeer.xyz/portfolios/mihir-aman-raj",
+  "category": "Creative Development",
+  "palette": [
+   "#141414",
+   "#363637",
+   "#545454",
+   "#787878",
+   "#A4A4A4"
+  ],
+  "video": true
+ },
+ "siddharth-meena": {
+  "page": "https://designeer.xyz/portfolios/siddharth",
+  "category": "Development",
+  "palette": [
+   "#FEFEFE",
+   "#2498E9",
+   "#77B7E9",
+   "#DBDAD9",
+   "#9CA266"
+  ],
+  "video": true
+ },
+ "atharvsinh-jadav": {
+  "page": "https://designeer.xyz/portfolios/atharvsinh-jadav",
+  "category": "Development",
+  "palette": [
+   "#FBFBFB",
+   "#D8D7D8",
+   "#94ADF8",
+   "#BBBABC",
+   "#433C46"
+  ],
+  "video": true
+ },
+ "samiran-de": {
+  "page": "https://designeer.xyz/portfolios/sam",
+  "category": "Design Engineering",
+  "palette": [
+   "#0D0D0D",
+   "#373737",
+   "#435A63",
+   "#74898A",
+   "#FCFDFB"
+  ]
+ },
+ "gautam-kumar": {
+  "page": "https://designeer.xyz/portfolios/gautam",
+  "category": "Development",
+  "palette": [
+   "#FEFEFE",
+   "#DADDDD"
+  ],
+  "video": true
+ },
+ "shivam-10x": {
+  "page": "https://designeer.xyz/portfolios/shivam",
+  "category": "Development",
+  "palette": [
+   "#010101",
+   "#272727",
+   "#FAF8EC",
+   "#C5D5C8",
+   "#454647"
+  ],
+  "video": true
+ },
+ "dhruv-jaradi": {
+  "page": "https://designeer.xyz/portfolios/dhruv",
+  "category": "Design Engineering",
+  "palette": [
+   "#FEFEFE",
+   "#DCDCDD",
+   "#98A4AB",
+   "#4F240F",
+   "#346989"
+  ],
+  "video": true
+ },
+ "ramkrishna-swarnkar": {
+  "page": "https://designeer.xyz/portfolios/ram",
+  "category": "Development",
+  "palette": [
+   "#F9F9F9",
+   "#D9D9D9",
+   "#A8A5AB",
+   "#6F4430",
+   "#A8BFD7"
+  ],
+  "video": true
+ },
+ "umesh-nagare": {
+  "page": "https://designeer.xyz/portfolios/umesh-nagare",
+  "category": "Development",
+  "palette": [
+   "#FEFEFE",
+   "#B7A295",
+   "#DBDADA"
+  ],
+  "video": true
+ },
+ "alistair-smith": {
+  "page": "https://designeer.xyz/portfolios/alistair-smith",
+  "category": "Development",
+  "palette": [
+   "#F9F8F4"
+  ],
+  "video": true
+ },
+ "raphael-salaja": {
+  "page": "https://designeer.xyz/portfolios/raphael-salaja",
+  "category": "Design Engineering",
+  "palette": [
+   "#FEFEFE",
+   "#030303",
+   "#D9D9D9",
+   "#393939",
+   "#7C7C7C"
+  ],
+  "video": true
+ },
+ "jakub-antalik": {
+  "page": "https://designeer.xyz/portfolios/jakub-antal-k",
+  "category": "Design",
+  "palette": [
+   "#FCFCFC",
+   "#DCDCDC",
+   "#060508",
+   "#959494",
+   "#BBBBBB"
+  ],
+  "video": true
+ },
+ "ivan-pambudi": {
+  "page": "https://designeer.xyz/portfolios/ivan-pambudi",
+  "category": "Design",
+  "palette": [
+   "#FCFCFC",
+   "#E1E0DF",
+   "#BABABA"
+  ]
+ },
+ "juan-di-nella": {
+  "page": "https://designeer.xyz/portfolios/juan-di-nella",
+  "category": "Design Engineering",
+  "palette": [
+   "#FDF9ED",
+   "#1655A3",
+   "#87A6C9",
+   "#4779B4",
+   "#B9C9D9"
+  ]
+ },
+ "paul-bakaus": {
+  "page": "https://designeer.xyz/portfolios/paul-bakaus",
+  "category": "Development",
+  "palette": [
+   "#0B0908",
+   "#2A2724",
+   "#4C4843",
+   "#95624A",
+   "#D5997D"
+  ],
+  "video": true
+ },
+ "daryl-patigas": {
+  "page": "https://designeer.xyz/portfolios/daryl-patigas",
+  "category": "Design",
+  "palette": [
+   "#3573FE",
+   "#6494FE",
+   "#98B8FF"
+  ],
+  "video": true
+ },
+ "airla-fan": {
+  "page": "https://designeer.xyz/portfolios/airla-fan",
+  "category": "Design",
+  "palette": [
+   "#FCFBFA",
+   "#030203",
+   "#CACBC8",
+   "#262628",
+   "#464748"
+  ],
+  "video": true
+ },
+ "raksha-tated": {
+  "page": "https://designeer.xyz/portfolios/raksha-tated",
+  "category": "Design",
+  "palette": [
+   "#141414",
+   "#353534",
+   "#595758",
+   "#888985",
+   "#89704B"
+  ],
+  "video": true
+ },
+ "kate-fm": {
+  "page": "https://designeer.xyz/portfolios/kate-fm",
+  "category": "Creative Development",
+  "palette": [
+   "#000000",
+   "#C9C9C6",
+   "#292925",
+   "#A9A7A5",
+   "#4A4745"
+  ]
+ },
+ "weekone": {
+  "page": "https://designeer.xyz/portfolios/weekone",
+  "category": "Founders & Makers",
+  "palette": [
+   "#FAFAFA",
+   "#D8D8D8",
+   "#050505",
+   "#B7B7B7",
+   "#898989"
+  ]
+ },
+ "jonatan-robin": {
+  "page": "https://designeer.xyz/portfolios/jonatan-robin",
+  "category": "Design",
+  "palette": [
+   "#0D55D4",
+   "#E1DCD2",
+   "#37508C",
+   "#B8BBC5",
+   "#477CD7"
+  ],
+  "video": true
+ },
+ "henry-heffernan": {
+  "page": "https://designeer.xyz/portfolios/henry-heffernan",
+  "category": "Creative Development",
+  "palette": [
+   "#000000",
+   "#282828"
+  ],
+  "video": true
+ },
+ "mihir-jaiswal": {
+  "page": "https://designeer.xyz/portfolios/mihir-jaiswal",
+  "category": "",
+  "palette": [
+   "#0A0A0A",
+   "#282726",
+   "#6A6B66",
+   "#9B9B94",
+   "#4A4B47"
+  ]
+ },
+ "dn-websites": {
+  "page": "https://designeer.xyz/portfolios/dn-websites",
+  "category": "Studios",
+  "palette": [
+   "#0B0F10",
+   "#565A57",
+   "#373A37",
+   "#888885",
+   "#E6E3DC"
+  ]
+ },
+ "ana-howard": {
+  "page": "https://designeer.xyz/portfolios/ana-howard",
+  "category": "Design Engineering",
+  "palette": [
+   "#FBFBFC",
+   "#797497",
+   "#A698FB",
+   "#A7E9FE",
+   "#D8D8D7"
+  ],
+  "video": true
+ },
+ "henning-birgersson": {
+  "page": "https://designeer.xyz/portfolios/henning-birgersson",
+  "category": "Design",
+  "palette": []
+ },
+ "todd-hamilton": {
+  "page": "https://designeer.xyz/portfolios/todd-hamilton",
+  "category": "Design Engineering",
+  "palette": [
+   "#232323",
+   "#464646"
+  ],
+  "video": true
+ },
+ "soren-blank": {
+  "page": "https://designeer.xyz/portfolios/soren-blank",
+  "category": "Design Engineering",
+  "palette": [
+   "#F0F4FF",
+   "#BBCCF8",
+   "#92ADF5",
+   "#ACB5C5"
+  ],
+  "video": true
+ },
+ "wen-weng": {
+  "page": "https://designeer.xyz/portfolios/wen-weng",
+  "category": "Design",
+  "palette": [
+   "#FEFEFE",
+   "#D9D9D9",
+   "#2380BC",
+   "#64A3C5",
+   "#B4BABB"
+  ]
+ },
+ "prakhar-singh": {
+  "page": "https://designeer.xyz/portfolios/prakhar-singh",
+  "category": "Development",
+  "palette": [
+   "#F3F0E8",
+   "#E63946",
+   "#74726A",
+   "#CDCAC2",
+   "#EA7379"
+  ]
+ },
+ "brian-palmieri": {
+  "page": "https://designeer.xyz/portfolios/brian-palmieri",
+  "category": "Design",
+  "palette": [
+   "#FFFFFF",
+   "#131313",
+   "#6A6A6A",
+   "#454545",
+   "#B4B4B4"
+  ]
+ },
+ "bimanshu-vatsa": {
+  "page": "https://designeer.xyz/portfolios/bimanshu-vatsa",
+  "category": "Design",
+  "palette": [
+   "#FCFAF6",
+   "#DAC4A5",
+   "#DCD9D4",
+   "#A92B21",
+   "#9D9B96"
+  ]
+ },
+ "6g-studio": {
+  "page": "https://designeer.xyz/portfolios/6g-studio",
+  "category": "Design",
+  "palette": [
+   "#FFFFFF",
+   "#363736",
+   "#0598EA",
+   "#C8C9C7",
+   "#78A748"
+  ]
+ },
+ "bobby-giangeruso": {
+  "page": "https://designeer.xyz/portfolios/bobby-giangeruso",
+  "category": "Design Engineering",
+  "palette": [
+   "#FFFFFF",
+   "#4B2618",
+   "#B7B7B7",
+   "#774B34",
+   "#D9D8D8"
+  ],
+  "video": true
+ },
+ "tom-spell-ui": {
+  "page": "https://designeer.xyz/portfolios/tom",
+  "category": "Founders & Makers",
+  "palette": [
+   "#FFFFFF",
+   "#DADADA",
+   "#5F5F5F",
+   "#BBBBBB",
+   "#878787"
+  ],
+  "video": true
+ },
+ "sanyam-punia": {
+  "page": "https://designeer.xyz/portfolios/sanyam-punia",
+  "category": "Development",
+  "palette": [
+   "#FDFDFD",
+   "#AADDF4",
+   "#0598F8",
+   "#D8D8D8",
+   "#47B2E5"
+  ],
+  "video": true
+ },
+ "lele-zhang": {
+  "page": "https://designeer.xyz/portfolios/lele-zhang",
+  "category": "Design",
+  "palette": [
+   "#FAFAFA",
+   "#D9D9E4",
+   "#B5B7CB",
+   "#A97557",
+   "#C6AD95"
+  ],
+  "video": true
+ },
+ "david-pukha": {
+  "page": "https://designeer.xyz/portfolios/david-pukha",
+  "category": "Design Engineering",
+  "palette": [
+   "#FBFAF9",
+   "#D7D7E5"
+  ],
+  "video": true
+ },
+ "mannan-kochar": {
+  "page": "https://designeer.xyz/portfolios/mannan-kochar",
+  "category": "Creative Development",
+  "palette": [
+   "#0D0D0D",
+   "#D4B400",
+   "#B20E00",
+   "#0115B2",
+   "#01B20B"
+  ]
+ },
+ "milan-seitler": {
+  "page": "https://designeer.xyz/portfolios/milan-seitler",
+  "category": "Design",
+  "palette": [
+   "#0A0A0A",
+   "#373737",
+   "#666666",
+   "#878787",
+   "#A7A7A7"
+  ]
+ },
+ "atishay-tuli": {
+  "page": "https://designeer.xyz/portfolios/atishay-tuli",
+  "category": "",
+  "palette": [
+   "#F7F5F4",
+   "#D9D7D7",
+   "#5A76FC",
+   "#BABABA",
+   "#99A9F9"
+  ]
+ },
+ "arun-kumaar-sreenivasan": {
+  "page": "https://designeer.xyz/portfolios/arun-kumaar-sreenivasan",
+  "category": "Design Engineering",
+  "palette": []
+ },
+ "josh-puckett": {
+  "page": "https://designeer.xyz/portfolios/josh-puckett",
+  "category": "Founders & Makers",
+  "palette": [
+   "#FAFAFA",
+   "#DBDBDB"
+  ],
+  "video": true
+ },
+ "bikash-sahu": {
+  "page": "https://designeer.xyz/portfolios/bikash-sahu",
+  "category": "Design Engineering",
+  "palette": [
+   "#F7F7F7",
+   "#D9DAD9",
+   "#B7BAB9",
+   "#EAA7D6",
+   "#8E908F"
+  ]
+ },
+ "aditya-ojha": {
+  "page": "https://designeer.xyz/portfolios/aditya-ojha",
+  "category": "Founders & Makers",
+  "palette": [
+   "#FFFFFE",
+   "#BAB5A7",
+   "#D8D4C6",
+   "#8A8579",
+   "#1639AA"
+  ],
+  "video": true
+ },
+ "maxim-bortnikov": {
+  "page": "https://designeer.xyz/portfolios/maxim-bortnikov",
+  "category": "",
+  "palette": []
+ },
+ "kalypso": {
+  "page": "https://designeer.xyz/portfolios/kalypso",
+  "category": "",
+  "palette": [
+   "#272727",
+   "#484848",
+   "#676767",
+   "#878787",
+   "#A6A6A6"
+  ]
+ },
+ "hal-lee": {
+  "page": "https://designeer.xyz/portfolios/hal-lee",
+  "category": "",
+  "palette": []
+ },
+ "krutik-raut": {
+  "page": "https://designeer.xyz/portfolios/krutik-raut",
+  "category": "",
+  "palette": [
+   "#F9F9FA",
+   "#C9C5FC",
+   "#948BFD",
+   "#6D62FF",
+   "#ABE3C2"
+  ]
+ },
+ "long-wang": {
+  "page": "https://designeer.xyz/portfolios/long-wang",
+  "category": "Founders & Makers",
+  "palette": [
+   "#64685D",
+   "#878D86",
+   "#ABB1AB"
+  ]
+ },
+ "achille-ernoult": {
+  "page": "https://designeer.xyz/portfolios/soyakil",
+  "category": "Creative Development",
+  "palette": [
+   "#0F0F0F",
+   "#2B4805",
+   "#3684F7",
+   "#598701",
+   "#88B8F7"
+  ]
+ },
+ "design-and-signal": {
+  "page": "https://designeer.xyz/portfolios/design-signal",
+  "category": "",
+  "palette": [
+   "#13110D",
+   "#45433C",
+   "#6D6A62",
+   "#482315",
+   "#78321C"
+  ]
+ },
+ "dominik-martin": {
+  "page": "https://designeer.xyz/portfolios/dominik-martin",
+  "category": "Design",
+  "palette": [
+   "#FEFEFE",
+   "#060706",
+   "#252727",
+   "#687AA4",
+   "#BBBBBB"
+  ],
+  "video": true
+ },
+ "gunnar-gray": {
+  "page": "https://designeer.xyz/portfolios/gunnar-gray",
+  "category": "Design",
+  "palette": [
+   "#040404",
+   "#FEFEFE",
+   "#C8C8C8",
+   "#242424",
+   "#656565"
+  ],
+  "video": true
+ },
+ "aditya-sur": {
+  "page": "https://designeer.xyz/portfolios/aditya-sur",
+  "category": "Design Engineering",
+  "palette": [
+   "#FCFCFB",
+   "#171717",
+   "#525285",
+   "#C5C4C5",
+   "#7B7B7B"
+  ],
+  "video": true
+ },
+ "ozzyx": {
+  "page": "https://designeer.xyz/portfolios/ozzy",
+  "category": "Design Engineering",
+  "palette": [
+   "#FCFCFA",
+   "#D8D8D7",
+   "#D6CC9D",
+   "#A6B5CC",
+   "#5A626D"
+  ],
+  "video": true
+ },
+ "naved-alam": {
+  "page": "https://designeer.xyz/portfolios/naved-alam",
+  "category": "Design Engineering",
+  "palette": [
+   "#FEFEFE",
+   "#D8D8D8",
+   "#B8B8B8",
+   "#9C9C9C"
+  ]
+ },
+ "tanmay-makode": {
+  "page": "https://designeer.xyz/portfolios/tanmay-makode",
+  "category": "Design",
+  "palette": [
+   "#F8F8F8",
+   "#B7B6B5",
+   "#121312",
+   "#D8D8D8",
+   "#5BB7D1"
+  ],
+  "video": true
+ },
+ "dan-hollick": {
+  "page": "https://designeer.xyz/portfolios/dan-hollick",
+  "category": "Design Engineering",
+  "palette": [
+   "#73BDC0",
+   "#DAA989",
+   "#3A1B0E",
+   "#BA8B6D",
+   "#5F8C8B"
+  ],
+  "video": true
+ },
+ "iteration-design": {
+  "page": "https://designeer.xyz/portfolios/iteration",
+  "category": "Studios",
+  "palette": [
+   "#FFFFFF",
+   "#DBDBDB",
+   "#B7B7B7",
+   "#858484",
+   "#464646"
+  ],
+  "video": true
+ },
+ "timothy-maarv": {
+  "page": "https://designeer.xyz/portfolios/timothy-maarv",
+  "category": "Design",
+  "palette": [
+   "#0A0A0A",
+   "#272727",
+   "#FCFCFC",
+   "#555758",
+   "#979998"
+  ],
+  "video": true
+ },
+ "jackson-barnes": {
+  "page": "https://designeer.xyz/portfolios/jackson-barnes",
+  "category": "Design Engineering",
+  "palette": [
+   "#F2F2F2",
+   "#A7A8A8",
+   "#C8C9C8",
+   "#888888",
+   "#686868"
+  ]
+ },
+ "garvit-singla": {
+  "page": "https://designeer.xyz/portfolios/garvit-singla",
+  "category": "Creative Development",
+  "palette": []
+ },
+ "shai-krishna": {
+  "page": "https://designeer.xyz/portfolios/shai-krishna",
+  "category": "Design Engineering",
+  "palette": [
+   "#B9B9B7",
+   "#080907",
+   "#6A6965",
+   "#898886",
+   "#282825"
+  ]
+ },
+ "ali-andrei-tanting": {
+  "page": "https://designeer.xyz/portfolios/orca-web-portfolio",
+  "category": "Design",
+  "palette": []
+ },
+ "utsav-gupta": {
+  "page": "https://designeer.xyz/portfolios/utsav-gupta",
+  "category": "Development",
+  "palette": [
+   "#0A0A0A",
+   "#383838",
+   "#565656",
+   "#878786",
+   "#B6BAB3"
+  ],
+  "video": true
+ },
+ "rion-dev": {
+  "page": "https://designeer.xyz/portfolios/rion",
+  "category": "Design Engineering",
+  "palette": [
+   "#0A0A0A",
+   "#F9F9F9",
+   "#272727",
+   "#575757",
+   "#A9A9A9"
+  ],
+  "video": true
+ },
+ "james-clements": {
+  "page": "https://designeer.xyz/portfolios/james-clements",
+  "category": "Design Engineering",
+  "palette": [
+   "#FBFBFB",
+   "#33A66D",
+   "#D7D7D7",
+   "#B8B6B5",
+   "#967D69"
+  ],
+  "video": true
+ },
+ "dhrubaraj-pati": {
+  "page": "https://designeer.xyz/portfolios/dhrubaraj-pati",
+  "category": "Design",
+  "palette": [
+   "#0A0A0A",
+   "#97989B",
+   "#757777",
+   "#353536",
+   "#B8B7B3"
+  ]
+ },
+ "akash-bhadange": {
+  "page": "https://designeer.xyz/portfolios/akash-bhadange",
+  "category": "Design",
+  "palette": [
+   "#F4F5F0",
+   "#B4C8D8"
+  ],
+  "video": true
+ },
+ "pranathi-peri": {
+  "page": "https://designeer.xyz/portfolios/pranathi-peri",
+  "category": "Design",
+  "palette": [
+   "#4333B7",
+   "#6457C3",
+   "#FDFDFD",
+   "#9E95DA",
+   "#2A286D"
+  ],
+  "video": true
+ },
+ "anthony-fu": {
+  "page": "https://designeer.xyz/portfolios/anthony-fu",
+  "category": "Development",
+  "palette": [
+   "#FEFEFE",
+   "#DBDDDD",
+   "#B9B9B9"
+  ],
+  "video": true
+ },
+ "wojtek-witkowski": {
+  "page": "https://designeer.xyz/portfolios/wojtek-witkowski",
+  "category": "Development",
+  "palette": [
+   "#010101",
+   "#272727",
+   "#056846",
+   "#BBBBBB",
+   "#0B8C65"
+  ],
+  "video": true
+ },
+ "samuel-yeboah-asi": {
+  "page": "https://designeer.xyz/portfolios/samuel-yeboah-asi",
+  "category": "Design Engineering",
+  "palette": [
+   "#D5D9E1",
+   "#F7F8F9",
+   "#85868A",
+   "#A5A6A8",
+   "#292929"
+  ]
+ },
+ "saurabh-sharma": {
+  "page": "https://designeer.xyz/portfolios/saurabh-sharma",
+  "category": "Design Engineering",
+  "palette": [
+   "#FEFEFE",
+   "#D8D8D8",
+   "#A6E6B5",
+   "#9A9796",
+   "#4C4C4C"
+  ],
+  "video": true
+ },
+ "zaid-mukaddam": {
+  "page": "https://designeer.xyz/portfolios/zaid-mukaddam",
+  "category": "Development",
+  "palette": [
+   "#FBFBFB",
+   "#DADBD9"
+  ],
+  "video": true
+ },
+ "noman-qureshi": {
+  "page": "https://designeer.xyz/portfolios/noman-qureshi",
+  "category": "Development",
+  "palette": [
+   "#0E0C0B",
+   "#494847",
+   "#6A6866"
+  ]
+ },
+ "mery-kaftar": {
+  "page": "https://designeer.xyz/portfolios/mery-kaftar",
+  "category": "Design Engineering",
+  "palette": [
+   "#FCFBFC",
+   "#DCDCDD"
+  ],
+  "video": true
+ },
+ "shu-ding": {
+  "page": "https://designeer.xyz/portfolios/shu-ding",
+  "category": "Design Engineering",
+  "palette": [
+   "#FCFCFC"
+  ],
+  "video": true
+ },
+ "hardik-malviya": {
+  "page": "https://designeer.xyz/portfolios/hardik",
+  "category": "Design",
+  "palette": [],
+  "video": true
+ },
+ "system-studio": {
+  "page": "https://designeer.xyz/portfolios/daryl-ginn",
+  "category": "Founders & Makers",
+  "palette": [
+   "#FFFFFF",
+   "#E0DFDF"
+  ],
+  "video": true
+ },
+ "evil-rabbit": {
+  "page": "https://designeer.xyz/portfolios/evil-rabbit",
+  "category": "Design",
+  "palette": [
+   "#010101",
+   "#F8F9FB",
+   "#585859",
+   "#252525",
+   "#989898"
+  ],
+  "video": true
+ },
+ "kaiyu-hsu": {
+  "page": "https://designeer.xyz/portfolios/kaiyu-hsu",
+  "category": "Design Engineering",
+  "palette": []
+ },
+ "soumyadeep-dey": {
+  "page": "https://designeer.xyz/portfolios/soumyadeep-dey",
+  "category": "Design Engineering",
+  "palette": []
+ },
+ "paras-codes": {
+  "page": "https://designeer.xyz/portfolios/paras",
+  "category": "Development",
+  "palette": [
+   "#0A0A0C",
+   "#262629",
+   "#69696A",
+   "#454547",
+   "#A7664B"
+  ],
+  "video": true
+ },
+ "ishika-jagatramka": {
+  "page": "https://designeer.xyz/portfolios/ishika-jagatramka",
+  "category": "Design Engineering",
+  "palette": [
+   "#E9E4DB",
+   "#FEFEFE",
+   "#E3E6A6",
+   "#B6B7B6",
+   "#493728"
+  ]
+ },
+ "danilo-woznica": {
+  "page": "https://designeer.xyz/portfolios/danilo-woznica",
+  "category": "Design Engineering",
+  "palette": [
+   "#FEFEFE",
+   "#DBDBDB"
+  ],
+  "video": true
+ },
+ "saurabh-beui": {
+  "page": "https://designeer.xyz/portfolios/saurabh",
+  "category": "Design Engineering",
+  "palette": [
+   "#FDFDFD",
+   "#D8D8D9",
+   "#BBBCBB",
+   "#DBA891",
+   "#B38874"
+  ],
+  "video": true
+ },
+ "nabin-khair": {
+  "page": "https://designeer.xyz/portfolios/nabin-khair",
+  "category": "Design Engineering",
+  "palette": [
+   "#040404",
+   "#272726",
+   "#474746",
+   "#686767",
+   "#A8A8A8"
+  ]
+ },
+ "vikas-acharya": {
+  "page": "https://designeer.xyz/portfolios/vikas-acharya",
+  "category": "",
+  "palette": [
+   "#F9F9F9",
+   "#D7D7D7",
+   "#B8B8B8",
+   "#032846",
+   "#0A131B"
+  ]
+ },
+ "harsh-chalwadi": {
+  "page": "https://designeer.xyz/portfolios/harsh-chalwadi",
+  "category": "Development",
+  "palette": [
+   "#0A0A0A",
+   "#272727",
+   "#696765",
+   "#484847",
+   "#DAD6CA"
+  ]
+ },
+ "lohit-kumar": {
+  "page": "https://designeer.xyz/portfolios/lohit-kumar",
+  "category": "",
+  "palette": [
+   "#010101",
+   "#262728",
+   "#454545",
+   "#B73822",
+   "#B5B5B5"
+  ]
+ },
+ "anurag-sharma": {
+  "page": "https://designeer.xyz/portfolios/anurag",
+  "category": "Development",
+  "palette": [
+   "#242424",
+   "#464646",
+   "#C7AD99",
+   "#8A8A8A",
+   "#666765"
+  ]
+ },
+ "kartik-labhshetwar": {
+  "page": "https://designeer.xyz/portfolios/kartik-labhshetwar",
+  "category": "Development",
+  "palette": [
+   "#FBFBF9",
+   "#BCECC4",
+   "#D0C8E0"
+  ],
+  "video": true
+ },
+ "mariana-castilho": {
+  "page": "https://designeer.xyz/portfolios/mariana-castilho",
+  "category": "Design Engineering",
+  "palette": [
+   "#F6EEE3",
+   "#F96B65",
+   "#F7ACA3",
+   "#FB312E",
+   "#373431"
+  ],
+  "video": true
+ },
+ "utkarsh-pandey": {
+  "page": "https://designeer.xyz/portfolios/utkarsh-pandey",
+  "category": "Development",
+  "palette": [
+   "#F9F8F4",
+   "#469CFE",
+   "#77BAFE",
+   "#A8D4FC"
+  ]
+ },
+ "aiden-bai": {
+  "page": "https://designeer.xyz/portfolios/aiden-bai",
+  "category": "Founders & Makers",
+  "palette": [
+   "#FFFFFF",
+   "#DEDEDD",
+   "#878477",
+   "#B7B698",
+   "#FDA2AB"
+  ],
+  "video": true
+ },
+ "sahilcodex": {
+  "page": "https://designeer.xyz/portfolios/sahil-singh",
+  "category": "Design Engineering",
+  "palette": [
+   "#060606",
+   "#272626",
+   "#444343",
+   "#C3A7A9",
+   "#67666A"
+  ],
+  "video": true
+ },
+ "diar-muradi": {
+  "page": "https://designeer.xyz/portfolios/diar-muradi",
+  "category": "Design Engineering",
+  "palette": [
+   "#FCFCFC",
+   "#D9D9DB",
+   "#8499FF",
+   "#B8C6FF",
+   "#4768FF"
+  ],
+  "video": true
+ },
+ "chanhdai-components": {
+  "page": "https://designeer.xyz/portfolios/ch-nh-i",
+  "category": "Design Engineering",
+  "palette": [
+   "#FDFDFD",
+   "#D8D8DA",
+   "#7BC7E6",
+   "#AADDF6"
+  ],
+  "video": true
+ },
+ "rohit-singh-rawat": {
+  "page": "https://designeer.xyz/portfolios/rohit-singh-rawat",
+  "category": "Development",
+  "palette": [
+   "#121212",
+   "#343434",
+   "#0E4E74",
+   "#416EA3"
+  ],
+  "video": true
+ },
+ "swami-malode": {
+  "page": "https://designeer.xyz/portfolios/swami-malode",
+  "category": "Design Engineering",
+  "palette": [
+   "#09090B",
+   "#383839",
+   "#888889",
+   "#666668",
+   "#A5A5A6"
+  ],
+  "video": true
+ },
+ "ratnesh-chipre": {
+  "page": "https://designeer.xyz/portfolios/ratnesh-chipre",
+  "category": "Design Engineering",
+  "palette": [
+   "#FEFEFE",
+   "#040404",
+   "#474747",
+   "#C9C8C9",
+   "#232323"
+  ],
+  "video": true
+ },
+ "divyansh-swarnkar": {
+  "page": "https://designeer.xyz/portfolios/divyansh-swarnkar",
+  "category": "Development",
+  "palette": [
+   "#0B0B0B",
+   "#282728",
+   "#454545",
+   "#1B3D67"
+  ],
+  "video": true
+ },
+ "karaan": {
+  "page": "https://designeer.xyz/portfolios/karaan",
+  "category": "Design Engineering",
+  "palette": [
+   "#FEFEFE",
+   "#DDDDDD",
+   "#9D926F"
+  ],
+  "video": true
+ },
+ "atharva-mhaske": {
+  "page": "https://designeer.xyz/portfolios/atharva-mhaske",
+  "category": "Development",
+  "palette": [
+   "#10162C",
+   "#3B4463",
+   "#1A4987",
+   "#606473"
+  ],
+  "video": true
+ },
+ "manish-kumar-manixh": {
+  "page": "https://designeer.xyz/portfolios/manish-kumar",
+  "category": "Development",
+  "palette": [
+   "#0B0D0E",
+   "#363738",
+   "#545455",
+   "#8C8D8D",
+   "#333876"
+  ],
+  "video": true
+ },
+ "connor-hepburn": {
+  "page": "https://designeer.xyz/portfolios/connor-hepburn",
+  "category": "Development",
+  "palette": [
+   "#F9F9F7",
+   "#DCDCD9",
+   "#99B8F9",
+   "#0559FD",
+   "#3C97FB"
+  ],
+  "video": true
+ },
+ "vooks": {
+  "page": "https://designeer.xyz/portfolios/vooks",
+  "category": "Creative Development",
+  "palette": [
+   "#1A1815",
+   "#5B544A",
+   "#7A736A",
+   "#ADA9A4",
+   "#225643"
+  ]
+ },
+ "glyph-co": {
+  "page": "https://designeer.xyz/portfolios/glyph-co",
+  "category": "Studios",
+  "palette": [
+   "#060606",
+   "#272727",
+   "#686868",
+   "#FBFBFB",
+   "#C4C6C7"
+  ]
+ },
+ "zara-okafor": {
+  "page": "https://designeer.xyz/portfolios/zara-okafor",
+  "category": "Design",
+  "palette": [
+   "#261C1A",
+   "#583625",
+   "#986747",
+   "#585554",
+   "#787576"
+  ]
+ },
+ "lusmu-ai": {
+  "page": "https://designeer.xyz/portfolios/lusmu-template",
+  "category": "",
+  "palette": []
+ }
+}

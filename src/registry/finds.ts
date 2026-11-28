@@ -2006,4 +2006,14 @@ export const finds: Resource[] = [
     addedAt: "2026-11-28",
     shotFrom: "https://cdn.designeer.xyz/finds/davidhaz-2107108417806684553/1-poster.webp",
   },
+  {
+    id: "xchyler-aikido-diagram-campaign",
+    name: "Aikido diagram campaign by XchylerDrenth",
+    url: "https://x.com/xchylerdrenth/status/2111127771649016253",
+    kind: "finds",
+    goodFor: "Branding: Color-coded terminal blocks and connector lines sit behind large cream copy panels, making network diagrams carry the visual identity across campaign layouts. By @xchylerdrenth",
+    cost: "Free",
+    free: true,
+    addedAt: "2026-11-28",
+  },
 ];

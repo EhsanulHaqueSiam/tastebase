@@ -10,6 +10,7 @@ import { CopyButton } from "../../components/fx.tsx";
 import { GithubMark } from "../../components/GithubMark.tsx";
 import { LibMark } from "../../components/LibMark.tsx";
 import Detail from "../../components/Detail.astro";
+import FromDesigneer from "../../components/FromDesigneer.astro";
 import Base from "../../layouts/Base.astro";
 import { altSlug, hasAlternatives } from "../../lib/articles.ts";
 import { libraryListing, relatedTo } from "../../lib/listings.ts";
@@ -59,6 +60,7 @@ const SHOWN_LOOKS = 12; // shadcn/ui is picked by most looks; the rest are a cou
       <FolderPicker client:idle id={lib.id} name={lib.name} label />
       <PickToggle client:idle id={lib.id} />
     </div>
+    <FromDesigneer slot="meta" id={lib.id} />
     <div class="max-w-[640px]">
       {
         demos[lib.id] && (

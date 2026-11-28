@@ -1,6 +1,7 @@
 ---
 // A resource's page (/fonts/fontshare): the shared detail layout with its cost line and, when it has one, its MCP.
 import Detail from "../../components/Detail.astro";
+import FromDesigneer from "../../components/FromDesigneer.astro";
 import { PickToggle } from "../../components/EditorPick.tsx";
 import Base from "../../layouts/Base.astro";
 import { categories } from "../../lib/categories.ts";
@@ -20,5 +21,6 @@ const label = categories.find((c) => c.slug === category)!.label;
       <p>{r.cost}{r.mcp && <> · <a href={r.mcp.url} target="_blank" rel="noopener" class="text-fg2 underline decoration-fg3 underline-offset-4 hover:decoration-fg hover:text-fg">{r.mcp.name}</a>{r.mcp.needsPaidPlan ? " (paid plan)" : " (free)"}</>}</p>
       <PickToggle client:idle id={r.id} />
     </div>
+    <FromDesigneer slot="meta" id={r.id} caveat={r.caveat} />
   </Detail>
 </Base>

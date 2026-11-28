@@ -56,9 +56,10 @@ export const formatResources = (kind: ResourceKind, hide?: ReadonlySet<string>, 
   // shortcut: substring match with a plural trimmed, no synonyms; move to the engine's stems if agents miss entries.
   const terms = (query?.toLowerCase().match(/[a-z0-9]{2,}/g) ?? []).map((t) => (t.length > 3 ? t.replace(/s$/, "") : t));
   const score = (r: Resource) => terms.filter((t) => `${r.name} ${r.goodFor} ${r.cost}`.toLowerCase().includes(t)).length;
-  const inKind = resources.filter((r) => r.kind === kind && !hide?.has(r.id));
+  // A site found down is never offered to an agent; the site still lists it, greyed out.
+  const inKind = resources.filter((r) => r.kind === kind && !r.down && !hide?.has(r.id));
   const all = terms.length ? inKind.map((r) => [r, score(r)] as const).filter(([, n]) => n).sort((a, b) => b[1] - a[1]).map(([r]) => r) : inKind;
-  const lines = all.slice(0, RESOURCES_SHOWN).map((r) => `${r.name} ${r.url} | ${r.goodFor} | ${r.cost}${r.mcp ? ` | ${r.mcp.name}${r.mcp.needsPaidPlan ? " (paid plan)" : ""}: ${r.mcp.url}` : ""}`);
+  const lines = all.slice(0, RESOURCES_SHOWN).map((r) => `${r.name} ${r.url} | ${r.goodFor} | ${r.cost}${r.caveat ? ` | careful: ${r.caveat}` : ""}${r.mcp ? ` | ${r.mcp.name}${r.mcp.needsPaidPlan ? " (paid plan)" : ""}: ${r.mcp.url}` : ""}`);
   let shown = 1;
   for (let len = lines[0]?.length ?? 0; shown < lines.length && (len += lines[shown]!.length + 1) <= RESOURCES_CHARS; ) shown++;
   const more = all.length - shown;

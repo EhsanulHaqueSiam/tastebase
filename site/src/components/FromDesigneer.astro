@@ -1,0 +1,26 @@
+---
+// Under a detail page's description: what to be careful about, the design's palette and where designeer.xyz lists it,
+// each only when there is one.
+import { fromDesigneer } from "../lib/listings.ts";
+import Swatches from "./Swatches.tsx";
+
+interface Props {
+  id: string;
+  caveat?: string;
+}
+const { id, caveat } = Astro.props;
+const d = fromDesigneer(id);
+---
+
+{caveat && <p class="mt-3 max-w-[62ch] text-[14px] leading-[1.45] text-amber">Careful: {caveat.replace(/^\w/, (c) => c.toLowerCase())}</p>}
+{
+  d && (
+    <div class="mt-4 flex flex-col gap-2.5">
+      {d.palette.length > 0 && <Swatches client:visible colors={d.palette} />}
+      <p class="flex flex-wrap items-center gap-2 text-[13px] text-fg3">
+        {d.category && <span class="rounded-md px-1.5 py-0.5 text-fg2 shadow-[inset_0_0_0_1px_var(--color-line2)]">{d.category}</span>}
+        <a href={d.page} target="_blank" rel="noopener" class="underline decoration-fg3 underline-offset-4 hover:text-fg hover:decoration-fg">Listed on designeer</a>
+      </p>
+    </div>
+  )
+}

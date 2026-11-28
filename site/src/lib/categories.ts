@@ -38,4 +38,10 @@ export type Listing = {
   addedAt?: string;
   /** Category slug, or "browse" for a library outside every category. */
   category: string;
+  /** Up to five hex colours of its design (designeer's palette), shown as a strip under the screenshot. */
+  palette?: string[];
+  /** A short muted preview clip (/videos/<id>.mp4) that plays while the card is hovered. */
+  video?: string;
+  /** ISO date the site was found down: the card greys out and says so. */
+  down?: string;
 };
